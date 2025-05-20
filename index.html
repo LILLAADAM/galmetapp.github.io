@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Galmet - Coming Soon</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
     body {
       margin: 0;
       padding: 0;
@@ -16,55 +19,54 @@
     }
     .overlay {
       background-color: rgba(0, 0, 0, 0.6);
-      padding: 80px 20px 30px;
+      padding: 100px 20px;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      align-items: center;
       justify-content: center;
     }
     h1 {
-      font-size: 42px;
-      margin-bottom: 10px;
-    }
-    p {
-      margin-bottom: 30px;
-      font-size: 18px;
+      font-size: 48px;
+      margin-bottom: 20px;
     }
     form {
-      margin: 0 auto 20px;
+      width: 100%;
       max-width: 400px;
-      width: 90%;
+      margin: 30px auto;
     }
     input, textarea {
       width: 100%;
-      padding: 12px;
+      padding: 10px;
       margin: 8px 0;
       border: none;
-      border-radius: 6px;
+      border-radius: 5px;
       font-size: 16px;
     }
     button {
       background-color: #00c6ff;
       color: white;
-      padding: 12px;
-      width: 100%;
+      padding: 10px;
       border: none;
-      border-radius: 6px;
+      border-radius: 5px;
       cursor: pointer;
       font-size: 16px;
+      width: 100%;
     }
     .footer {
+      margin-top: 50px;
       font-size: 14px;
       color: #ccc;
-      max-width: 90%;
-      margin: 20px auto 0;
+      padding: 0 10px;
     }
-    @media (max-width: 600px) {
+
+    /* Mobile Optimization */
+    @media (max-width: 480px) {
       h1 {
         font-size: 32px;
       }
-      p {
-        font-size: 16px;
+      .overlay {
+        padding: 60px 15px;
       }
     }
   </style>
@@ -74,7 +76,7 @@
     <h1>Galmet is Coming Soon</h1>
     <p>Our application is in development. Stay tuned!</p>
 
-    <form action="https://formsubmit.co/jsrajpooty@gmail.com" method="POST">
+    <form action="https://formsubmit.co/jsrajpootyt@gmail.com" method="POST">
   <input type="email" name="email" placeholder="Your Email" required />
   <textarea name="message" rows="4" placeholder="Your Message"></textarea>
   <button type="submit">Send</button>
