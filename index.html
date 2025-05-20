@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Galmet - Coming Soon</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
     body {
       margin: 0;
       padding: 0;
@@ -18,14 +21,19 @@
       background-color: rgba(0, 0, 0, 0.6);
       padding: 100px 20px;
       min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
     h1 {
       font-size: 48px;
       margin-bottom: 20px;
     }
     form {
-      margin: 30px auto;
+      width: 100%;
       max-width: 400px;
+      margin: 30px auto;
     }
     input, textarea {
       width: 100%;
@@ -33,19 +41,33 @@
       margin: 8px 0;
       border: none;
       border-radius: 5px;
+      font-size: 16px;
     }
     button {
       background-color: #00c6ff;
       color: white;
-      padding: 10px 20px;
+      padding: 10px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      font-size: 16px;
+      width: 100%;
     }
     .footer {
       margin-top: 50px;
       font-size: 14px;
       color: #ccc;
+      padding: 0 10px;
+    }
+
+    /* Mobile Optimization */
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 32px;
+      }
+      .overlay {
+        padding: 60px 15px;
+      }
     }
   </style>
 </head>
@@ -54,7 +76,7 @@
     <h1>Galmet is Coming Soon</h1>
     <p>Our application is in development. Stay tuned!</p>
 
-    <form action="mailto:your@email.com" method="POST" enctype="text/plain">
+    <form action="mailto:jsrajpooty@gmail.com" method="POST" enctype="text/plain">
       <input type="email" name="email" placeholder="Your Email" required />
       <textarea name="message" rows="4" placeholder="Your Message"></textarea>
       <button type="submit">Send</button>
