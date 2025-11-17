@@ -1,94 +1,204 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Galmet - Coming Soon</title>
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-      color: white;
-      text-align: center;
-      background: url('https://wallpapercave.com/wp/wp5128415.jpg') no-repeat center center fixed;
-      background-size: cover;
-    }
-    .overlay {
-      background-color: rgba(0, 0, 0, 0.6);
-      padding: 100px 20px;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-    h1 {
-      font-size: 48px;
-      margin-bottom: 20px;
-    }
-    form {
-      width: 100%;
-      max-width: 400px;
-      margin: 30px auto;
-    }
-    input, textarea {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-    }
-    button {
-      background-color: #00c6ff;
-      color: white;
-      padding: 10px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
-      width: 100%;
-    }
-    .footer {
-      margin-top: 50px;
-      font-size: 14px;
-      color: #ccc;
-      padding: 0 10px;
-    }
+ <meta charset="UTF-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ <title>Galmet - Coming Soon</title>
 
-    /* Mobile Optimization */
-    @media (max-width: 480px) {
-      h1 {
-        font-size: 32px;
-      }
-      .overlay {
-        padding: 60px 15px;
-      }
-    }
-  </style>
+ <style>
+ * { box-sizing: border-box; }
+ body {
+ margin: 0;
+ padding: 0;
+ font-family: Arial, sans-serif;
+ color: white;
+ text-align: center;
+ background: url('https://wallpapercave.com/wp/wp5128415.jpg') no-repeat center center fixed;
+ background-size: cover;
+ }
+ .overlay {
+ background-color: rgba(0, 0, 0, 0.6);
+ padding: 100px 20px;
+ min-height: 100vh;
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ justify-content: center;
+ }
+ h1 { font-size: 48px; margin-bottom: 20px; }
+ form {
+ width: 100%;
+ max-width: 400px;
+ margin: 30px auto;
+ }
+ input, textarea {
+ width: 100%;
+ padding: 10px;
+ margin: 8px 0;
+ border: none;
+ border-radius: 5px;
+ font-size: 16px;
+ }
+ button {
+ background-color: #00c6ff;
+ color: white;
+ padding: 10px;
+ border: none;
+ border-radius: 5px;
+ cursor: pointer;
+ font-size: 16px;
+ width: 100%;
+ margin-top: 10px;
+ }
+ .footer {
+ margin-top: 50px;
+ font-size: 14px;
+ color: #ccc;
+ padding: 0 10px;
+ }
+
+ /* Game Section */
+ #game-section {
+ margin-top: 40px;
+ background: rgba(255, 255, 255, 0.1);
+ padding: 20px;
+ border-radius: 10px;
+ width: 100%;
+ max-width: 400px;
+ display: none;
+ }
+
+ #card {
+ font-size: 80px;
+ margin: 20px 0;
+ transition: transform 0.6s;
+ }
+
+ .hidden { display: none; }
+
+ @media (max-width: 480px) {
+ h1 { font-size: 32px; }
+ .overlay { padding: 60px 15px; }
+ }
+ </style>
 </head>
-<body>
-  <div class="overlay">
-    <h1>Galmet is Coming Soon</h1>
-    <p>Our application is in development. Stay tuned!</p>
 
-    <form action="https://api.web3forms.com/submit" method="POST">
+<body>
+ <div class="overlay">
+ <h1>Galmet is Coming Soon</h1>
+ <p>Our application is in development. Stay tuned!</p>
+
+ <!-- Contact Form -->
+ <form action="https://api.web3forms.com/submit" method="POST">
  <input type="hidden" name="access_key" value="7adbde9a-5a04-43e7-9fac-b912fa8ad21a">
 
  <input type="email" name="email" placeholder="Your Email" required />
- 
  <textarea name="message" rows="4" placeholder="Your Message" required></textarea>
 
  <button type="submit">Send</button>
-</form>
+ </form>
 
-    <div class="footer">
-      Galmet Application is Under Development. For project partnership or investment, contact us.
-    </div>
-  </div>
+ <!-- Play Demo Game Button -->
+ <button onclick="showGame()"> Play Demo Game</button>
+
+ <!-- Game Section -->
+ <div id="game-section">
+
+ <h2>Coin Flip Demo Game</h2>
+
+ <p>Coins: <span id="coins">0</span></p>
+
+ <input id="bet" type="number" placeholder="Enter Bet" />
+ <button id="play-btn">Flip Coin</button>
+
+ <div id="card" class="hidden">?</div>
+
+ <p id="result"></p>
+
+ <button id="buy-btn">Buy 50 Coins (Demo)</button>
+
+ <div id="store" class="hidden">
+ <p>Demo Store — adds 50 coins</p>
+ <button id="close-store">Close</button>
+ </div>
+
+ </div>
+
+ <div class="footer">
+ Galmet Application is Under Development. For project partnership or investment, contact us.
+ </div>
+ </div>
+
+ <script>
+ function showGame() {
+ document.getElementById('game-section').style.display = "block";
+ window.scrollTo(0, document.body.scrollHeight);
+ }
+
+ // ---------- State ----------
+ let coins = 100;
+ const coinsEl = document.getElementById('coins');
+ const betInput = document.getElementById('bet');
+ const playBtn = document.getElementById('play-btn');
+ const resultEl = document.getElementById('result');
+ const cardEl = document.getElementById('card');
+ const buyBtn = document.getElementById('buy-btn');
+ const storeEl = document.getElementById('store');
+ const closeStoreBtn = document.getElementById('close-store');
+
+ function updateCoins() {
+ coinsEl.textContent = coins;
+ localStorage.setItem('coinFlipCoins', coins);
+ }
+
+ if (localStorage.getItem('coinFlipCoins')) {
+ coins = parseInt(localStorage.getItem('coinFlipCoins'), 10);
+ }
+ updateCoins();
+
+ // Gameplay
+ playBtn.addEventListener('click', () => {
+ const bet = parseInt(betInput.value, 10);
+ if (isNaN(bet) || bet <= 0) return alert('Enter a valid bet');
+ if (bet > coins) return alert('Not enough coins!');
+
+ coins -= bet;
+ updateCoins();
+
+ const win = Math.random() < 0.5;
+
+ cardEl.classList.remove('hidden');
+ cardEl.textContent = win ? ' ' : ' ';
+ cardEl.style.transform = 'rotateY(360deg)';
+
+ setTimeout(() => {
+ const payout = win ? bet * 2 : 0;
+ coins += payout;
+ updateCoins();
+
+ resultEl.textContent = win
+ ? `You WIN ${payout} coins! `
+ : `You lose ${bet} coins `;
+ }, 600);
+ });
+
+ cardEl.addEventListener('transitionend', () => {
+ cardEl.style.transform = '';
+ });
+
+ buyBtn.addEventListener('click', () => {
+ storeEl.classList.remove('hidden');
+ });
+
+ closeStoreBtn.addEventListener('click', () => {
+ storeEl.classList.add('hidden');
+ });
+
+ document.getElementById('buy-btn').addEventListener('click', () => {
+ coins += 50;
+ updateCoins();
+ alert('Demo: 50 coins added! (No real charge)');
+ });
+ </script>
 </body>
 </html>
