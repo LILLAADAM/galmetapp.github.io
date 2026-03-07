@@ -4,77 +4,153 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Galmet</title>
 
 <style>
 
-body{
+{
+box-sizing:border-box;
 margin:0;
-font-family:Arial, sans-serif;
-background:#050510;
-color:white;
-text-align:left;
-overflow-x:hidden;
+padding:0;
 }
 
+body{
+font-family:Arial, sans-serif;
+background:linear-gradient(180deg,#050510,#0b0b25);
+color:white;
+text-align:center;
+}
+
+/ HERO /
+
 .hero{
-padding:120px 20px;
+padding:50px 20px;
 }
 
 .hero h1{
-font-size:60px;
-margin-bottom:10px;
+font-size:34px;
+margin-bottom:8px;
 }
 
 .hero p{
 opacity:0.8;
+font-size:15px;
+}
+
+/ FLOATING PHONE /
+
+.phone{
+margin-top:30px;
+animation:float 4s ease-in-out infinite;
 }
 
 .phone img{
-width:300px;
-margin-top:40px;
-border-radius:30px;
-box-shadow:0 0 50px rgba(120,80,255,0.6);
+width:230px;
+max-width:90%;
+border-radius:32px;
+box-shadow:0 30px 90px rgba(120,80,255,0.5);
 }
+
+@keyframes float{
+0%{transform:translateY(0px)}
+50%{transform:translateY(-12px)}
+100%{transform:translateY(0px)}
+}
+
+/ SECTION /
 
 .section{
-padding:100px 20px;
+padding:50px 20px;
 }
 
-.screens img{
-width:250px;
-margin:20px;
-border-radius:25px;
-box-shadow:0 0 40px rgba(130,80,255,0.4);
+.section h2{
+font-size:22px;
+margin-bottom:10px;
 }
 
-.form-section{
-background:#12122a;
-padding:80px 20px;
+.section p{
+font-size:14px;
+opacity:0.75;
+}
+
+/ SCREEN CAROUSEL /
+
+.carousel{
+display:flex;
+overflow-x:auto;
+gap:14px;
+padding:20px;
+scroll-snap-type:x mandatory;
+}
+
+.carousel img{
+width:180px;
+border-radius:20px;
+scroll-snap-align:center;
+box-shadow:0 20px 60px rgba(120,80,255,0.3);
+}
+
+/ CONTACT /
+
+.contact{
+background:#0f0f22;
+padding:40px 20px;
+}
+
+.contact h2{
+margin-bottom:15px;
 }
 
 input, textarea{
-width:300px;
-padding:12px;
-margin:8px;
+width:100%;
+max-width:320px;
+padding:10px;
+margin:8px auto;
+display:block;
 border:none;
-border-radius:6px;
+border-radius:8px;
 }
 
 button{
+padding:10px 20px;
+border:none;
+border-radius:8px;
 background:linear-gradient(90deg,#6c4cff,#ff5ec4);
 color:white;
-padding:12px 25px;
-border:none;
-border-radius:6px;
+font-size:14px;
 cursor:pointer;
 }
 
+/ FOOTER /
+
 footer{
-padding:40px;
+padding:25px;
 opacity:0.6;
+font-size:13px;
+}
+
+/ DESKTOP */
+
+@media(min-width:768px){
+
+.hero h1{
+font-size:52px;
+}
+
+.hero p{
+font-size:18px;
+}
+
+.phone img{
+width:320px;
+}
+
+.carousel img{
+width:260px;
+}
+
 }
 
 </style>
@@ -86,7 +162,6 @@ opacity:0.6;
 <section class="hero">
 
 <h1>Galmet</h1>
-
 <p>Connect. Talk. Belong.</p>
 
 <div class="phone">
@@ -98,14 +173,15 @@ opacity:0.6;
 <section class="section">
 
 <h2>Live Voice Rooms</h2>
-
 <p>Join conversations with people around the world.</p>
 
 </section>
 
-<section class="section screens">
+<section class="section">
 
 <h2>App Experience</h2>
+
+<div class="carousel">
 
 <img src="login.webp">
 <img src="otp.webp">
@@ -114,9 +190,11 @@ opacity:0.6;
 <img src="wallet.webp">
 <img src="profile.webp">
 
+</div>
+
 </section>
 
-<section class="form-section">
+<section class="contact">
 
 <h2>Join Early Access</h2>
 
@@ -126,11 +204,9 @@ opacity:0.6;
 
 <input type="email" name="email" placeholder="Your Email" required>
 
-<textarea name="message" placeholder="Your Message"></textarea>
+<textarea name="message" rows="4" placeholder="Your Message"></textarea>
 
-<br>
-
-<button type="submit">Join Waitlist</button>
+<button type="submit">Send</button>
 
 </form>
 
@@ -138,9 +214,10 @@ opacity:0.6;
 
 <footer>
 
-Galmet Application is Under Development
+Galmet © 2026
 
 </footer>
 
 </body>
+
 </html>
