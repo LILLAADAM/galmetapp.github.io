@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 
 <meta charset="UTF-8">
@@ -12,116 +11,68 @@
 
 body{
 margin:0;
-font-family:Arial, sans-serif;
-background:#050510;
+font-family:Arial;
+background:#0b0b18;
 color:white;
 text-align:center;
-overflow-x:hidden;
 }
-
-/* Background Glow /
-
-body::before{
-content:"";
-position:fixed;
-width:600px;
-height:600px;
-background:radial-gradient(circle,#6c4cff,#ff5ec4);
-filter:blur(200px);
-top:-200px;
-left:-200px;
-opacity:0.5;
-z-index:-1;
-}
-
-/ Hero /
 
 .hero{
 padding:120px 20px;
 }
 
 .hero h1{
-font-size:64px;
+font-size:60px;
 margin-bottom:10px;
 }
 
 .hero p{
-opacity:0.7;
-font-size:20px;
-}
-
-/ Floating phone /
-
-.phone{
-margin-top:60px;
-animation:float 4s ease-in-out infinite;
+opacity:0.8;
 }
 
 .phone img{
-width:320px;
-border-radius:40px;
-box-shadow:0 40px 120px rgba(130,80,255,0.6);
+width:300px;
+margin-top:40px;
+border-radius:30px;
+box-shadow:0 0 50px rgba(120,80,255,0.6);
 }
-
-@keyframes float{
-0%{transform:translateY(0)}
-50%{transform:translateY(-20px)}
-100%{transform:translateY(0)}
-}
-
-/ Buttons /
-
-.buttons{
-margin-top:30px;
-}
-
-button{
-padding:14px 28px;
-margin:10px;
-border:none;
-border-radius:10px;
-background:linear-gradient(90deg,#6c4cff,#ff5ec4);
-color:white;
-font-size:16px;
-cursor:pointer;
-}
-
-/ Screens /
 
 .section{
 padding:100px 20px;
 }
 
 .screens img{
-width:260px;
+width:250px;
 margin:20px;
-border-radius:30px;
-box-shadow:0 20px 80px rgba(120,80,255,0.4);
-transition:0.3s;
+border-radius:25px;
+box-shadow:0 0 40px rgba(130,80,255,0.4);
 }
 
-.screens img:hover{
-transform:scale(1.05);
-}
-
-/ Contact */
-
-.contact{
-background:#0f0f1f;
+.form-section{
+background:#12122a;
 padding:80px 20px;
 }
 
-input,textarea{
+input, textarea{
 width:300px;
 padding:12px;
 margin:8px;
 border:none;
-border-radius:8px;
+border-radius:6px;
+}
+
+button{
+background:linear-gradient(90deg,#6c4cff,#ff5ec4);
+color:white;
+padding:12px 25px;
+border:none;
+border-radius:6px;
+cursor:pointer;
 }
 
 footer{
 padding:40px;
-opacity:0.5;
+opacity:0.6;
 }
 
 </style>
@@ -136,17 +87,8 @@ opacity:0.5;
 
 <p>Connect. Talk. Belong.</p>
 
-<div class="buttons">
-
-<button>Download App</button>
-<button>Join Waitlist</button>
-
-</div>
-
 <div class="phone">
-
 <img src="splash.webp">
-
 </div>
 
 </section>
@@ -172,7 +114,7 @@ opacity:0.5;
 
 </section>
 
-<section class="contact">
+<section class="form-section">
 
 <h2>Join Early Access</h2>
 
@@ -186,7 +128,7 @@ opacity:0.5;
 
 <br>
 
-<button type="submit">Submit</button>
+<button type="submit">Join Waitlist</button>
 
 </form>
 
@@ -194,10 +136,9 @@ opacity:0.5;
 
 <footer>
 
-Galmet © 2026
+Galmet Application is Under Development
 
 </footer>
 
 </body>
-
 </html>
