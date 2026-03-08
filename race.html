@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Galmet Race Demo</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#0b0f2a;
+margin:0;
+color:white;
+}
+
+.header{
+padding:15px;
+text-align:center;
+font-size:20px;
+font-weight:bold;
+}
+
+.coin{
+text-align:center;
+margin-bottom:10px;
+}
+
+.playBtn{
+display:block;
+margin:20px auto;
+background:#ff9d00;
+padding:12px 30px;
+border-radius:30px;
+border:none;
+font-size:16px;
+}
+
+.gamePanel{
+position:fixed;
+bottom:-100%;
+left:0;
+width:100%;
+height:70%;
+background:#14246a;
+border-radius:20px 20px 0 0;
+transition:0.4s;
+padding:15px;
+}
+
+.gamePanel.active{
+bottom:0;
+}
+
+.vehicles{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:10px;
+}
+
+.card{
+background:white;
+color:black;
+padding:10px;
+border-radius:10px;
+text-align:center;
+}
+
+.card img{
+width:60px;
+}
+
+.bet{
+display:flex;
+justify-content:center;
+margin-top:10px;
+}
+
+.bet button{
+font-size:20px;
+padding:5px 15px;
+}
+
+.playRace{
+background:#ff9d00;
+border:none;
+padding:10px 20px;
+border-radius:10px;
+margin-top:10px;
+}
+
+.history{
+margin-top:10px;
+background:white;
+color:black;
+padding:10px;
+border-radius:10px;
+height:120px;
+overflow:auto;
+font-size:12px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+Galmet Lucky Race
+</div>
+
+<div class="coin">
+Coins: <span id="coins">500</span>
+</div>
+
+<button class="playBtn" onclick="openGame()">Play Demo Race</button>
+
+<div class="gamePanel" id="game">
+
+<div style="text-align:right">
+<button onclick="closeGame()">Close</button>
+</div>
+
+<h3>Select Vehicle</h3>
+
+<div class="vehicles">
+
+<div class="card" onclick="pick('Monster Truck')">
+<img src="rooms.webp">
+<p>Monster Truck</p>
+</div>
+
+<div class="card" onclick="pick('ORV')">
+<img src="profile.webp">
+<p>ORV</p>
+</div>
+
+<div class="card" onclick="pick('Motorcycle')">
+<img src="voice.webp">
+<p>Motorcycle</p>
+</div>
+
+</div>
+
+<p>Selected: <span id="vehicle">None</span></p>
+
+<div class="bet">
+
+<button onclick="minus()">-</button>
+
+<div style="padding:5px 20px">
+<span id="bet">10</span>
+</div>
+
+<button onclick="plus()">+</button>
+
+</div>
+
+<button class="playRace" onclick="race()">Start Race</button>
+
+<div class="history" id="history">
+Race history appears here
+</div>
+
+</div>
+
+<script>
+
+let coins=500
+let bet=10
+let vehicle=""
+
+function openGame(){
+document.getElementById("game").classList.add("active")
+}
+
+function closeGame(){
+document.getElementById("game").classList.remove("active")
+}
+
+function pick(v){
+vehicle=v
+document.getElementById("vehicle").innerText=v
+}
+
+function plus(){
+bet+=10
+document.getElementById("bet").innerText=bet
+}
+
+function minus(){
+if(bet>10){
+bet-=10
+document.getElementById("bet").innerText=bet
+}
+}
+
+function race(){
+
+if(vehicle==""){
+alert("Pick vehicle")
+return
+}
+
+if(bet>coins){
+alert("Not enough coins")
+return
+}
+
+coins-=bet
+
+let vehicles=["Monster Truck","ORV","Motorcycle"]
+
+let winner=vehicles[Math.floor(Math.random()*vehicles.length)]
+
+let win=false
+
+if(winner==vehicle){
+coins+=bet*2
+win=true
+}
+
+document.getElementById("coins").innerText=coins
+
+let log="Bet "+bet+" on "+vehicle+" | Winner: "+winner
+
+if(win){
+log+=" | WIN"
+}else{
+log+=" | LOST"
+}
+
+let history=document.getElementById("history")
+
+history.innerHTML=log+"<br>"+history.innerHTML
+
+}
+
+</script>
+
+</body>
+</html>
