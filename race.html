@@ -15,7 +15,7 @@ color:white;
 
 .topbar{
 background:#1424a0;
-padding:10px;
+padding:12px;
 display:flex;
 justify-content:space-between;
 align-items:center;
@@ -55,22 +55,29 @@ bottom:0;
 
 .timer{
 text-align:center;
+font-size:18px;
 margin:10px;
 }
 
 .track{
-background:#333;
-height:80px;
+background:#2c2c2c;
 border-radius:10px;
+height:120px;
 margin:10px 0;
 position:relative;
 overflow:hidden;
 }
 
+.lane{
+height:40px;
+border-bottom:1px dashed white;
+position:relative;
+}
+
 .car{
 position:absolute;
 left:0;
-top:10px;
+top:5px;
 transition:3s linear;
 }
 
@@ -91,6 +98,7 @@ padding:8px;
 border-radius:10px;
 text-align:center;
 width:90px;
+cursor:pointer;
 }
 
 .bet{
@@ -116,7 +124,7 @@ border-radius:10px;
 .feed{
 background:white;
 color:black;
-height:100px;
+height:120px;
 overflow:auto;
 border-radius:10px;
 padding:5px;
@@ -135,6 +143,15 @@ padding:20px;
 border-radius:10px;
 display:none;
 width:80%;
+text-align:center;
+}
+
+.buyCoins{
+background:#ffb200;
+border:none;
+padding:8px 20px;
+border-radius:8px;
+margin-top:10px;
 }
 
 </style>
@@ -145,7 +162,9 @@ width:80%;
 
 <div class="topbar">
 <div>Galmet Race</div>
-<div class="coins">Coins: <span id="coins">500</span></div>
+<div class="coins" onclick="buyCoins()">
+Coins: <span id="coins">500</span>
+</div>
 </div>
 
 <button class="playBtn" onclick="openGame()">Play Demo Race</button>
@@ -162,16 +181,22 @@ Next race in <span id="timer">10</span>s
 
 <div class="track">
 
+<div class="lane">
 <div class="car" id="car1">
-<img src="rooms.webp">
+<img src="monster.webp" onerror="this.outerHTML='Monster'">
+</div>
 </div>
 
-<div class="car" id="car2" style="top:35px">
-<img src="profile.webp">
+<div class="lane">
+<div class="car" id="car2">
+<img src="orv.webp" onerror="this.outerHTML='ORV'">
+</div>
 </div>
 
-<div class="car" id="car3" style="top:60px">
-<img src="voice.webp">
+<div class="lane">
+<div class="car" id="car3">
+<img src="bike.webp" onerror="this.outerHTML='Bike'">
+</div>
 </div>
 
 </div>
@@ -221,6 +246,13 @@ Live bets will appear here
 <button onclick="closePopup()">OK</button>
 </div>
 
+<div class="popup" id="coinPopup">
+<h3>Add Coins</h3>
+<p>Demo purchase only</p>
+<button class="buyCoins" onclick="addCoins(500)">+500 Coins</button>
+<button class="buyCoins" onclick="addCoins(1000)">+1000 Coins</button>
+</div>
+
 <audio id="raceSound">
 <source src="https://www.soundjay.com/buttons/sounds/button-09.mp3">
 </audio>
@@ -257,6 +289,14 @@ document.getElementById("bet").innerText=bet
 }
 }
 
+function resetCars(){
+
+document.getElementById("car1").style.left="0px"
+document.getElementById("car2").style.left="0px"
+document.getElementById("car3").style.left="0px"
+
+}
+
 function race(){
 
 if(vehicle==0){
@@ -265,12 +305,13 @@ return
 }
 
 if(bet>coins){
-alert("Add coins")
+buyCoins()
 return
 }
 
-coins-=bet
+resetCars()
 
+coins-=bet
 document.getElementById("coins").innerText=coins
 
 document.getElementById("raceSound").play()
@@ -293,15 +334,10 @@ if(c3>c1 && c3>c2) winner=3
 let msg="Winner: "+winner
 
 if(vehicle==winner){
-
 coins+=bet*2
-
 msg+=" | You WON!"
-
 }else{
-
 msg+=" | You lost"
-
 }
 
 document.getElementById("coins").innerText=coins
@@ -317,6 +353,16 @@ function closePopup(){
 document.getElementById("popup").style.display="none"
 }
 
+function buyCoins(){
+document.getElementById("coinPopup").style.display="block"
+}
+
+function addCoins(amount){
+coins+=amount
+document.getElementById("coins").innerText=coins
+document.getElementById("coinPopup").style.display="none"
+}
+
 setInterval(function(){
 
 timer--
@@ -329,7 +375,7 @@ document.getElementById("timer").innerText=timer
 
 setInterval(function(){
 
-let players=["Alex","Sam","Lee","Tom","Nina"]
+let players=["Alex","Sam","Lee","Tom","Nina","Kai","Mia"]
 
 let cars=["Monster","ORV","Bike"]
 
