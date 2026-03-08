@@ -1,95 +1,72 @@
-
 <!DOCTYPE html>
 <html>
 <head>
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Galmet Lucky Race</title>
+<title>Galmet Race</title>
 
 <style>
 
 body{
 margin:0;
 font-family:Arial;
-background:#0b0f2a;
+background:linear-gradient(#1a2bd6,#0b0f2a);
 color:white;
+text-align:center;
 }
 
 .topbar{
-background:#1424a0;
+background:#1324a0;
 padding:12px;
 display:flex;
 justify-content:space-between;
-align-items:center;
-}
-
-.coins{
-background:#1f33c7;
-padding:5px 12px;
-border-radius:20px;
 }
 
 .playBtn{
-display:block;
-margin:40px auto;
+margin-top:60px;
 background:#ffb200;
 border:none;
-padding:12px 30px;
+padding:14px 40px;
 border-radius:30px;
 font-size:16px;
 }
 
-.gamePanel{
+.panel{
 position:fixed;
 bottom:-100%;
 left:0;
 width:100%;
-height:80%;
+height:75%;
 background:#0f1b6b;
 border-radius:20px 20px 0 0;
 transition:0.4s;
 padding:10px;
 }
 
-.gamePanel.active{
+.panel.active{
 bottom:0;
 }
 
-.timer{
-text-align:center;
-font-size:18px;
-margin:10px;
-}
-
 .track{
-background:#2c2c2c;
+background:#333;
+height:150px;
 border-radius:10px;
-height:180px;
-margin:10px 0;
-position:relative;
-overflow:hidden;
-}
-
-.lane{
-height:30px;
-border-bottom:1px dashed white;
+margin:10px;
 position:relative;
 }
 
 .car{
 position:absolute;
 left:0;
-top:0;
 transition:3s linear;
 }
 
-.car img{
-width:50px;
-}
+.l1{top:10px}
+.l2{top:60px}
+.l3{top:110px}
 
-.vehicles{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:8px;
+.vehicleButtons{
+display:flex;
+justify-content:space-around;
 margin-top:10px;
 }
 
@@ -98,8 +75,7 @@ background:white;
 color:black;
 padding:8px;
 border-radius:10px;
-text-align:center;
-cursor:pointer;
+width:90px;
 }
 
 .bet{
@@ -109,26 +85,15 @@ margin:10px;
 }
 
 .bet button{
-font-size:18px;
-padding:5px 12px;
-}
-
-.playRace{
-display:block;
-margin:auto;
-background:#ffb200;
-border:none;
-padding:10px 20px;
-border-radius:10px;
+font-size:20px;
 }
 
 .feed{
 background:white;
 color:black;
-height:120px;
+height:100px;
 overflow:auto;
 border-radius:10px;
-padding:5px;
 font-size:12px;
 margin-top:10px;
 }
@@ -143,8 +108,6 @@ color:black;
 padding:20px;
 border-radius:10px;
 display:none;
-width:80%;
-text-align:center;
 }
 
 </style>
@@ -154,46 +117,40 @@ text-align:center;
 
 <div class="topbar">
 <div>Galmet Race</div>
-<div class="coins">Coins: <span id="coins">500</span></div>
+<div>Coins: <span id="coins">500</span></div>
 </div>
 
 <button class="playBtn" onclick="openGame()">Play Demo Race</button>
 
-<div class="gamePanel" id="game">
+<div class="panel" id="game">
 
-<div style="text-align:right">
 <button onclick="closeGame()">Close</button>
-</div>
-
-<div class="timer">
-Next race in <span id="timer">10</span>s
-</div>
 
 <div class="track">
 
-<div class="lane"><div class="car" id="car1"><img src="monster.webp"></div></div>
-<div class="lane"><div class="car" id="car2"><img src="orv.webp"></div></div>
-<div class="lane"><div class="car" id="car3"><img src="bike.webp"></div></div>
-<div class="lane"><div class="car" id="car4"><img src="sport.webp"></div></div>
-<div class="lane"><div class="car" id="car5"><img src="super.webp"></div></div>
-<div class="lane"><div class="car" id="car6"><img src="atv.webp"></div></div>
+<div class="car l1" id="car1">🚙</div>
+<div class="car l2" id="car2">🚗</div>
+<div class="car l3" id="car3">🏍</div>
 
 </div>
 
-<div class="vehicles">
+<div class="vehicleButtons">
 
-<div class="card" onclick="pick(1)">Monster 2.4x</div>
-<div class="card" onclick="pick(2)">ORV 2.2x</div>
-<div class="card" onclick="pick(3)">Bike 4.8x</div>
-<div class="card" onclick="pick(4)">Sport 3.1x</div>
-<div class="card" onclick="pick(5)">Super 4.0x</div>
-<div class="card" onclick="pick(6)">ATV 3.0x</div>
+<div class="card" onclick="pick(1)">
+Monster<br>2.4x
+</div>
+
+<div class="card" onclick="pick(2)">
+ORV<br>2.2x
+</div>
+
+<div class="card" onclick="pick(3)">
+Bike<br>4.8x
+</div>
 
 </div>
 
-<p style="text-align:center">
-Selected: <span id="vehicle">None</span>
-</p>
+<p>Selected: <span id="vehicle">None</span></p>
 
 <div class="bet">
 
@@ -207,7 +164,7 @@ Selected: <span id="vehicle">None</span>
 
 </div>
 
-<button class="playRace" onclick="race()">Play</button>
+<button onclick="race()">Play</button>
 
 <div class="feed" id="feed"></div>
 
@@ -223,7 +180,6 @@ Selected: <span id="vehicle">None</span>
 let coins=500
 let bet=10
 let vehicle=0
-let timer=10
 
 function openGame(){
 document.getElementById("game").classList.add("active")
@@ -251,18 +207,9 @@ document.getElementById("bet").innerText=bet
 }
 
 function resetCars(){
-
-for(let i=1;i<=6;i++){
-document.getElementById("car"+i).style.transition="none"
-document.getElementById("car"+i).style.left="0px"
-}
-
-setTimeout(()=>{
-for(let i=1;i<=6;i++){
-document.getElementById("car"+i).style.transition="3s linear"
-}
-},50)
-
+document.getElementById("car1").style.left="0px"
+document.getElementById("car2").style.left="0px"
+document.getElementById("car3").style.left="0px"
 }
 
 function race(){
@@ -282,35 +229,37 @@ resetCars()
 coins-=bet
 document.getElementById("coins").innerText=coins
 
-let distances=[]
+let d1=Math.random()*250
+let d2=Math.random()*250
+let d3=Math.random()250
 
-for(let i=0;i<6;i++){
-distances.push(Math.random()300)
-}
+setTimeout(()=>{
+document.getElementById("car1").style.left=d1+"px"
+document.getElementById("car2").style.left=d2+"px"
+document.getElementById("car3").style.left=d3+"px"
+},100)
 
-for(let i=1;i<=6;i++){
-document.getElementById("car"+i).style.left=distances[i-1]+"px"
-}
+setTimeout(()=>{
 
-setTimeout(function(){
+let winner=1
 
-let winner=distances.indexOf(Math.max(...distances))+1
+if(d2>d1 && d2>d3) winner=2
+if(d3>d1 && d3>d2) winner=3
 
-let msg="Winner: "+winner
+let msg="Winner vehicle: "+winner
 
 if(vehicle==winner){
 coins+=bet2
-msg+=" | You WON!"
+msg+=" | YOU WIN!"
 }else{
 msg+=" | You lost"
 }
 
 document.getElementById("coins").innerText=coins
-
 document.getElementById("result").innerText=msg
 document.getElementById("popup").style.display="block"
 
-},3100)
+},3200)
 
 }
 
@@ -320,24 +269,12 @@ document.getElementById("popup").style.display="none"
 
 setInterval(function(){
 
-timer--
+let players=["Alex","Sam","Lee","Tom","Nina","Kai"]
 
-if(timer<0) timer=10
-
-document.getElementById("timer").innerText=timer
-
-},1000)
-
-setInterval(function(){
-
-let players=["Alex","Sam","Lee","Tom","Nina","Kai","Mia"]
-
-let cars=["Monster","ORV","Bike","Sport","Super","ATV"]
+let cars=["Monster","ORV","Bike"]
 
 let p=players[Math.floor(Math.random()*players.length)]
-
 let c=cars[Math.floor(Math.random()*cars.length)]
-
 let amount=Math.floor(Math.random()*100)+10
 
 let feed=document.getElementById("feed")
@@ -348,5 +285,6 @@ feed.innerHTML=p+" bet "+amount+" on "+c+"<br>"+feed.innerHTML
 
 </script>
 
+</body>
 </html>
 
