@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -30,10 +29,6 @@ padding:20px;
 font-size:60px;
 margin:40px 0;
 color:#ffcc00;
-}
-
-.betBox{
-margin:20px;
 }
 
 input{
@@ -82,12 +77,8 @@ overflow:auto;
 font-size:13px;
 }
 
-.crash{
-color:red;
-font-size:28px;
-}
-
 </style>
+
 </head>
 
 <body>
@@ -99,30 +90,20 @@ font-size:28px;
 
 <div class="container">
 
-<div class="multiplier" id="multi">
-1.00x
-</div>
-
-<div class="betBox">
+<div class="multiplier" id="multi">1.00x</div>
 
 Bet:
+<br>
 <input id="bet" value="50">
 
 <br><br>
 
 <button class="start" onclick="startGame()">Start</button>
-
 <button class="cashout" onclick="cashout()">Cash Out</button>
 
-</div>
+<div class="feed" id="feed"></div>
 
-<div class="feed" id="feed">
-Players cashing out will appear here
-</div>
-
-<div class="history" id="history">
-Crash history
-</div>
+<div class="history" id="history"></div>
 
 </div>
 
@@ -133,13 +114,18 @@ let multiplier=1
 let playing=false
 let crashPoint=0
 let bet=0
-let interval
+let gameLoop=null
 
 function startGame(){
 
 if(playing) return
 
 bet=parseInt(document.getElementById("bet").value)
+
+if(isNaN(bet) || bet<=0){
+alert("Enter valid bet")
+return
+}
 
 if(bet>coins){
 alert("Not enough coins")
@@ -154,7 +140,7 @@ crashPoint=(Math.random()4)+1.2
 
 playing=true
 
-interval=setInterval(updateGame,100)
+gameLoop=setInterval(updateGame,100)
 
 }
 
@@ -166,9 +152,9 @@ document.getElementById("multi").innerText=multiplier.toFixed(2)+"x"
 
 if(multiplier>=crashPoint){
 
-clearInterval(interval)
+clearInterval(gameLoop)
 
-document.getElementById("multi").innerHTML="CRASH "+crashPoint.toFixed(2)+"x"
+document.getElementById("multi").innerText="CRASH "+crashPoint.toFixed(2)+"x"
 
 addHistory(crashPoint)
 
@@ -182,7 +168,7 @@ function cashout(){
 
 if(!playing) return
 
-clearInterval(interval)
+clearInterval(gameLoop)
 
 let win=betmultiplier
 
@@ -190,7 +176,7 @@ coins+=Math.floor(win)
 
 document.getElementById("coins").innerText=coins
 
-document.getElementById("multi").innerHTML="CASHOUT "+multiplier.toFixed(2)+"x"
+document.getElementById("multi").innerText="CASHOUT "+multiplier.toFixed(2)+"x"
 
 addHistory(multiplier)
 
@@ -223,3 +209,4 @@ feed.innerHTML=p+" cashed out at "+m+"x<br>"+feed.innerHTML
 </script>
 
 </body>
+</html>
