@@ -5,6 +5,7 @@
 <title>Galmet Lucky</title>
 
 <style>
+
 body{
 font-family:Arial;
 background:#0b0f2a;
@@ -18,24 +19,32 @@ background:#1324a0;
 padding:12px;
 display:flex;
 justify-content:space-between;
+font-size:18px;
 }
 
 .multiplier{
-font-size:60px;
+font-size:70px;
 margin-top:40px;
 color:#ffc400;
 }
 
+input{
+padding:10px;
+font-size:16px;
+margin-top:10px;
+}
+
 button{
-padding:12px 20px;
+padding:12px 25px;
 border:none;
 border-radius:8px;
 margin:10px;
 font-size:16px;
+cursor:pointer;
 }
 
 .start{background:#00c853;color:white;}
-.cash{background:#ff9800;}
+.cash{background:#ff9800;color:white;}
 
 .box{
 background:white;
@@ -45,7 +54,9 @@ padding:10px;
 border-radius:10px;
 height:120px;
 overflow:auto;
+font-size:14px;
 }
+
 </style>
 </head>
 
@@ -53,12 +64,13 @@ overflow:auto;
 
 <div class="topbar">
 <div>Galmet Lucky</div>
-<div>Coins: <span id="coins">500</span></div>
+<div>Coins: <span id="coins"></span></div>
 </div>
 
 <div class="multiplier" id="multi">1.00x</div>
 
 <div>Bet</div>
+
 <input id="bet" value="50">
 
 <br>
@@ -71,81 +83,81 @@ overflow:auto;
 
 <script>
 
-let coins = localStorage.getItem("galmetCoins");
+let coins = localStorage.getItem("galmetCoins")
 
 if(!coins){
-coins = 500;
-localStorage.setItem("galmetCoins",coins);
+coins = 500
+localStorage.setItem("galmetCoins",coins)
 }
 
-coins = parseInt(coins);
+coins = parseInt(coins)
 
-let multiplier = 1;
-let playing = false;
-let crashPoint = 0;
-let bet = 0;
-let gameLoop = null;
+let multiplier = 1
+let playing = false
+let crashPoint = 0
+let bet = 0
+let gameLoop = null
 
-const coinsEl = document.getElementById("coins");
-const multiEl = document.getElementById("multi");
-const betEl = document.getElementById("bet");
-const playersEl = document.getElementById("players");
-const historyEl = document.getElementById("history");
+const coinsEl = document.getElementById("coins")
+const multiEl = document.getElementById("multi")
+const betEl = document.getElementById("bet")
+const playersEl = document.getElementById("players")
+const historyEl = document.getElementById("history")
 
-coinsEl.textContent = coins;
+coinsEl.textContent = coins
 
-document.getElementById("startBtn").addEventListener("click", startGame);
-document.getElementById("cashBtn").addEventListener("click", cashOut);
+document.getElementById("startBtn").addEventListener("click",startGame)
+document.getElementById("cashBtn").addEventListener("click",cashOut)
 
 function saveCoins(){
-localStorage.setItem("galmetCoins",coins);
+localStorage.setItem("galmetCoins",coins)
 }
 
 function startGame(){
 
-if(playing) return;
+if(playing) return
 
-bet = parseInt(betEl.value) || 0;
+bet = parseInt(betEl.value)
 
-if(bet <= 0){
-alert("Enter bet amount");
-return;
+if(!bet || bet <=0){
+alert("Enter bet amount")
+return
 }
 
 if(bet > coins){
-alert("Not enough coins");
-return;
+alert("Not enough coins")
+return
 }
 
-coins -= bet;
-saveCoins();
+coins -= bet
+saveCoins()
+coinsEl.textContent = coins
 
-coinsEl.textContent = coins;
+multiplier = 1
 
-multiplier = 1;
-crashPoint = (Math.random()*4)+1.5;
+crashPoint = 1 / (Math.random()*0.9 + 0.1)
 
-playing = true;
+playing = true
 
-gameLoop = setInterval(updateGame,100);
+gameLoop = setInterval(updateGame,100)
 
 }
 
 function updateGame(){
 
-multiplier += 0.05;
+multiplier += 0.05
 
-multiEl.textContent = multiplier.toFixed(2)+"x";
+multiEl.textContent = multiplier.toFixed(2)+"x"
 
 if(multiplier >= crashPoint){
 
-clearInterval(gameLoop);
+clearInterval(gameLoop)
 
-multiEl.textContent = "CRASH "+crashPoint.toFixed(2)+"x";
+multiEl.textContent = "CRASH "+crashPoint.toFixed(2)+"x"
 
-addHistory(crashPoint);
+addHistory(crashPoint)
 
-playing = false;
+playing = false
 
 }
 
@@ -153,27 +165,43 @@ playing = false;
 
 function cashOut(){
 
-alert("Cash out system coming soon.");
+if(!playing) return
+
+clearInterval(gameLoop)
+
+let win = Math.floor(bet * multiplier)
+
+coins += win
+
+saveCoins()
+
+coinsEl.textContent = coins
+
+multiEl.textContent = "CASHED "+multiplier.toFixed(2)+"x"
+
+addHistory(multiplier)
+
+playing=false
 
 }
 
 function addHistory(value){
 
-historyEl.innerHTML = value.toFixed(2)+"x<br>"+historyEl.innerHTML;
+historyEl.innerHTML = value.toFixed(2)+"x<br>"+historyEl.innerHTML
 
 }
 
 setInterval(function(){
 
-let names=["Alex","Sam","Kai","Lee","Mia"];
+let names=["Alex","Sam","Kai","Lee","Mia","John","Max","Sara"]
 
-let name = names[Math.floor(Math.random()*names.length)];
+let name = names[Math.floor(Math.random()*names.length)]
 
-let m = (Math.random()*4+1).toFixed(2);
+let m = (Math.random()*4+1).toFixed(2)
 
-playersEl.innerHTML = name+" cashed out "+m+"x<br>"+playersEl.innerHTML;
+playersEl.innerHTML = name+" cashed out "+m+"x<br>"+playersEl.innerHTML
 
-},2000);
+},2000)
 
 </script>
 
