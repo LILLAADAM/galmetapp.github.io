@@ -58,7 +58,7 @@ overflow:auto;
 
 <div class="multiplier" id="multi">1.00x</div>
 
-<div>Bet:</div>
+<div>Bet</div>
 <input id="bet" value="50">
 
 <br>
@@ -71,100 +71,107 @@ overflow:auto;
 
 <script>
 
-let coins=500
-let multiplier=1
-let playing=false
-let crashPoint=0
-let bet=0
-let gameLoop
+let coins = 500;
+let multiplier = 1;
+let playing = false;
+let crashPoint = 0;
+let bet = 0;
+let gameLoop = null;
+
+const coinsEl = document.getElementById("coins");
+const multiEl = document.getElementById("multi");
+const betEl = document.getElementById("bet");
+const playersEl = document.getElementById("players");
+const historyEl = document.getElementById("history");
+
+document.getElementById("startBtn").addEventListener("click", startGame);
+document.getElementById("cashBtn").addEventListener("click", cashOut);
 
 function startGame(){
 
-if(playing) return
+if(playing) return;
 
-bet=parseInt(document.getElementById("bet").value)
+bet = parseInt(betEl.value) || 0;
 
-if(bet>coins){
-alert("Not enough coins")
-return
+if(bet <= 0){
+alert("Enter bet amount");
+return;
 }
 
-coins-=bet
-document.getElementById("coins").innerText=coins
+if(bet > coins){
+alert("Not enough coins");
+return;
+}
 
-multiplier=1
-crashPoint=(Math.random()4)+1.5
+coins -= bet;
+coinsEl.textContent = coins;
 
-playing=true
+multiplier = 1;
+crashPoint = (Math.random()*4)+1.5;
 
-gameLoop=setInterval(updateGame,100)
+playing = true;
+
+gameLoop = setInterval(updateGame, 100);
 
 }
 
 function updateGame(){
 
-multiplier+=0.05
+multiplier += 0.05;
 
-document.getElementById("multi").innerText=multiplier.toFixed(2)+"x"
+multiEl.textContent = multiplier.toFixed(2)+"x";
 
-if(multiplier>=crashPoint){
+if(multiplier >= crashPoint){
 
-clearInterval(gameLoop)
+clearInterval(gameLoop);
 
-document.getElementById("multi").innerText="CRASH "+crashPoint.toFixed(2)+"x"
+multiEl.textContent = "CRASH "+crashPoint.toFixed(2)+"x";
 
-addHistory(crashPoint)
+addHistory(crashPoint);
 
-playing=false
-
-}
+playing = false;
 
 }
 
-function cashout(){
+}
 
-if(!playing) return
+function cashOut(){
 
-clearInterval(gameLoop)
+if(!playing) return;
 
-let win=Math.floor(betmultiplier)
+clearInterval(gameLoop);
 
-coins+=win
+let win = Math.floor(bet * multiplier);
 
-document.getElementById("coins").innerText=coins
+coins += win;
 
-document.getElementById("multi").innerText="CASHED "+multiplier.toFixed(2)+"x"
+coinsEl.textContent = coins;
 
-addHistory(multiplier)
+multiEl.textContent = "CASHED "+multiplier.toFixed(2)+"x";
 
-playing=false
+addHistory(multiplier);
+
+playing = false;
 
 }
 
 function addHistory(value){
 
-let h=document.getElementById("history")
-
-h.innerHTML=value.toFixed(2)+"x<br>"+h.innerHTML
+historyEl.innerHTML = value.toFixed(2)+"x<br>"+historyEl.innerHTML;
 
 }
 
 setInterval(function(){
 
-let names=["Alex","Sam","Kai","Lee","Mia"]
+let names=["Alex","Sam","Kai","Lee","Mia"];
 
-let name=names[Math.floor(Math.random()*names.length)]
+let name = names[Math.floor(Math.random()*names.length)];
 
-let m=(Math.random()*4+1).toFixed(2)
+let m = (Math.random()*4+1).toFixed(2);
 
-let box=document.getElementById("players")
+playersEl.innerHTML = name+" cashed out "+m+"x<br>"+playersEl.innerHTML;
 
-box.innerHTML=name+" cashed out "+m+"x<br>"+box.innerHTML
-
-},2000)
-
-document.getElementById("startBtn").addEventListener("click",startGame)
-document.getElementById("cashBtn").addEventListener("click",cashout)
+},2000);
 
 </script>
 
