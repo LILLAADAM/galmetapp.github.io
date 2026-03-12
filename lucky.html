@@ -24,7 +24,7 @@ font-size:18px;
 
 .multiplier{
 font-size:70px;
-margin-top:30px;
+margin-top:40px;
 color:#ffc400;
 }
 
@@ -57,39 +57,6 @@ overflow:auto;
 font-size:14px;
 }
 
-.popup{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,0.7);
-display:none;
-align-items:center;
-justify-content:center;
-}
-
-.popupContent{
-background:white;
-color:black;
-padding:20px;
-border-radius:10px;
-width:80%;
-max-width:350px;
-}
-
-.depositBtn{
-background:#1324a0;
-color:white;
-width:100%;
-margin:5px 0;
-}
-
-.closeBtn{
-background:red;
-color:white;
-}
-
 </style>
 </head>
 
@@ -97,7 +64,7 @@ color:white;
 
 <div class="topbar">
 <div>Galmet Lucky</div>
-<div onclick="openDeposit()">Coins: <span id="coins"></span></div>
+<div>Coins: <span id="coins"></span></div>
 </div>
 
 <div class="multiplier" id="multi">1.00x</div>
@@ -113,30 +80,6 @@ color:white;
 
 <div class="box" id="players"></div>
 <div class="box" id="history"></div>
-
-<!-- Deposit Popup -->
-
-<div class="popup" id="depositPopup">
-
-<div class="popupContent">
-
-<h3>Buy Coins</h3>
-
-<button class="depositBtn" onclick="buyCoins(499)">499 Coins</button>
-<button class="depositBtn" onclick="buyCoins(899)">899 Coins</button>
-<button class="depositBtn" onclick="buyCoins(1059)">1059 Coins</button>
-<button class="depositBtn" onclick="buyCoins(1999)">1999 Coins</button>
-<button class="depositBtn" onclick="buyCoins(2999)">2999 Coins</button>
-<button class="depositBtn" onclick="buyCoins(3999)">3999 Coins</button>
-<button class="depositBtn" onclick="buyCoins(5599)">5599 Coins</button>
-
-<br>
-
-<button class="closeBtn" onclick="closeDeposit()">Close</button>
-
-</div>
-
-</div>
 
 <script>
 
@@ -176,24 +119,23 @@ if(playing) return
 
 bet = parseInt(betEl.value)
 
-if(!bet || bet<=0){
+if(!bet || bet <=0){
 alert("Enter bet amount")
 return
 }
 
-if(bet>coins){
+if(bet > coins){
 alert("Not enough coins")
 return
 }
 
 coins -= bet
 saveCoins()
-
 coinsEl.textContent = coins
 
 multiplier = 1
 
-crashPoint = 1/(Math.random()0.9+0.1)
+crashPoint = 1 / (Math.random()*0.9 + 0.1)
 
 playing = true
 
@@ -207,15 +149,15 @@ multiplier += 0.05
 
 multiEl.textContent = multiplier.toFixed(2)+"x"
 
-if(multiplier>=crashPoint){
+if(multiplier >= crashPoint){
 
 clearInterval(gameLoop)
 
-multiEl.textContent="CRASH "+crashPoint.toFixed(2)+"x"
+multiEl.textContent = "CRASH "+crashPoint.toFixed(2)+"x"
 
 addHistory(crashPoint)
 
-playing=false
+playing = false
 
 }
 
@@ -227,7 +169,7 @@ if(!playing) return
 
 clearInterval(gameLoop)
 
-let win = Math.floor(betmultiplier)
+let win = Math.floor(bet * multiplier)
 
 coins += win
 
@@ -235,7 +177,7 @@ saveCoins()
 
 coinsEl.textContent = coins
 
-multiEl.textContent="CASHED "+multiplier.toFixed(2)+"x"
+multiEl.textContent = "CASHED "+multiplier.toFixed(2)+"x"
 
 addHistory(multiplier)
 
@@ -245,43 +187,21 @@ playing=false
 
 function addHistory(value){
 
-historyEl.innerHTML=value.toFixed(2)+"x<br>"+historyEl.innerHTML
+historyEl.innerHTML = value.toFixed(2)+"x<br>"+historyEl.innerHTML
 
 }
 
 setInterval(function(){
 
-let names=["Alex","Sam","Kai","Lee","Mia","John","Sara"]
+let names=["Alex","Sam","Kai","Lee","Mia","John","Max","Sara"]
 
 let name = names[Math.floor(Math.random()*names.length)]
 
 let m = (Math.random()*4+1).toFixed(2)
 
-playersEl.innerHTML=name+" cashed out "+m+"x<br>"+playersEl.innerHTML
+playersEl.innerHTML = name+" cashed out "+m+"x<br>"+playersEl.innerHTML
 
 },2000)
-
-function openDeposit(){
-document.getElementById("depositPopup").style.display="flex"
-}
-
-function closeDeposit(){
-document.getElementById("depositPopup").style.display="none"
-}
-
-function buyCoins(amount){
-
-coins += amount
-
-saveCoins()
-
-coinsEl.textContent=coins
-
-alert("Deposit successful: "+amount+" coins added")
-
-closeDeposit()
-
-}
 
 </script>
 
