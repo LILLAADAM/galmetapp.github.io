@@ -1,0 +1,225 @@
+y-001"}
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Galmet Lucky</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:linear-gradient(#1a2bd6,#0b0f2a);
+color:white;
+text-align:center;
+}
+
+.topbar{
+background:#1324a0;
+padding:12px;
+display:flex;
+justify-content:space-between;
+}
+
+.container{
+padding:20px;
+}
+
+.multiplier{
+font-size:60px;
+margin:40px 0;
+color:#ffcc00;
+}
+
+.betBox{
+margin:20px;
+}
+
+input{
+padding:10px;
+font-size:16px;
+width:120px;
+text-align:center;
+}
+
+button{
+padding:12px 20px;
+font-size:16px;
+border:none;
+border-radius:8px;
+margin:5px;
+}
+
+.start{
+background:#00c853;
+color:white;
+}
+
+.cashout{
+background:#ffb300;
+}
+
+.history{
+background:white;
+color:black;
+margin-top:20px;
+padding:10px;
+border-radius:10px;
+height:120px;
+overflow:auto;
+font-size:14px;
+}
+
+.feed{
+background:white;
+color:black;
+margin-top:10px;
+padding:10px;
+border-radius:10px;
+height:100px;
+overflow:auto;
+font-size:13px;
+}
+
+.crash{
+color:red;
+font-size:28px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+<div>Galmet Lucky</div>
+<div>Coins: <span id="coins">500</span></div>
+</div>
+
+<div class="container">
+
+<div class="multiplier" id="multi">
+1.00x
+</div>
+
+<div class="betBox">
+
+Bet:
+<input id="bet" value="50">
+
+<br><br>
+
+<button class="start" onclick="startGame()">Start</button>
+
+<button class="cashout" onclick="cashout()">Cash Out</button>
+
+</div>
+
+<div class="feed" id="feed">
+Players cashing out will appear here
+</div>
+
+<div class="history" id="history">
+Crash history
+</div>
+
+</div>
+
+<script>
+
+let coins=500
+let multiplier=1
+let playing=false
+let crashPoint=0
+let bet=0
+let interval
+
+function startGame(){
+
+if(playing) return
+
+bet=parseInt(document.getElementById("bet").value)
+
+if(bet>coins){
+alert("Not enough coins")
+return
+}
+
+coins-=bet
+document.getElementById("coins").innerText=coins
+
+multiplier=1
+crashPoint=(Math.random()4)+1.2
+
+playing=true
+
+interval=setInterval(updateGame,100)
+
+}
+
+function updateGame(){
+
+multiplier+=0.03
+
+document.getElementById("multi").innerText=multiplier.toFixed(2)+"x"
+
+if(multiplier>=crashPoint){
+
+clearInterval(interval)
+
+document.getElementById("multi").innerHTML="CRASH "+crashPoint.toFixed(2)+"x"
+
+addHistory(crashPoint)
+
+playing=false
+
+}
+
+}
+
+function cashout(){
+
+if(!playing) return
+
+clearInterval(interval)
+
+let win=betmultiplier
+
+coins+=Math.floor(win)
+
+document.getElementById("coins").innerText=coins
+
+document.getElementById("multi").innerHTML="CASHOUT "+multiplier.toFixed(2)+"x"
+
+addHistory(multiplier)
+
+playing=false
+
+}
+
+function addHistory(value){
+
+let history=document.getElementById("history")
+
+history.innerHTML=value.toFixed(2)+"x<br>"+history.innerHTML
+
+}
+
+setInterval(function(){
+
+let players=["Alex","Sam","Lee","Tom","Nina","Kai","Mia"]
+
+let p=players[Math.floor(Math.random()*players.length)]
+
+let m=(Math.random()*4+1).toFixed(2)
+
+let feed=document.getElementById("feed")
+
+feed.innerHTML=p+" cashed out at "+m+"x<br>"+feed.innerHTML
+
+},2000)
+
+</script>
+
+</body>
