@@ -71,7 +71,15 @@ overflow:auto;
 
 <script>
 
-let coins = 500;
+let coins = localStorage.getItem("galmetCoins");
+
+if(!coins){
+coins = 500;
+localStorage.setItem("galmetCoins",coins);
+}
+
+coins = parseInt(coins);
+
 let multiplier = 1;
 let playing = false;
 let crashPoint = 0;
@@ -84,8 +92,14 @@ const betEl = document.getElementById("bet");
 const playersEl = document.getElementById("players");
 const historyEl = document.getElementById("history");
 
+coinsEl.textContent = coins;
+
 document.getElementById("startBtn").addEventListener("click", startGame);
 document.getElementById("cashBtn").addEventListener("click", cashOut);
+
+function saveCoins(){
+localStorage.setItem("galmetCoins",coins);
+}
 
 function startGame(){
 
@@ -104,6 +118,8 @@ return;
 }
 
 coins -= bet;
+saveCoins();
+
 coinsEl.textContent = coins;
 
 multiplier = 1;
@@ -111,7 +127,7 @@ crashPoint = (Math.random()*4)+1.5;
 
 playing = true;
 
-gameLoop = setInterval(updateGame, 100);
+gameLoop = setInterval(updateGame,100);
 
 }
 
@@ -137,21 +153,7 @@ playing = false;
 
 function cashOut(){
 
-if(!playing) return;
-
-clearInterval(gameLoop);
-
-let win = Math.floor(bet * multiplier);
-
-coins += win;
-
-coinsEl.textContent = coins;
-
-multiEl.textContent = "CASHED "+multiplier.toFixed(2)+"x";
-
-addHistory(multiplier);
-
-playing = false;
+alert("Cash out system coming soon.");
 
 }
 
