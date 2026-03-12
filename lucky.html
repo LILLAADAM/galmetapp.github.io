@@ -1,17 +1,18 @@
+
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Galmet Lucky</title>
 
 <style>
 
 body{
-margin:0;
 font-family:Arial;
-background:linear-gradient(#1a2bd6,#0b0f2a);
+background:#0b0f2a;
 color:white;
 text-align:center;
+margin:0;
 }
 
 .topbar{
@@ -21,64 +22,34 @@ display:flex;
 justify-content:space-between;
 }
 
-.container{
-padding:20px;
-}
-
 .multiplier{
 font-size:60px;
-margin:40px 0;
-color:#ffcc00;
-}
-
-input{
-padding:10px;
-font-size:16px;
-width:120px;
-text-align:center;
+margin-top:40px;
+color:#ffc400;
 }
 
 button{
 padding:12px 20px;
-font-size:16px;
 border:none;
 border-radius:8px;
-margin:5px;
+margin:10px;
+font-size:16px;
 }
 
-.start{
-background:#00c853;
-color:white;
-}
+.start{background:#00c853;color:white;}
+.cash{background:#ff9800;}
 
-.cashout{
-background:#ffb300;
-}
-
-.history{
+.box{
 background:white;
 color:black;
-margin-top:20px;
+margin:20px;
 padding:10px;
 border-radius:10px;
 height:120px;
 overflow:auto;
-font-size:14px;
-}
-
-.feed{
-background:white;
-color:black;
-margin-top:10px;
-padding:10px;
-border-radius:10px;
-height:100px;
-overflow:auto;
-font-size:13px;
 }
 
 </style>
-
 </head>
 
 <body>
@@ -88,24 +59,16 @@ font-size:13px;
 <div>Coins: <span id="coins">500</span></div>
 </div>
 
-<div class="container">
-
 <div class="multiplier" id="multi">1.00x</div>
 
-Bet:
-<br>
-<input id="bet" value="50">
-
-<br><br>
+Bet:<br>
+<input id="bet" value="50"><br>
 
 <button class="start" onclick="startGame()">Start</button>
-<button class="cashout" onclick="cashout()">Cash Out</button>
+<button class="cash" onclick="cashout()">Cash Out</button>
 
-<div class="feed" id="feed"></div>
-
-<div class="history" id="history"></div>
-
-</div>
+<div class="box" id="players"></div>
+<div class="box" id="history"></div>
 
 <script>
 
@@ -114,18 +77,13 @@ let multiplier=1
 let playing=false
 let crashPoint=0
 let bet=0
-let gameLoop=null
+let gameLoop
 
 function startGame(){
 
 if(playing) return
 
 bet=parseInt(document.getElementById("bet").value)
-
-if(isNaN(bet) || bet<=0){
-alert("Enter valid bet")
-return
-}
 
 if(bet>coins){
 alert("Not enough coins")
@@ -136,7 +94,7 @@ coins-=bet
 document.getElementById("coins").innerText=coins
 
 multiplier=1
-crashPoint=(Math.random()4)+1.2
+crashPoint=(Math.random()4)+1.5
 
 playing=true
 
@@ -146,7 +104,7 @@ gameLoop=setInterval(updateGame,100)
 
 function updateGame(){
 
-multiplier+=0.03
+multiplier+=0.05
 
 document.getElementById("multi").innerText=multiplier.toFixed(2)+"x"
 
@@ -170,13 +128,13 @@ if(!playing) return
 
 clearInterval(gameLoop)
 
-let win=betmultiplier
+let win=Math.floor(betmultiplier)
 
-coins+=Math.floor(win)
+coins+=win
 
 document.getElementById("coins").innerText=coins
 
-document.getElementById("multi").innerText="CASHOUT "+multiplier.toFixed(2)+"x"
+document.getElementById("multi").innerText="CASHED "+multiplier.toFixed(2)+"x"
 
 addHistory(multiplier)
 
@@ -186,27 +144,27 @@ playing=false
 
 function addHistory(value){
 
-let history=document.getElementById("history")
+let h=document.getElementById("history")
 
-history.innerHTML=value.toFixed(2)+"x<br>"+history.innerHTML
+h.innerHTML=value.toFixed(2)+"x<br>"+h.innerHTML
 
 }
 
 setInterval(function(){
 
-let players=["Alex","Sam","Lee","Tom","Nina","Kai","Mia"]
+let names=["Alex","Sam","Kai","Lee","Mia"]
 
-let p=players[Math.floor(Math.random()*players.length)]
+let name=names[Math.floor(Math.random()*names.length)]
 
 let m=(Math.random()*4+1).toFixed(2)
 
-let feed=document.getElementById("feed")
+let box=document.getElementById("players")
 
-feed.innerHTML=p+" cashed out at "+m+"x<br>"+feed.innerHTML
+box.innerHTML=name+" cashed out "+m+"x<br>"+box.innerHTML
 
 },2000)
 
 </script>
 
 </body>
-</html>
+</h
