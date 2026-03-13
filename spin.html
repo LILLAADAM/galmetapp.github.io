@@ -117,41 +117,41 @@ font-size:14px;
 
 <script>
 
-/* ---------- COINS SYSTEM ---------- /
+/* ----------- COINS ----------- /
 
-let coins = parseInt(localStorage.getItem("galmetCoins"))
+let coins = localStorage.getItem("galmetCoins")
 
-if(!coins || coins <= 0){
+if(!coins){
 coins = 500
 localStorage.setItem("galmetCoins", coins)
 }
 
-updateCoins()
+coins = parseInt(coins)
 
 function updateCoins(){
 document.getElementById("coins").innerText = coins
 }
+
+updateCoins()
 
 function saveCoins(){
 localStorage.setItem("galmetCoins", coins)
 updateCoins()
 }
 
-/ ---------- RESET BUTTON ---------- /
+/ ----------- RESET ----------- /
 
 function resetCoins(){
 
 coins = 500
 
-localStorage.setItem("galmetCoins", coins)
-
-updateCoins()
+saveCoins()
 
 document.getElementById("result").innerText="Demo coins added (500)"
 
 }
 
-/ ---------- GAME LOGIC ---------- /
+/ ----------- GAME ----------- /
 
 let wheel=document.getElementById("wheel")
 let history=document.getElementById("history")
@@ -163,9 +163,9 @@ function spin(){
 
 if(spinning) return
 
-let bet=parseInt(document.getElementById("bet").value)
+let bet = parseInt(document.getElementById("bet").value)
 
-if(bet<=0){
+if(isNaN(bet) || bet<=0){
 alert("Enter bet amount")
 return
 }
@@ -175,26 +175,28 @@ alert("Not enough coins")
 return
 }
 
-coins-=bet
+/ deduct bet /
+
+coins = coins - bet
 saveCoins()
 
 spinning=true
 
 let multipliers=[0,2,3,5,10,0]
 
-let index=Math.floor(Math.random()multipliers.length)
+let index = Math.floor(Math.random()multipliers.length)
 
-let multiplier=multipliers[index]
+let multiplier = multipliers[index]
 
-let rotation=(3605)+(index60)
+let rotation = (3605) + (index60)
 
-wheel.style.transform="rotate("+rotation+"deg)"
+wheel.style.transform = "rotate("+rotation+"deg)"
 
-setTimeout(()=>{
+setTimeout(function(){
 
-let win=betmultiplier
+let win = bet * multiplier
 
-coins+=win
+coins = coins + win
 
 saveCoins()
 
@@ -204,7 +206,7 @@ document.getElementById("result").innerText="You lost!"
 document.getElementById("result").innerText="You won "+win+" coins ("+multiplier+"x)"
 }
 
-history.innerHTML=multiplier+"x<br>"+history.innerHTML
+history.innerHTML = multiplier+"x<br>"+history.innerHTML
 
 spinning=false
 
@@ -212,9 +214,9 @@ spinning=false
 
 }
 
-/ ---------- FAKE PLAYERS ---------- */
+/* ----------- FAKE PLAYERS ----------- */
 
-setInterval(()=>{
+setInterval(function(){
 
 let names=["Kai","Alex","Lee","Sam","Sara","John","Mia"]
 
