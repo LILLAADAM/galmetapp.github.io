@@ -90,7 +90,6 @@ font-size:14px;
 
 </style>
 </head>
-
 <body>
 
 <div class="topbar">
@@ -119,18 +118,22 @@ font-size:14px;
 
 <script>
 
-/* --- DEMO COINS SETUP --- /
+/* ---------- LOAD COINS ---------- /
 
 let coins = localStorage.getItem("galmetCoins")
 
-if(!coins){
+if(coins === null){
 coins = 500
 localStorage.setItem("galmetCoins", coins)
 }
 
 coins = parseInt(coins)
 
+function updateCoins(){
 document.getElementById("coins").innerText = coins
+}
+
+updateCoins()
 
 let wheel=document.getElementById("wheel")
 let history=document.getElementById("history")
@@ -139,24 +142,25 @@ let players=document.getElementById("players")
 let spinning=false
 
 function saveCoins(){
-localStorage.setItem("galmetCoins",coins)
+localStorage.setItem("galmetCoins", coins)
+updateCoins()
 }
 
-/ --- RESET COINS --- /
+/ ---------- RESET COINS ---------- /
 
 function resetCoins(){
 
 coins = 500
 
-localStorage.setItem("galmetCoins",coins)
+localStorage.setItem("galmetCoins", coins)
 
-document.getElementById("coins").innerText = coins
+updateCoins()
 
-document.getElementById("result").innerText="Coins reset to 500"
+document.getElementById("result").innerText="Demo coins added (500)"
 
 }
 
-/ --- SPIN FUNCTION --- /
+/ ---------- SPIN ---------- /
 
 function spin(){
 
@@ -164,21 +168,19 @@ if(spinning) return
 
 let bet=parseInt(document.getElementById("bet").value)
 
-if(bet<=0){
+if(isNaN(bet) || bet <= 0){
 alert("Enter bet amount")
 return
 }
 
-if(bet>coins){
+if(bet > coins){
 alert("Not enough coins")
 return
 }
 
-coins-=bet
+coins -= bet
 
 saveCoins()
-
-document.getElementById("coins").innerText=coins
 
 spinning=true
 
@@ -196,20 +198,14 @@ setTimeout(()=>{
 
 let win=betmultiplier
 
-coins+=win
+coins += win
 
 saveCoins()
 
-document.getElementById("coins").innerText=coins
-
 if(multiplier==0){
-
 document.getElementById("result").innerText="You lost!"
-
 }else{
-
 document.getElementById("result").innerText="You won "+win+" coins ("+multiplier+"x)"
-
 }
 
 history.innerHTML=multiplier+"x<br>"+history.innerHTML
@@ -220,7 +216,7 @@ spinning=false
 
 }
 
-/ --- FAKE PLAYERS FEED --- */
+/ ---------- FAKE PLAYERS ---------- */
 
 setInterval(()=>{
 
