@@ -69,6 +69,12 @@ border-radius:8px;
 background:#4caf50;
 color:white;
 margin-top:10px;
+cursor:pointer;
+}
+
+.reset{
+background:#ff5252;
+margin-left:10px;
 }
 
 .box{
@@ -99,11 +105,12 @@ font-size:14px;
 
 <div>Bet</div>
 
-<input id="bet" value="50">
+<input id="bet" value="50" min="1">
 
 <br>
 
 <button onclick="spin()">SPIN</button>
+<button class="reset" onclick="resetCoins()">Reset Coins</button>
 
 <h2 id="result"></h2>
 
@@ -112,7 +119,16 @@ font-size:14px;
 
 <script>
 
-let coins = parseInt(localStorage.getItem("galmetCoins")) || 500
+/* --- DEMO COINS SETUP --- /
+
+let coins = localStorage.getItem("galmetCoins")
+
+if(!coins){
+coins = 500
+localStorage.setItem("galmetCoins", coins)
+}
+
+coins = parseInt(coins)
 
 document.getElementById("coins").innerText = coins
 
@@ -126,11 +142,32 @@ function saveCoins(){
 localStorage.setItem("galmetCoins",coins)
 }
 
+/ --- RESET COINS --- /
+
+function resetCoins(){
+
+coins = 500
+
+localStorage.setItem("galmetCoins",coins)
+
+document.getElementById("coins").innerText = coins
+
+document.getElementById("result").innerText="Coins reset to 500"
+
+}
+
+/ --- SPIN FUNCTION --- /
+
 function spin(){
 
 if(spinning) return
 
 let bet=parseInt(document.getElementById("bet").value)
+
+if(bet<=0){
+alert("Enter bet amount")
+return
+}
 
 if(bet>coins){
 alert("Not enough coins")
@@ -138,6 +175,7 @@ return
 }
 
 coins-=bet
+
 saveCoins()
 
 document.getElementById("coins").innerText=coins
@@ -150,7 +188,7 @@ let index=Math.floor(Math.random()multipliers.length)
 
 let multiplier=multipliers[index]
 
-let rotation=3605 + (index60)
+let rotation=(3605) + (index60)
 
 wheel.style.transform="rotate("+rotation+"deg)"
 
@@ -165,9 +203,13 @@ saveCoins()
 document.getElementById("coins").innerText=coins
 
 if(multiplier==0){
+
 document.getElementById("result").innerText="You lost!"
+
 }else{
+
 document.getElementById("result").innerText="You won "+win+" coins ("+multiplier+"x)"
+
 }
 
 history.innerHTML=multiplier+"x<br>"+history.innerHTML
@@ -177,6 +219,8 @@ spinning=false
 },4000)
 
 }
+
+/ --- FAKE PLAYERS FEED --- */
 
 setInterval(()=>{
 
