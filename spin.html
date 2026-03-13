@@ -22,17 +22,36 @@ justify-content:space-between;
 font-size:18px;
 }
 
-#wheel{
-width:250px;
-height:250px;
-border-radius:50%;
-border:10px solid #ffc400;
+#wheelContainer{
+position:relative;
+width:280px;
+height:280px;
 margin:40px auto;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:40px;
-background:#222;
+}
+
+#wheel{
+width:100%;
+height:100%;
+border-radius:50%;
+border:8px solid #ffc400;
+background:
+conic-gradient(
+#ff5252 0deg 60deg,
+#00c853 60deg 120deg,
+#ff9800 120deg 180deg,
+#03a9f4 180deg 240deg,
+#9c27b0 240deg 300deg,
+#ffc107 300deg 360deg
+);
+transition:transform 4s ease-out;
+}
+
+#pointer{
+position:absolute;
+top:-10px;
+left:50%;
+transform:translateX(-50%);
+font-size:30px;
 }
 
 button{
@@ -42,11 +61,24 @@ border:none;
 border-radius:8px;
 margin-top:10px;
 cursor:pointer;
-}
-
-.spin{
 background:#00c853;
 color:white;
+}
+
+input{
+padding:10px;
+font-size:16px;
+}
+
+.box{
+background:white;
+color:black;
+margin:20px;
+padding:10px;
+border-radius:10px;
+height:100px;
+overflow:auto;
+font-size:14px;
 }
 
 </style>
@@ -60,7 +92,13 @@ color:white;
 <div>Coins: <span id="coins"></span></div>
 </div>
 
-<div id="wheel">🎡</div>
+<div id="wheelContainer">
+
+<div id="pointer">▼</div>
+
+<div id="wheel"></div>
+
+</div>
 
 <div>Bet</div>
 
@@ -68,9 +106,12 @@ color:white;
 
 <br>
 
-<button class="spin" onclick="spin()">Spin</button>
+<button onclick="spin()">SPIN</button>
 
 <h2 id="result"></h2>
+
+<div class="box" id="history"></div>
+<div class="box" id="players"></div>
 
 <script>
 
@@ -83,7 +124,14 @@ localStorage.setItem("galmetCoins",coins)
 
 coins = parseInt(coins)
 
-document.getElementById("coins").textContent = coins
+const coinsEl=document.getElementById("coins")
+const wheel=document.getElementById("wheel")
+const historyEl=document.getElementById("history")
+const playersEl=document.getElementById("players")
+
+coinsEl.textContent=coins
+
+let spinning=false
 
 function saveCoins(){
 localStorage.setItem("galmetCoins",coins)
@@ -91,29 +139,41 @@ localStorage.setItem("galmetCoins",coins)
 
 function spin(){
 
-let bet = parseInt(document.getElementById("bet").value)
+if(spinning) return
+
+let bet=parseInt(document.getElementById("bet").value)
 
 if(bet>coins){
 alert("Not enough coins")
 return
 }
 
-coins -= bet
+coins-=bet
 saveCoins()
 
-document.getElementById("coins").textContent = coins
+coinsEl.textContent=coins
 
-let results=[0,2,3,5,10]
+spinning=true
 
-let result = results[Math.floor(Math.random()*results.length)]
+let segments=[0,2,3,5,10,0]
 
-let win = bet * result
+let index=Math.floor(Math.random()segments.length)
 
-coins += win
+let result=segments[index]
+
+let rotation=(3605)+(index60)
+
+wheel.style.transform="rotate("+rotation+"deg)"
+
+setTimeout(()=>{
+
+let win=betresult
+
+coins+=win
 
 saveCoins()
 
-document.getElementById("coins").textContent = coins
+coinsEl.textContent=coins
 
 if(result==0){
 document.getElementById("result").innerText="You lost!"
@@ -121,7 +181,27 @@ document.getElementById("result").innerText="You lost!"
 document.getElementById("result").innerText="You won "+win+" coins ("+result+"x)"
 }
 
+historyEl.innerHTML=result+"x<br>"+historyEl.innerHTML
+
+spinning=false
+
+},4000)
+
 }
+
+setInterval(function(){
+
+let names=["Alex","Sam","Kai","Lee","Mia","John","Sara"]
+
+let name=names[Math.floor(Math.random()*names.length)]
+
+let wins=[0,2,3,5,10]
+
+let r=wins[Math.floor(Math.random()*wins.length)]
+
+playersEl.innerHTML=name+" won "+r+"x<br>"+playersEl.innerHTML
+
+},2000)
 
 </script>
 
