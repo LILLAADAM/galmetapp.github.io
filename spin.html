@@ -5,7 +5,6 @@
 <title>Galmet Wheel</title>
 
 <style>
-
 body{
 background:#060b2d;
 color:white;
@@ -87,14 +86,14 @@ height:100px;
 overflow:auto;
 font-size:14px;
 }
-
 </style>
 </head>
+
 <body>
 
 <div class="topbar">
 <div>Galmet Wheel</div>
-<div>Coins: <span id="coins">0</span></div>
+<div>Coins: <span id="coins">500</span></div>
 </div>
 
 <div id="wheelBox">
@@ -104,7 +103,7 @@ font-size:14px;
 
 <div>Bet</div>
 
-<input id="bet" value="50" min="1">
+<input id="bet" value="50">
 
 <br>
 
@@ -118,35 +117,27 @@ font-size:14px;
 
 <script>
 
-/* ---------- LOAD COINS ---------- /
+/* ---------- COINS SYSTEM ---------- /
 
-let coins = localStorage.getItem("galmetCoins")
+let coins = parseInt(localStorage.getItem("galmetCoins"))
 
-if(coins === null){
+if(!coins || coins <= 0){
 coins = 500
 localStorage.setItem("galmetCoins", coins)
 }
 
-coins = parseInt(coins)
+updateCoins()
 
 function updateCoins(){
 document.getElementById("coins").innerText = coins
 }
-
-updateCoins()
-
-let wheel=document.getElementById("wheel")
-let history=document.getElementById("history")
-let players=document.getElementById("players")
-
-let spinning=false
 
 function saveCoins(){
 localStorage.setItem("galmetCoins", coins)
 updateCoins()
 }
 
-/ ---------- RESET COINS ---------- /
+/ ---------- RESET BUTTON ---------- /
 
 function resetCoins(){
 
@@ -160,7 +151,13 @@ document.getElementById("result").innerText="Demo coins added (500)"
 
 }
 
-/ ---------- SPIN ---------- /
+/ ---------- GAME LOGIC ---------- /
+
+let wheel=document.getElementById("wheel")
+let history=document.getElementById("history")
+let players=document.getElementById("players")
+
+let spinning=false
 
 function spin(){
 
@@ -168,18 +165,17 @@ if(spinning) return
 
 let bet=parseInt(document.getElementById("bet").value)
 
-if(isNaN(bet) || bet <= 0){
+if(bet<=0){
 alert("Enter bet amount")
 return
 }
 
-if(bet > coins){
+if(bet>coins){
 alert("Not enough coins")
 return
 }
 
-coins -= bet
-
+coins-=bet
 saveCoins()
 
 spinning=true
@@ -190,7 +186,7 @@ let index=Math.floor(Math.random()multipliers.length)
 
 let multiplier=multipliers[index]
 
-let rotation=(3605) + (index60)
+let rotation=(3605)+(index60)
 
 wheel.style.transform="rotate("+rotation+"deg)"
 
@@ -198,7 +194,7 @@ setTimeout(()=>{
 
 let win=betmultiplier
 
-coins += win
+coins+=win
 
 saveCoins()
 
