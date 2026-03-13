@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Galmet Wheel Spin</title>
+
+<style>
+
+body{
+background:#0b0f2a;
+color:white;
+font-family:Arial;
+text-align:center;
+margin:0;
+}
+
+.topbar{
+background:#1324a0;
+padding:12px;
+display:flex;
+justify-content:space-between;
+font-size:18px;
+}
+
+#wheel{
+width:250px;
+height:250px;
+border-radius:50%;
+border:10px solid #ffc400;
+margin:40px auto;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:40px;
+background:#222;
+}
+
+button{
+padding:12px 25px;
+font-size:16px;
+border:none;
+border-radius:8px;
+margin-top:10px;
+cursor:pointer;
+}
+
+.spin{
+background:#00c853;
+color:white;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="topbar">
+<div>Galmet Wheel</div>
+<div>Coins: <span id="coins"></span></div>
+</div>
+
+<div id="wheel">🎡</div>
+
+<div>Bet</div>
+
+<input id="bet" value="50">
+
+<br>
+
+<button class="spin" onclick="spin()">Spin</button>
+
+<h2 id="result"></h2>
+
+<script>
+
+let coins = localStorage.getItem("galmetCoins")
+
+if(!coins){
+coins = 500
+localStorage.setItem("galmetCoins",coins)
+}
+
+coins = parseInt(coins)
+
+document.getElementById("coins").textContent = coins
+
+function saveCoins(){
+localStorage.setItem("galmetCoins",coins)
+}
+
+function spin(){
+
+let bet = parseInt(document.getElementById("bet").value)
+
+if(bet>coins){
+alert("Not enough coins")
+return
+}
+
+coins -= bet
+saveCoins()
+
+document.getElementById("coins").textContent = coins
+
+let results=[0,2,3,5,10]
+
+let result = results[Math.floor(Math.random()*results.length)]
+
+let win = bet * result
+
+coins += win
+
+saveCoins()
+
+document.getElementById("coins").textContent = coins
+
+if(result==0){
+document.getElementById("result").innerText="You lost!"
+}else{
+document.getElementById("result").innerText="You won "+win+" coins ("+result+"x)"
+}
+
+}
+
+</script>
+
+</body>
+</html>
