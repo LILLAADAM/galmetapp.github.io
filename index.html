@@ -501,21 +501,21 @@
 
             // 5. Store user data with serverTimestamp
             // Generate 8-digit professional User ID
-const userId = Date.now().toString().slice(-8);
+                const userId = Date.now().toString().slice(-8);
 
-// Invite code from userId (clean system)
-const inviteCode = userId.slice(2,8);
+            // Invite code from userId (clean system)
+                const inviteCode = userId.slice(2,8);
 
-// Store user data
-await setDoc(doc(db, "users", user.uid), {
-    coins: 500,
-    email: email,
-    userId: userId, // ✅ ADD THIS
-    inviteCode: inviteCode,
-    referredBy: referredByUID,
-    firstTopup: false,
-    createdAt: serverTimestamp()
-});
+           // Store user data
+                await setDoc(doc(db, "users", user.uid), {
+                coins: 500,
+                email: email,
+   -            userId: userId, // ✅ ADD THIS
+                inviteCode: inviteCode,
+                referredBy: referredByUID,
+                firstTopup: false,
+                createdAt: serverTimestamp()
+           });
         
 
             // Auto-redirect without blocking alert
