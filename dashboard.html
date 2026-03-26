@@ -7,10 +7,10 @@
 
 <style>
 body {
-    margin: 0;
+    margin:0;
     font-family: 'Segoe UI', sans-serif;
     background: linear-gradient(135deg,#0f1b5c,#1f2f9c);
-    color: white;
+    color:white;
 }
 
 .header {
@@ -18,14 +18,23 @@ body {
     justify-content:space-between;
     padding:15px;
     background:rgba(0,0,0,0.3);
-    font-weight:600;
+    font-size:18px;
+    font-weight:bold;
+}
+
+.logout {
+    background:red;
+    border:none;
+    padding:6px 12px;
+    border-radius:8px;
+    color:white;
 }
 
 .container {
     padding:15px;
 }
 
-/* cards /
+/* CARD /
 .card {
     background: rgba(255,255,255,0.08);
     padding:15px;
@@ -33,21 +42,32 @@ body {
     margin-bottom:15px;
 }
 
-/ coins /
+/ USER INFO /
+.user-id {
+    color:#00ffcc;
+    font-size:16px;
+    font-weight:bold;
+}
+
+.email {
+    font-size:16px;
+    font-weight:600;
+}
+
+/ COINS /
 .coins {
-    font-size:28px;
+    font-size:32px;
+    font-weight:bold;
     color:#00ffcc;
 }
 
-/ invite /
+/ INVITE /
 .invite-box {
     display:flex;
     justify-content:space-between;
-    align-items:center;
     background:#111;
     padding:10px;
     border-radius:10px;
-    margin-top:10px;
 }
 
 .copy-btn {
@@ -55,42 +75,37 @@ body {
     border:none;
     padding:6px 10px;
     border-radius:6px;
-    cursor:pointer;
     color:white;
 }
 
-/ games /
+/ GAMES */
 .games {
     display:grid;
     grid-template-columns:1fr 1fr;
-    gap:10px;
+    gap:12px;
 }
 
 .game {
-    background:#222;
+    background:#1a1a1a;
     padding:15px;
     border-radius:12px;
     text-align:center;
+    font-weight:bold;
     cursor:pointer;
-    transition:0.2s;
 }
 
 .game:hover {
-    transform:scale(1.05);
+    background:#333;
 }
 
 .coming {
-    opacity:0.6;
+    opacity:0.5;
 }
 
-/ logout */
-.logout {
-    background:red;
-    border:none;
-    padding:6px 10px;
-    border-radius:6px;
-    color:white;
-    cursor:pointer;
+.title {
+    font-size:18px;
+    margin-bottom:10px;
+    font-weight:bold;
 }
 </style>
 </head>
@@ -98,56 +113,47 @@ body {
 <body>
 
 <div class="header">
-    <div>Galmet</div>
+    Galmet Dashboard
     <button class="logout" onclick="logout()">Logout</button>
 </div>
 
 <div class="container">
 
-<!-- USER -->
+<!-- WELCOME -->
 <div class="card">
-    <div><b>Email:</b> <span id="email"></span></div>
-    <div style="font-size:12px;opacity:0.7;">UID: <span id="uid"></span></div>
+    <div class="title">Welcome Back 👋</div>
+    <div class="email" id="email"></div>
+    <div class="user-id">User ID: <span id="userId"></span></div>
 </div>
 
 <!-- COINS -->
 <div class="card">
-    <div>Your Coins</div>
+    <div class="title">Your Balance 💰</div>
     <div class="coins" id="coins">0</div>
 </div>
 
 <!-- INVITE -->
 <div class="card">
-    <div><b>Invite & Earn</b></div>
+    <div class="title">Invite & Earn 🎁</div>
     <div class="invite-box">
-        <span id="inviteCode">---</span>
+        <span id="inviteCode"></span>
         <button class="copy-btn" onclick="copyCode()">Copy</button>
     </div>
-    <div style="font-size:12px;margin-top:5px;">
-        Invite users & earn rewards
+    <div style="margin-top:8px;font-size:13px;">
+        Invite friends & earn rewards instantly 🚀
     </div>
 </div>
 
 <!-- GAMES -->
 <div class="card">
-    <div><b>Games</b></div>
+    <div class="title">Play Games 🎮</div>
 
     <div class="games">
-        <div class="game" onclick="goGame('spin.html')">
-            🎯 Spin Wheel
-        </div>
+        <div class="game" onclick="goGame('spin.html')">🎯 Spin Wheel</div>
+        <div class="game" onclick="goGame('lucky.html')">🍀 Lucky Game</div>
 
-        <div class="game" onclick="goGame('lucky.html')">
-            🍀 Lucky Game
-        </div>
-
-        <div class="game coming">
-            🏁 Race (Coming Soon)
-        </div>
-
-        <div class="game coming">
-            🎮 More Games
-        </div>
+        <div class="game coming">🏁 Race<br>Coming Soon</div>
+        <div class="game coming">🎮 More<br>Coming Soon</div>
     </div>
 </div>
 
@@ -162,7 +168,7 @@ import { getFirestore, doc, onSnapshot }
 from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+  apiKey: "YOUR_API_KEY",
   authDomain: "galmet-app.firebaseapp.com",
   projectId: "galmet-app"
 };
@@ -171,27 +177,23 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// CHECK LOGIN
-onAuthStateChanged(auth, (user) => {
+// CHECK USER
+onAuthStateChanged(auth, (user)=>{
 
     if(!user){
         window.location.href = "index.html";
         return;
     }
 
-    document.getElementById("email").innerText = user.email;
-    document.getElementById("uid").innerText = user.uid;
-
-    // REAL TIME 🔥
     const ref = doc(db, "users", user.uid);
 
-    onSnapshot(ref, (docSnap) => {
-        if(docSnap.exists()){
-            const data = docSnap.data();
+    onSnapshot(ref, (snap)=>{
+        const data = snap.data();
 
-            document.getElementById("coins").innerText = data.coins || 0;
-            document.getElementById("inviteCode").innerText = data.inviteCode || "---";
-        }
+        document.getElementById("email").innerText = data.email;
+        document.getElementById("coins").innerText = data.coins;
+        document.getElementById("inviteCode").innerText = data.inviteCode;
+        document.getElementById("userId").innerText = data.userId || "00000000";
     });
 
 });
@@ -202,14 +204,14 @@ window.logout = function(){
     window.location.href = "index.html";
 }
 
-// COPY CODE
+// COPY
 window.copyCode = function(){
     const code = document.getElementById("inviteCode").innerText;
     navigator.clipboard.writeText(code);
     alert("Copied: " + code);
 }
 
-// OPEN GAME
+// GAME
 window.goGame = function(page){
     window.location.href = page;
 }
