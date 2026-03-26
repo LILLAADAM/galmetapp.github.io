@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Galmet Login</title>
+<title>Galmet</title>
 
 <style>
 body {
@@ -16,44 +16,65 @@ body {
     align-items: center;
 }
 
+/* Card /
 .container {
     background: rgba(255,255,255,0.08);
-    padding: 35px 25px;
+    padding: 25px 20px;
     border-radius: 20px;
-    width: 320px;
+    width: 90%;
+    max-width: 320px;
     text-align: center;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
 }
 
+/ Title /
 h1 {
     color: white;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
+    font-size: 26px;
 }
 
+/ Inputs /
 input {
     width: 100%;
-    padding: 14px;
-    margin: 10px 0;
+    padding: 13px;
+    margin: 8px 0;
     border: none;
     border-radius: 10px;
-    font-size: 15px;
+    font-size: 14px;
+    background: #f1f1f1;
 }
 
+/ Buttons /
 button {
     width: 100%;
-    padding: 14px;
+    padding: 13px;
     margin-top: 10px;
     border-radius: 10px;
     border: none;
-    font-size: 16px;
+    font-size: 15px;
     cursor: pointer;
+    transition: 0.3s;
 }
 
-.login-btn { background: #5fbf5f; color: white; }
-.register-btn { background: #f39c12; color: white; }
+.login-btn {
+    background: #5fbf5f;
+    color: white;
+}
 
+.register-btn {
+    background: #f39c12;
+    color: white;
+}
+
+button:hover {
+    transform: scale(1.02);
+}
+
+/ Error /
 #error {
-    color: red;
+    color: #ff4d4d;
+    font-size: 13px;
     margin-top: 10px;
 }
 </style>
@@ -66,6 +87,7 @@ button {
 
     <input type="email" id="email" placeholder="Email">
     <input type="password" id="password" placeholder="Password">
+    <input type="text" id="referral" placeholder="Referral Code (Optional)">
 
     <button class="login-btn" id="loginBtn">Login</button>
     <button class="register-btn" id="registerBtn">Register</button>
@@ -96,12 +118,13 @@ const db = getFirestore(app);
 
 const errorDiv = document.getElementById("error");
 
-// REGISTER
+/ REGISTER /
 document.getElementById("registerBtn").addEventListener("click", async () => {
     errorDiv.innerText = "";
 
     const email = document.getElementById("email").value.trim();
     const pass = document.getElementById("password").value.trim();
+    const referral = document.getElementById("referral").value.trim();
 
     if(!email || !pass){
         errorDiv.innerText = "Fill all fields";
@@ -109,8 +132,6 @@ document.getElementById("registerBtn").addEventListener("click", async () => {
     }
 
     try {
-        console.log("Register start");
-
         const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
         const user = userCredential.user;
 
@@ -120,7 +141,7 @@ document.getElementById("registerBtn").addEventListener("click", async () => {
             coins: 500,
             email: email,
             inviteCode: inviteCode,
-            referredBy: "",
+            referredBy: referral || "",
             firstTopup: false,
             createdAt: new Date()
         });
@@ -134,7 +155,7 @@ document.getElementById("registerBtn").addEventListener("click", async () => {
     }
 });
 
-// LOGIN
+/ LOGIN */
 document.getElementById("loginBtn").addEventListener("click", async () => {
     errorDiv.innerText = "";
 
@@ -147,8 +168,6 @@ document.getElementById("loginBtn").addEventListener("click", async () => {
     }
 
     try {
-        console.log("Login start");
-
         await signInWithEmailAndPassword(auth, email, pass);
 
         alert("Login Success ✅");
