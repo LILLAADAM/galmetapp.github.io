@@ -14,7 +14,6 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* ===== THEME VARIABLES (Light + Dark) with softer shadows ===== */
         :root {
             --bg-gradient-start: #f8fafc;
             --bg-gradient-end: #eef2ff;
@@ -376,14 +375,14 @@
         serverTimestamp
     } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-    // Firebase configuration (replace with actual keys in production)
+    // Firebase configuration
     const firebaseConfig = {
-        apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
-        authDomain: "galmet-app.firebaseapp.com",
+        apiKey: "my key",
+        authDomain: "my key",
         projectId: "galmet-app",
-        storageBucket: "galmet-app.firebasestorage.app",
-        messagingSenderId: "900590512024",
-        appId: "1:900590512024:web:16a36a085809a728c92ded"
+        storageBucket: "my key",
+        messagingSenderId: "my key",
+        appId: "1:my key:web:my key"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -455,7 +454,24 @@
         await setPersistence(auth, persistence);
     }
 
-    // ---------- REGISTER with referral validation + self-referral protection ----------
+    // Generate a unique 8-digit userId (with collision check)
+    async function generateUniqueUserId() {
+        let attempts = 0;
+        const maxAttempts = 5;
+        while (attempts < maxAttempts) {
+            const userId = Math.floor(10000000 + Math.random() * 90000000); // 8-digit number
+            // Check if this userId already exists in Firestore
+            const q = query(collection(db, "users"), where("userId", "==", userId));
+            const snapshot = await getDocs(q);
+            if (snapshot.empty) {
+                return userId;
+            }
+            attempts++;
+        }
+        throw new Error("Failed to generate unique user ID. Please try again.");
+    }
+
+    // ---------- REGISTER with new userId system ----------
     async function handleRegister() {
         setErrorMsg("");
         const { email, password, referral } = getTrimmedValues();
@@ -475,19 +491,23 @@
         try {
             await applyPersistence();
 
-            // 1. Create user
+            // 1. Create user in Firebase Auth
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
-            // 2. Generate invite code from user UID (first 6 uppercase chars)
-            const inviteCode = user.uid.slice(0, 6).toUpperCase();
+            // 2. Generate unique 8-digit userId
+            const userId = await generateUniqueUserId();
 
-            // 3. Self-referral protection: cannot refer yourself
+            // 3. Derive inviteCode from userId (digits 2-7, 6 chars)
+            const userIdStr = userId.toString();
+            const inviteCode = userIdStr.slice(2, 8); // e.g., 12345678 -> "345678"
+
+            // 4. Self-referral protection
             if (referral && referral === inviteCode) {
                 throw new Error("You cannot use your own referral code");
             }
 
-            // 4. Validate referral code if provided (and not self)
+            // 5. Validate referral code if provided
             let referredByUID = "";
             if (referral) {
                 const q = query(collection(db, "users"), where("inviteCode", "==", referral));
@@ -499,26 +519,18 @@
                 }
             }
 
-            // 5. Store user data with serverTimestamp
-            // Generate 8-digit professional User ID
-                const userId = Date.now().toString().slice(-8);
-
-            // Invite code from userId (clean system)
-                const inviteCode = userId.slice(2,8);
-
-           // Store user data
-                await setDoc(doc(db, "users", user.uid), {
-                coins: 500,
+            // 6. Store user data in Firestore (using userId and inviteCode)
+            await setDoc(doc(db, "users", user.uid), {
                 email: email,
-   -            userId: userId, // ✅ ADD THIS
+                coins: 500,
+                userId: userId,
                 inviteCode: inviteCode,
                 referredBy: referredByUID,
                 firstTopup: false,
                 createdAt: serverTimestamp()
-           });
-        
+            });
 
-            // Auto-redirect without blocking alert
+            // Auto-redirect to dashboard (no alert)
             window.location.href = "dashboard.html";
             
         } catch (error) {
@@ -534,6 +546,8 @@
                 friendlyError = "🔑 Invalid referral code. Please check and try again.";
             } else if (error.message === "You cannot use your own referral code") {
                 friendlyError = "⚠️ You cannot refer yourself. Please use someone else's code or leave blank.";
+            } else if (error.message.includes("unique user ID")) {
+                friendlyError = "⚠️ " + error.message;
             } else {
                 friendlyError += error.message;
             }
@@ -560,7 +574,6 @@
         try {
             await applyPersistence();
             await signInWithEmailAndPassword(auth, email, password);
-            // Auto-redirect without blocking alert
             window.location.href = "dashboard.html";
         } catch (error) {
             console.error("Login error:", error);
@@ -593,7 +606,6 @@
         try {
             await sendPasswordResetEmail(auth, email);
             setErrorMsg("📨 Reset email sent! Check your inbox.");
-            // Auto-clear success after 3 seconds
             setTimeout(() => {
                 if (errorDiv.innerText === "📨 Reset email sent! Check your inbox.") errorDiv.innerText = "";
             }, 4000);
@@ -608,10 +620,10 @@
 
     // ---------- Auth State Redirect ----------
     onAuthStateChanged(auth, (user) => {
-        if (user) {
-            window.location.href = "dashboard.html";
-        }
-    });
+    if (user && !window.location.pathname.includes("dashboard.html")) {
+        window.location.href = "dashboard.html";
+    }
+});
 
     // ---------- Event Listeners ----------
     loginBtn.addEventListener("click", (e) => {
