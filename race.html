@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>🏁 Lucky Car Race · Dynamic Odds & Betting Game</title>
+    <title>🏁 Lucky Car Race · Dynamic Odds & Auto-Racing</title>
     <style>
         * {
             box-sizing: border-box;
@@ -11,7 +11,7 @@
         }
 
         body {
-            background: linear-gradient(145deg, #0a1a1f 0%, #071217 100%);
+            background: linear-gradient(145deg, #0a1217 0%, #03090e 100%);
             font-family: 'Poppins', 'Segoe UI', 'Orbitron', monospace;
             margin: 0;
             padding: 20px;
@@ -21,308 +21,297 @@
             align-items: center;
         }
 
-        /* main game container */
+        /* main game container split half-half */
         .game-container {
             max-width: 1600px;
             width: 100%;
-            background: rgba(0, 0, 0, 0.55);
-            backdrop-filter: blur(2px);
-            border-radius: 2.5rem;
-            padding: 1.2rem;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,215,0,0.3);
-        }
-
-        /* split layout: left track + right panels */
-        .race-dashboard {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1.5rem;
-        }
-
-        /* left: canvas + section info */
-        .track-area {
-            flex: 2;
-            min-width: 520px;
-            background: #101c22;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(3px);
             border-radius: 2rem;
             padding: 1rem;
-            box-shadow: inset 0 0 10px #00000044, 0 8px 18px black;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,200,80,0.4);
         }
 
-        .canvas-wrapper {
-            background: #1e2e2c;
+        .split-layout {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.2rem;
+        }
+
+        /* LEFT SIDE: TRACK & TIMER & SECTION */
+        .track-section {
+            flex: 1.5;
+            min-width: 520px;
+            background: #0e1a1f;
             border-radius: 1.8rem;
-            padding: 8px;
+            padding: 1rem;
+            box-shadow: inset 0 0 10px #00000033, 0 8px 20px black;
+        }
+
+        .canvas-holder {
+            background: #1f332f;
+            border-radius: 1.5rem;
+            padding: 5px;
             border: 2px solid #ffc857;
         }
 
         canvas {
             display: block;
             width: 100%;
-            background: #2a3b3a;
+            background: #2a463f;
             border-radius: 1rem;
-            cursor: pointer;
         }
 
-        .section-panel {
-            background: #0f191fcc;
-            margin-top: 1rem;
-            border-radius: 1.4rem;
-            padding: 0.7rem 1rem;
-            backdrop-filter: blur(4px);
-            border-left: 6px solid #f0b429;
-        }
-
-        .section-title {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #ffda88;
-        }
-
-        .speed-grid {
+        .race-timer-bar {
             display: flex;
-            flex-wrap: wrap;
-            gap: 0.6rem;
-            margin-top: 0.5rem;
-            font-size: 0.7rem;
+            justify-content: space-between;
+            margin-top: 12px;
+            background: #071217cc;
+            padding: 6px 15px;
+            border-radius: 60px;
             font-weight: bold;
         }
 
-        .speed-badge {
-            background: #000000aa;
-            padding: 0.2rem 0.7rem;
-            border-radius: 40px;
-            color: #e0e0e0;
-            font-family: monospace;
+        .phase-tag {
+            background: #f0b429;
+            padding: 2px 12px;
+            border-radius: 30px;
+            color: #1f2a1b;
         }
 
-        /* right side: betting, odds, ranking, history */
-        .info-area {
-            flex: 1.4;
-            min-width: 320px;
+        .terrain-badge {
+            background: #2a481f;
+            padding: 2px 12px;
+            border-radius: 30px;
+        }
+
+        /* RIGHT SIDE: BETS, ODDS, RANKINGS */
+        .info-panel {
+            flex: 1;
+            min-width: 300px;
             display: flex;
             flex-direction: column;
-            gap: 1.2rem;
+            gap: 1rem;
         }
 
         .glass-card {
-            background: rgba(12, 22, 28, 0.85);
+            background: rgba(10, 22, 28, 0.85);
             backdrop-filter: blur(12px);
-            border-radius: 1.8rem;
+            border-radius: 1.5rem;
             padding: 1rem;
-            border: 1px solid rgba(255, 200, 80, 0.4);
-            box-shadow: 0 8px 14px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,200,80,0.3);
+            box-shadow: 0 5px 12px rgba(0,0,0,0.4);
         }
 
-        .balance-box {
-            background: linear-gradient(135deg, #2a2418, #1b1a12);
+        .balance-area {
             display: flex;
             justify-content: space-between;
-            align-items: baseline;
-            font-size: 1.4rem;
+            background: #1f2a1e;
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-size: 1.3rem;
             font-weight: bold;
-            padding: 0.5rem 1.2rem;
-            border-radius: 3rem;
-            color: #f5c542;
+            color: #ffda88;
         }
 
-        .car-bet-table {
+        .bet-zone {
             display: flex;
-            flex-direction: column;
-            max-height: 280px;
-            overflow-y: auto;
-            gap: 6px;
+            gap: 8px;
+            margin: 12px 0;
+            flex-wrap: wrap;
         }
 
-        .car-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #00000066;
-            padding: 6px 12px;
-            border-radius: 40px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            transition: 0.1s;
-            border-bottom: 1px solid #ffc85733;
-        }
-
-        .car-name {
-            width: 95px;
-            font-weight: bold;
-            color: #ffdd99;
-        }
-
-        .bet-total {
-            width: 85px;
-            text-align: right;
-            color: #c0ffb0;
-        }
-
-        .dyn-odds {
-            width: 65px;
-            text-align: center;
-            background: #2a2c1e;
-            border-radius: 20px;
-            font-family: monospace;
-            font-weight: bold;
-            color: #ffae42;
-        }
-
-        .select-car {
-            background: #ffb347;
+        .car-select {
+            background: #2f3e2c;
             border: none;
-            border-radius: 20px;
-            padding: 2px 8px;
+            padding: 8px;
+            border-radius: 2rem;
+            color: white;
             font-weight: bold;
-            cursor: pointer;
+            flex: 2;
         }
 
         .bet-input {
-            width: 85px;
             background: #1e2a2e;
             border: 1px solid gold;
-            border-radius: 30px;
-            padding: 6px;
+            border-radius: 2rem;
+            padding: 8px;
+            width: 100px;
             text-align: center;
             color: white;
-            font-weight: bold;
         }
 
-        .race-btn {
-            background: radial-gradient(circle at 30% 10%, #ffb347, #e07c1f);
+        .race-bet-btn {
+            background: radial-gradient(circle at 30% 20%, #ffb347, #e07c1f);
             border: none;
-            width: 100%;
-            padding: 12px;
+            padding: 8px 16px;
+            border-radius: 2rem;
             font-weight: bold;
-            font-size: 1.2rem;
-            border-radius: 3rem;
-            color: #141414;
-            letter-spacing: 1px;
             cursor: pointer;
-            transition: 0.1s linear;
-            margin-top: 10px;
-            box-shadow: 0 5px 0 #6b3c00;
+            transition: 0.1s;
         }
 
-        .race-btn:active {
-            transform: translateY(2px);
-            box-shadow: 0 2px 0 #6b3c00;
+        .race-bet-btn:active {
+            transform: scale(0.97);
         }
 
-        .history-list, .ranking-list {
-            font-size: 0.7rem;
-            max-height: 150px;
-            overflow-y: auto;
-        }
-
-        .history-item, .rank-item {
+        .car-odds-row {
             display: flex;
             justify-content: space-between;
-            border-bottom: 1px solid #2d3e3e;
-            padding: 6px 4px;
+            background: #00000055;
+            padding: 6px 12px;
+            margin: 4px 0;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: #2c3e2b;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 30px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .ranking-history {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+        .ranking-box, .history-box {
+            flex: 1;
+            max-height: 180px;
+            overflow-y: auto;
+            font-size: 0.7rem;
+        }
+        .rank-item, .history-item {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #3a554b;
+            padding: 5px 4px;
         }
 
         .fake-feed {
             font-size: 0.7rem;
             background: #071217aa;
             border-radius: 1rem;
-            padding: 0.5rem;
+            padding: 6px;
             max-height: 100px;
             overflow-y: auto;
         }
 
-        .badge-winner {
-            color: gold;
-            text-shadow: 0 0 2px black;
+        /* modal for details/odds/car info */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
         }
-
+        .modal-content {
+            background: #0f2027;
+            border-radius: 2rem;
+            padding: 1.5rem;
+            max-width: 500px;
+            width: 80%;
+            border: 2px solid #f5b642;
+            color: #eee;
+        }
+        .close-modal {
+            float: right;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
         button {
             font-family: inherit;
-        }
-
-        ::-webkit-scrollbar {
-            width: 4px;
         }
     </style>
 </head>
 <body>
 <div class="game-container">
-    <div class="race-dashboard">
-        <!-- LEFT: RACE TRACK + SECTION -->
-        <div class="track-area">
-            <div class="canvas-wrapper">
-                <canvas id="raceCanvas" width="800" height="400" style="width:100%; height:auto; background:#1f3e3b;"></canvas>
+    <div class="split-layout">
+        <!-- LEFT: TRACK + TIMER -->
+        <div class="track-section">
+            <div class="canvas-holder">
+                <canvas id="raceCanvas" width="750" height="300" style="width:100%; height:auto; background:#1f443d;"></canvas>
             </div>
-            <div class="section-panel" id="sectionPanel">
-                <div class="section-title">🏁 NEXT SECTION · SPEED MAP 🏁</div>
-                <div id="speedList" class="speed-grid">loading speeds...</div>
-                <div style="font-size:0.7rem; margin-top:6px;">⚡ dynamic odds = total pool / car bets</div>
+            <div class="race-timer-bar">
+                <span class="phase-tag" id="phaseLabel">⏳ BETTING</span>
+                <span id="timerDisplay" style="font-family:monospace;">00:35</span>
+                <span class="terrain-badge" id="terrainName">🏜️ DESERT</span>
             </div>
+            <div id="sectionSpeeds" style="font-size:0.7rem; margin-top:8px; display:flex; flex-wrap:wrap; gap:6px;"></div>
         </div>
 
-        <!-- RIGHT: BETS + INFO -->
-        <div class="info-area">
+        <!-- RIGHT: BETS, INFO, BUTTONS -->
+        <div class="info-panel">
             <div class="glass-card">
-                <div class="balance-box">
-                    <span>💰 YOUR CREDITS</span>
+                <div class="balance-area">
+                    <span>💰 MY CREDITS</span>
                     <span id="userBalance">10,000</span>
                 </div>
-                <div style="display:flex; gap:6px; margin-top: 8px;">
-                    <span>🏆 bet on car:</span>
-                    <select id="selectedCarSelect" style="flex:1; background:#2c3e2b; color:white; border-radius:30px;"></select>
+                <div class="bet-zone">
+                    <select id="carSelect" class="car-select"></select>
+                    <input type="number" id="betAmount" value="100" step="50" class="bet-input">
+                    <button id="placeBetBtn" class="race-bet-btn">🏁 PLACE BET</button>
                 </div>
-                <div style="display:flex; gap:8px; margin-top: 8px;">
-                    <input type="number" id="betAmount" placeholder="Amount" value="100" step="10" class="bet-input" style="width:120px;">
-                    <button id="placeBetRaceBtn" class="race-btn">🏎️ PLACE BET & RACE 🏁</button>
+                <div id="liveOddsContainer"></div>
+                <div class="button-row">
+                    <button class="action-btn" id="showOddsBtn">📊 ODDS</button>
+                    <button class="action-btn" id="showRankingBtn">🏆 RANKING</button>
+                    <button class="action-btn" id="showHistoryBtn">📜 HISTORY</button>
+                    <button class="action-btn" id="showRulesBtn">📖 RULES</button>
                 </div>
             </div>
 
-            <!-- DYNAMIC ODDS & CAR POOLS -->
-            <div class="glass-card">
-                <div style="font-weight:bold;">🔥 CURRENT RACE POOL · DYNAMIC ODDS</div>
-                <div id="carOddsContainer" class="car-bet-table"></div>
-                <div style="font-size:10px; margin-top:5px;">*odds = totalPool / carBet  →  prize = yourBet × odds</div>
-            </div>
-
-            <!-- RANKING (TOTAL, NO TABS) + FAKE HISTORY -->
-            <div class="glass-card" style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-                <div style="flex:1">
-                    <div>🏅 TOTAL RANKING (winnings)</div>
-                    <div id="rankingList" class="ranking-list"></div>
+            <div class="glass-card" style="padding:0.8rem;">
+                <div style="display:flex; justify-content:space-between;">
+                    <span>🏅 TOTAL RANKING (winning)</span>
+                    <span>🎲 fake activity</span>
                 </div>
-                <div style="flex:1">
-                    <div>📜 RACE HISTORY</div>
-                    <div id="historyList" class="history-list"></div>
+                <div class="ranking-history">
+                    <div id="rankingList" class="ranking-box">loading...</div>
+                    <div id="historyShortList" class="history-box">races...</div>
                 </div>
-            </div>
-            <div class="glass-card">
-                <div>💬 FAKE BETTING FEED</div>
-                <div id="fakeFeed" class="fake-feed">✨ waiting for race action...</div>
-                <button id="addFakeBetsBtn" style="margin-top:6px; background:#2d4f3b; border:none; border-radius:30px; padding:4px; font-size:11px;">➕ Inject Fake Bets (extra action)</button>
+                <div id="fakeFeed" class="fake-feed">✨ waiting for race...</div>
+                <button id="injectFakeBtn" style="margin-top:5px; background:#2d5a3b; border:none; border-radius:20px; padding:2px;">➕ Inject Fake Bets</button>
             </div>
         </div>
     </div>
 </div>
 
-<script>
-    // ----------------------------- VEHICLE DATA -------------------------
-    const CARS = [
-        { id: "Supercar",   name: "🏎️ SUPERCAR",   winRate: 20.3, baseSpeed: 89, terrain: { Desert: 0.95, Asphalt: 1.2, Mud: 0.75, Offroad: 0.82 } },
-        { id: "SportsCar",  name: "🚗 SPORTS",     winRate: 23.0, baseSpeed: 86, terrain: { Desert: 0.98, Asphalt: 1.18, Mud: 0.78, Offroad: 0.85 } },
-        { id: "Car",        name: "🚙 CAR",         winRate: 38.2, baseSpeed: 78, terrain: { Desert: 1.0, Asphalt: 1.05, Mud: 0.88, Offroad: 0.92 } },
-        { id: "SUV",        name: "🚙 SUV",         winRate: 38.7, baseSpeed: 76, terrain: { Desert: 1.02, Asphalt: 0.98, Mud: 0.94, Offroad: 1.02 } },
-        { id: "ORV",        name: "⛰️ ORV",         winRate: 39.0, baseSpeed: 74, terrain: { Desert: 1.05, Asphalt: 0.85, Mud: 1.12, Offroad: 1.20 } },
-        { id: "StockCar",   name: "🏁 STOCK",       winRate: 40.7, baseSpeed: 82, terrain: { Desert: 0.92, Asphalt: 1.15, Mud: 0.72, Offroad: 0.80 } },
-        { id: "ATV",        name: "🏍️ ATV",         winRate: 32.6, baseSpeed: 70, terrain: { Desert: 0.88, Asphalt: 0.92, Mud: 1.05, Offroad: 1.18 } },
-        { id: "MonsterTruck", name: "🐉 MONSTER",   winRate: 45.1, baseSpeed: 68, terrain: { Desert: 1.08, Asphalt: 0.75, Mud: 1.25, Offroad: 1.15 } },
-        { id: "Motorcycle", name: "🏍️ MOTO",       winRate: 22.3, baseSpeed: 92, terrain: { Desert: 0.93, Asphalt: 1.22, Mud: 0.68, Offroad: 0.88 } }
-    ];
-    const TERRAINS = ["Desert", "Asphalt", "Mud", "Offroad"];
+<!-- MODALS -->
+<div id="infoModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><div id="modalBody"></div></div></div>
 
-    // ----- Fake players (total ranking)
+<script>
+    // ------------------------------- CAR DATABASE (based on images) ---------------------------------
+    const TERRAINS = ["Expressway", "Desert", "Highway", "Potholes", "Dirt", "Bumpy"];
+    const CARS_DB = [
+        { id: "supercar", name: "🏎️ SUPERCAR", winRate: 20.4, stdOdds: 4.9, baseSpeed: 96, terrainMod: { Expressway:1.25, Desert:0.92, Highway:1.18, Potholes:0.70, Dirt:0.75, Bumpy:0.65 } },
+        { id: "sports", name: "🚗 SPORTS CAR", winRate: 22.8, stdOdds: 4.3, baseSpeed: 92, terrainMod: { Expressway:1.20, Desert:0.95, Highway:1.15, Potholes:0.73, Dirt:0.78, Bumpy:0.70 } },
+        { id: "car", name: "🚙 CAR", winRate: 38.1, stdOdds: 2.6, baseSpeed: 84, terrainMod: { Expressway:1.05, Desert:1.02, Highway:1.08, Potholes:0.85, Dirt:0.88, Bumpy:0.82 } },
+        { id: "suv", name: "🚙 SUV", winRate: 38.8, stdOdds: 2.5, baseSpeed: 80, terrainMod: { Expressway:0.98, Desert:1.07, Highway:1.02, Potholes:0.92, Dirt:0.95, Bumpy:0.90 } },
+        { id: "orv", name: "⛰️ ORV", winRate: 39.0, stdOdds: 2.5, baseSpeed: 77, terrainMod: { Expressway:0.85, Desert:1.12, Highway:0.92, Potholes:1.02, Dirt:1.15, Bumpy:1.08 } },
+        { id: "stock", name: "🏁 STOCK CAR", winRate: 40.4, stdOdds: 2.4, baseSpeed: 86, terrainMod: { Expressway:1.10, Desert:0.94, Highway:1.12, Potholes:0.80, Dirt:0.82, Bumpy:0.78 } },
+        { id: "atv", name: "🏍️ ATV", winRate: 32.7, stdOdds: 3.0, baseSpeed: 73, terrainMod: { Expressway:0.88, Desert:0.92, Highway:0.90, Potholes:1.05, Dirt:1.10, Bumpy:1.12 } },
+        { id: "monster", name: "🐉 MONSTER TRUCK", winRate: 45.2, stdOdds: 2.2, baseSpeed: 68, terrainMod: { Expressway:0.70, Desert:1.08, Highway:0.75, Potholes:1.20, Dirt:1.28, Bumpy:1.25 } },
+        { id: "moto", name: "🏍️ MOTORCYCLE", winRate: 22.6, stdOdds: 4.4, baseSpeed: 98, terrainMod: { Expressway:1.22, Desert:0.88, Highway:1.20, Potholes:0.65, Dirt:0.70, Bumpy:0.68 } }
+    ];
+
+    // ----- FAKE PLAYERS & USER -----
     let fakePlayers = [
         { name: "User23395019", totalWon: 17300000000, stars: 19, level: 5, avatar: "🏅" },
         { name: "SALMANKHAN", totalWon: 16190000000, stars: 25, level: 8, avatar: "⭐" },
@@ -334,61 +323,37 @@
     ];
     let currentUser = { name: "🔥 YOU", totalWon: 0, balance: 10000, stars: 12, level: 3 };
 
-    // Race state : current race bets (carId -> totalBetAmount) + bettorDetails list (for payout)
-    let currentRaceBets = {};      // { carId: totalAmount }
-    let currentBettors = [];       // { name, carId, amount, isUser }
+    // Race State: each race picks 3 random cars from DB
+    let currentRaceCars = [];   // array of 3 car objects
+    let raceBets = {};          // { carId: totalBetAmount }
+    let bettorsList = [];       // { name, carId, amount, isUser }
     let totalPool = 0;
-    let raceHistory = [];           // store last 8 races { winnerCar, winnersCount, prizePool, time }
-    let raceCounter = 0;
-
-    // current terrain & speeds
+    let raceHistory = [];       // { winnerCarName, winnersCount, prizePool, time }
     let currentTerrain = "Desert";
-    let carSpeeds = {};
+    let carSpeeds = {};         // for UI display
 
-    // canvas animation
-    let canvas = document.getElementById('raceCanvas');
-    let ctx = canvas.getContext('2d');
-    let animating = false;
-    let racePositions = [];
+    // Timer & Game Cycle
+    let gamePhase = "BETTING";   // BETTING, RACE, BREAK, RESULTS
+    let phaseEndTime = 0;
+    let animationRequest = null;
+    let raceActive = false;
+    let raceFinishTimes = null;   // {carId: time}
+    let raceWinnerId = null;
 
-    // helper: compute dynamic odds for UI
-    function computeDynamicOdds() {
-        let total = 0;
-        for(let c of CARS) total += (currentRaceBets[c.id] || 0);
-        if(total === 0) total = 1;
-        let odds = {};
-        for(let c of CARS) {
-            let betOnCar = currentRaceBets[c.id] || 0;
-            odds[c.id] = betOnCar === 0 ? total : (total / betOnCar).toFixed(2);
-        }
-        return { total, odds };
+    // canvas & animation
+    const canvas = document.getElementById('raceCanvas');
+    const ctx = canvas.getContext('2d');
+    let carImages = {}; // placeholder for future webp, using emoji fallback
+
+    // Helper functions
+    function formatNumber(num) {
+        if(num >= 1e9) return (num/1e9).toFixed(1)+'B';
+        if(num >= 1e6) return (num/1e6).toFixed(1)+'M';
+        if(num >= 1e3) return (num/1e3).toFixed(0)+'K';
+        return num.toString();
     }
 
-    // render car odds table
-    function renderOddsTable() {
-        const container = document.getElementById('carOddsContainer');
-        const { total, odds } = computeDynamicOdds();
-        container.innerHTML = CARS.map(car => {
-            let bet = currentRaceBets[car.id] || 0;
-            let oddVal = odds[car.id];
-            return `<div class="car-row">
-                        <span class="car-name">${car.name}</span>
-                        <span class="bet-total">💰 ${(bet).toFixed(0)}</span>
-                        <span class="dyn-odds">x${oddVal}</span>
-                        <button class="select-car" data-carid="${car.id}">🎲 BET</button>
-                    </div>`;
-        }).join('');
-        // attach quick select events
-        document.querySelectorAll('.select-car').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                let carId = btn.getAttribute('data-carid');
-                let carObj = CARS.find(c=>c.id===carId);
-                if(carObj) document.getElementById('selectedCarSelect').value = carId;
-            });
-        });
-    }
-
-    // update ranking display (user + fakePlayers sorted by totalWon)
+    // update ranking UI
     function updateRanking() {
         let all = [...fakePlayers, { name: currentUser.name, totalWon: currentUser.totalWon, stars: currentUser.stars, level: currentUser.level, avatar: "👤" }];
         all.sort((a,b) => b.totalWon - a.totalWon);
@@ -396,284 +361,358 @@
         rankDiv.innerHTML = all.slice(0,7).map((p,idx) => `
             <div class="rank-item">
                 <span>${idx+1}. ${p.avatar} ${p.name}</span>
-                <span>🏆 ${(p.totalWon/1e6).toFixed(1)}M</span>
+                <span>🏆 ${formatNumber(p.totalWon)}</span>
                 <span>⭐${p.stars} Lv${p.level}</span>
             </div>
         `).join('');
     }
 
-    function addHistoryEntry(winnerCar, winnersCount, prizePool) {
-        let timeStr = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-        raceHistory.unshift({ winnerCar, winnersCount, prizePool, time: timeStr });
-        if(raceHistory.length > 10) raceHistory.pop();
-        const histDiv = document.getElementById('historyList');
-        histDiv.innerHTML = raceHistory.map(h => `
+    function updateHistoryShort() {
+        const histDiv = document.getElementById('historyShortList');
+        if(raceHistory.length === 0) { histDiv.innerHTML = '<div>No races yet</div>'; return; }
+        histDiv.innerHTML = raceHistory.slice(0,8).map(h => `
             <div class="history-item">
                 <span>${h.time}</span>
-                <span class="badge-winner">🏎️ ${h.winnerCar}</span>
-                <span>👥 ${h.winnersCount}</span>
-                <span>💰 ${(h.prizePool/1e3).toFixed(0)}K</span>
+                <span>🏎️ ${h.winnerCarName}</span>
+                <span>👥${h.winnersCount}</span>
+                <span>💰${formatNumber(h.prizePool)}</span>
             </div>
         `).join('');
     }
 
-    // Fake feed
+    function addHistoryEntry(winnerCarName, winnersCount, prizePool) {
+        let now = new Date();
+        let timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+        raceHistory.unshift({ winnerCarName, winnersCount, prizePool, time: timeStr });
+        if(raceHistory.length > 15) raceHistory.pop();
+        updateHistoryShort();
+    }
+
+    // compute dynamic odds for current 3 cars
+    function computeDynamicOdds() {
+        if(totalPool === 0) return {};
+        let odds = {};
+        for(let car of currentRaceCars) {
+            let betOn = raceBets[car.id] || 1;
+            odds[car.id] = (totalPool / betOn).toFixed(2);
+        }
+        return odds;
+    }
+
+    function renderOddsUI() {
+        const container = document.getElementById('liveOddsContainer');
+        if(!currentRaceCars.length) { container.innerHTML = "<div>waiting race...</div>"; return; }
+        const oddsMap = computeDynamicOdds();
+        container.innerHTML = currentRaceCars.map(car => {
+            let betAmount = raceBets[car.id] || 0;
+            let oddVal = oddsMap[car.id] || (totalPool===0 ? "∞" : "0");
+            return `<div class="car-odds-row">
+                        <span>${car.name}</span>
+                        <span>💰 ${formatNumber(betAmount)}</span>
+                        <span style="color:#ffae70">x${oddVal}</span>
+                    </div>`;
+        }).join('');
+    }
+
+    // generate fake bettors (1-4) for random car among currentRaceCars
+    function generateFakeBet() {
+        if(!currentRaceCars.length || gamePhase !== "BETTING") return;
+        let car = currentRaceCars[Math.floor(Math.random() * currentRaceCars.length)];
+        let amount = Math.floor(Math.random() * 400) + 50;
+        let fakeName = fakePlayers[Math.floor(Math.random() * fakePlayers.length)].name;
+        // add to pool
+        raceBets[car.id] = (raceBets[car.id] || 0) + amount;
+        bettorsList.push({ name: fakeName, carId: car.id, amount, isUser: false });
+        totalPool += amount;
+        renderOddsUI();
+        addFakeMessage(`🎲 ${fakeName} bet ${amount} on ${car.name}`);
+    }
+
     function addFakeMessage(msg) {
-        const feedDiv = document.getElementById('fakeFeed');
-        feedDiv.innerHTML = `✨ ${msg}<br>` + feedDiv.innerHTML;
-        if(feedDiv.children.length > 6) feedDiv.lastElementChild?.remove();
+        const feed = document.getElementById('fakeFeed');
+        feed.innerHTML = `✨ ${msg}<br>` + feed.innerHTML;
+        if(feed.children.length > 7) feed.lastElementChild?.remove();
     }
 
-    // generate random fake bettors (3-8) for current race
-    function generateFakeBettorsForRace() {
-        let fakeCount = Math.floor(Math.random() * 7) + 3; // 3-9
-        let newBettors = [];
-        for(let i=0; i<fakeCount; i++) {
-            let randomCar = CARS[Math.floor(Math.random() * CARS.length)];
-            let randomAmount = Math.floor(Math.random() * 800) + 80; // 80-880
-            let fakeName = fakePlayers[Math.floor(Math.random() * fakePlayers.length)].name;
-            newBettors.push({ name: fakeName, carId: randomCar.id, amount: randomAmount, isUser: false });
-        }
-        return newBettors;
+    // place user bet
+    function placeUserBet() {
+        if(gamePhase !== "BETTING") { addFakeMessage("⛔ Betting phase closed! Wait next race."); return; }
+        let selectedCarId = document.getElementById('carSelect').value;
+        let amount = parseInt(document.getElementById('betAmount').value);
+        if(isNaN(amount) || amount <= 0) { alert("Enter valid amount"); return; }
+        if(amount > currentUser.balance) { alert("Insufficient balance"); return; }
+        let carObj = currentRaceCars.find(c => c.id === selectedCarId);
+        if(!carObj) { alert("Car not in this race"); return; }
+        currentUser.balance -= amount;
+        updateBalanceUI();
+        raceBets[carObj.id] = (raceBets[carObj.id] || 0) + amount;
+        bettorsList.push({ name: currentUser.name, carId: carObj.id, amount, isUser: true });
+        totalPool += amount;
+        renderOddsUI();
+        addFakeMessage(`🔥 YOU bet ${amount} on ${carObj.name}`);
     }
 
-    // add bets to current race state (both user & fakes)
-    function addBetsToRace(bettorsArray) {
-        for(let bet of bettorsArray) {
-            let prev = currentRaceBets[bet.carId] || 0;
-            currentRaceBets[bet.carId] = prev + bet.amount;
-            currentBettors.push(bet);
-            totalPool += bet.amount;
-            // feed message for fakes (if not user)
-            if(!bet.isUser) addFakeMessage(`${bet.name} bet ${bet.amount} on ${CARS.find(c=>c.id===bet.carId)?.name}`);
-        }
+    function updateBalanceUI() {
+        document.getElementById('userBalance').innerHTML = formatNumber(currentUser.balance);
+        updateRanking();
     }
 
-    // reset race bets (after race ends)
-    function resetRacePool() {
-        currentRaceBets = {};
-        currentBettors = [];
-        totalPool = 0;
-        for(let c of CARS) currentRaceBets[c.id] = 0;
-    }
-
-    // terrain & speed calculation for race simulation
-    function updateSectionSpeeds(terrain) {
-        carSpeeds = {};
-        for(let car of CARS) {
-            let mult = car.terrain[terrain] || 1.0;
-            let finalSpeed = car.baseSpeed * mult + (Math.random() * 8 - 2); // random variance
-            carSpeeds[car.id] = Math.max(40, finalSpeed);
-        }
-        const speedDiv = document.getElementById('speedList');
-        speedDiv.innerHTML = CARS.map(c => `<span class="speed-badge">${c.name.split(' ')[0]} ${carSpeeds[c.id].toFixed(1)}km/h</span>`).join('');
-    }
-
-    // simulate race: returns winning car id & sorted ranking
-    function simulateRaceResult() {
-        // finish time = distance (1000) / speed + random jitter
+    // simulate race result based on speeds & terrain
+    function computeRaceResult() {
         let finishTimes = {};
-        for(let car of CARS) {
-            let speed = carSpeeds[car.id];
-            let variance = (Math.random() * 0.2 - 0.1) * speed;
-            let effective = Math.max(30, speed + variance);
-            let time = 1000 / effective;  // lower = better
+        for(let car of currentRaceCars) {
+            let base = car.baseSpeed;
+            let mod = car.terrainMod[currentTerrain] || 1.0;
+            let finalSpeed = base * mod + (Math.random() * 6 - 2);
+            finalSpeed = Math.max(40, finalSpeed);
+            let time = 1000 / finalSpeed;  // smaller = faster
             finishTimes[car.id] = time;
         }
-        let sorted = [...CARS].sort((a,b) => finishTimes[a.id] - finishTimes[b.id]);
-        return { winnerId: sorted[0].id, rankings: sorted.map(c=>c.id), finishTimes };
+        let sorted = [...currentRaceCars].sort((a,b) => finishTimes[a.id] - finishTimes[b.id]);
+        let winnerCar = sorted[0];
+        return { winner: winnerCar, finishTimes };
     }
 
-    // animate race based on finishTimes
-    function startRaceAnimation(winnerId, finishTimes) {
-        if(animating) return;
-        animating = true;
+    // payout winners
+    function distributePrizes(winnerCar) {
+        let winners = bettorsList.filter(b => b.carId === winnerCar.id);
+        let totalWonOnWinner = raceBets[winnerCar.id] || 1;
+        let prizePool = totalPool;
+        for(let bettor of winners) {
+            let share = (bettor.amount / totalWonOnWinner) * prizePool;
+            let rounded = Math.floor(share);
+            if(bettor.isUser) {
+                currentUser.balance += rounded;
+                currentUser.totalWon += rounded;
+                addFakeMessage(`🎉 YOU won ${rounded} credits!`);
+            } else {
+                let fake = fakePlayers.find(f => f.name === bettor.name);
+                if(fake) fake.totalWon += rounded;
+                addFakeMessage(`🏆 ${bettor.name} won ${rounded} on ${winnerCar.name}`);
+            }
+        }
+        updateBalanceUI();
+        updateRanking();
+        addHistoryEntry(winnerCar.name, winners.length, prizePool);
+    }
+
+    // reset race for next cycle (new random cars & terrain)
+    function resetForNextRace() {
+        // pick 3 random distinct cars
+        let shuffled = [...CARS_DB];
+        for(let i=shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random()*(i+1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        currentRaceCars = shuffled.slice(0,3);
+        raceBets = {};
+        bettorsList = [];
+        totalPool = 0;
+        // add a few initial fake bets
+        for(let i=0;i<4;i++) generateFakeBet();
+        renderOddsUI();
+        // pick random terrain
+        currentTerrain = TERRAINS[Math.floor(Math.random() * TERRAINS.length)];
+        document.getElementById('terrainName').innerHTML = `🏁 ${currentTerrain}`;
+        // compute speeds for UI display
+        updateSectionSpeedsDisplay();
+        // update car select dropdown
+        const select = document.getElementById('carSelect');
+        select.innerHTML = currentRaceCars.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    }
+
+    function updateSectionSpeedsDisplay() {
+        let speedsHtml = "";
+        for(let car of currentRaceCars) {
+            let spd = car.baseSpeed * (car.terrainMod[currentTerrain] || 1);
+            speedsHtml += `<span style="background:#000000aa; padding:2px 8px; border-radius:40px;">${car.name.split(' ')[0]} ${spd.toFixed(1)} km/h</span>`;
+        }
+        document.getElementById('sectionSpeeds').innerHTML = speedsHtml;
+    }
+
+    // ---------- RACE ANIMATION ----------
+    function startRaceAnimation(finishTimes, winnerCar) {
+        if(animationRequest) cancelAnimationFrame(animationRequest);
         const startTime = performance.now();
-        const duration = 1800; // ms
-        const carYs = [40, 85, 130, 175, 220, 265, 310, 355, 400];
+        const duration = 1800;
+        const lanes = [60, 145, 230]; // Y positions
+        const startX = 45;
         const finishX = canvas.width - 70;
-        const startX = 40;
         function drawFrame(now) {
             let elapsed = now - startTime;
-            let progress = Math.min(1, elapsed / duration);
+            let t = Math.min(1, elapsed / duration);
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "#2e4a3e";
+            ctx.fillStyle = "#1d423c";
             ctx.fillRect(0,0,canvas.width,canvas.height);
             // track lines
             ctx.strokeStyle = "#ffd966";
             ctx.lineWidth = 2;
-            for(let i=0; i<CARS.length; i++) {
-                let y = carYs[i % carYs.length];
+            for(let i=0;i<3;i++) {
                 ctx.beginPath();
-                ctx.moveTo(20, y);
-                ctx.lineTo(canvas.width-20, y);
+                ctx.moveTo(20, lanes[i]);
+                ctx.lineTo(canvas.width-20, lanes[i]);
                 ctx.stroke();
             }
-            // finish line
-            ctx.fillStyle = "#fff7e8";
+            ctx.fillStyle = "#fff3cf";
             ctx.fillRect(finishX-5, 10, 8, canvas.height-20);
             // draw cars
-            for(let idx=0; idx<CARS.length; idx++) {
-                let car = CARS[idx];
-                let finishRatio = finishTimes[car.id] ? Math.min(1, finishTimes[car.id] / Math.max(...Object.values(finishTimes))) : 1;
-                let ease = progress;
-                let x = startX + (finishX - startX) * ease;
-                let y = carYs[idx % carYs.length];
-                ctx.font = "bold 20px 'Segoe UI'";
-                ctx.fillStyle = car.id === winnerId ? "#FFD966" : "#CCCCCC";
-                ctx.shadowBlur = 0;
-                ctx.fillText(car.name.substring(0,3), x-15, y-6);
-                ctx.fillStyle = car.id === winnerId ? "#F5A623" : "#BBBBBB";
-                ctx.beginPath();
-                ctx.rect(x-8, y-12, 28, 16);
-                ctx.fill();
+            for(let idx=0; idx<currentRaceCars.length; idx++) {
+                let car = currentRaceCars[idx];
+                let finishRatio = finishTimes[car.id] / (Math.max(...Object.values(finishTimes)) + 0.001);
+                let progress = t;
+                let x = startX + (finishX - startX) * progress;
+                let y = lanes[idx];
+                ctx.font = "bold 18px 'Segoe UI'";
+                ctx.fillStyle = car.id === winnerCar.id ? "#FFD966" : "#EEE";
+                ctx.fillText(car.name.substring(0,3), x-12, y-8);
+                ctx.fillStyle = car.id === winnerCar.id ? "#F5A623" : "#BBBBBB";
+                ctx.fillRect(x-8, y-10, 24, 14);
                 ctx.fillStyle = "black";
-                ctx.fillText("🚗", x-5, y);
+                ctx.font = "20px monospace";
+                ctx.fillText("🚗", x-5, y+1);
             }
-            if(progress < 1) requestAnimationFrame(drawFrame);
+            if(t < 1) animationRequest = requestAnimationFrame(drawFrame);
             else {
-                animating = false;
-                ctx.fillStyle = "#ffbb44";
-                ctx.font = "bold 26monospace";
-                ctx.fillText("🏆 WINNER!", finishX-100, 40);
+                animationRequest = null;
+                ctx.fillStyle = "#ffcc44";
+                ctx.font = "bold 24px monospace";
+                ctx.fillText(`🏆 WINNER ${winnerCar.name}`, finishX-150, 40);
             }
         }
-        requestAnimationFrame(drawFrame);
+        animationRequest = requestAnimationFrame(drawFrame);
     }
 
-    // main race execution (user bet + fake bets added)
-    async function executeRace(userCarId, userAmount) {
-        if(animating) { alert("Race in progress, wait!"); return false; }
-        if(userAmount <= 0 || userAmount > currentUser.balance) { alert("Invalid bet amount or insufficient balance"); return false; }
-        // deduct user balance temporarily
-        currentUser.balance -= userAmount;
-        updateBalanceUI();
-
-        // 1) Add user bet to current pool
-        let userBetObj = { name: currentUser.name, carId: userCarId, amount: userAmount, isUser: true };
-        // 2) generate fresh fake bettors for this race
-        let fakeBets = generateFakeBettorsForRace();
-        // combine all bets
-        resetRacePool();   // fresh pool for this race
-        totalPool = 0;
-        currentRaceBets = {};
-        currentBettors = [];
-        addBetsToRace([userBetObj]);
-        addBetsToRace(fakeBets);
-        // update UI odds
-        renderOddsTable();
-
-        // pick random terrain & announce speeds
-        currentTerrain = TERRAINS[Math.floor(Math.random() * TERRAINS.length)];
-        document.getElementById('sectionPanel').querySelector('.section-title').innerHTML = `🏁 ${currentTerrain.toUpperCase()} SECTION · SPEED MAP 🏁`;
-        updateSectionSpeeds(currentTerrain);
-
-        // simulate race result
-        let { winnerId, rankings, finishTimes } = simulateRaceResult();
-        let winningCarObj = CARS.find(c=>c.id===winnerId);
-        let totalPrizePool = totalPool;
-        let winnersBettors = currentBettors.filter(b => b.carId === winnerId);
-        let totalBetOnWinner = currentRaceBets[winnerId] || 1;
-
-        // distribute prizes
-        for(let bettor of winnersBettors) {
-            let share = (bettor.amount / totalBetOnWinner) * totalPrizePool;
-            let roundedShare = Math.floor(share);
-            if(bettor.isUser) {
-                currentUser.balance += roundedShare;
-                currentUser.totalWon += roundedShare;
-                addFakeMessage(`🔥 YOU won ${roundedShare} credits! Car ${winningCarObj.name} won!`);
-            } else {
-                let fakePlayer = fakePlayers.find(f => f.name === bettor.name);
-                if(fakePlayer) fakePlayer.totalWon += roundedShare;
-                addFakeMessage(`🎉 ${bettor.name} won ${roundedShare} on ${winningCarObj.name}`);
-            }
+    // ---- GAME CYCLE ENGINE (35s BET, 10s RACE, 10s BREAK, 5s RESULTS) ----
+    let gameInterval = null;
+    function advancePhase() {
+        if(gamePhase === "BETTING") {
+            // switch to RACE
+            gamePhase = "RACE";
+            document.getElementById('phaseLabel').innerHTML = "🏁 RACE IN PROGRESS";
+            // compute race result BEFORE animation
+            let { winner, finishTimes } = computeRaceResult();
+            raceWinnerId = winner.id;
+            raceFinishTimes = finishTimes;
+            startRaceAnimation(finishTimes, winner);
+            // after race simulation, we will distribute prizes at end of race phase (after 10s)
+            setTimeout(() => {
+                if(gamePhase === "RACE") {
+                    // distribute prizes
+                    let winnerCar = currentRaceCars.find(c=>c.id===raceWinnerId);
+                    if(winnerCar) distributePrizes(winnerCar);
+                    gamePhase = "BREAK";
+                    document.getElementById('phaseLabel').innerHTML = "⏸️ BREAK";
+                    phaseEndTime = Date.now() + 10000;
+                }
+            }, 10000);
+        } 
+        else if(gamePhase === "BREAK") {
+            gamePhase = "RESULTS";
+            document.getElementById('phaseLabel').innerHTML = "📊 RESULTS / NEXT";
+            phaseEndTime = Date.now() + 5000;
         }
-        updateBalanceUI();
-        updateRanking();
-        // add history
-        addHistoryEntry(winningCarObj.name, winnersBettors.length, totalPrizePool);
-        
-        // after race, reset pool and generate new initial fake bets for next race (idle state)
-        resetRacePool();
-        let initialFakeForNext = generateFakeBettorsForRace().slice(0,5);
-        addBetsToRace(initialFakeForNext);
-        renderOddsTable();
-        
-        // animation with finishing times
-        startRaceAnimation(winnerId, finishTimes);
-        return true;
-    }
-
-    function updateBalanceUI() {
-        document.getElementById('userBalance').innerHTML = currentUser.balance.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    }
-
-    // populate car select dropdown
-    function populateCarSelect() {
-        let select = document.getElementById('selectedCarSelect');
-        select.innerHTML = CARS.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-    }
-
-    // extra fake bet injection (user can add more fake activity)
-    function injectExtraFakeBets() {
-        let extra = generateFakeBettorsForRace().slice(0,3);
-        addBetsToRace(extra);
-        renderOddsTable();
-        addFakeMessage("💸 New random fake bets injected!");
-    }
-
-    // INITIALIZE GAME
-    function initGame() {
-        populateCarSelect();
-        resetRacePool();
-        // initial fake bets to fill race pool
-        let starterFakes = [];
-        for(let i=0;i<6;i++) {
-            let rc = CARS[Math.floor(Math.random()*CARS.length)];
-            let amount = Math.floor(Math.random() * 500) + 50;
-            let fn = fakePlayers[Math.floor(Math.random()*fakePlayers.length)].name;
-            starterFakes.push({ name: fn, carId: rc.id, amount, isUser: false });
+        else if(gamePhase === "RESULTS") {
+            // reset everything for next race
+            resetForNextRace();
+            gamePhase = "BETTING";
+            document.getElementById('phaseLabel').innerHTML = "⏳ BETTING (35s)";
+            phaseEndTime = Date.now() + 35000;
+            // start generating fake bets every 4 sec during betting
         }
-        addBetsToRace(starterFakes);
-        renderOddsTable();
-        currentTerrain = "Desert";
-        updateSectionSpeeds(currentTerrain);
+        updateTimerDisplay();
+    }
+
+    function updateTimerDisplay() {
+        let remaining = Math.max(0, Math.floor((phaseEndTime - Date.now())/1000));
+        let mins = Math.floor(remaining/60);
+        let secs = remaining % 60;
+        document.getElementById('timerDisplay').innerHTML = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+        if(remaining <= 0 && gamePhase !== "RACE") advancePhase();
+    }
+
+    // periodic timer update
+    setInterval(() => {
+        if(gamePhase !== "RACE") updateTimerDisplay();
+        else {
+            // during race just show race active
+            document.getElementById('timerDisplay').innerHTML = "🏁 RACING";
+        }
+    }, 200);
+
+    // fake bet generation only during betting
+    let fakeBetInterval = setInterval(() => {
+        if(gamePhase === "BETTING" && currentRaceCars.length) {
+            generateFakeBet();
+        }
+    }, 3800);
+
+    // ---- MODAL HANDLERS ----
+    function showModal(content) {
+        const modal = document.getElementById('infoModal');
+        document.getElementById('modalBody').innerHTML = content;
+        modal.style.display = 'flex';
+    }
+    document.querySelectorAll('.close-modal').forEach(el => {
+        el.addEventListener('click', () => document.getElementById('infoModal').style.display = 'none');
+    });
+    window.onclick = (e) => { if(e.target === document.getElementById('infoModal')) document.getElementById('infoModal').style.display = 'none'; };
+
+    document.getElementById('showOddsBtn').onclick = () => {
+        let table = "<h3>Standard Win Rate & Odds</h3><table style='width:100%'><tr><th>Car</th><th>Win Rate</th><th>Odds</th></tr>";
+        CARS_DB.forEach(c => { table += `<tr><td>${c.name}</td><td>${c.winRate}%</td><td>${c.stdOdds}</td></tr>`; });
+        table += "</table>";
+        showModal(table);
+    };
+    document.getElementById('showRankingBtn').onclick = () => {
+        let rankHtml = "<h3>🏆 TOTAL RANKING</h3>";
+        let all = [...fakePlayers, { name: currentUser.name, totalWon: currentUser.totalWon, stars: currentUser.stars, level: currentUser.level, avatar: "👤" }];
+        all.sort((a,b)=>b.totalWon - a.totalWon).slice(0,10).forEach((p,i)=>{
+            rankHtml += `<div>${i+1}. ${p.avatar} ${p.name} : ${formatNumber(p.totalWon)} (⭐${p.stars} Lv${p.level})</div>`;
+        });
+        showModal(rankHtml);
+    };
+    document.getElementById('showHistoryBtn').onclick = () => {
+        let histHtml = "<h3>📜 RACE HISTORY</h3>";
+        raceHistory.forEach(h => {
+            histHtml += `<div>${h.time} - ${h.winnerCarName} | Winners:${h.winnersCount} | Prize:${formatNumber(h.prizePool)}</div>`;
+        });
+        showModal(histHtml);
+    };
+    document.getElementById('showRulesBtn').onclick = () => {
+        showModal(`<h3>📖 RULES</h3>
+        <p>1. Before race, terrain & speeds announced.</p>
+        <p>2. Betting: 35s to bet on one of 3 cars.</p>
+        <p>3. Dynamic Odds = Total Pool / Bets on Car.</p>
+        <p>4. Prize = Your Bet × Dynamic Odds (shared pool).</p>
+        <p>5. Random fake bets always active!</p>`);
+    };
+    document.getElementById('placeBetBtn').onclick = placeUserBet;
+    document.getElementById('injectFakeBtn').onclick = () => { generateFakeBet(); addFakeMessage("💥 Extra fake bet injected!"); };
+
+    // initial setup
+    function init() {
+        resetForNextRace();
         updateRanking();
         updateBalanceUI();
-        // blank history
-        for(let i=0;i<3;i++) addHistoryEntry("--", 0, 0);
-        // canvas draw static
-        ctx.fillStyle = "#2a4a3a";
+        gamePhase = "BETTING";
+        phaseEndTime = Date.now() + 35000;
+        document.getElementById('phaseLabel').innerHTML = "⏳ BETTING (35s)";
+        updateTimerDisplay();
+        // draw static track
+        ctx.fillStyle = "#1d423c";
         ctx.fillRect(0,0,canvas.width,canvas.height);
     }
-
-    // event binding
-    document.getElementById('placeBetRaceBtn').addEventListener('click', async () => {
-        let selectedCarId = document.getElementById('selectedCarSelect').value;
-        let amount = parseInt(document.getElementById('betAmount').value);
-        if(isNaN(amount)) amount = 100;
-        await executeRace(selectedCarId, amount);
-    });
-    document.getElementById('addFakeBetsBtn').addEventListener('click', () => {
-        injectExtraFakeBets();
-    });
-
-    // resize canvas properly
-    function resizeCanvas() {
-        let container = document.querySelector('.canvas-wrapper');
-        let width = container.clientWidth - 20;
-        canvas.width = Math.min(900, width);
-        canvas.height = 400;
+    init();
+    // canvas resize handling
+    function resizeCanvasDraw() {
+        let container = document.querySelector('.canvas-holder');
+        let w = container.clientWidth - 20;
+        canvas.width = Math.min(800, w);
+        canvas.height = 300;
         ctx.clearRect(0,0,canvas.width,canvas.height);
     }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-    initGame();
-    // manual speed list refresh
-    setInterval(() => {
-        if(!animating) updateSectionSpeeds(currentTerrain);
-    }, 11000);
+    window.addEventListener('resize', resizeCanvasDraw);
+    resizeCanvasDraw();
 </script>
 </body>
 </html>
