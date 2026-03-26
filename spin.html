@@ -173,29 +173,29 @@ let chosen = pool[Math.floor(Math.random()*pool.length)];
 
 let index = segments.findIndex(s=>s.value===chosen);
 
+// 🎯 CORE FIX (NO ANGLE CONFUSION)
 let segmentAngle = 360 / segments.length;
 
-// 🎯 FIXED POINTER OFFSET (-90deg)
-let targetAngle = (index * segmentAngle) + (segmentAngle / 2);
+// move selected segment to TOP (pointer)
+let rotateTo = (segments.length - index) * segmentAngle;
 
-// shift because canvas starts from RIGHT but pointer is TOP
-let correctedAngle = targetAngle - 90;
+// center adjustment
+rotateTo -= segmentAngle / 2;
 
-// normalize
-if(correctedAngle < 0) correctedAngle += 360;
+// smooth spins
+let spins = 360 * 5;
 
-let finalRotation = 360 - correctedAngle;
+// total rotation
+let final = spins + rotateTo;
 
-// 🔥 IMPORTANT: RESET before spin (NO DRIFT)
+// reset FIRST (important)
 canvas.style.transition = "none";
 canvas.style.transform = "rotate(0deg)";
-
-// force reflow
 canvas.offsetHeight;
 
-// apply smooth spin
+// animate
 canvas.style.transition = "transform 4s cubic-bezier(0.17,0.67,0.2,1)";
-canvas.style.transform = `rotate(${totalRotation}deg)`;
+canvas.style.transform = `rotate(${final}deg)`;
 
 // RESULT
 setTimeout(()=>{
