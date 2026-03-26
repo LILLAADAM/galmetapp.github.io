@@ -375,7 +375,7 @@
         serverTimestamp
     } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-    // Firebase configuration
+    // Firebase configuration (replace with your actual keys)
     const firebaseConfig = {
         apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
         authDomain: "galmet-app.firebaseapp.com",
@@ -460,7 +460,6 @@
         const maxAttempts = 5;
         while (attempts < maxAttempts) {
             const userId = Math.floor(10000000 + Math.random() * 90000000); // 8-digit number
-            // Check if this userId already exists in Firestore
             const q = query(collection(db, "users"), where("userId", "==", userId));
             const snapshot = await getDocs(q);
             if (snapshot.empty) {
@@ -471,7 +470,17 @@
         throw new Error("Failed to generate unique user ID. Please try again.");
     }
 
-    // ---------- REGISTER with new userId system ----------
+    // Generate invite code: 2 random uppercase letters + last 4 digits of userId
+    function generateInviteCode(userId) {
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        const randomLetter = () => letters.charAt(Math.floor(Math.random() * letters.length));
+        const twoLetters = randomLetter() + randomLetter();
+        const userIdStr = userId.toString();
+        const lastFour = userIdStr.slice(-4); // take last 4 digits
+        return twoLetters + lastFour; // e.g., "AB1234"
+    }
+
+    // ---------- REGISTER with new userId and inviteCode ----------
     async function handleRegister() {
         setErrorMsg("");
         const { email, password, referral } = getTrimmedValues();
@@ -498,9 +507,8 @@
             // 2. Generate unique 8-digit userId
             const userId = await generateUniqueUserId();
 
-            // 3. Derive inviteCode from userId (digits 2-7, 6 chars)
-            const userIdStr = userId.toString();
-            const inviteCode = userIdStr.slice(2, 8); // e.g., 12345678 -> "345678"
+            // 3. Generate inviteCode (2 letters + last 4 digits of userId)
+            const inviteCode = generateInviteCode(userId);
 
             // 4. Self-referral protection
             if (referral && referral === inviteCode) {
@@ -519,23 +527,23 @@
                 }
             }
 
-            // SAVE USER DATA (FIXED)
-               await setDoc(doc(db, "users", user.uid), {
-                   email: email,
-                   coins: 500,
-                   userId: userId,
-                   inviteCode: inviteCode,
-                   referredBy: referredByUID,
-                   firstTopup: false,
-                   createdAt: serverTimestamp()
-        });
+            // 6. Store user data in Firestore
+            await setDoc(doc(db, "users", user.uid), {
+                email: email,
+                coins: 500,
+                userId: userId,
+                inviteCode: inviteCode,
+                referredBy: referredByUID,
+                firstTopup: false,
+                createdAt: serverTimestamp()
+            });
 
-              console.log("✅ User saved in Firestore:", userId);
-            
-            // WAIT A MOMENT BEFORE REDIRECT (IMPORTANT FIX)
-setTimeout(() => {
-    window.location.href = "dashboard.html";
-}, 800);
+            console.log("✅ User saved in Firestore:", { userId, inviteCode });
+
+            // 7. Wait a moment to ensure Firestore write is fully committed before redirect
+            setTimeout(() => {
+                window.location.href = "dashboard.html";
+            }, 800);
             
         } catch (error) {
             console.error("Registration error:", error);
@@ -624,10 +632,11 @@ setTimeout(() => {
 
     // ---------- Auth State Redirect ----------
     onAuthStateChanged(auth, (user) => {
-    if (user && !window.location.pathname.includes("dashboard.html")) {
-        window.location.href = "dashboard.html";
-    }
-});
+        if (user) {
+            // Already logged in → go to dashboard
+            window.location.href = "dashboard.html";
+        }
+    });
 
     // ---------- Event Listeners ----------
     loginBtn.addEventListener("click", (e) => {
