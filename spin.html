@@ -3,16 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Galmet Wheel PRO | Fair Spin</title>
+    <title>Galmet Wheel PRO | Theme Switch</title>
     <style>
         * {
             box-sizing: border-box;
             user-select: none;
+            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s;
+        }
+
+        /* Light theme (default) */
+        :root {
+            --bg-primary: #f5f7fe;
+            --bg-secondary: #ffffff;
+            --card-bg: #ffffffdd;
+            --text-primary: #1e2a3e;
+            --text-secondary: #2c3e50;
+            --accent: #ffc107;
+            --accent-dark: #e6a800;
+            --border-light: #e2e8f0;
+            --shadow: 0 8px 20px rgba(0,0,0,0.1);
+            --topbar-bg: #2c3e8f;
+            --topbar-text: white;
+            --button-spin: linear-gradient(135deg, #2ecc71, #27ae60);
+            --button-reset: linear-gradient(135deg, #e67e22, #d35400);
+        }
+
+        body.dark {
+            --bg-primary: #0a0f1f;
+            --bg-secondary: #111827;
+            --card-bg: #1f2937cc;
+            --text-primary: #f0f3fa;
+            --text-secondary: #cbd5e1;
+            --accent: #ffcd4a;
+            --accent-dark: #ffb347;
+            --border-light: #2d3748;
+            --shadow: 0 8px 20px rgba(0,0,0,0.5);
+            --topbar-bg: #0f172a;
+            --topbar-text: #facc15;
+            --button-spin: linear-gradient(135deg, #3b82f6, #2563eb);
+            --button-reset: linear-gradient(135deg, #ef4444, #dc2626);
         }
 
         body {
-            background: linear-gradient(145deg, #070e2a 0%, #030617 100%);
-            font-family: 'Segoe UI', 'Poppins', system-ui, -apple-system, Arial, sans-serif;
+            background: var(--bg-primary);
+            font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif;
             text-align: center;
             margin: 0;
             min-height: 100vh;
@@ -20,38 +54,41 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            color: var(--text-primary);
         }
 
         .topbar {
-            background: rgba(28, 47, 163, 0.9);
-            backdrop-filter: blur(4px);
+            background: var(--topbar-bg);
             padding: 14px 20px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
             font-size: 1.3rem;
             font-weight: bold;
-            letter-spacing: 1px;
-            border-bottom: 2px solid #ffc933;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+            border-bottom: 2px solid var(--accent);
+            box-shadow: var(--shadow);
             width: 100%;
             max-width: 550px;
             margin: 0 auto;
             border-radius: 0 0 24px 24px;
+            color: var(--topbar-text);
         }
 
-        .topbar div:first-child {
-            text-shadow: 0 2px 5px #00000050;
-            background: #ffc93320;
-            padding: 4px 12px;
+        .theme-toggle {
+            background: var(--accent);
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
             border-radius: 40px;
-        }
-
-        #coins {
-            background: #00000066;
-            padding: 4px 12px;
-            border-radius: 40px;
+            padding: 5px 12px;
             font-weight: bold;
-            color: #ffd966;
+            color: #1e293b;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            transition: 0.2s;
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
         }
 
         .wheel-container {
@@ -59,16 +96,15 @@
             height: 300px;
             margin: 30px auto 15px;
             position: relative;
-            filter: drop-shadow(0 12px 20px rgba(0,0,0,0.5));
+            filter: drop-shadow(var(--shadow));
         }
 
         #wheelCanvas {
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            box-shadow: 0 0 0 8px #1e2b5c, 0 0 0 14px #ffc933, 0 18px 32px black;
+            box-shadow: 0 0 0 8px var(--bg-secondary), 0 0 0 14px var(--accent), 0 18px 32px black;
             transition: transform 4s cubic-bezier(0.2, 0.9, 0.3, 1.1);
-            background: #2a2e45;
         }
 
         #pointer {
@@ -79,12 +115,12 @@
             font-size: 48px;
             filter: drop-shadow(0 4px 6px black);
             z-index: 12;
-            text-shadow: 0 0 3px gold;
             color: #ffdd77;
+            text-shadow: 0 0 4px black;
         }
 
         .bet-panel {
-            background: #0f1642cc;
+            background: var(--card-bg);
             backdrop-filter: blur(8px);
             padding: 12px 20px;
             border-radius: 60px;
@@ -92,7 +128,7 @@
             gap: 16px;
             align-items: baseline;
             margin: 15px auto;
-            border: 1px solid #ffc93366;
+            border: 1px solid var(--accent);
         }
 
         .bet-panel label {
@@ -101,8 +137,9 @@
         }
 
         input {
-            background: #f5f9ff;
-            border: none;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            color: var(--text-primary);
             padding: 10px 16px;
             font-size: 1.2rem;
             width: 110px;
@@ -110,7 +147,6 @@
             text-align: center;
             font-weight: bold;
             font-family: monospace;
-            box-shadow: inset 0 1px 4px #00000030, 0 2px 4px #ffffff20;
         }
 
         button {
@@ -123,6 +159,7 @@
             cursor: pointer;
             transition: 0.2s;
             box-shadow: 0 5px 0 rgba(0,0,0,0.2);
+            color: white;
         }
 
         button:active {
@@ -131,30 +168,28 @@
         }
 
         .spinBtn {
-            background: linear-gradient(135deg, #3ccf4e, #1f8a2e);
-            color: white;
+            background: var(--button-spin);
         }
 
         .resetBtn {
-            background: linear-gradient(135deg, #e65c3c, #b33b1a);
-            color: white;
+            background: var(--button-reset);
         }
 
         .result-area {
-            background: #000000aa;
+            background: var(--card-bg);
             backdrop-filter: blur(8px);
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: bold;
-            padding: 12px 20px;
+            padding: 10px 24px;
             border-radius: 60px;
             display: inline-block;
             margin: 12px auto;
-            border-left: 6px solid #ffc933;
-            border-right: 6px solid #ffc933;
+            border-left: 6px solid var(--accent);
+            border-right: 6px solid var(--accent);
         }
 
         .info-box {
-            background: #11172ecc;
+            background: var(--card-bg);
             backdrop-filter: blur(4px);
             border-radius: 28px;
             padding: 10px 16px;
@@ -162,41 +197,39 @@
             width: 90%;
             max-width: 480px;
             text-align: left;
-            font-size: 0.85rem;
-            border: 1px solid #ffc93344;
-            color: #f0f3ff;
+            border: 1px solid var(--accent);
         }
 
         .info-box h4 {
             margin: 0 0 8px 0;
-            color: #ffdd99;
+            color: var(--accent);
             text-align: center;
         }
 
         .history-scroll, .players-scroll {
-            max-height: 80px;
+            max-height: 85px;
             overflow-y: auto;
             font-family: monospace;
             font-size: 0.9rem;
             padding: 5px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
         }
 
         .history-scroll span, .players-scroll span {
-            display: inline-block;
-            background: #00000060;
-            margin: 3px 6px;
-            padding: 4px 10px;
+            background: var(--bg-secondary);
+            padding: 4px 12px;
             border-radius: 20px;
-        }
-
-        hr {
-            border-color: #ffc93330;
+            color: var(--text-primary);
+            border-left: 3px solid var(--accent);
         }
 
         footer {
             font-size: 11px;
-            opacity: 0.6;
+            opacity: 0.7;
             margin: 20px 0 10px;
+            color: var(--text-secondary);
         }
     </style>
 </head>
@@ -205,6 +238,7 @@
 <div class="topbar">
     <div>🎡 GALMET WHEEL</div>
     <div>💰 COINS: <span id="coins">0</span></div>
+    <button class="theme-toggle" id="themeToggle" aria-label="Switch theme">🌓</button>
 </div>
 
 <div class="wheel-container">
@@ -247,34 +281,30 @@
     ];
 
     const SEGMENT_COUNT = segments.length;
-    const ANGLE_PER_SEGMENT_DEG = 360 / SEGMENT_COUNT;   // = 60°
+    const ANGLE_PER_SEGMENT_DEG = 360 / SEGMENT_COUNT;   // 60°
 
-    // canvas setup
     const canvas = document.getElementById("wheelCanvas");
     const ctx = canvas.getContext("2d");
     const size = 300;
     canvas.width = size;
     canvas.height = size;
 
-    // coins management
     let coins = parseInt(localStorage.getItem("galmetCoins")) || 500;
     let spinning = false;
-    let currentRotationDeg = 0;   // store last rotation (for reference, not critical for detection)
 
     document.getElementById("coins").innerText = coins;
 
-    // ---------- DRAW WHEEL (fixed geometry, no offset trick - precise segments) ----------
+    // Draw wheel with given segment colors
     function drawWheel() {
         const centerX = size / 2;
         const centerY = size / 2;
         const radius = size / 2;
-        const startRadOffset = 0;   // segment 0 starts at angle 0 (3 o'clock)
+        const startRadOffset = 0;
         
         for (let i = 0; i < SEGMENT_COUNT; i++) {
             const startRad = startRadOffset + i * (Math.PI * 2 / SEGMENT_COUNT);
             const endRad = startRad + (Math.PI * 2 / SEGMENT_COUNT);
             
-            // draw segment slice
             ctx.beginPath();
             ctx.moveTo(centerX, centerY);
             ctx.arc(centerX, centerY, radius, startRad, endRad);
@@ -285,7 +315,6 @@
             ctx.lineWidth = 1.5;
             ctx.stroke();
             
-            // draw multiplier text (rotated for readability)
             ctx.save();
             ctx.translate(centerX, centerY);
             const midRad = startRad + (Math.PI / SEGMENT_COUNT);
@@ -303,11 +332,10 @@
             ctx.restore();
         }
         
-        // draw center circle for premium look
+        // center decoration
         ctx.beginPath();
         ctx.arc(centerX, centerY, 28, 0, 2 * Math.PI);
         ctx.fillStyle = "#ffcf40";
-        ctx.shadowBlur = 0;
         ctx.fill();
         ctx.beginPath();
         ctx.arc(centerX, centerY, 18, 0, 2 * Math.PI);
@@ -319,157 +347,105 @@
     }
     
     drawWheel();
-    
-    // ---------- HELPER: get winning segment based on FINAL rotation (CSS rotation) ----------
-    // pointer is fixed at TOP = angle 270° ( -90° or 270° in canvas coordinate system)
-    // segments borders: segment i occupies [ i*60° , (i+1)*60° ) where 0° points to RIGHT (3 o'clock)
-    // After clockwise rotation of 'rotationDeg', the effective angle of pointer relative to wheel = (pointerAngle - rotationDeg) mod 360
-    // pointerAngle = 270°
+
+    // Determine winning segment based on final rotation (pointer at 270°)
     function getSegmentIndexFromRotation(rotationDeg) {
-        const pointerAngle = 270;          // fixed top pointer in degrees (canvas coordinate)
-        // effective angle: where the pointer lands on the static wheel (0° = right side)
+        const pointerAngle = 270;
         let rawAngle = (pointerAngle - rotationDeg) % 360;
         if (rawAngle < 0) rawAngle += 360;
-        
-        // find which segment contains this angle
         for (let i = 0; i < SEGMENT_COUNT; i++) {
             const start = i * ANGLE_PER_SEGMENT_DEG;
             const end = (i + 1) * ANGLE_PER_SEGMENT_DEG;
-            if (rawAngle >= start && rawAngle < end) {
-                return i;
-            }
+            if (rawAngle >= start && rawAngle < end) return i;
         }
-        // fallback (just in case floating point edge)
         return 0;
     }
-    
-    // ---------- SPIN LOGIC (NO PREDETERMINED WIN, MATCHES VISUAL OUTCOME) ----------
-    function spin() {
-        if (spinning) {
-            // prevent double spin
-            return;
-        }
-        
-        const betInput = document.getElementById("bet");
-        let bet = parseInt(betInput.value);
-        if (isNaN(bet) || bet <= 0) {
-            alert("Enter a valid bet amount (minimum 10)");
-            return;
-        }
-        if (bet > coins) {
-            alert("Not enough coins! Reset or lower bet.");
-            return;
-        }
-        
-        // deduct bet immediately
-        coins -= bet;
-        updateCoinsUI();
-        
-        spinning = true;
-        
-        // --- RANDOM FAIR SPIN (total rotation: 5 full spins + random extra angle) ---
-        const fullSpins = 360 * 5;    // 1800 deg
-        const randomLanding = Math.random() * 360;   // 0..359.999 where wheel stops
-        const totalRotation = fullSpins + randomLanding;
-        
-        // reset transition & current transform to 0deg without animation
-        canvas.style.transition = "none";
-        canvas.style.transform = `rotate(0deg)`;
-        // force reflow to ensure reset is applied
-        void canvas.offsetHeight;
-        
-        // apply new rotation with smooth animation
-        canvas.style.transition = "transform 4s cubic-bezier(0.22, 0.98, 0.35, 1.05)";
-        canvas.style.transform = `rotate(${totalRotation}deg)`;
-        
-        // store final landing modulo 360 (for calculation)
-        const finalMod = randomLanding;   // because totalRotation % 360 = randomLanding
-        
-        // after animation, evaluate ACTUAL segment using pointer & final rotation
-        setTimeout(() => {
-            // get winning segment index based on actual final rotation (mod 360)
-            const winningIdx = getSegmentIndexFromRotation(finalMod);
-            const multiplier = segments[winningIdx].value;
-            const winAmount = bet * multiplier;
-            
-            // update coins AFTER spin
-            if (multiplier > 0) {
-                coins += winAmount;
-            }
-            updateCoinsUI();
-            
-            // display result message
-            const resultDiv = document.getElementById("result");
-            if (multiplier === 0) {
-                resultDiv.innerHTML = `💀 LOST ${bet} coins · multiplier 0x 💀`;
-            } else {
-                resultDiv.innerHTML = `🎉 YOU WON ${winAmount} COINS (${multiplier}x) 🎉`;
-            }
-            
-            // update history box (latest on top)
-            const historyBox = document.getElementById("history");
-            const newEntry = document.createElement("span");
-            newEntry.textContent = multiplier === 0 ? `💀 0x (lost ${bet})` : `🏆 ${multiplier}x +${winAmount}`;
-            const currentHistory = historyBox.innerHTML;
-            if (currentHistory === "—" || currentHistory.trim() === "") {
-                historyBox.innerHTML = "";
-            }
-            historyBox.prepend(newEntry);
-            if (historyBox.children.length > 12) {
-                historyBox.removeChild(historyBox.lastChild);
-            }
-            
-            // save coins to localStorage
-            saveCoinsToLocal();
-            
-            // mark spinning finished
-            spinning = false;
-            
-            // small extra visual: flash effect on pointer
-            const pointer = document.getElementById("pointer");
-            pointer.style.textShadow = "0 0 12px gold";
-            setTimeout(() => {
-                pointer.style.textShadow = "0 4px 6px black";
-            }, 300);
-            
-        }, 4100); // slightly longer than transition to ensure complete
-    }
-    
-    // helper: update coin display and save
+
     function updateCoinsUI() {
         document.getElementById("coins").innerText = coins;
-        saveCoinsToLocal();
-    }
-    
-    function saveCoinsToLocal() {
         localStorage.setItem("galmetCoins", coins);
     }
-    
+
+    function saveCoins() {
+        localStorage.setItem("galmetCoins", coins);
+    }
+
     function resetCoins() {
         if (spinning) {
-            alert("Wait, wheel is spinning!");
+            alert("Wheel is spinning! Please wait.");
             return;
         }
         coins = 500;
         updateCoinsUI();
         document.getElementById("result").innerHTML = "✨ COINS RESET TO 500 ✨";
-        // optional clear history but keep UI fresh
-        const historyDiv = document.getElementById("history");
-        historyDiv.innerHTML = "—";
-        // reset canvas rotation to 0 visually (no animation)
+        document.getElementById("history").innerHTML = "—";
         canvas.style.transition = "none";
         canvas.style.transform = "rotate(0deg)";
         void canvas.offsetHeight;
-        drawWheel();  // redraw for perfect orientation
-        // reset any stored rotation flag
-        currentRotationDeg = 0;
+        drawWheel();
     }
-    
-    // ---------- FAKE PLAYER FEED (COSMETIC, no gameplay effect) ----------
+
+    // Main spin logic (fair & matches pointer)
+    function spin() {
+        if (spinning) return;
+        
+        let bet = parseInt(document.getElementById("bet").value);
+        if (isNaN(bet) || bet <= 0) {
+            alert("Enter a valid bet (minimum 10)");
+            return;
+        }
+        if (bet > coins) {
+            alert("Not enough coins!");
+            return;
+        }
+        
+        coins -= bet;
+        updateCoinsUI();
+        spinning = true;
+        
+        const fullSpins = 360 * 5;
+        const randomLanding = Math.random() * 360;   // final resting angle (mod 360)
+        const totalRotation = fullSpins + randomLanding;
+        
+        canvas.style.transition = "none";
+        canvas.style.transform = "rotate(0deg)";
+        void canvas.offsetHeight;
+        canvas.style.transition = "transform 4s cubic-bezier(0.22, 0.98, 0.35, 1.05)";
+        canvas.style.transform = `rotate(${totalRotation}deg)`;
+        
+        setTimeout(() => {
+            const winningIdx = getSegmentIndexFromRotation(randomLanding);
+            const multiplier = segments[winningIdx].value;
+            const winAmount = bet * multiplier;
+            
+            if (multiplier > 0) {
+                coins += winAmount;
+            }
+            updateCoinsUI();
+            
+            const resultDiv = document.getElementById("result");
+            if (multiplier === 0) {
+                resultDiv.innerHTML = `💀 LOST ${bet} coins · 0x 💀`;
+            } else {
+                resultDiv.innerHTML = `🎉 YOU WON ${winAmount} COINS (${multiplier}x) 🎉`;
+            }
+            
+            // Add to history
+            const historyBox = document.getElementById("history");
+            const newEntry = document.createElement("span");
+            newEntry.textContent = multiplier === 0 ? `💀 0x (lost ${bet})` : `🏆 ${multiplier}x +${winAmount}`;
+            if (historyBox.innerHTML === "—") historyBox.innerHTML = "";
+            historyBox.prepend(newEntry);
+            if (historyBox.children.length > 12) historyBox.removeChild(historyBox.lastChild);
+            
+            spinning = false;
+        }, 4100);
+    }
+
+    // Fake live feed (cosmetic)
     function updateFakePlayers() {
         const fakeNames = ["Kai 🔥", "Alex ⚡", "Lee 🎯", "Sam 💎", "Sara 🌟", "John 🃏", "Mia 🎲", "Zane 🧧"];
         const randomName = fakeNames[Math.floor(Math.random() * fakeNames.length)];
-        // possible multipliers: 0,1,2,3,5,10
         const possibleValues = [0, 1, 2, 3, 5, 10];
         const randomMult = possibleValues[Math.floor(Math.random() * possibleValues.length)];
         const winText = randomMult === 0 ? `lost 😵` : `won ${randomMult}x 🎉`;
@@ -477,110 +453,38 @@
         const playersBox = document.getElementById("players");
         const newFeed = document.createElement("span");
         newFeed.textContent = `${randomName} ${winText}`;
-        if (playersBox.innerHTML === "⚡ waiting for action..." || playersBox.innerHTML === "") {
-            playersBox.innerHTML = "";
-        }
+        if (playersBox.innerHTML === "⚡ waiting for action...") playersBox.innerHTML = "";
         playersBox.prepend(newFeed);
-        if (playersBox.children.length > 8) {
-            playersBox.removeChild(playersBox.lastChild);
-        }
+        if (playersBox.children.length > 8) playersBox.removeChild(playersBox.lastChild);
+    }
+    setInterval(updateFakePlayers, 2500);
+
+    // Theme switcher
+    const themeToggle = document.getElementById("themeToggle");
+    themeToggle.addEventListener("click", () => {
+        document.body.classList.toggle("dark");
+        // Optional: save preference
+        const isDark = document.body.classList.contains("dark");
+        localStorage.setItem("galmetTheme", isDark ? "dark" : "light");
+    });
+    
+    // Load saved theme
+    const savedTheme = localStorage.getItem("galmetTheme");
+    if (savedTheme === "dark") {
+        document.body.classList.add("dark");
     }
     
-    // live feed every 2.3 sec
-    setInterval(updateFakePlayers, 2300);
-    
-    // sync localStorage when page loads (extra)
+    // Initial UI setup
     window.addEventListener("load", () => {
-        if (isNaN(coins)) coins = 500;
         updateCoinsUI();
-        // ensure wheel is at 0 rotation with fresh draw
-        canvas.style.transition = "none";
         canvas.style.transform = "rotate(0deg)";
         drawWheel();
-        // small fix: history init
-        const histDiv = document.getElementById("history");
-        if (histDiv.innerHTML === "") histDiv.innerHTML = "—";
+        if (document.getElementById("history").innerHTML === "") document.getElementById("history").innerHTML = "—";
     });
     
-    // optional: manual reset button safe handling
-    document.querySelector(".resetBtn").addEventListener("click", resetCoins);
-    
-    // Prevent spin when input invalid
-    function validateBet() {
-        let betVal = parseInt(document.getElementById("bet").value);
-        if (isNaN(betVal) || betVal < 10) {
-            document.getElementById("bet").value = 50;
-        }
-        if (betVal > coins && coins > 0) {
-            document.getElementById("bet").value = Math.min(coins, 500);
-        }
-    }
-    
-    setInterval(validateBet, 500);
-    
-    // extra animation consistency: if spin ends exactly on boundary? getSegmentIndexFromRotation handles inclusive/exclusive logic
-    // test edge-case: If pointer lands exactly on boundary (rare) it will take the next segment due to < end. Fair enough.
-    
-    // For absolute correctness, handle transition cancellation and re-spin protection
-    window.addEventListener("load", () => {
-        // ensure no leftover transition after manual reset
-        canvas.style.transition = "";
-    });
-    
-    // optional: Visual improvement - if someone clicks reset while spinning, block
-    const originalReset = resetCoins;
-    window.resetCoins = function() {
-        if (spinning) {
-            alert("Wheel is spinning! Please wait.");
-            return;
-        }
-        originalReset();
-    };
-    
-    // final fix: prevent pointer misalignment due to fractional rounding 
-    // re-draw if needed
-    function redrawAfterResize() {
-        drawWheel();
-    }
-    window.addEventListener("resize", redrawAfterResize);
-    
-    // Disable spin button style during spin (UX)
-    const spinBtn = document.querySelector(".spinBtn");
-    const originalSpin = spin;
-    window.spin = function() {
-        if (spinning) return;
-        spinBtn.style.opacity = "0.6";
-        spinBtn.style.transform = "scale(0.98)";
-        originalSpin();
-        setTimeout(() => {
-            if (!spinning) {
-                spinBtn.style.opacity = "1";
-                spinBtn.style.transform = "";
-            } else {
-                const checkInterval = setInterval(() => {
-                    if (!spinning) {
-                        spinBtn.style.opacity = "1";
-                        spinBtn.style.transform = "";
-                        clearInterval(checkInterval);
-                    }
-                }, 200);
-            }
-        }, 200);
-    };
-    
-    // additional check: after spin finishes, re-enable button style
-    const originalSetTimeout = window.setTimeout;
-    // we don't override, but just keep style consistent.
-    
-    // ensure that local storage always has coins limit
-    if (coins < 0) coins = 500;
-    updateCoinsUI();
-    
-    // FINAL GUARANTEE: The wheel outcome is 100% synchronized with visual pointer.
-    // The getSegmentIndexFromRotation uses exact geometry: segments 0°(right) to 60° for 0x, 60-120° for 1x, 120-180° for 2x,
-    // 180-240° for 3x, 240-300° for 5x, 300-360° for 10x. Pointer fixed at 270°, after rotation landing angle is calculated.
-    // No pre-selected win — visual and reward match perfectly.
-    console.log("Galmet Wheel PRO - fixed alignment & fair spin active");
+    // Expose functions globally
+    window.spin = spin;
+    window.resetCoins = resetCoins;
 </script>
 </body>
 </html>
