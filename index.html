@@ -1,513 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
-    <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)">
-    <title>Galmet · Secure Access</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Galmet</title>
 
-        /* ===== THEME VARIABLES (Light + Dark) ===== */
-        :root {
-            /* Light mode (default) */
-            --bg-gradient-start: #f8fafc;
-            --bg-gradient-end: #eef2ff;
-            --card-bg: rgba(255, 255, 255, 0.98);
-            --card-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.02);
-            --text-primary: #0f172a;
-            --text-secondary: #334155;
-            --input-bg: #ffffff;
-            --input-border: #e2e8f0;
-            --input-focus-ring: rgba(79, 70, 229, 0.25);
-            --input-text: #0f172a;
-            --placeholder-color: #94a3b8;
-            --error-bg: #fee2e2;
-            --error-text: #b91c1c;
-            --btn-login-bg: #10b981;
-            --btn-login-hover: #059669;
-            --btn-register-bg: #f59e0b;
-            --btn-register-hover: #d97706;
-            --btn-text: white;
-            --separator-color: #e2e8f0;
-            --link-color: #3b82f6;
-        }
+<style>
+/* KEEP YOUR SAME DESIGN */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #0f1b5c, #1f2f9c);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg-gradient-start: #0b1120;
-                --bg-gradient-end: #111827;
-                --card-bg: rgba(18, 25, 45, 0.92);
-                --card-shadow: 0 25px 40px -12px rgba(0, 0, 0, 0.6), 0 1px 1px rgba(255, 255, 255, 0.05);
-                --text-primary: #f1f5f9;
-                --text-secondary: #cbd5e1;
-                --input-bg: #1e293b;
-                --input-border: #334155;
-                --input-focus-ring: rgba(99, 102, 241, 0.5);
-                --input-text: #f8fafc;
-                --placeholder-color: #64748b;
-                --error-bg: rgba(153, 27, 27, 0.2);
-                --error-text: #f87171;
-                --btn-login-bg: #10b981;
-                --btn-login-hover: #34d399;
-                --btn-register-bg: #f59e0b;
-                --btn-register-hover: #fbbf24;
-                --btn-text: #ffffff;
-                --separator-color: #334155;
-                --link-color: #60a5fa;
-            }
-        }
+.container {
+    background: rgba(255,255,255,0.1);
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 350px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
 
-        body {
-            background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
-            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
-            transition: background 0.2s ease;
-        }
+h1 {
+    color: white;
+    margin-bottom: 20px;
+}
 
-        /* Main card container */
-        .auth-card {
-            max-width: 440px;
-            width: 100%;
-            background: var(--card-bg);
-            backdrop-filter: blur(0px);
-            border-radius: 2rem;
-            box-shadow: var(--card-shadow);
-            padding: 2rem 1.75rem;
-            transition: background 0.2s ease, box-shadow 0.2s ease;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
+input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 8px;
+    outline: none;
+    font-size: 14px;
+}
 
-        /* Brand section */
-        .brand {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        .brand h1 {
-            font-size: 2.25rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            background: linear-gradient(135deg, var(--text-primary), #3b82f6);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
-        .brand p {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-top: 0.4rem;
-            font-weight: 450;
-        }
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+}
 
-        /* Form group */
-        .input-group {
-            margin-bottom: 1.25rem;
-        }
-        input {
-            width: 100%;
-            padding: 0.9rem 1rem;
-            background: var(--input-bg);
-            border: 1.5px solid var(--input-border);
-            border-radius: 1.25rem;
-            font-size: 1rem;
-            font-weight: 500;
-            color: var(--input-text);
-            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            outline: none;
-            font-family: inherit;
-        }
-        input:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px var(--input-focus-ring);
-        }
-        input::placeholder {
-            color: var(--placeholder-color);
-            font-weight: 450;
-        }
+.login-btn {
+    background: #5fbf5f;
+    color: white;
+}
 
-        /* Buttons */
-        .action-btn {
-            width: 100%;
-            padding: 0.9rem 1rem;
-            border: none;
-            border-radius: 1.5rem;
-            font-size: 1rem;
-            font-weight: 600;
-            font-family: inherit;
-            cursor: pointer;
-            transition: transform 0.15s ease, background 0.2s ease, box-shadow 0.2s;
-            margin-top: 0.5rem;
-            color: var(--btn-text);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            background-size: 100%;
-        }
-        .login-btn {
-            background: var(--btn-login-bg);
-            box-shadow: 0 4px 8px rgba(16, 185, 129, 0.2);
-        }
-        .login-btn:hover:not(:disabled) {
-            background: var(--btn-login-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 18px rgba(16, 185, 129, 0.25);
-        }
-        .register-btn {
-            background: var(--btn-register-bg);
-            box-shadow: 0 4px 8px rgba(245, 158, 11, 0.2);
-        }
-        .register-btn:hover:not(:disabled) {
-            background: var(--btn-register-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 18px rgba(245, 158, 11, 0.25);
-        }
-        .action-btn:active {
-            transform: translateY(1px);
-        }
-        .action-btn:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-            transform: none;
-        }
+.register-btn {
+    background: #f39c12;
+    color: white;
+}
 
-        /* Error area */
-        .error-message {
-            background: var(--error-bg);
-            color: var(--error-text);
-            padding: 0.75rem 1rem;
-            border-radius: 1.25rem;
-            font-size: 0.8rem;
-            font-weight: 500;
-            margin-top: 1rem;
-            text-align: center;
-            word-break: break-word;
-            backdrop-filter: blur(4px);
-            transition: all 0.2s;
-        }
-        .error-message:empty {
-            display: none;
-        }
+#error {
+    color: red;
+    font-size: 13px;
+    margin-top: 10px;
+}
+</style>
 
-        /* Referral hint */
-        .optional-badge {
-            display: inline-block;
-            font-size: 0.7rem;
-            font-weight: 500;
-            color: var(--text-secondary);
-            background: rgba(100, 116, 139, 0.15);
-            padding: 0.2rem 0.6rem;
-            border-radius: 20px;
-            margin-left: 0.5rem;
-        }
-        .input-label {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-        }
-        .footer-note {
-            text-align: center;
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-            margin-top: 1.5rem;
-            border-top: 1px solid var(--separator-color);
-            padding-top: 1.2rem;
-        }
-
-        /* Loading spinner (inline) */
-        .spinner {
-            display: inline-block;
-            width: 1rem;
-            height: 1rem;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 0.6s linear infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Responsive touch improvements */
-        @media (max-width: 480px) {
-            .auth-card {
-                padding: 1.5rem 1.25rem;
-                border-radius: 1.75rem;
-            }
-            input, .action-btn {
-                padding: 0.8rem 1rem;
-                font-size: 0.95rem;
-            }
-            .brand h1 {
-                font-size: 1.9rem;
-            }
-        }
-    </style>
 </head>
+
 <body>
 
-<div class="auth-card">
-    <div class="brand">
-        <h1>Galmet</h1>
-        <p>Your gateway • secure & seamless</p>
-    </div>
+<div class="container">
+    <h1>Galmet</h1>
 
-    <div class="input-group">
-        <div class="input-label">Email address</div>
-        <input type="email" id="email" placeholder="hello@galmet.com" autocomplete="email">
-    </div>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <input type="text" id="referral" placeholder="Referral Code (optional)">
 
-    <div class="input-group">
-        <div class="input-label">Password</div>
-        <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
-    </div>
+    <button class="login-btn" onclick="login()">Login</button>
+    <button class="register-btn" onclick="register()">Register</button>
 
-    <div class="input-group">
-        <div class="input-label">
-            <span>Referral code</span>
-            <span class="optional-badge">Optional</span>
-        </div>
-        <input type="text" id="referral" placeholder="Enter invite code (if any)" autocomplete="off">
-    </div>
-
-    <button class="action-btn login-btn" id="loginBtn">
-        <span>Sign in</span>
-    </button>
-    <button class="action-btn register-btn" id="registerBtn">
-        <span>Create account</span>
-    </button>
-
-    <div id="error" class="error-message"></div>
-    <div class="footer-note">
-        🔐 Secure authentication • 500 welcome coins
-    </div>
+    <div id="error"></div>
 </div>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } 
-        from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc } 
-        from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-    // Firebase configuration (keep original structure)
-    const firebaseConfig = {
-        apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
-        authDomain: "galmet-app.firebaseapp.com",
-        projectId: "galmet-app",
-        storageBucket: "galmet-app.firebasestorage.app",
-        messagingSenderId: "900590512024",
-        appId: "1:900590512024:web:16a36a085809a728c92ded"
-    };
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } 
+from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+import { getFirestore, doc, setDoc, collection, query, where, getDocs, serverTimestamp } 
+from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-    // DOM elements
-    const emailInput = document.getElementById("email");
-    const passwordInput = document.getElementById("password");
-    const referralInput = document.getElementById("referral");
-    const errorDiv = document.getElementById("error");
-    const loginBtn = document.getElementById("loginBtn");
-    const registerBtn = document.getElementById("registerBtn");
+// 🔥 YOUR CONFIG (KEEP SAME)
+const firebaseConfig = {
+  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+  authDomain: "galmet-app.firebaseapp.com",
+  projectId: "galmet-app",
+  storageBucket: "galmet-app.firebasestorage.app",
+  messagingSenderId: "900590512024",
+  appId: "1:900590512024:web:16a36a085809a728c92ded"
+};
 
-    // Helper: clear & set error message
-    function setErrorMsg(msg) {
-        errorDiv.innerText = msg || "";
-        if (msg) {
-            // auto clear after 5 seconds for better UX
-            setTimeout(() => {
-                if (errorDiv.innerText === msg) errorDiv.innerText = "";
-            }, 5000);
-        }
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// AUTO LOGIN CHECK ✅
+onAuthStateChanged(auth, (user) => {
+    if(user){
+        window.location.href = "dashboard.html";
+    }
+});
+
+// ERROR
+function showError(msg){
+    document.getElementById("error").innerText = msg;
+}
+
+// REGISTER ✅ FIXED
+window.register = async function(){
+
+    let email = document.getElementById("email").value.trim();
+    let pass = document.getElementById("password").value.trim();
+    let referral = document.getElementById("referral").value.trim();
+
+    if(!email || !pass){
+        showError("Please fill all fields");
+        return;
     }
 
-    // Helper: set loading state on specific button
-    function setButtonLoading(button, isLoading, originalText = null) {
-        if (isLoading) {
-            button._originalText = button.innerHTML;
-            button.disabled = true;
-            button.innerHTML = `<span class="spinner"></span><span> ${originalText || (button.innerText.trim())}</span>`;
-        } else {
-            button.disabled = false;
-            if (button._originalText) {
-                button.innerHTML = button._originalText;
-                delete button._originalText;
-            } else {
-                button.innerHTML = originalText || (button.id === "loginBtn" ? "Sign in" : "Create account");
+    try{
+
+        // 1. CREATE USER
+        let userCred = await createUserWithEmailAndPassword(auth, email, pass);
+        let user = userCred.user;
+
+        // 2. UNIQUE INVITE CODE (FIXED)
+        let inviteCode = user.uid.slice(0,6).toUpperCase();
+
+        // 3. CHECK REFERRAL (FIXED)
+        let referredBy = "";
+
+        if(referral){
+            const q = query(collection(db, "users"), where("inviteCode", "==", referral));
+            const snap = await getDocs(q);
+
+            if(!snap.empty){
+                referredBy = snap.docs[0].id;
+            }else{
+                showError("Invalid referral code");
+                return;
             }
         }
-    }
 
-    // Disable both buttons during any async operation (prevent double actions)
-    function setGlobalLoadingState(isLoading, activeButton = null) {
-        const btns = [loginBtn, registerBtn];
-        btns.forEach(btn => {
-            if (btn === activeButton) return; // will handle separately to preserve custom text
-            btn.disabled = isLoading;
+        // 4. SAVE USER
+        await setDoc(doc(db, "users", user.uid), {
+            coins: 500,
+            email: email,
+            inviteCode: inviteCode,
+            referredBy: referredBy,
+            firstTopup: false,
+            createdAt: serverTimestamp()
         });
+
+        alert("Account Created Successfully");
+        window.location.href = "dashboard.html";
+
+    }catch(e){
+        showError(e.message);
+    }
+}
+
+// LOGIN ✅
+window.login = async function(){
+
+    let email = document.getElementById("email").value.trim();
+    let pass = document.getElementById("password").value.trim();
+
+    if(!email || !pass){
+        showError("Enter email & password");
+        return;
     }
 
-    // Trim input values
-    function getTrimmedValues() {
-        return {
-            email: emailInput.value.trim(),
-            password: passwordInput.value.trim(),
-            referral: referralInput.value.trim()
-        };
+    try{
+        await signInWithEmailAndPassword(auth, email, pass);
+
+        alert("Login Success");
+        window.location.href = "dashboard.html";
+
+    }catch(e){
+        showError(e.message);
     }
+}
 
-    // ========== REGISTER FLOW ==========
-    async function handleRegister() {
-        setErrorMsg("");
-        const { email, password, referral } = getTrimmedValues();
-        
-        if (!email || !password) {
-            setErrorMsg("❌ Email and password are required");
-            return;
-        }
-        
-        if (password.length < 6) {
-            setErrorMsg("🔒 Password must be at least 6 characters");
-            return;
-        }
-
-        // set loading states
-        setButtonLoading(registerBtn, true, "Creating account...");
-        setGlobalLoadingState(true, registerBtn);
-        
-        try {
-            // 1. Create user with Firebase Auth
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
-            
-            // 2. Generate unique invite code (6 uppercase alphanumeric)
-            const inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-            
-            // 3. Store user data in Firestore
-            await setDoc(doc(db, "users", user.uid), {
-                coins: 500,
-                email: email,
-                inviteCode: inviteCode,
-                referredBy: referral || "",
-                firstTopup: false,
-                createdAt: new Date()
-            });
-            
-            // success feedback
-            alert("✅ Account created successfully!\nWelcome to Galmet — you received 500 bonus coins.");
-            window.location.href = "dashboard.html";
-            
-        } catch (error) {
-            console.error("Registration error:", error);
-            let friendlyError = "Registration failed. ";
-            if (error.code === "auth/email-already-in-use") {
-                friendlyError = "📧 This email is already registered. Try logging in.";
-            } else if (error.code === "auth/weak-password") {
-                friendlyError = "🔐 Password should be at least 6 characters.";
-            } else if (error.code === "auth/invalid-email") {
-                friendlyError = "📧 Please enter a valid email address.";
-            } else {
-                friendlyError += error.message || "Something went wrong. Check your connection.";
-            }
-            setErrorMsg(friendlyError);
-        } finally {
-            setButtonLoading(registerBtn, false);
-            setGlobalLoadingState(false);
-        }
-    }
-
-    // ========== LOGIN FLOW ==========
-    async function handleLogin() {
-        setErrorMsg("");
-        const { email, password } = getTrimmedValues();
-        
-        if (!email || !password) {
-            setErrorMsg("❌ Email and password required");
-            return;
-        }
-        
-        setButtonLoading(loginBtn, true, "Signing in...");
-        setGlobalLoadingState(true, loginBtn);
-        
-        try {
-            await signInWithEmailAndPassword(auth, email, password);
-            alert("✨ Login successful! Redirecting to dashboard...");
-            window.location.href = "dashboard.html";
-        } catch (error) {
-            console.error("Login error:", error);
-            let friendlyError = "Login failed. ";
-            if (error.code === "auth/user-not-found") {
-                friendlyError = "🔍 No account found with this email. Please register first.";
-            } else if (error.code === "auth/wrong-password") {
-                friendlyError = "🔑 Incorrect password. Please try again.";
-            } else if (error.code === "auth/invalid-email") {
-                friendlyError = "📧 Invalid email format.";
-            } else if (error.code === "auth/too-many-requests") {
-                friendlyError = "⏳ Too many failed attempts. Try again later.";
-            } else {
-                friendlyError += error.message;
-            }
-            setErrorMsg(friendlyError);
-        } finally {
-            setButtonLoading(loginBtn, false);
-            setGlobalLoadingState(false);
-        }
-    }
-
-    // Event binding with prevention of double triggers
-    loginBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        if (loginBtn.disabled) return;
-        handleLogin();
-    });
-    
-    registerBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        if (registerBtn.disabled) return;
-        handleRegister();
-    });
-    
-    // Optional: Enter key submission (polish)
-    const inputs = [emailInput, passwordInput, referralInput];
-    inputs.forEach(input => {
-        input.addEventListener("keypress", (e) => {
-            if (e.key === "Enter") {
-                e.preventDefault();
-                // If register button is not disabled, assume register? better to trigger active? 
-                // By UX, user usually expects login if fields filled, but to avoid confusion we trigger login 
-                // if email/pass filled, else register? But more robust: if login active trigger login.
-                if (!loginBtn.disabled && emailInput.value.trim() && passwordInput.value.trim()) {
-                    handleLogin();
-                } else if (!registerBtn.disabled && emailInput.value.trim() && passwordInput.value.trim()) {
-                    handleRegister();
-                }
-            }
-        });
-    });
-    
-    // small clean: remove any leftover error on input focus
-    inputs.forEach(inp => {
-        inp.addEventListener("focus", () => {
-            if (errorDiv.innerText) errorDiv.innerText = "";
-        });
-    });
 </script>
+
 </body>
 </html>
