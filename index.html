@@ -125,12 +125,16 @@ window.register = async function(){
     }
 
     try{
-        let user = await createUserWithEmailAndPassword(auth, email, pass);
+        let inviteCode = Math.random().toString(36).substring(2,8).toUpperCase();
 
-        await setDoc(doc(db, "users", user.user.uid), {
-            coins: 500,
-            createdAt: new Date()
-        });
+await setDoc(doc(db, "users", user.user.uid), {
+    coins: 500,
+    email: email,
+    inviteCode: inviteCode,
+    referredBy: "",
+    firstTopup: false,
+    createdAt: new Date()
+});
 
         alert("Account Created!");
         window.location.href = "dashboard.html";
