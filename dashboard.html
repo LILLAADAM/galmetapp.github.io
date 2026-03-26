@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard - Galmet</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #0f1b5c, #1f2f9c);
+    color: white;
+}
+
+.header {
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    background: rgba(0,0,0,0.3);
+}
+
+.container {
+    padding: 20px;
+}
+
+.card {
+    background: rgba(255,255,255,0.1);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+h2 {
+    margin: 0 0 10px;
+}
+
+.coin-box {
+    font-size: 30px;
+    font-weight: bold;
+    color: #00ffcc;
+}
+
+.logout {
+    background: red;
+    border: none;
+    padding: 8px 15px;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+    <div>Galmet Dashboard</div>
+    <button class="logout" onclick="logout()">Logout</button>
+</div>
+
+<div class="container">
+
+    <div class="card">
+        <h2>User Info</h2>
+        <p id="userEmail">Loading...</p>
+    </div>
+
+    <div class="card">
+        <h2>Your Coins</h2>
+        <div class="coin-box" id="coins">0</div>
+    </div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } 
+from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } 
+from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+  authDomain: "galmet-app.firebaseapp.com",
+  projectId: "galmet-app",
+  storageBucket: "galmet-app.firebasestorage.app",
+  messagingSenderId: "900590512024",
+  appId: "1:900590512024:web:16a36a085809a728c92ded"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Check login
+onAuthStateChanged(auth, async (user) => {
+
+    if (!user) {
+        window.location.href = "index.html";
+        return;
+    }
+
+    document.getElementById("userEmail").innerText = user.email;
+
+    // Get coins
+    const docRef = doc(db, "users", user.uid);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+        document.getElementById("coins").innerText = docSnap.data().coins;
+    } else {
+        document.getElementById("coins").innerText = 0;
+    }
+
+});
+
+// Logout
+window.logout = function(){
+    signOut(auth);
+    window.location.href = "index.html";
+}
+
+</script>
+
+</body>
+</html>
