@@ -1,8 +1,8 @@
+
 <!DOCTYPE html>
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Galmet Wheel</title>
 
 <style>
@@ -60,7 +60,7 @@ button {
 
 <header>
   <div>Galmet Wheel</div>
-  <div>Coins: <span id="coins">0</span></div>
+  <div>Coins: <span id="coins">500</span></div>
 </header>
 
 <canvas id="wheel" width="300" height="300"></canvas>
@@ -78,10 +78,10 @@ button {
 <div class="box" id="history"></div>
 
 <script>
-let canvas = document.getElementById("wheel");
-let ctx = canvas.getContext("2d");
+const canvas = document.getElementById("wheel");
+const ctx = canvas.getContext("2d");
 
-let segments = [
+const segments = [
   {label:"0x", color:"#e74c3c", weight:30},
   {label:"1x", color:"#f1c40f", weight:20},
   {label:"2x", color:"#2ecc71", weight:18},
@@ -90,33 +90,37 @@ let segments = [
   {label:"10x", color:"#8e44ad", weight:10}
 ];
 
+let coins = parseInt(localStorage.getItem("coins"));
+if (!coins || isNaN(coins)) coins = 500;
+
 let rotation = 0;
 let spinning = false;
-let coins = localStorage.getItem("coins") ? parseInt(localStorage.getItem("coins")) : 500;
 
-document.getElementById("coins").innerText = coins;
+updateCoins();
 
-function drawWheel(){
-  let angle = 2Math.PI / segments.length;
+function drawWheel() {
+  ctx.clearRect(0,0,300,300);
 
-  for(let i=0;i<segments.length;i++){
+  const arc = 2 * Math.PI / segments.length;
+
+  for (let i = 0; i < segments.length; i++) {
     ctx.beginPath();
     ctx.moveTo(150,150);
-    ctx.arc(150,150,140, anglei + rotation, angle*(i+1) + rotation);
+    ctx.arc(150,150,140, arci + rotation, arc(i+1) + rotation);
     ctx.fillStyle = segments[i].color;
     ctx.fill();
 
     ctx.save();
     ctx.translate(150,150);
-    ctx.rotate(angle*i + angle/2 + rotation);
-    ctx.fillStyle="white";
-    ctx.font="16px Arial";
+    ctx.rotate(arc*i + arc/2 + rotation);
+    ctx.fillStyle = "white";
+    ctx.font = "16px Arial";
     ctx.fillText(segments[i].label,60,5);
     ctx.restore();
   }
 
   // pointer
-  ctx.fillStyle="white";
+  ctx.fillStyle = "white";
   ctx.beginPath();
   ctx.moveTo(150,10);
   ctx.lineTo(140,30);
@@ -135,14 +139,12 @@ function getWeightedIndex(){
   }
 }
 
-function spin(){
-  if(spinning) return;
+function spin() {
+  if (spinning) return;
 
   let bet = parseInt(document.getElementById("bet").value);
-  if(bet > coins){
-    alert("Not enough coins");
-    return;
-  }
+  if (!bet || bet <= 0) return alert("Enter valid bet");
+  if (bet > coins) return alert("Not enough coins");
 
   coins -= bet;
   updateCoins();
@@ -152,30 +154,31 @@ function spin(){
   let index = getWeightedIndex();
   let segmentAngle = 360 / segments.length;
 
-  // 🎯 PERFECT ALIGN FIX
-  let targetAngle = (index * segmentAngle) + (segmentAngle / 2);
-  let finalDeg = 360 - targetAngle + 90;
+  // 🎯 PERFECT MATCH FIX
+  let target = (index * segmentAngle) + (segmentAngle / 2);
+  let finalDeg = 360 - target + 90;
 
-  let spinDeg = 360 * 5 + finalDeg;
+  let spinTotal = 360 * 5 + finalDeg;
 
   let start = null;
   let duration = 3000;
 
-  function animate(ts){
-    if(!start) start = ts;
-    let progress = ts - start;
+  function animate(t) {
+    if (!start) start = t;
+
+    let progress = t - start;
     let ease = 1 - Math.pow(1 - progress/duration, 3);
 
-    let current = spinDeg * ease;
-    rotation = (current * Math.PI / 180);
+    let current = spinTotal * ease;
+    rotation = current * Math.PI / 180;
 
-    ctx.clearRect(0,0,300,300);
     drawWheel();
 
-    if(progress < duration){
+    if (progress < duration) {
       requestAnimationFrame(animate);
     } else {
-      rotation = ((spinDeg % 360) * Math.PI / 180);
+      rotation = (spinTotal % 360) * Math.PI / 180;
+      drawWheel();
 
       let multiplier = parseInt(segments[index].label);
       let win = bet * multiplier;
@@ -184,7 +187,7 @@ function spin(){
       updateCoins();
 
       document.getElementById("result").innerText =
-        multiplier === 0 ? "You lost!" : "You won " + win + " coins ("+segments[index].label+")";
+        multiplier === 0 ? "You lost!" : "You won " + win + " coins (" + segments[index].label + ")";
 
       addHistory(segments[index].label);
 
@@ -195,23 +198,25 @@ function spin(){
   requestAnimationFrame(animate);
 }
 
-function updateCoins(){
+function updateCoins() {
   document.getElementById("coins").innerText = coins;
   localStorage.setItem("coins", coins);
 }
 
-function resetCoins(){
+function resetCoins() {
   coins = 500;
   updateCoins();
 }
 
-function addHistory(text){
+function addHistory(text) {
   let div = document.getElementById("history");
   div.innerHTML = text + "<br>" + div.innerHTML;
 }
 
-drawWheel();
+// ✅ ALWAYS DRAW ON LOAD
+window.onload = () => {
+  drawWheel();
+};
 </script>
 
 </body>
-</html>
