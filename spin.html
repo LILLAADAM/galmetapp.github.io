@@ -100,7 +100,6 @@ font-size:14px;
 
 <script>
 
-// segments
 let segments = [
 {value:0,color:"#ff5252"},
 {value:1,color:"#ffc107"},
@@ -116,10 +115,9 @@ let ctx = canvas.getContext("2d");
 let coins = parseInt(localStorage.getItem("galmetCoins")) || 500;
 document.getElementById("coins").innerText = coins;
 
-let spinning=false;
-let currentRotation = 0;
+let spinning = false;
 
-// DRAW
+// 🎨 DRAW
 function drawWheel(){
 let arc = (2*Math.PI)/segments.length;
 
@@ -152,7 +150,7 @@ saveCoins();
 document.getElementById("coins").innerText=coins;
 }
 
-// 🎯 SPIN
+// 🎯 SPIN (FINAL FIXED)
 function spin(){
 
 if(spinning) return;
@@ -162,35 +160,40 @@ let bet=parseInt(document.getElementById("bet").value);
 if(bet<=0){ alert("Enter valid bet"); return; }
 if(bet>coins){ alert("Not enough coins"); return; }
 
+// deduct
 coins-=bet;
 saveCoins();
 document.getElementById("coins").innerText=coins;
 
 spinning=true;
 
-// weighted result
+// 🎯 weighted result
 let pool = [0,0,0,1,1,2,2,3,5,10];
 let chosen = pool[Math.floor(Math.random()*pool.length)];
 
 let index = segments.findIndex(s=>s.value===chosen);
 
-// angle per segment
 let segmentAngle = 360 / segments.length;
 
-// 🎯 CENTER of segment
+// 🎯 EXACT CENTER landing
 let targetAngle = (index * segmentAngle) + (segmentAngle / 2);
 
-// 🎯 FINAL rotation (important fix)
-let rotateTo = 360 - targetAngle;
+// 🎯 pointer at top fix
+let finalRotation = 360 - targetAngle;
 
-// add spins
-let spins = 360 * 5;
+// 🎯 ALWAYS same direction (clockwise)
+let totalRotation = 360 * 5 + finalRotation;
 
-// reset base rotation properly
-currentRotation = (currentRotation % 360) + spins + rotateTo;
+// 🔥 IMPORTANT: RESET before spin (NO DRIFT)
+canvas.style.transition = "none";
+canvas.style.transform = "rotate(0deg)";
 
-// apply rotation
-canvas.style.transform = `rotate(${currentRotation}deg)`;
+// force reflow
+canvas.offsetHeight;
+
+// apply smooth spin
+canvas.style.transition = "transform 4s cubic-bezier(0.17,0.67,0.2,1)";
+canvas.style.transform = `rotate(${totalRotation}deg)`;
 
 // RESULT
 setTimeout(()=>{
@@ -208,7 +211,6 @@ document.getElementById("result").innerText=
 `You won ${win} coins (${chosen}x)`;
 }
 
-// history
 document.getElementById("history").innerHTML =
 chosen+"x<br>"+document.getElementById("history").innerHTML;
 
@@ -231,6 +233,3 @@ name+" won "+v+"x<br>"+document.getElementById("players").innerHTML;
 },2000);
 
 </script>
-
-</body>
-</html>
