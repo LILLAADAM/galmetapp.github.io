@@ -1,223 +1,124 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html>
 <head>
-
-<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Galmet</title>
+<title>Galmet Login</title>
 
 <style>
-
-{
-box-sizing:border-box;
-margin:0;
-padding:0;
-}
-
 body{
-font-family:Arial, sans-serif;
-background:linear-gradient(180deg,#050510,#0b0b25);
+margin:0;
+font-family:Arial;
+background:linear-gradient(135deg,#0a0f3c,#1c2fa3);
 color:white;
-text-align:center;
-}
-
-/ HERO /
-
-.hero{
-padding:50px 20px;
-}
-
-.hero h1{
-font-size:34px;
-margin-bottom:8px;
-}
-
-.hero p{
-opacity:0.8;
-font-size:15px;
-}
-
-/ FLOATING PHONE /
-
-.phone{
-margin-top:30px;
-animation:float 4s ease-in-out infinite;
-}
-
-.phone img{
-width:230px;
-max-width:90%;
-border-radius:32px;
-box-shadow:0 30px 90px rgba(120,80,255,0.5);
-}
-
-@keyframes float{
-0%{transform:translateY(0px)}
-50%{transform:translateY(-12px)}
-100%{transform:translateY(0px)}
-}
-
-/ SECTION /
-
-.section{
-padding:50px 20px;
-}
-
-.section h2{
-font-size:22px;
-margin-bottom:10px;
-}
-
-.section p{
-font-size:14px;
-opacity:0.75;
-}
-
-/ SCREEN CAROUSEL /
-
-.carousel{
 display:flex;
-overflow-x:auto;
-gap:14px;
-padding:20px;
-scroll-snap-type:x mandatory;
+justify-content:center;
+align-items:center;
+height:100vh;
 }
 
-.carousel img{
-width:180px;
-border-radius:20px;
-scroll-snap-align:center;
-box-shadow:0 20px 60px rgba(120,80,255,0.3);
+.box{
+background:rgba(255,255,255,0.1);
+padding:30px;
+border-radius:15px;
+width:300px;
+backdrop-filter:blur(10px);
+box-shadow:0 0 20px rgba(0,0,0,0.4);
 }
 
-/ CONTACT /
-
-.contact{
-background:#0f0f22;
-padding:40px 20px;
+h1{
+text-align:center;
+margin-bottom:20px;
 }
 
-.contact h2{
-margin-bottom:15px;
-}
-
-input, textarea{
+input{
 width:100%;
-max-width:320px;
-padding:10px;
-margin:8px auto;
-display:block;
+padding:12px;
+margin:8px 0;
 border:none;
 border-radius:8px;
+font-size:14px;
 }
 
 button{
-padding:10px 20px;
+width:100%;
+padding:12px;
+margin-top:10px;
 border:none;
 border-radius:8px;
-background:linear-gradient(90deg,#6c4cff,#ff5ec4);
+font-size:15px;
 color:white;
-font-size:14px;
 cursor:pointer;
 }
 
-/ FOOTER /
-
-footer{
-padding:25px;
-opacity:0.6;
-font-size:13px;
-}
-
-/ DESKTOP */
-
-@media(min-width:768px){
-
-.hero h1{
-font-size:52px;
-}
-
-.hero p{
-font-size:18px;
-}
-
-.phone img{
-width:320px;
-}
-
-.carousel img{
-width:260px;
-}
-
-}
+.login{background:#4caf50;}
+.register{background:#ff9800;}
 
 </style>
-
 </head>
 
 <body>
 
-<section class="hero">
+<div class="box">
 
 <h1>Galmet</h1>
-<p>Connect. Talk. Belong.</p>
 
-<div class="phone">
-<img src="splash.webp">
-</div>
+<input id="email" placeholder="Email">
+<input id="password" type="password" placeholder="Password">
 
-</section>
-
-<section class="section">
-
-<h2>Live Voice Rooms</h2>
-<p>Join conversations with people around the world.</p>
-
-</section>
-
-<section class="section">
-
-<h2>App Experience</h2>
-
-<div class="carousel">
-
-<img src="login.webp">
-<img src="otp.webp">
-<img src="rooms.webp">
-<img src="voice.webp">
-<img src="wallet.webp">
-<img src="profile.webp">
+<button class="login" onclick="login()">Login</button>
+<button class="register" onclick="register()">Register</button>
 
 </div>
 
-</section>
+<!-- FIREBASE -->
+<script type="module">
 
-<section class="contact">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-<h2>Join Early Access</h2>
+const firebaseConfig = {
+apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+authDomain: "galmet-app.firebaseapp.com",
+projectId: "galmet-app",
+storageBucket: "galmet-app.firebasestorage.app",
+messagingSenderId: "900590512024",
+appId: "1:900590512024:web:16a36a085809a728c92ded"
+};
 
-<form action="https://api.web3forms.com/submit" method="POST">
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-<input type="hidden" name="access_key" value="7adbde9a-5a04-43e7-9fac-b912fa8ad21a">
+// REGISTER
+window.register = async function(){
 
-<input type="email" name="email" placeholder="Your Email" required>
+let email = document.getElementById("email").value;
+let pass = document.getElementById("password").value;
 
-<textarea name="message" rows="4" placeholder="Your Message"></textarea>
+let user = await createUserWithEmailAndPassword(auth, email, pass);
 
-<button type="submit">Send</button>
+await setDoc(doc(db, "users", user.user.uid), {
+coins: 500
+});
 
-</form>
+alert("Account created!");
+}
 
-</section>
+// LOGIN
+window.login = async function(){
 
-<footer>
+let email = document.getElementById("email").value;
+let pass = document.getElementById("password").value;
 
-Galmet © 2026
+await signInWithEmailAndPassword(auth, email, pass);
 
-</footer>
+window.location.href = "dashboard.html";
+
+}
+
+</script>
 
 </body>
-
 </html>
