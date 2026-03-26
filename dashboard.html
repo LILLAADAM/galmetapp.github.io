@@ -3,51 +3,66 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard - Galmet</title>
+<title>Galmet Dashboard</title>
 
 <style>
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #0f1b5c, #1f2f9c);
+    font-family: Arial;
+    background: linear-gradient(135deg,#0f1b5c,#1f2f9c);
     color: white;
 }
 
 .header {
-    padding: 15px;
-    display: flex;
-    justify-content: space-between;
-    background: rgba(0,0,0,0.3);
+    display:flex;
+    justify-content:space-between;
+    padding:15px;
+    background:rgba(0,0,0,0.3);
 }
 
 .container {
-    padding: 20px;
+    padding:20px;
 }
 
 .card {
-    background: rgba(255,255,255,0.1);
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 20px;
+    background:rgba(255,255,255,0.1);
+    padding:20px;
+    border-radius:12px;
+    margin-bottom:15px;
 }
 
-h2 {
-    margin: 0 0 10px;
+.coins {
+    font-size:32px;
+    color:#00ffcc;
 }
 
-.coin-box {
-    font-size: 30px;
-    font-weight: bold;
-    color: #00ffcc;
+.uid {
+    font-size:12px;
+    color:#ccc;
 }
 
-.logout {
-    background: red;
-    border: none;
-    padding: 8px 15px;
-    color: white;
-    border-radius: 6px;
-    cursor: pointer;
+.btn {
+    padding:10px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    margin-top:10px;
+}
+
+.logout { background:red; color:white; }
+
+.game {
+    background:#222;
+    padding:15px;
+    border-radius:10px;
+    margin-top:10px;
+}
+
+.invite {
+    background:#16a085;
+    padding:10px;
+    border-radius:8px;
+    margin-top:10px;
 }
 </style>
 
@@ -56,21 +71,37 @@ h2 {
 <body>
 
 <div class="header">
-    <div>Galmet Dashboard</div>
-    <button class="logout" onclick="logout()">Logout</button>
+    <div>Galmet</div>
+    <button class="btn logout" onclick="logout()">Logout</button>
 </div>
 
 <div class="container">
 
-    <div class="card">
-        <h2>User Info</h2>
-        <p id="userEmail">Loading...</p>
-    </div>
+<div class="card">
+    <h3>User</h3>
+    <div id="email"></div>
+    <div class="uid">UID: <span id="uid"></span></div>
+</div>
 
-    <div class="card">
-        <h2>Your Coins</h2>
-        <div class="coin-box" id="coins">0</div>
-    </div>
+<div class="card">
+    <h3>Coins</h3>
+    <div class="coins" id="coins">0</div>
+</div>
+
+<div class="card">
+    <h3>Invite & Earn</h3>
+    <div>Your Code: <b id="inviteCode"></b></div>
+    <div class="invite">Invite users → get 100 coins after first top-up</div>
+</div>
+
+<div class="card">
+    <h3>Games</h3>
+
+    <div class="game">🎯 Spin Wheel (Coming next)</div>
+    <div class="game">🎮 Scratch Card (Coming next)</div>
+    <div class="game">🎲 Dice Game (Coming next)</div>
+
+</div>
 
 </div>
 
@@ -79,7 +110,7 @@ h2 {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } 
 from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-import { getFirestore, doc, getDoc } 
+import { getFirestore, doc, onSnapshot, setDoc } 
 from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -95,32 +126,32 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Check login
 onAuthStateChanged(auth, async (user) => {
 
-    if (!user) {
-        window.location.href = "index.html";
+    if(!user){
+        window.location.href="index.html";
         return;
     }
 
-    document.getElementById("userEmail").innerText = user.email;
+    document.getElementById("email").innerText = user.email;
+    document.getElementById("uid").innerText = user.uid;
 
-    // Get coins
-    const docRef = doc(db, "users", user.uid);
-    const docSnap = await getDoc(docRef);
+    const userRef = doc(db, "users", user.uid);
 
-    if (docSnap.exists()) {
-        document.getElementById("coins").innerText = docSnap.data().coins;
-    } else {
-        document.getElementById("coins").innerText = 0;
-    }
+    // REAL-TIME COINS UPDATE 🔥
+    onSnapshot(userRef, (docSnap) => {
+        if(docSnap.exists()){
+            let data = docSnap.data();
+            document.getElementById("coins").innerText = data.coins || 0;
+            document.getElementById("inviteCode").innerText = data.inviteCode || "N/A";
+        }
+    });
 
 });
 
-// Logout
 window.logout = function(){
     signOut(auth);
-    window.location.href = "index.html";
+    window.location.href="index.html";
 }
 
 </script>
