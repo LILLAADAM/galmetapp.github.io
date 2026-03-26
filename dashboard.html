@@ -34,7 +34,6 @@ body {
     padding:15px;
 }
 
-/* CARD /
 .card {
     background: rgba(255,255,255,0.08);
     padding:15px;
@@ -42,10 +41,9 @@ body {
     margin-bottom:15px;
 }
 
-/ USER INFO /
 .user-id {
     color:#00ffcc;
-    font-size:16px;
+    font-size:18px;
     font-weight:bold;
 }
 
@@ -54,14 +52,12 @@ body {
     font-weight:600;
 }
 
-/ COINS /
 .coins {
     font-size:32px;
     font-weight:bold;
     color:#00ffcc;
 }
 
-/ INVITE /
 .invite-box {
     display:flex;
     justify-content:space-between;
@@ -78,7 +74,6 @@ body {
     color:white;
 }
 
-/ GAMES */
 .games {
     display:grid;
     grid-template-columns:1fr 1fr;
@@ -119,24 +114,21 @@ body {
 
 <div class="container">
 
-<!-- WELCOME -->
 <div class="card">
     <div class="title">Welcome Back 👋</div>
     <div class="email" id="email"></div>
-    <div class="user-id">User ID: <span id="userId"></span></div>
+    <div class="user-id">User ID: <span id="userId">Loading...</span></div>
 </div>
 
-<!-- COINS -->
 <div class="card">
     <div class="title">Your Balance 💰</div>
     <div class="coins" id="coins">0</div>
 </div>
 
-<!-- INVITE -->
 <div class="card">
     <div class="title">Invite & Earn 🎁</div>
     <div class="invite-box">
-        <span id="inviteCode"></span>
+        <span id="inviteCode">---</span>
         <button class="copy-btn" onclick="copyCode()">Copy</button>
     </div>
     <div style="margin-top:8px;font-size:13px;">
@@ -144,7 +136,6 @@ body {
     </div>
 </div>
 
-<!-- GAMES -->
 <div class="card">
     <div class="title">Play Games 🎮</div>
 
@@ -164,7 +155,7 @@ body {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } 
 from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-import { getFirestore, doc, onSnapshot } 
+import { getFirestore, doc, getDoc } 
 from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -177,36 +168,45 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// CHECK USER
-onAuthStateChanged(auth, (user)=>{
+// ✅ FIXED AUTH CHECK (NO LOOP)
+onAuthStateChanged(auth, async (user) => {
 
-    if(!user){
+    if (!user) {
         window.location.href = "index.html";
         return;
     }
 
-    const ref = doc(db, "users", user.uid);
+    try {
+        const ref = doc(db, "users", user.uid);
+        const snap = await getDoc(ref);
 
-    onSnapshot(ref, (snap)=>{
-    if(!snap.exists()) return;
+        if (!snap.exists()) {
+            console.error("User data not found");
+            return;
+        }
 
-    const data = snap.data();
+        const data = snap.data();
 
-    document.getElementById("email").innerText = data.email || "";
-    document.getElementById("coins").innerText = data.coins || 0;
-    document.getElementById("inviteCode").innerText = data.inviteCode || "----";
+        // ✅ SET DATA
+        document.getElementById("email").innerText = data.email || "-";
+        document.getElementById("coins").innerText = data.coins ?? 0;
+        document.getElementById("inviteCode").innerText = data.inviteCode || "-";
 
-    document.getElementById("userId").innerText = data.userId 
-        ? data.userId 
-        : user.uid.slice(0,8).toUpperCase();
-});
+        // ✅ IMPORTANT FIX (REAL USER ID)
+        document.getElementById("userId").innerText =
+            data.userId ? data.userId : "Not Assigned";
+
+    } catch (err) {
+        console.error("Error loading user:", err);
+    }
 
 });
 
 // LOGOUT
 window.logout = function(){
-    signOut(auth);
-    window.location.href = "index.html";
+    signOut(auth).then(()=>{
+        window.location.href = "index.html";
+    });
 }
 
 // COPY
