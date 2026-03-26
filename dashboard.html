@@ -188,13 +188,18 @@ onAuthStateChanged(auth, (user)=>{
     const ref = doc(db, "users", user.uid);
 
     onSnapshot(ref, (snap)=>{
-        const data = snap.data();
+    if(!snap.exists()) return;
 
-        document.getElementById("email").innerText = data.email;
-        document.getElementById("coins").innerText = data.coins;
-        document.getElementById("inviteCode").innerText = data.inviteCode;
-        document.getElementById("userId").innerText = data.userId || "00000000";
-    });
+    const data = snap.data();
+
+    document.getElementById("email").innerText = data.email || "";
+    document.getElementById("coins").innerText = data.coins || 0;
+    document.getElementById("inviteCode").innerText = data.inviteCode || "----";
+
+    document.getElementById("userId").innerText = data.userId 
+        ? data.userId 
+        : user.uid.slice(0,8).toUpperCase();
+});
 
 });
 
