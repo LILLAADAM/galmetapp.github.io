@@ -171,7 +171,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// ✅ FIXED AUTH CHECK (NO LOOP)
+// ✅ FORCE LOAD USER DATA PROPERLY
 onAuthStateChanged(auth, async (user) => {
 
     if (!user) {
@@ -179,25 +179,40 @@ onAuthStateChanged(auth, async (user) => {
         return;
     }
 
+    console.log("User logged in:", user.uid);
+
     try {
         const ref = doc(db, "users", user.uid);
-        const snap = await getDoc(ref);
 
-        if (!snap.exists()) {
-            console.error("User data not found");
+        // 🔥 RETRY SYSTEM (IMPORTANT FIX)
+        let attempts = 0;
+        let data = null;
+
+        while (attempts < 5) {
+            const snap = await getDoc(ref);
+
+            if (snap.exists()) {
+                data = snap.data();
+                break;
+            }
+
+            console.log("Retrying fetch...");
+            await new Promise(res => setTimeout(res, 500)); // wait 0.5s
+            attempts++;
+        }
+
+        if (!data) {
+            console.error("User data still not found");
             return;
         }
 
-        const data = snap.data();
-
-        // ✅ SET DATA
+        // ✅ UPDATE UI
         document.getElementById("email").innerText = data.email || "-";
         document.getElementById("coins").innerText = data.coins ?? 0;
         document.getElementById("inviteCode").innerText = data.inviteCode || "-";
+        document.getElementById("userId").innerText = data.userId || "Not Assigned";
 
-        // ✅ IMPORTANT FIX (REAL USER ID)
-        document.getElementById("userId").innerText =
-            data.userId ? data.userId : "Not Assigned";
+        console.log("✅ Dashboard loaded:", data);
 
     } catch (err) {
         console.error("Error loading user:", err);
@@ -225,6 +240,3 @@ window.goGame = function(page){
 }
 
 </script>
-
-</body>
-</html>
