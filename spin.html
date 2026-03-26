@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Galmet Wheel PRO FINAL</title>
+<title>Galmet Wheel FINAL FIX</title>
 
 <style>
 body{
@@ -28,12 +28,12 @@ margin:40px auto;
 position:relative;
 }
 
-#wheel{
+#wheelCanvas{
 width:100%;
 height:100%;
 border-radius:50%;
 border:10px solid #ffc933;
-transition:transform 4s cubic-bezier(0.17,0.67,0.83,0.67);
+transition:transform 4s cubic-bezier(0.17,0.67,0.2,1);
 }
 
 #pointer{
@@ -100,7 +100,7 @@ font-size:14px;
 
 <script>
 
-// 🎯 segments (REAL ORDER)
+// segments (ORDER MATTERS)
 let segments = [
 {value:0,color:"#ff5252"},
 {value:1,color:"#ffc107"},
@@ -117,8 +117,9 @@ let coins = parseInt(localStorage.getItem("galmetCoins")) || 500;
 document.getElementById("coins").innerText = coins;
 
 let spinning=false;
-let rotation=0;
+let currentRotation = 0;
 
+// 🎨 DRAW WHEEL
 function drawWheel(){
 let arc = (2*Math.PI)/segments.length;
 
@@ -129,7 +130,6 @@ ctx.moveTo(140,140);
 ctx.arc(140,140,140,i*arc,(i+1)*arc);
 ctx.fill();
 
-// text
 ctx.save();
 ctx.translate(140,140);
 ctx.rotate(i*arc + arc/2);
@@ -139,9 +139,9 @@ ctx.fillText(segments[i].value+"x",70,5);
 ctx.restore();
 }
 }
-
 drawWheel();
 
+// 💾 STORAGE
 function saveCoins(){
 localStorage.setItem("galmetCoins",coins);
 }
@@ -152,6 +152,7 @@ saveCoins();
 document.getElementById("coins").innerText=coins;
 }
 
+// 🎯 SPIN FUNCTION
 function spin(){
 
 if(spinning) return;
@@ -175,23 +176,29 @@ document.getElementById("coins").innerText=coins;
 
 spinning=true;
 
-// 🎯 WEIGHTED RANDOM (MORE LOSS)
+// 🎯 weighted system (more loss)
 let pool = [0,0,0,1,1,2,2,3,5,10];
 let chosen = pool[Math.floor(Math.random()*pool.length)];
 
-// find index
 let index = segments.findIndex(s=>s.value===chosen);
 
-// rotation calc (REAL match)
-let arc = 360/segments.length;
-let targetAngle = (segments.length - index) * arc;
+// 🎯 ANGLE CALCULATION (FIXED)
+let segmentAngle = 360 / segments.length;
 
-// spin
-let spins = 360*5;
-rotation += spins + targetAngle;
+// pointer is at TOP (0deg)
+let stopAngle = (index * segmentAngle) + (segmentAngle / 2);
 
-canvas.style.transform = "rotate("+rotation+"deg)";
+// convert to rotation direction
+let finalAngle = 360 - stopAngle;
 
+// add smooth spins
+let spins = 360 * 5;
+
+currentRotation += spins + finalAngle;
+
+canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+// 🎯 RESULT AFTER SPIN
 setTimeout(()=>{
 
 let win = bet * chosen;
@@ -203,7 +210,7 @@ document.getElementById("coins").innerText=coins;
 if(chosen===0){
 document.getElementById("result").innerText="You lost!";
 }else{
-document.getElementById("result").innerText="You won "+win+" coins ("+chosen+"x)";
+document.getElementById("result").innerText=`You won ${win} coins (${chosen}x)`;
 }
 
 // history
