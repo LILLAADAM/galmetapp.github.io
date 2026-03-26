@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Galmet Wheel PRO</title>
+<title>Galmet Wheel PRO FINAL</title>
 
 <style>
 body{
@@ -34,28 +34,6 @@ height:100%;
 border-radius:50%;
 border:10px solid #ffc933;
 transition:transform 4s cubic-bezier(0.17,0.67,0.83,0.67);
-
-background:conic-gradient(
-#ff5252 0deg 60deg,
-#4caf50 60deg 120deg,
-#ff9800 120deg 180deg,
-#03a9f4 180deg 240deg,
-#9c27b0 240deg 300deg,
-#ffc107 300deg 360deg
-);
-}
-
-.label{
-position:absolute;
-width:100%;
-height:100%;
-display:flex;
-justify-content:center;
-align-items:flex-start;
-font-weight:bold;
-color:white;
-font-size:14px;
-pointer-events:none;
 }
 
 #pointer{
@@ -94,10 +72,6 @@ height:100px;
 overflow:auto;
 font-size:14px;
 }
-
-h2{
-min-height:30px;
-}
 </style>
 </head>
 
@@ -110,23 +84,11 @@ min-height:30px;
 
 <div id="wheelBox">
 <div id="pointer">▼</div>
-
-<div id="wheel">
-
-<div class="label" style="transform:rotate(30deg)">0x</div>
-<div class="label" style="transform:rotate(90deg)">2x</div>
-<div class="label" style="transform:rotate(150deg)">3x</div>
-<div class="label" style="transform:rotate(210deg)">5x</div>
-<div class="label" style="transform:rotate(270deg)">10x</div>
-<div class="label" style="transform:rotate(330deg)">0x</div>
-
-</div>
+<canvas id="wheelCanvas" width="280" height="280"></canvas>
 </div>
 
 <div>Bet</div>
-<input id="bet" value="50">
-
-<br>
+<input id="bet" value="50"><br>
 
 <button class="spinBtn" onclick="spin()">SPIN</button>
 <button class="resetBtn" onclick="resetCoins()">Reset Coins</button>
@@ -136,110 +98,133 @@ min-height:30px;
 <div class="box" id="history"></div>
 <div class="box" id="players"></div>
 
-<!-- SOUND -->
-<audio id="spinSound" src="https://assets.mixkit.co/sfx/preview/mixkit-slot-machine-spin-1930.mp3"></audio>
-<audio id="winSound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"></audio>
-
 <script>
+
+// 🎯 segments (REAL ORDER)
+let segments = [
+{value:0,color:"#ff5252"},
+{value:1,color:"#ffc107"},
+{value:2,color:"#4caf50"},
+{value:3,color:"#ff9800"},
+{value:5,color:"#03a9f4"},
+{value:10,color:"#9c27b0"}
+];
+
+let canvas = document.getElementById("wheelCanvas");
+let ctx = canvas.getContext("2d");
 
 let coins = parseInt(localStorage.getItem("galmetCoins")) || 500;
 document.getElementById("coins").innerText = coins;
 
-let wheel = document.getElementById("wheel");
-let history = document.getElementById("history");
-let players = document.getElementById("players");
+let spinning=false;
+let rotation=0;
 
-let spinSound = document.getElementById("spinSound");
-let winSound = document.getElementById("winSound");
+function drawWheel(){
+let arc = (2*Math.PI)/segments.length;
 
-let spinning = false;
-let currentRotation = 0;
+for(let i=0;i<segments.length;i++){
+ctx.beginPath();
+ctx.fillStyle=segments[i].color;
+ctx.moveTo(140,140);
+ctx.arc(140,140,140,i*arc,(i+1)*arc);
+ctx.fill();
+
+// text
+ctx.save();
+ctx.translate(140,140);
+ctx.rotate(i*arc + arc/2);
+ctx.fillStyle="white";
+ctx.font="bold 14px Arial";
+ctx.fillText(segments[i].value+"x",70,5);
+ctx.restore();
+}
+}
+
+drawWheel();
 
 function saveCoins(){
-localStorage.setItem("galmetCoins", coins);
+localStorage.setItem("galmetCoins",coins);
 }
 
 function resetCoins(){
-coins = 500;
+coins=500;
 saveCoins();
-document.getElementById("coins").innerText = coins;
-alert("Coins reset to 500");
+document.getElementById("coins").innerText=coins;
 }
 
 function spin(){
 
 if(spinning) return;
 
-let bet = parseInt(document.getElementById("bet").value);
+let bet=parseInt(document.getElementById("bet").value);
 
-if(bet <= 0){
+if(bet<=0){
 alert("Enter valid bet");
 return;
 }
 
-if(bet > coins){
+if(bet>coins){
 alert("Not enough coins");
 return;
 }
 
-// deduct coins
-coins -= bet;
+// deduct
+coins-=bet;
 saveCoins();
-document.getElementById("coins").innerText = coins;
+document.getElementById("coins").innerText=coins;
 
-spinning = true;
+spinning=true;
 
-// 🔥 BALANCED SYSTEM (more losses than wins)
-let multipliers = [0,0,2,2,3,5,10];
+// 🎯 WEIGHTED RANDOM (MORE LOSS)
+let pool = [0,0,0,1,1,2,2,3,5,10];
+let chosen = pool[Math.floor(Math.random()*pool.length)];
 
-// random
-let index = Math.floor(Math.random() * multipliers.length);
-let multiplier = multipliers[index];
+// find index
+let index = segments.findIndex(s=>s.value===chosen);
 
-// spin sound
-spinSound.play();
+// rotation calc (REAL match)
+let arc = 360/segments.length;
+let targetAngle = (segments.length - index) * arc;
 
-// spin logic
-let extra = 360 * 5;
-let target = (index % 6) * 60;
+// spin
+let spins = 360*5;
+rotation += spins + targetAngle;
 
-currentRotation += extra + target;
-
-wheel.style.transform = "rotate(" + currentRotation + "deg)";
+canvas.style.transform = "rotate("+rotation+"deg)";
 
 setTimeout(()=>{
 
-let win = bet * multiplier;
+let win = bet * chosen;
 coins += win;
+
 saveCoins();
+document.getElementById("coins").innerText=coins;
 
-document.getElementById("coins").innerText = coins;
-
-if(multiplier === 0){
-document.getElementById("result").innerText = "You lost!";
+if(chosen===0){
+document.getElementById("result").innerText="You lost!";
 }else{
-document.getElementById("result").innerText = "You won " + win + " coins (" + multiplier + "x)";
-winSound.play();
+document.getElementById("result").innerText="You won "+win+" coins ("+chosen+"x)";
 }
 
 // history
-history.innerHTML = multiplier + "x<br>" + history.innerHTML;
+document.getElementById("history").innerHTML =
+chosen+"x<br>"+document.getElementById("history").innerHTML;
 
-spinning = false;
+spinning=false;
 
 },4000);
+
 }
 
 // fake players
 setInterval(()=>{
-
 let names=["Kai","Alex","Lee","Sam","Sara","John","Mia"];
-let name = names[Math.floor(Math.random()*names.length)];
+let name=names[Math.floor(Math.random()*names.length)];
+let values=[0,1,2,3,5,10];
+let v=values[Math.floor(Math.random()*values.length)];
 
-let wins=[0,2,3,5,10];
-let result = wins[Math.floor(Math.random()*wins.length)];
-
-players.innerHTML = name + " won " + result + "x<br>" + players.innerHTML;
+document.getElementById("players").innerHTML =
+name+" won "+v+"x<br>"+document.getElementById("players").innerHTML;
 
 },2000);
 
