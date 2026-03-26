@@ -175,14 +175,16 @@ let index = segments.findIndex(s=>s.value===chosen);
 
 let segmentAngle = 360 / segments.length;
 
-// 🎯 EXACT CENTER landing
+// 🎯 FIXED POINTER OFFSET (-90deg)
 let targetAngle = (index * segmentAngle) + (segmentAngle / 2);
 
-// 🎯 pointer at top fix
-let finalRotation = 360 - targetAngle;
+// shift because canvas starts from RIGHT but pointer is TOP
+let correctedAngle = targetAngle - 90;
 
-// 🎯 ALWAYS same direction (clockwise)
-let totalRotation = 360 * 5 + finalRotation;
+// normalize
+if(correctedAngle < 0) correctedAngle += 360;
+
+let finalRotation = 360 - correctedAngle;
 
 // 🔥 IMPORTANT: RESET before spin (NO DRIFT)
 canvas.style.transition = "none";
