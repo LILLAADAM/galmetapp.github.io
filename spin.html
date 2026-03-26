@@ -2,12 +2,6 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
-<!-- FORCE NO CACHE -->
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-
 <title>Galmet Wheel</title>
 
 <style>
@@ -39,6 +33,7 @@ width:100%;
 height:100%;
 border-radius:50%;
 border:8px solid #ffc933;
+
 background:conic-gradient(
 #ff5252 0deg 60deg,
 #4caf50 60deg 120deg,
@@ -47,6 +42,7 @@ background:conic-gradient(
 #9c27b0 240deg 300deg,
 #ffc107 300deg 360deg
 );
+
 transition:transform 4s ease-out;
 }
 
@@ -65,20 +61,16 @@ width:120px;
 }
 
 button{
-padding:12px 30px;
+padding:12px 20px;
 font-size:16px;
 border:none;
 border-radius:8px;
-background:#4caf50;
+margin:10px;
 color:white;
-margin-top:10px;
-cursor:pointer;
 }
 
-.reset{
-background:#ff5252;
-margin-left:10px;
-}
+.spinBtn{background:#4caf50;}
+.resetBtn{background:#e74c3c;}
 
 .box{
 background:white;
@@ -97,7 +89,7 @@ font-size:14px;
 
 <div class="topbar">
 <div>Galmet Wheel</div>
-<div>Coins: <span id="coins">500</span></div>
+<div>Coins: <span id="coins">0</span></div>
 </div>
 
 <div id="wheelBox">
@@ -106,13 +98,12 @@ font-size:14px;
 </div>
 
 <div>Bet</div>
-
 <input id="bet" value="50">
 
 <br>
 
-<button onclick="spin()">SPIN</button>
-<button class="reset" onclick="resetCoins()">Reset Coins</button>
+<button class="spinBtn" onclick="spin()">SPIN</button>
+<button class="resetBtn" onclick="resetCoins()">Reset Coins</button>
 
 <h2 id="result"></h2>
 
@@ -121,92 +112,93 @@ font-size:14px;
 
 <script>
 
-/* DEBUG /
-window.onerror=function(e){
-alert("ERROR: "+e)
+// STARTING COINS
+let coins = parseInt(localStorage.getItem("galmetCoins")) || 500;
+document.getElementById("coins").innerText = coins;
+
+let wheel = document.getElementById("wheel");
+let history = document.getElementById("history");
+let players = document.getElementById("players");
+
+let spinning = false;
+
+function saveCoins(){
+localStorage.setItem("galmetCoins", coins);
 }
 
-/ INIT /
-let coins = localStorage.getItem("coins")
-
-if(!coins){
-coins = 500
-localStorage.setItem("coins", coins)
-}
-
-coins = parseInt(coins)
-updateCoins()
-
-function updateCoins(){
-document.getElementById("coins").innerText = coins
-}
-
-/ RESET /
 function resetCoins(){
-coins = 500
-localStorage.setItem("coins", coins)
-updateCoins()
-alert("Coins reset to 500")
+coins = 500;
+saveCoins();
+document.getElementById("coins").innerText = coins;
+alert("Coins reset to 500");
 }
 
-/ SPIN /
 function spin(){
 
-alert("SPIN CLICKED") // 👈 MUST SHOW
+if(spinning) return;
 
-let bet = parseInt(document.getElementById("bet").value)
+let bet = parseInt(document.getElementById("bet").value);
+
+if(bet <= 0){
+alert("Enter valid bet");
+return;
+}
 
 if(bet > coins){
-alert("Not enough coins")
-return
+alert("Not enough coins");
+return;
 }
 
-coins -= bet
-updateCoins()
-localStorage.setItem("coins", coins)
+coins -= bet;
+saveCoins();
+document.getElementById("coins").innerText = coins;
 
-/ RANDOM RESULT /
-let multipliers = [0,2,3,5,10,0]
-let index = Math.floor(Math.random() * multipliers.length)
-let multiplier = multipliers[index]
+spinning = true;
 
-let rotation = 3605 + index60
+// outcomes
+let multipliers = [0,2,3,5,10,0];
 
-document.getElementById("wheel").style.transform =
-"rotate("+rotation+"deg)"
+// pick random
+let index = Math.floor(Math.random() * multipliers.length);
+let multiplier = multipliers[index];
 
-setTimeout(function(){
+// rotate wheel
+let rotation = 360 * 5 + (index * 60);
+wheel.style.transform = "rotate(" + rotation + "deg)";
 
-let win = bet * multiplier
-coins += win
-localStorage.setItem("coins", coins)
-updateCoins()
+setTimeout(()=>{
 
-if(multiplier==0){
-document.getElementById("result").innerText="You lost!"
+let win = bet * multiplier;
+coins += win;
+saveCoins();
+
+document.getElementById("coins").innerText = coins;
+
+if(multiplier === 0){
+document.getElementById("result").innerText = "You lost!";
 }else{
-document.getElementById("result").innerText=
-"You won "+win+" coins"
+document.getElementById("result").innerText = "You won " + win + " coins (" + multiplier + "x)";
 }
 
-},4000)
+history.innerHTML = multiplier + "x<br>" + history.innerHTML;
 
+spinning = false;
+
+},4000);
 }
 
-/ FAKE PLAYERS */
-setInterval(function(){
+// fake players
+setInterval(()=>{
 
-let names=["Kai","Alex","Lee","Sam","Sara"]
-let name=names[Math.floor(Math.random()*names.length)]
+let names=["Kai","Alex","Lee","Sam","Sara","John","Mia"];
+let name = names[Math.floor(Math.random()*names.length)];
 
-let wins=[0,2,3,5,10]
-let r=wins[Math.floor(Math.random()*wins.length)]
+let wins=[0,2,3,5,10];
+let result = wins[Math.floor(Math.random()*wins.length)];
 
-document.getElementById("players").innerHTML =
-name+" won "+r+"x<br>" +
-document.getElementById("players").innerHTML
+players.innerHTML = name + " won " + result + "x<br>" + players.innerHTML;
 
-},2000)
+},2000);
 
 </script>
 
