@@ -519,19 +519,23 @@
                 }
             }
 
-            // 6. Store user data in Firestore (using userId and inviteCode)
-            await setDoc(doc(db, "users", user.uid), {
-                email: email,
-                coins: 500,
-                userId: userId,
-                inviteCode: inviteCode,
-                referredBy: referredByUID,
-                firstTopup: false,
-                createdAt: serverTimestamp()
-            });
+            // SAVE USER DATA (FIXED)
+               await setDoc(doc(db, "users", user.uid), {
+                   email: email,
+                   coins: 500,
+                   userId: userId,
+                   inviteCode: inviteCode,
+                   referredBy: referredByUID,
+                   firstTopup: false,
+                   createdAt: serverTimestamp()
+        });
 
-            // Auto-redirect to dashboard (no alert)
-            window.location.href = "dashboard.html";
+              console.log("✅ User saved in Firestore:", userId);
+            
+            // WAIT A MOMENT BEFORE REDIRECT (IMPORTANT FIX)
+setTimeout(() => {
+    window.location.href = "dashboard.html";
+}, 800);
             
         } catch (error) {
             console.error("Registration error:", error);
