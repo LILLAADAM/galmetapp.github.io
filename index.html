@@ -3,56 +3,51 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Galmet Login</title>
+<title>Galmet</title>
 
 <style>
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #0d1b6f, #1a237e);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  font-family: Arial;
+  background: linear-gradient(135deg,#0f1f7a,#1a237e);
   height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Card */
 .container {
   width: 90%;
-  max-width: 400px;
-  background: rgba(255,255,255,0.08);
+  max-width: 380px;
   padding: 30px;
   border-radius: 20px;
+  background: rgba(255,255,255,0.08);
   backdrop-filter: blur(10px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
 }
 
-/* Title */
 h1 {
+  color: #fff;
   text-align: center;
-  color: white;
   margin-bottom: 25px;
 }
 
-/* Inputs */
 input {
   width: 100%;
-  padding: 14px;
-  margin-bottom: 15px;
+  padding: 15px;
   border-radius: 10px;
   border: none;
-  outline: none;
+  margin-bottom: 15px;
   font-size: 16px;
 }
 
-/* Buttons */
-.btn {
+button {
   width: 100%;
   padding: 14px;
-  border: none;
   border-radius: 10px;
-  font-size: 16px;
+  border: none;
   margin-bottom: 12px;
+  font-size: 16px;
   cursor: pointer;
 }
 
@@ -66,7 +61,7 @@ input {
   color: white;
 }
 
-.error {
+#error {
   color: red;
   text-align: center;
 }
@@ -78,52 +73,51 @@ input {
 <div class="container">
   <h1>Galmet</h1>
 
-  <input type="email" id="email" placeholder="Email">
-  <input type="password" id="password" placeholder="Password">
+  <input id="email" type="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
 
-  <button class="btn login" onclick="login()">Login</button>
-  <button class="btn register" onclick="register()">Register</button>
+  <button class="login" onclick="login()">Login</button>
+  <button class="register" onclick="register()">Register</button>
 
-  <p id="error" class="error"></p>
+  <p id="error"></p>
 </div>
 
 <!-- Firebase -->
 <script type="module">
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.1/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.1.1/firebase-auth.js";
 import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.1.1/firebase-firestore.js";
 
-/* 🔥 YOUR FIREBASE CONFIG */
+/* 🔥 PASTE YOUR CONFIG HERE */
 const firebaseConfig = {
   apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
   authDomain: "galmet-app.firebaseapp.com",
-  projectId: "galmet-app",
+  projectId: "galmet-app"
 };
 
-/* Init */
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* Show error */
+/* ERROR */
 function showError(msg){
   document.getElementById("error").innerText = msg;
 }
 
 /* REGISTER */
-window.register = async function(){
+window.register = async () => {
   const email = document.getElementById("email").value;
   const pass = document.getElementById("password").value;
 
   if(!email || !pass){
-    showError("Please fill all fields");
+    showError("Fill all fields");
     return;
   }
 
-  try{
+  try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-
-    const user = userCredential.user; // ✅ FIXED
+    const user = userCredential.user;
 
     let inviteCode = Math.random().toString(36).substring(2,8).toUpperCase();
 
@@ -135,33 +129,37 @@ window.register = async function(){
       firstTopup: false
     });
 
-    alert("Account Created!");
+    alert("Account Created ✅");
     window.location.href = "dashboard.html";
 
-  }catch(e){
+  } catch(e){
     showError(e.message);
+    console.log(e);
   }
-}
+};
 
 /* LOGIN */
-window.login = async function(){
+window.login = async () => {
   const email = document.getElementById("email").value;
   const pass = document.getElementById("password").value;
 
   if(!email || !pass){
-    showError("Please fill all fields");
+    showError("Fill all fields");
     return;
   }
 
-  try{
+  try {
     await signInWithEmailAndPassword(auth, email, pass);
 
+    alert("Login Successful ✅");
     window.location.href = "dashboard.html";
 
-  }catch(e){
+  } catch(e){
     showError(e.message);
+    console.log(e);
   }
-}
+};
+
 </script>
 
 </body>
