@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Galmet Wheel</title>
+<title>Galmet Wheel PRO</title>
 
 <style>
 body{
@@ -22,8 +22,8 @@ font-size:18px;
 }
 
 #wheelBox{
-width:260px;
-height:260px;
+width:280px;
+height:280px;
 margin:40px auto;
 position:relative;
 }
@@ -32,7 +32,8 @@ position:relative;
 width:100%;
 height:100%;
 border-radius:50%;
-border:8px solid #ffc933;
+border:10px solid #ffc933;
+transition:transform 4s cubic-bezier(0.17,0.67,0.83,0.67);
 
 background:conic-gradient(
 #ff5252 0deg 60deg,
@@ -42,16 +43,27 @@ background:conic-gradient(
 #9c27b0 240deg 300deg,
 #ffc107 300deg 360deg
 );
+}
 
-transition:transform 4s ease-out;
+.label{
+position:absolute;
+width:100%;
+height:100%;
+display:flex;
+justify-content:center;
+align-items:flex-start;
+font-weight:bold;
+color:white;
+font-size:14px;
+pointer-events:none;
 }
 
 #pointer{
 position:absolute;
-top:-15px;
+top:-18px;
 left:50%;
 transform:translateX(-50%);
-font-size:28px;
+font-size:30px;
 }
 
 input{
@@ -82,6 +94,10 @@ height:100px;
 overflow:auto;
 font-size:14px;
 }
+
+h2{
+min-height:30px;
+}
 </style>
 </head>
 
@@ -94,7 +110,17 @@ font-size:14px;
 
 <div id="wheelBox">
 <div id="pointer">▼</div>
-<div id="wheel"></div>
+
+<div id="wheel">
+
+<div class="label" style="transform:rotate(30deg)">0x</div>
+<div class="label" style="transform:rotate(90deg)">2x</div>
+<div class="label" style="transform:rotate(150deg)">3x</div>
+<div class="label" style="transform:rotate(210deg)">5x</div>
+<div class="label" style="transform:rotate(270deg)">10x</div>
+<div class="label" style="transform:rotate(330deg)">0x</div>
+
+</div>
 </div>
 
 <div>Bet</div>
@@ -110,9 +136,12 @@ font-size:14px;
 <div class="box" id="history"></div>
 <div class="box" id="players"></div>
 
+<!-- SOUND -->
+<audio id="spinSound" src="https://assets.mixkit.co/sfx/preview/mixkit-slot-machine-spin-1930.mp3"></audio>
+<audio id="winSound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"></audio>
+
 <script>
 
-// STARTING COINS
 let coins = parseInt(localStorage.getItem("galmetCoins")) || 500;
 document.getElementById("coins").innerText = coins;
 
@@ -120,7 +149,11 @@ let wheel = document.getElementById("wheel");
 let history = document.getElementById("history");
 let players = document.getElementById("players");
 
+let spinSound = document.getElementById("spinSound");
+let winSound = document.getElementById("winSound");
+
 let spinning = false;
+let currentRotation = 0;
 
 function saveCoins(){
 localStorage.setItem("galmetCoins", coins);
@@ -149,22 +182,30 @@ alert("Not enough coins");
 return;
 }
 
+// deduct coins
 coins -= bet;
 saveCoins();
 document.getElementById("coins").innerText = coins;
 
 spinning = true;
 
-// outcomes
-let multipliers = [0,2,3,5,10,0];
+// 🔥 BALANCED SYSTEM (more losses than wins)
+let multipliers = [0,0,2,2,3,5,10];
 
-// pick random
+// random
 let index = Math.floor(Math.random() * multipliers.length);
 let multiplier = multipliers[index];
 
-// rotate wheel
-let rotation = 360 * 5 + (index * 60);
-wheel.style.transform = "rotate(" + rotation + "deg)";
+// spin sound
+spinSound.play();
+
+// spin logic
+let extra = 360 * 5;
+let target = (index % 6) * 60;
+
+currentRotation += extra + target;
+
+wheel.style.transform = "rotate(" + currentRotation + "deg)";
 
 setTimeout(()=>{
 
@@ -178,8 +219,10 @@ if(multiplier === 0){
 document.getElementById("result").innerText = "You lost!";
 }else{
 document.getElementById("result").innerText = "You won " + win + " coins (" + multiplier + "x)";
+winSound.play();
 }
 
+// history
 history.innerHTML = multiplier + "x<br>" + history.innerHTML;
 
 spinning = false;
