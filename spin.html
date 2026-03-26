@@ -2,6 +2,12 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- STOP CACHE -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
 <title>Galmet Wheel</title>
 
 <style>
@@ -33,7 +39,6 @@ width:100%;
 height:100%;
 border-radius:50%;
 border:8px solid #ffc933;
-
 background:conic-gradient(
 #ff5252 0deg 60deg,
 #4caf50 60deg 120deg,
@@ -42,7 +47,6 @@ background:conic-gradient(
 #9c27b0 240deg 300deg,
 #ffc107 300deg 360deg
 );
-
 transition:transform 4s ease-out;
 }
 
@@ -107,8 +111,8 @@ font-size:14px;
 
 <br>
 
-<button onclick="spin()">SPIN</button>
-<button class="reset" onclick="resetCoins()">Reset Coins</button>
+<button id="spinBtn">SPIN</button>
+<button class="reset" id="resetBtn">Reset Coins</button>
 
 <h2 id="result"></h2>
 
@@ -117,116 +121,107 @@ font-size:14px;
 
 <script>
 
-/* ----------- COINS ----------- /
+/* ===== ERROR DEBUG ===== /
+window.onerror = function(msg){
+alert("JS Error: " + msg);
+}
 
-let coins = localStorage.getItem("galmetCoins")
+/ ===== INIT ===== /
+let coins = parseInt(localStorage.getItem("galmetCoins"))
 
-if(!coins){
+if(!coins || coins <= 0){
 coins = 500
 localStorage.setItem("galmetCoins", coins)
 }
 
-coins = parseInt(coins)
+let spinning = false
 
-function updateCoins(){
-document.getElementById("coins").innerText = coins
-}
+const coinsEl = document.getElementById("coins")
+const wheel = document.getElementById("wheel")
+const history = document.getElementById("history")
+const players = document.getElementById("players")
+const result = document.getElementById("result")
+const spinBtn = document.getElementById("spinBtn")
+const resetBtn = document.getElementById("resetBtn")
 
 updateCoins()
+
+function updateCoins(){
+coinsEl.innerText = coins
+}
 
 function saveCoins(){
 localStorage.setItem("galmetCoins", coins)
 updateCoins()
 }
 
-/ ----------- RESET ----------- /
-
-function resetCoins(){
-
+/ ===== RESET ===== /
+resetBtn.onclick = function(){
 coins = 500
-
 saveCoins()
-
-document.getElementById("result").innerText="Demo coins added (500)"
-
+result.innerText = "Coins reset to 500"
 }
 
-/ ----------- GAME ----------- /
-
-let wheel=document.getElementById("wheel")
-let history=document.getElementById("history")
-let players=document.getElementById("players")
-
-let spinning=false
-
-function spin(){
+/ ===== SPIN ===== /
+spinBtn.onclick = function(){
 
 if(spinning) return
 
 let bet = parseInt(document.getElementById("bet").value)
 
-if(isNaN(bet) || bet<=0){
-alert("Enter bet amount")
+if(isNaN(bet) || bet <= 0){
+alert("Enter valid bet")
 return
 }
 
-if(bet>coins){
+if(bet > coins){
 alert("Not enough coins")
 return
 }
 
-/ deduct bet /
-
-coins = coins - bet
+coins -= bet
 saveCoins()
 
-spinning=true
+spinning = true
 
-let multipliers=[0,2,3,5,10,0]
-
-let index = Math.floor(Math.random()multipliers.length)
-
+let multipliers = [0,2,3,5,10,0]
+let index = Math.floor(Math.random() * multipliers.length)
 let multiplier = multipliers[index]
 
-let rotation = (3605) + (index60)
+let rotation = (360 * 5) + (index * 60)
 
-wheel.style.transform = "rotate("+rotation+"deg)"
+wheel.style.transform = "rotate(" + rotation + "deg)"
 
 setTimeout(function(){
 
 let win = bet * multiplier
-
-coins = coins + win
-
+coins += win
 saveCoins()
 
-if(multiplier==0){
-document.getElementById("result").innerText="You lost!"
+if(multiplier === 0){
+result.innerText = "You lost!"
 }else{
-document.getElementById("result").innerText="You won "+win+" coins ("+multiplier+"x)"
+result.innerText = "You won " + win + " coins (" + multiplier + "x)"
 }
 
-history.innerHTML = multiplier+"x<br>"+history.innerHTML
+history.innerHTML = multiplier + "x<br>" + history.innerHTML
 
-spinning=false
+spinning = false
 
-},4000)
+}, 4000)
 
 }
 
-/* ----------- FAKE PLAYERS ----------- */
-
+/ ===== FAKE PLAYERS ===== */
 setInterval(function(){
 
-let names=["Kai","Alex","Lee","Sam","Sara","John","Mia"]
+let names = ["Kai","Alex","Lee","Sam","Sara","John","Mia"]
+let name = names[Math.floor(Math.random()*names.length)]
 
-let name=names[Math.floor(Math.random()*names.length)]
+let wins = [0,2,3,5,10]
+let r = wins[Math.floor(Math.random()*wins.length)]
 
-let wins=[0,2,3,5,10]
-
-let result=wins[Math.floor(Math.random()*wins.length)]
-
-players.innerHTML=name+" won "+result+"x<br>"+players.innerHTML
+players.innerHTML = name + " won " + r + "x<br>" + players.innerHTML
 
 },2000)
 
