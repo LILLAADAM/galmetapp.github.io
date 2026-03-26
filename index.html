@@ -7,159 +7,161 @@
 
 <style>
 body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #0f1b5c, #1f2f9c);
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #0d1b6f, #1a237e);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
+/* Card */
 .container {
-    background: rgba(255,255,255,0.1);
-    padding: 30px;
-    border-radius: 15px;
-    width: 300px;
-    text-align: center;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  width: 90%;
+  max-width: 400px;
+  background: rgba(255,255,255,0.08);
+  padding: 30px;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
+/* Title */
 h1 {
-    color: white;
-    margin-bottom: 20px;
+  text-align: center;
+  color: white;
+  margin-bottom: 25px;
 }
 
+/* Inputs */
 input {
-    width: 100%;
-    padding: 12px;
-    margin: 10px 0;
-    border: none;
-    border-radius: 8px;
-    outline: none;
-    font-size: 14px;
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  font-size: 16px;
 }
 
-button {
-    width: 100%;
-    padding: 12px;
-    margin-top: 10px;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    cursor: pointer;
+/* Buttons */
+.btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
 }
 
-.login-btn {
-    background: #5fbf5f;
-    color: white;
+.login {
+  background: #66bb6a;
+  color: white;
 }
 
-.register-btn {
-    background: #f39c12;
-    color: white;
+.register {
+  background: #f39c34;
+  color: white;
 }
 
-button:hover {
-    opacity: 0.9;
-}
-
-#error {
-    color: red;
-    font-size: 13px;
-    margin-top: 10px;
+.error {
+  color: red;
+  text-align: center;
 }
 </style>
-
 </head>
 
 <body>
 
 <div class="container">
-    <h1>Galmet</h1>
+  <h1>Galmet</h1>
 
-    <input type="email" id="email" placeholder="Email">
-    <input type="password" id="password" placeholder="Password">
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Password">
 
-    <button class="login-btn" onclick="login()">Login</button>
-    <button class="register-btn" onclick="register()">Register</button>
+  <button class="btn login" onclick="login()">Login</button>
+  <button class="btn register" onclick="register()">Register</button>
 
-    <div id="error"></div>
+  <p id="error" class="error"></p>
 </div>
 
 <!-- Firebase -->
 <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.1/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.1.1/firebase-auth.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.1.1/firebase-firestore.js";
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } 
-from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-import { getFirestore, doc, setDoc } 
-from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-
+/* 🔥 YOUR FIREBASE CONFIG */
 const firebaseConfig = {
   apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
   authDomain: "galmet-app.firebaseapp.com",
   projectId: "galmet-app",
-  storageBucket: "galmet-app.firebasestorage.app",
-  messagingSenderId: "900590512024",
-  appId: "1:900590512024:web:16a36a085809a728c92ded"
 };
 
+/* Init */
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Show error
+/* Show error */
 function showError(msg){
-    document.getElementById("error").innerText = msg;
+  document.getElementById("error").innerText = msg;
 }
 
-// REGISTER
+/* REGISTER */
 window.register = async function(){
-    let email = document.getElementById("email").value;
-    let pass = document.getElementById("password").value;
+  const email = document.getElementById("email").value;
+  const pass = document.getElementById("password").value;
 
-    if(!email || !pass){
-        showError("Please fill all fields");
-        return;
-    }
+  if(!email || !pass){
+    showError("Please fill all fields");
+    return;
+  }
 
-    try{
-        let inviteCode = Math.random().toString(36).substring(2,8).toUpperCase();
+  try{
+    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
 
-await setDoc(doc(db, "users", user.user.uid), {
-    coins: 500,
-    email: email,
-    inviteCode: inviteCode,
-    referredBy: "",
-    firstTopup: false,
-    createdAt: new Date()
-});
+    const user = userCredential.user; // ✅ FIXED
 
-        alert("Account Created!");
-        window.location.href = "dashboard.html";
+    let inviteCode = Math.random().toString(36).substring(2,8).toUpperCase();
 
-    }catch(e){
-        showError(e.message);
-    }
+    await setDoc(doc(db, "users", user.uid), {
+      coins: 500,
+      email: email,
+      inviteCode: inviteCode,
+      referredBy: null,
+      firstTopup: false
+    });
+
+    alert("Account Created!");
+    window.location.href = "dashboard.html";
+
+  }catch(e){
+    showError(e.message);
+  }
 }
 
-// LOGIN
+/* LOGIN */
 window.login = async function(){
-    let email = document.getElementById("email").value;
-    let pass = document.getElementById("password").value;
+  const email = document.getElementById("email").value;
+  const pass = document.getElementById("password").value;
 
-    try{
-        await signInWithEmailAndPassword(auth, email, pass);
+  if(!email || !pass){
+    showError("Please fill all fields");
+    return;
+  }
 
-        alert("Login Success!");
-        window.location.href = "dashboard.html";
+  try{
+    await signInWithEmailAndPassword(auth, email, pass);
 
-    }catch(e){
-        showError(e.message);
-    }
+    window.location.href = "dashboard.html";
+
+  }catch(e){
+    showError(e.message);
+  }
 }
-
 </script>
 
 </body>
