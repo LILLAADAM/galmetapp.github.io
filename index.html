@@ -3,162 +3,182 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Galmet</title>
+<title>Galmet Login</title>
 
 <style>
 body {
-  margin: 0;
-  font-family: Arial;
-  background: linear-gradient(135deg,#0f1f7a,#1a237e);
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #0f1b5c, #1f2f9c);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
+/* Card /
 .container {
-  width: 90%;
-  max-width: 380px;
-  padding: 30px;
-  border-radius: 20px;
-  background: rgba(255,255,255,0.08);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    background: rgba(255,255,255,0.08);
+    padding: 35px 25px;
+    border-radius: 20px;
+    width: 320px;
+    text-align: center;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
 }
 
+/ Title /
 h1 {
-  color: #fff;
-  text-align: center;
-  margin-bottom: 25px;
+    color: white;
+    margin-bottom: 25px;
+    font-size: 28px;
 }
 
+/ Inputs /
 input {
-  width: 100%;
-  padding: 15px;
-  border-radius: 10px;
-  border: none;
-  margin-bottom: 15px;
-  font-size: 16px;
+    width: 100%;
+    padding: 14px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 10px;
+    outline: none;
+    font-size: 15px;
+    background: #f1f1f1;
 }
 
+/ Buttons /
 button {
-  width: 100%;
-  padding: 14px;
-  border-radius: 10px;
-  border: none;
-  margin-bottom: 12px;
-  font-size: 16px;
-  cursor: pointer;
+    width: 100%;
+    padding: 14px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
 }
 
-.login {
-  background: #66bb6a;
-  color: white;
+.login-btn {
+    background: #5fbf5f;
+    color: white;
 }
 
-.register {
-  background: #f39c34;
-  color: white;
+.register-btn {
+    background: #f39c12;
+    color: white;
 }
 
+button:hover {
+    opacity: 0.9;
+    transform: scale(1.02);
+}
+
+/ Error /
 #error {
-  color: red;
-  text-align: center;
+    color: #ff4d4d;
+    font-size: 13px;
+    margin-top: 12px;
 }
 </style>
+
 </head>
 
 <body>
 
 <div class="container">
-  <h1>Galmet</h1>
+    <h1>Galmet</h1>
 
-  <input id="email" type="email" placeholder="Email">
-  <input id="password" type="password" placeholder="Password">
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
 
-  <button class="login" onclick="login()">Login</button>
-  <button class="register" onclick="register()">Register</button>
+    <button class="login-btn" onclick="login()">Login</button>
+    <button class="register-btn" onclick="register()">Register</button>
 
-  <p id="error"></p>
+    <div id="error"></div>
 </div>
 
 <!-- Firebase -->
 <script type="module">
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.1/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.1.1/firebase-auth.js";
-import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.1.1/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } 
+from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { getFirestore, doc, setDoc } 
+from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-/* 🔥 PASTE YOUR CONFIG HERE */
+/ YOUR CONFIG /
 const firebaseConfig = {
   apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
   authDomain: "galmet-app.firebaseapp.com",
-  projectId: "galmet-app"
+  projectId: "galmet-app",
+  storageBucket: "galmet-app.firebasestorage.app",
+  messagingSenderId: "900590512024",
+  appId: "1:900590512024:web:16a36a085809a728c92ded"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* ERROR */
+/ ERROR FUNCTION /
 function showError(msg){
-  document.getElementById("error").innerText = msg;
+    document.getElementById("error").innerText = msg;
 }
 
-/* REGISTER */
-window.register = async () => {
-  const email = document.getElementById("email").value;
-  const pass = document.getElementById("password").value;
+/ REGISTER /
+window.register = async function(){
+    let email = document.getElementById("email").value.trim();
+    let pass = document.getElementById("password").value.trim();
 
-  if(!email || !pass){
-    showError("Fill all fields");
-    return;
-  }
+    if(!email || !pass){
+        showError("Please fill all fields");
+        return;
+    }
 
-  try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-    const user = userCredential.user;
+    try{
+        const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+        const user = userCredential.user;
 
-    let inviteCode = Math.random().toString(36).substring(2,8).toUpperCase();
+        let inviteCode = Math.random().toString(36).substring(2,8).toUpperCase();
 
-    await setDoc(doc(db, "users", user.uid), {
-      coins: 500,
-      email: email,
-      inviteCode: inviteCode,
-      referredBy: null,
-      firstTopup: false
-    });
+        await setDoc(doc(db, "users", user.uid), {
+            coins: 500,
+            email: email,
+            inviteCode: inviteCode,
+            referredBy: "",
+            firstTopup: false,
+            createdAt: new Date()
+        });
 
-    alert("Account Created ✅");
-    window.location.href = "dashboard.html";
+        alert("Account Created ✅");
+        window.location.href = "dashboard.html";
 
-  } catch(e){
-    showError(e.message);
-    console.log(e);
-  }
-};
+    }catch(e){
+        showError(e.message);
+        console.log(e);
+    }
+}
 
-/* LOGIN */
-window.login = async () => {
-  const email = document.getElementById("email").value;
-  const pass = document.getElementById("password").value;
+/ LOGIN */
+window.login = async function(){
+    let email = document.getElementById("email").value.trim();
+    let pass = document.getElementById("password").value.trim();
 
-  if(!email || !pass){
-    showError("Fill all fields");
-    return;
-  }
+    if(!email || !pass){
+        showError("Please fill all fields");
+        return;
+    }
 
-  try {
-    await signInWithEmailAndPassword(auth, email, pass);
+    try{
+        await signInWithEmailAndPassword(auth, email, pass);
 
-    alert("Login Successful ✅");
-    window.location.href = "dashboard.html";
+        alert("Login Success ✅");
+        window.location.href = "dashboard.html";
 
-  } catch(e){
-    showError(e.message);
-    console.log(e);
-  }
-};
+    }catch(e){
+        showError(e.message);
+        console.log(e);
+    }
+}
 
 </script>
 
