@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Galmet Wheel FINAL PERFECT</title>
+<title>Galmet Wheel FINAL FIX</title>
 
 <style>
 body{
@@ -100,16 +100,14 @@ font-size:14px;
 
 <script>
 
-// 🎯 EXACT ORDER (DO NOT CHANGE ORDER)
-let segments = [0,1,2,3,5,10];
-
-let colors = [
-"#ff5252",
-"#ffc107",
-"#4caf50",
-"#ff9800",
-"#03a9f4",
-"#9c27b0"
+// segments (ORDER MATTERS)
+let segments = [
+{value:0,color:"#ff5252"},
+{value:1,color:"#ffc107"},
+{value:2,color:"#4caf50"},
+{value:3,color:"#ff9800"},
+{value:5,color:"#03a9f4"},
+{value:10,color:"#9c27b0"}
 ];
 
 let canvas = document.getElementById("wheelCanvas");
@@ -119,32 +117,31 @@ let coins = parseInt(localStorage.getItem("galmetCoins")) || 500;
 document.getElementById("coins").innerText = coins;
 
 let spinning=false;
-let rotation=0;
+let currentRotation = 0;
 
-// 🎨 DRAW
+// 🎨 DRAW WHEEL
 function drawWheel(){
 let arc = (2*Math.PI)/segments.length;
 
 for(let i=0;i<segments.length;i++){
 ctx.beginPath();
-ctx.fillStyle=colors[i];
+ctx.fillStyle=segments[i].color;
 ctx.moveTo(140,140);
 ctx.arc(140,140,140,i*arc,(i+1)*arc);
 ctx.fill();
 
-// text
 ctx.save();
 ctx.translate(140,140);
 ctx.rotate(i*arc + arc/2);
 ctx.fillStyle="white";
 ctx.font="bold 14px Arial";
-ctx.fillText(segments[i]+"x",70,5);
+ctx.fillText(segments[i].value+"x",70,5);
 ctx.restore();
 }
 }
 drawWheel();
 
-// 💾
+// 💾 STORAGE
 function saveCoins(){
 localStorage.setItem("galmetCoins",coins);
 }
@@ -155,15 +152,22 @@ saveCoins();
 document.getElementById("coins").innerText=coins;
 }
 
-// 🎯 SPIN (PERFECT MATCH LOGIC)
+// 🎯 SPIN FUNCTION
 function spin(){
 
 if(spinning) return;
 
 let bet=parseInt(document.getElementById("bet").value);
 
-if(bet<=0){ alert("Enter bet"); return; }
-if(bet>coins){ alert("Not enough coins"); return; }
+if(bet<=0){
+alert("Enter valid bet");
+return;
+}
+
+if(bet>coins){
+alert("Not enough coins");
+return;
+}
 
 // deduct
 coins-=bet;
@@ -172,49 +176,46 @@ document.getElementById("coins").innerText=coins;
 
 spinning=true;
 
-// 🎯 weighted system
+// 🎯 weighted system (more loss)
 let pool = [0,0,0,1,1,2,2,3,5,10];
-let resultValue = pool[Math.floor(Math.random()*pool.length)];
+let chosen = pool[Math.floor(Math.random()*pool.length)];
 
-let index = segments.indexOf(resultValue);
+let index = segments.findIndex(s=>s.value===chosen);
 
-// 🎯 PERFECT ANGLE FIX
+// 🎯 ANGLE CALCULATION (FIXED)
 let segmentAngle = 360 / segments.length;
 
-// 🎯 FIX: adjust for canvas starting at right (0°) + pointer at top
-let angle = (index * segmentAngle) + (segmentAngle / 2);
+// pointer is at TOP (0deg)
+let stopAngle = (index * segmentAngle) + (segmentAngle / 2);
 
-// shift by 90° because pointer is at top
-let finalRotation = 360 - angle + 90;
+// convert to rotation direction
+let finalAngle = 360 - stopAngle + 90;
 
 // add smooth spins
-let totalSpin = (360 * 6) + finalRotation;
+let spins = 360 * 5;
 
-// apply rotation
-rotation = rotation + totalSpin;
-rotation = rotation % 360; // keep stable
+currentRotation += spins + finalAngle;
+currentRotation = currentRotation % 360 + spins + finalAngle;
+canvas.style.transform = `rotate(${currentRotation}deg)`;
 
-canvas.style.transform = `rotate(${rotation}deg)`;
-
-// 🎯 AFTER SPIN
+// 🎯 RESULT AFTER SPIN
 setTimeout(()=>{
 
-let win = bet * resultValue;
+let win = bet * chosen;
 coins += win;
 
 saveCoins();
 document.getElementById("coins").innerText=coins;
 
-if(resultValue===0){
+if(chosen===0){
 document.getElementById("result").innerText="You lost!";
 }else{
-document.getElementById("result").innerText=
-"You won "+win+" coins ("+resultValue+"x)";
+document.getElementById("result").innerText=`You won ${win} coins (${chosen}x)`;
 }
 
 // history
 document.getElementById("history").innerHTML =
-resultValue+"x<br>"+document.getElementById("history").innerHTML;
+chosen+"x<br>"+document.getElementById("history").innerHTML;
 
 spinning=false;
 
@@ -222,7 +223,7 @@ spinning=false;
 
 }
 
-// 🤖 fake players
+// fake players
 setInterval(()=>{
 let names=["Kai","Alex","Lee","Sam","Sara","John","Mia"];
 let name=names[Math.floor(Math.random()*names.length)];
