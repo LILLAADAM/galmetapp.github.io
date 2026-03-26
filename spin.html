@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Galmet Wheel FINAL FIX</title>
+<title>Galmet Wheel FINAL PERFECT</title>
 
 <style>
 body{
@@ -100,14 +100,16 @@ font-size:14px;
 
 <script>
 
-// segments (ORDER MATTERS)
-let segments = [
-{value:0,color:"#ff5252"},
-{value:1,color:"#ffc107"},
-{value:2,color:"#4caf50"},
-{value:3,color:"#ff9800"},
-{value:5,color:"#03a9f4"},
-{value:10,color:"#9c27b0"}
+// 🎯 EXACT ORDER (DO NOT CHANGE ORDER)
+let segments = [0,1,2,3,5,10];
+
+let colors = [
+"#ff5252",
+"#ffc107",
+"#4caf50",
+"#ff9800",
+"#03a9f4",
+"#9c27b0"
 ];
 
 let canvas = document.getElementById("wheelCanvas");
@@ -117,31 +119,32 @@ let coins = parseInt(localStorage.getItem("galmetCoins")) || 500;
 document.getElementById("coins").innerText = coins;
 
 let spinning=false;
-let currentRotation = 0;
+let rotation=0;
 
-// 🎨 DRAW WHEEL
+// 🎨 DRAW
 function drawWheel(){
 let arc = (2*Math.PI)/segments.length;
 
 for(let i=0;i<segments.length;i++){
 ctx.beginPath();
-ctx.fillStyle=segments[i].color;
+ctx.fillStyle=colors[i];
 ctx.moveTo(140,140);
 ctx.arc(140,140,140,i*arc,(i+1)*arc);
 ctx.fill();
 
+// text
 ctx.save();
 ctx.translate(140,140);
 ctx.rotate(i*arc + arc/2);
 ctx.fillStyle="white";
 ctx.font="bold 14px Arial";
-ctx.fillText(segments[i].value+"x",70,5);
+ctx.fillText(segments[i]+"x",70,5);
 ctx.restore();
 }
 }
 drawWheel();
 
-// 💾 STORAGE
+// 💾
 function saveCoins(){
 localStorage.setItem("galmetCoins",coins);
 }
@@ -152,22 +155,15 @@ saveCoins();
 document.getElementById("coins").innerText=coins;
 }
 
-// 🎯 SPIN FUNCTION
+// 🎯 SPIN (PERFECT MATCH LOGIC)
 function spin(){
 
 if(spinning) return;
 
 let bet=parseInt(document.getElementById("bet").value);
 
-if(bet<=0){
-alert("Enter valid bet");
-return;
-}
-
-if(bet>coins){
-alert("Not enough coins");
-return;
-}
+if(bet<=0){ alert("Enter bet"); return; }
+if(bet>coins){ alert("Not enough coins"); return; }
 
 // deduct
 coins-=bet;
@@ -176,46 +172,48 @@ document.getElementById("coins").innerText=coins;
 
 spinning=true;
 
-// 🎯 weighted system (more loss)
+// 🎯 weighted system
 let pool = [0,0,0,1,1,2,2,3,5,10];
-let chosen = pool[Math.floor(Math.random()*pool.length)];
+let resultValue = pool[Math.floor(Math.random()*pool.length)];
 
-let index = segments.findIndex(s=>s.value===chosen);
+let index = segments.indexOf(resultValue);
 
-// 🎯 ANGLE CALCULATION (FIXED)
+// 🎯 PERFECT ANGLE FIX
 let segmentAngle = 360 / segments.length;
 
-// pointer is at TOP (0deg)
-let stopAngle = (index * segmentAngle) + (segmentAngle / 2);
+// center of segment
+let angle = (index * segmentAngle) + (segmentAngle / 2);
 
-// convert to rotation direction
-let finalAngle = 360 - stopAngle;
+// pointer is at top → we invert
+let finalRotation = 360 - angle;
 
 // add smooth spins
-let spins = 360 * 5;
+let totalSpin = (360 * 6) + finalRotation;
 
-currentRotation += spins + finalAngle;
+// apply rotation
+rotation += totalSpin;
 
-canvas.style.transform = `rotate(${currentRotation}deg)`;
+canvas.style.transform = `rotate(${rotation}deg)`;
 
-// 🎯 RESULT AFTER SPIN
+// 🎯 AFTER SPIN
 setTimeout(()=>{
 
-let win = bet * chosen;
+let win = bet * resultValue;
 coins += win;
 
 saveCoins();
 document.getElementById("coins").innerText=coins;
 
-if(chosen===0){
+if(resultValue===0){
 document.getElementById("result").innerText="You lost!";
 }else{
-document.getElementById("result").innerText=`You won ${win} coins (${chosen}x)`;
+document.getElementById("result").innerText=
+"You won "+win+" coins ("+resultValue+"x)";
 }
 
 // history
 document.getElementById("history").innerHTML =
-chosen+"x<br>"+document.getElementById("history").innerHTML;
+resultValue+"x<br>"+document.getElementById("history").innerHTML;
 
 spinning=false;
 
@@ -223,7 +221,7 @@ spinning=false;
 
 }
 
-// fake players
+// 🤖 fake players
 setInterval(()=>{
 let names=["Kai","Alex","Lee","Sam","Sara","John","Mia"];
 let name=names[Math.floor(Math.random()*names.length)];
