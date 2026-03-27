@@ -527,7 +527,9 @@
             }
 
             // 6. Store user data in Firestore
-            try {
+const userRef = doc(db, "users", user.uid); // ✅ MUST ADD THIS
+
+try {
     await setDoc(userRef, {
         email: email,
         coins: 500,
@@ -542,6 +544,7 @@
 
 } catch (err) {
     console.error("❌ FIRESTORE ERROR:", err);
+    throw err;
 }
 
 // 🔥 VERIFY DATA SAVED (VERY IMPORTANT)
