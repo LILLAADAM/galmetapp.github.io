@@ -527,17 +527,22 @@
             }
 
             // 6. Store user data in Firestore
-            const userRef = doc(db, "users", user.uid);
+            try {
+    await setDoc(userRef, {
+        email: email,
+        coins: 500,
+        userId: userId,
+        inviteCode: inviteCode,
+        referredBy: referredByUID,
+        firstTopup: false,
+        createdAt: serverTimestamp()
+    });
 
-await setDoc(userRef, {
-    email: email,
-    coins: 500,
-    userId: userId,
-    inviteCode: inviteCode,
-    referredBy: referredByUID,
-    firstTopup: false,
-    createdAt: serverTimestamp()
-});
+    console.log("✅ FIRESTORE WRITE SUCCESS");
+
+} catch (err) {
+    console.error("❌ FIRESTORE ERROR:", err);
+}
 
 // 🔥 VERIFY DATA SAVED (VERY IMPORTANT)
 let check = null;
