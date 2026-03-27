@@ -158,12 +158,9 @@ body {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } 
 from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-
-import { getFirestore, doc, onSnapshot } 
+import { getFirestore, doc, getDoc } 
 from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-
-// ⚠️ MUST MATCH index.html EXACTLY
 const firebaseConfig = {
   apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
   authDomain: "galmet-app.firebaseapp.com",
@@ -177,8 +174,36 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// 🔥 FORCE LOAD FUNCTION
+async function loadUserData(uid) {
+    const ref = doc(db, "users", uid);
 
-// ✅ AUTH CHECK
+    let attempts = 0;
+
+    while (attempts < 10) {
+        const snap = await getDoc(ref);
+
+        if (snap.exists()) {
+            const data = snap.data();
+
+            document.getElementById("email").innerText = data.email || "-";
+            document.getElementById("coins").innerText = data.coins ?? 0;
+            document.getElementById("inviteCode").innerText = data.inviteCode || "-";
+            document.getElementById("userId").innerText = data.userId || "Not Assigned";
+
+            console.log("✅ Data loaded");
+            return;
+        }
+
+        console.log("⏳ Waiting for data...");
+        await new Promise(r => setTimeout(r, 500)); // wait 0.5s
+        attempts++;
+    }
+
+    console.error("❌ Failed to load user data");
+}
+
+// AUTH
 onAuthStateChanged(auth, (user)=>{
 
     if(!user){
@@ -186,29 +211,9 @@ onAuthStateChanged(auth, (user)=>{
         return;
     }
 
-    const ref = doc(db, "users", user.uid);
-
-    // ✅ REALTIME FIX (NO MORE LOADING ISSUE)
-    onSnapshot(ref, (snap)=>{
-
-        if(!snap.exists()){
-            console.log("Waiting for user data...");
-            return;
-        }
-
-        const data = snap.data();
-
-        document.getElementById("email").innerText = data.email || "-";
-        document.getElementById("coins").innerText = data.coins ?? 0;
-        document.getElementById("inviteCode").innerText = data.inviteCode || "-";
-
-        document.getElementById("userId").innerText =
-            data.userId ? data.userId : "Not Assigned";
-
-    });
+    loadUserData(user.uid);
 
 });
-
 
 // LOGOUT
 window.logout = function(){
@@ -230,6 +235,3 @@ window.goGame = function(page){
 }
 
 </script>
-
-</body>
-</html>
