@@ -528,22 +528,37 @@
             }
 
             // 6. Store user data in Firestore
-            await setDoc(doc(db, "users", user.uid), {
-                email: email,
-                coins: 500,
-                userId: userId,
-                inviteCode: inviteCode,
-                referredBy: referredByUID,
-                firstTopup: false,
-                createdAt: serverTimestamp()
-            });
+            const userRef = doc(db, "users", user.uid);
 
-            console.log("✅ User saved in Firestore:", { userId, inviteCode });
+await setDoc(userRef, {
+    email: email,
+    coins: 500,
+    userId: userId,
+    inviteCode: inviteCode,
+    referredBy: referredByUID,
+    firstTopup: false,
+    createdAt: serverTimestamp()
+});
 
-            // 7. Wait a moment to ensure Firestore write is fully committed before redirect
-            setTimeout(() => {
-                window.location.href = "dashboard.html";
-            }, 800);
+// 🔥 VERIFY DATA SAVED (VERY IMPORTANT)
+let check = null;
+for (let i = 0; i < 5; i++) {
+    const snap = await getDoc(userRef);
+    if (snap.exists()) {
+        check = snap.data();
+        break;
+    }
+    await new Promise(r => setTimeout(r, 300));
+}
+
+if (!check) {
+    throw new Error("Failed to save user data properly");
+}
+
+console.log("✅ Data confirmed saved:", check);
+
+// 🚀 NOW SAFE TO REDIRECT
+window.location.href = "dashboard.html";
             
         } catch (error) {
             console.error("Registration error:", error);
