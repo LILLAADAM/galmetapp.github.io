@@ -527,9 +527,12 @@
             }
 
             // 6. Store user data in Firestore
-const userRef = doc(db, "users", user.uid); // ✅ MUST ADD THIS
+import { addDoc, collection } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const userRef = doc(db, "users", user.uid);
 
 try {
+    // ✅ CREATE USER DATA
     await setDoc(userRef, {
         email: email,
         coins: 500,
@@ -541,6 +544,17 @@ try {
     });
 
     console.log("✅ FIRESTORE WRITE SUCCESS");
+
+    // 🔥 ADD THIS PART (TRANSACTION LOG)
+    await addDoc(collection(db, "transactions"), {
+        userId: user.uid,
+        type: "credit",
+        amount: 500,
+        reason: "signup_bonus",
+        createdAt: serverTimestamp()
+    });
+
+    console.log("✅ TRANSACTION SAVED");
 
 } catch (err) {
     console.error("❌ FIRESTORE ERROR:", err);
