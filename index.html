@@ -565,7 +565,9 @@ if (!check) {
 console.log("✅ Data confirmed saved:", check);
 
 // 🚀 NOW SAFE TO REDIRECT
-window.location.href = "dashboard.html";
+setTimeout(() => {
+    window.location.href = "dashboard.html";
+}, 1200); // 🔥 IMPORTANT delay
             
         } catch (error) {
             console.error("Registration error:", error);
