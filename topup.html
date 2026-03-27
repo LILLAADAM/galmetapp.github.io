@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Top Up</title>
+
+<style>
+body {
+    background:#0f1b5c;
+    color:white;
+    font-family:sans-serif;
+    padding:20px;
+}
+
+.card {
+    background:#1f2f9c;
+    padding:20px;
+    border-radius:12px;
+    margin-bottom:15px;
+}
+
+button {
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border:none;
+    border-radius:8px;
+    background:#00c853;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<h2>💳 Top Up Balance</h2>
+
+<div class="card">
+    <p>Choose amount:</p>
+
+    <button onclick="topup(100)">100 Coins</button>
+    <button onclick="topup(500)">500 Coins</button>
+    <button onclick="topup(1000)">1000 Coins</button>
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { 
+    getFirestore, 
+    doc, 
+    getDoc, 
+    updateDoc, 
+    addDoc, 
+    collection,
+    serverTimestamp 
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+  authDomain: "galmet-app.firebaseapp.com",
+  projectId: "galmet-app"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+window.topup = async function(amount){
+
+    const user = auth.currentUser;
+
+    if(!user){
+        alert("Login required");
+        return;
+    }
+
+    const ref = doc(db, "users", user.uid);
+    const snap = await getDoc(ref);
+
+    if(!snap.exists()){
+        alert("User not found");
+        return;
+    }
+
+    const data = snap.data();
+
+    // ❌ FRONTEND UPDATE (TEMP ONLY)
+    const newCoins = (data.coins || 0) + amount;
+
+    await updateDoc(ref, {
+        coins: newCoins
+    });
+
+    // ✅ TRANSACTION LOG
+    await addDoc(collection(db, "transactions"), {
+        userId: user.uid,
+        type: "credit",
+        amount: amount,
+        reason: "topup",
+        createdAt: serverTimestamp()
+    });
+
+    alert("✅ Top-up successful!");
+
+}
+
+</script>
+
+</body>
+</html>
