@@ -368,12 +368,13 @@
     getFirestore, 
     doc, 
     setDoc, 
-    getDoc,   // ✅ ADD THIS LINE
+    getDoc,
     collection, 
     query, 
     where, 
     getDocs,
-    serverTimestamp
+    serverTimestamp,
+    addDoc
 } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
     // Firebase configuration
@@ -527,7 +528,6 @@
             }
 
             // 6. Store user data in Firestore
-import { addDoc, collection } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 const userRef = doc(db, "users", user.uid);
 
