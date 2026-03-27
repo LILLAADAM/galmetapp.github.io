@@ -365,15 +365,16 @@
         onAuthStateChanged
     } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
     import { 
-        getFirestore, 
-        doc, 
-        setDoc, 
-        collection, 
-        query, 
-        where, 
-        getDocs,
-        serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+    getFirestore, 
+    doc, 
+    setDoc, 
+    getDoc,   // ✅ ADD THIS LINE
+    collection, 
+    query, 
+    where, 
+    getDocs,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
     // Firebase configuration (replace with your actual keys)
     const firebaseConfig = {
@@ -504,12 +505,10 @@
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
-            // 2. Generate unique 8-digit userId
-            const userId = await generateUniqueUserId();
-
-            // 3. Generate inviteCode (2 letters + last 4 digits of userId)
-            const inviteCode = generateInviteCode(userId);
-
+            // 🔥 SIMPLE + FAST (NO FIRESTORE QUERY = NO DELAY)
+            const userId = Date.now();
+            const inviteCode = Math.random().toString(36).substring(2,8).toUpperCase();
+            
             // 4. Self-referral protection
             if (referral && referral === inviteCode) {
                 throw new Error("You cannot use your own referral code");
@@ -647,11 +646,10 @@ window.location.href = "dashboard.html";
 
     // ---------- Auth State Redirect ----------
     onAuthStateChanged(auth, (user) => {
-        if (user) {
-            // Already logged in → go to dashboard
-            window.location.href = "dashboard.html";
-        }
-    });
+    if (user && window.location.pathname.includes("index.html")) {
+        window.location.href = "dashboard.html";
+    }
+});
 
     // ---------- Event Listeners ----------
     loginBtn.addEventListener("click", (e) => {
