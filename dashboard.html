@@ -179,32 +179,33 @@ onAuthStateChanged(auth, async (user) => {
         return;
     }
 
-    console.log("User logged in:", user.uid);
+    const ref = doc(db, "users", user.uid);
 
     try {
-        const ref = doc(db, "users", user.uid);
+        let snap = await getDoc(ref);
 
-        // 🔥 RETRY SYSTEM (IMPORTANT FIX)
-        let attempts = 0;
-        let data = null;
+        // 🔥 AUTO FIX: IF DATA MISSING → CREATE IT
+        if (!snap.exists()) {
 
-        while (attempts < 5) {
-            const snap = await getDoc(ref);
+            console.log("⚠️ No user data → creating now...");
 
-            if (snap.exists()) {
-                data = snap.data();
-                break;
-            }
+            const userId = Math.floor(10000000 + Math.random() * 90000000);
+            const inviteCode = Math.random().toString(36).substring(2,8).toUpperCase();
 
-            console.log("Retrying fetch...");
-            await new Promise(res => setTimeout(res, 500)); // wait 0.5s
-            attempts++;
+            await setDoc(ref, {
+                email: user.email,
+                coins: 500,
+                userId: userId,
+                inviteCode: inviteCode,
+                referredBy: "",
+                firstTopup: false,
+                createdAt: serverTimestamp()
+            });
+
+            snap = await getDoc(ref);
         }
 
-        if (!data) {
-            console.error("User data still not found");
-            return;
-        }
+        const data = snap.data();
 
         // ✅ UPDATE UI
         document.getElementById("email").innerText = data.email || "-";
@@ -215,7 +216,7 @@ onAuthStateChanged(auth, async (user) => {
         console.log("✅ Dashboard loaded:", data);
 
     } catch (err) {
-        console.error("Error loading user:", err);
+        console.error("Error:", err);
     }
 
 });
