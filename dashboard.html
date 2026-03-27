@@ -182,38 +182,19 @@ onAuthStateChanged(auth, async (user) => {
     const ref = doc(db, "users", user.uid);
 
     try {
-        let snap = await getDoc(ref);
+        const snap = await getDoc(ref);
 
-        // 🔥 AUTO FIX: IF DATA MISSING → CREATE IT
         if (!snap.exists()) {
-
-            console.log("⚠️ No user data → creating now...");
-
-            const userId = Math.floor(10000000 + Math.random() * 90000000);
-            const inviteCode = Math.random().toString(36).substring(2,8).toUpperCase();
-
-            await setDoc(ref, {
-                email: user.email,
-                coins: 500,
-                userId: userId,
-                inviteCode: inviteCode,
-                referredBy: "",
-                firstTopup: false,
-                createdAt: serverTimestamp()
-            });
-
-            snap = await getDoc(ref);
+            console.error("❌ No user data found");
+            return;
         }
 
         const data = snap.data();
 
-        // ✅ UPDATE UI
         document.getElementById("email").innerText = data.email || "-";
         document.getElementById("coins").innerText = data.coins ?? 0;
         document.getElementById("inviteCode").innerText = data.inviteCode || "-";
         document.getElementById("userId").innerText = data.userId || "Not Assigned";
-
-        console.log("✅ Dashboard loaded:", data);
 
     } catch (err) {
         console.error("Error:", err);
