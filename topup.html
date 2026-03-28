@@ -31,6 +31,10 @@ button {
     font-weight:bold;
     cursor:pointer;
 }
+
+#paymentBox {
+    display:none;
+}
 </style>
 </head>
 
@@ -38,38 +42,39 @@ button {
 
 <h2>💳 Top Up Balance</h2>
 
-<!-- ✅ STEP 1: SELECT AMOUNT -->
+<!-- ✅ AMOUNT SELECTION -->
 <div class="card">
     <p>Select USDT amount:</p>
 
-    <button onclick="topup(1)">1 USDT</button>
-    <button onclick="topup(10)">10 USDT</button>
-    <button onclick="topup(50)">50 USDT</button>
-    <button onclick="topup(100)">100 USDT</button>
+    <button onclick="topup(1)">1 USDT (5000 Coins)</button>
+    <button onclick="topup(10)">10 USDT (50000 Coins)</button>
+    <button onclick="topup(50)">50 USDT (250000 Coins)</button>
+    <button onclick="topup(100)">100 USDT (500000 Coins)</button>
 </div>
 
-<!-- ✅ STEP 2: PAYMENT SCREEN -->
-<div id="paymentBox" style="display:none;" class="card">
+<!-- ✅ PAYMENT BOX -->
+<div id="paymentBox" class="card">
     <h3>Send Payment</h3>
 
     <p><b>Topup ID:</b> <span id="tid"></span></p>
-    <p><b>Amount:</b> <span id="amt"></span> USDT</p>
+    <p><b>Amount:</b> <span id="amt"></span></p>
 
     <p><b>Network:</b> TRC20</p>
 
-    <p><b>Wallet Address:</b></p>
-    <p id="wallet">TXYZ123ABC456789XXXX</p>
+    <!-- 🔥 CHANGE WALLET HERE -->
+    <p><b>Wallet:</b></p>
+    <p id="wallet">TXXXXXXXXXXXXXXX</p>
 
-    <!-- 🔥 PUT YOUR QR IMAGE HERE -->
+    <!-- 🔥 CHANGE QR HERE -->
     <img src="https://via.placeholder.com/150" width="150">
 
-    <p style="margin-top:10px;">After payment, wait for confirmation.</p>
+    <p style="margin-top:10px;">After payment, wait for admin confirmation.</p>
 </div>
 
-<!-- ✅ STEP 3: HISTORY -->
+<!-- ✅ HISTORY -->
 <div class="card">
     <h3>Topup History</h3>
-    <div id="history"></div>
+    <div id="history">Loading...</div>
 </div>
 
 <script type="module">
@@ -77,6 +82,7 @@ button {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 
+// 🔥 YOUR FIREBASE CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
   authDomain: "galmet-app.firebaseapp.com",
@@ -88,16 +94,13 @@ const auth = getAuth(app);
 
 let currentUser = null;
 
-// ✅ WAIT FOR LOGIN STATE
+// ✅ WAIT FOR LOGIN
 onAuthStateChanged(auth, (user) => {
 
     if (user) {
         currentUser = user;
         console.log("✅ Logged in:", user.uid);
-
-        // load history after login
         loadHistory();
-
     } else {
         console.log("❌ Not logged in");
     }
@@ -105,35 +108,65 @@ onAuthStateChanged(auth, (user) => {
 });
 
 
+// ✅ COIN CALCULATION
+function calculateCoins(usdt){
+    return usdt * 5000;
+}
+
+
 // ✅ TOPUP FUNCTION
 window.topup = async function(amount){
 
+    console.log("Clicked:", amount);
+
     if(!currentUser){
-        alert("Login required");
+        alert("Please wait... logging in");
         return;
     }
 
-    const res = await fetch("https://createtopup-k3vzdssfra-uc.a.run.app", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            userId: currentUser.uid,
-            amount: amount
-        })
-    });
+    try {
 
-    const data = await res.json();
+        const res = await fetch("https://createtopup-k3vzdssfra-uc.a.run.app", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                userId: currentUser.uid,
+                amount: amount
+            })
+        });
 
-    if(data.success){
-        showPayment(data.topupId, amount);
-        loadHistory();
-    } else {
-        alert("Error");
+        const data = await res.json();
+
+        console.log(data);
+
+        if(data.success){
+
+            showPayment(data.topupId, amount);
+
+        } else {
+            alert("Error creating topup");
+        }
+
+    } catch(e){
+        console.error(e);
+        alert("Request failed");
     }
 };
 
 
-// ✅ HISTORY
+// ✅ SHOW PAYMENT
+function showPayment(topupId, amount){
+
+    document.getElementById("paymentBox").style.display = "block";
+
+    document.getElementById("tid").innerText = topupId;
+
+    document.getElementById("amt").innerText =
+        amount + " USDT (" + calculateCoins(amount) + " Coins)";
+}
+
+
+// ✅ LOAD HISTORY
 async function loadHistory(){
 
     if(!currentUser) return;
@@ -148,10 +181,15 @@ async function loadHistory(){
 
     data.forEach(t => {
         html += `
-        <div>
+        <div style="margin-bottom:10px;">
             ${t.amount} USDT - <b>${t.status}</b>
         </div>`;
     });
 
     document.getElementById("history").innerHTML = html;
 }
+
+</script>
+
+</body>
+</html>
