@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Withdraw</title>
+<style>
+body{background:#0b1f4b;color:#fff;font-family:Arial;padding:20px;}
+input,button{padding:10px;margin:10px 0;width:100%;}
+button{background:#4cd964;border:none;}
+</style>
+</head>
+
+<body>
+
+<h2>💸 Withdraw</h2>
+
+<input id="amount" placeholder="Amount">
+<input id="wallet" placeholder="Wallet Address">
+
+<button onclick="withdraw()">Withdraw</button>
+
+<script>
+
+async function withdraw(){
+
+    const amount = document.getElementById("amount").value;
+    const wallet = document.getElementById("wallet").value;
+
+    const userId = localStorage.getItem("userId"); // or your system
+
+    const res = await fetch("https://createwithdraw-k3vzdssfra-uc.a.run.app",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({
+            userId:userId,
+            amount:amount,
+            wallet:wallet
+        })
+    });
+
+    const data = await res.json();
+
+    if(data.success){
+        alert("Request sent ✅");
+    }else{
+        alert(data.error);
+    }
+
+}
+
+</script>
+
+</body>
+</html>
