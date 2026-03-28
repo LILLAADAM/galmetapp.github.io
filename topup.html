@@ -41,7 +41,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// 🔥 YOUR CONFIG
+// 🔥 FIREBASE CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
   authDomain: "galmet-app.firebaseapp.com",
@@ -53,41 +53,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 let currentUser = null;
-
-// ===============================
-// 💰 15 WALLET ROTATION
-// ===============================
-const wallets = [
-"TU5Jjeo27gNauHtDp5oAdNcvvqNUZkc4Pm",
-  "TLNaDp16E1nGHvi4EFAZm3oDKu1spLz9mr",
-  "TShvUteXBEk4T9rqiGA6UPm79Dhbd7cdFa",
-  "TPhWnXrn8egGgE5btGbhkhkztRsSeYEjEG",
-  "TCnFsps5LKEMK6qMqkekLgXYRjtKo8U9vS",
-  "TCaFRQy8oXisAUxRbqLKeKJB8iqxV31YmZ",
-  "TYZP5PhHcc5ZtkJHgUCs3XcQVWjzabYxtp",
-  "TDDhf3XZKqLqtM8nVGHTruWoMX9f7bkBxJ",
-  "THk4uzJTv78KtSYQnxiQk1QmMny3fKYZFj",
-  "TQroiJa5fupBKTZySDdRrMtHEi1scSb8T6",
-  "TUTNNRSABtLotrs96Q3mSGoPN2QFaP2Xww",
-  "TGyxkr8QjoWXkr8MT78yKcLhM1S42RUQdh",
-  "TQY4XLQbYFseisMkmeryLDksR4X8zHfMMp",
-  "TJgss3bUQD9SsU2Wa7fYcDxQuAaPsUzKYo",
-  "TVrpcGhNUyJGKUFWNSGTqBMMgxqQtGxsAK"
-];
-
-function getNextWallet(){
-    let index = localStorage.getItem("walletIndex") || 0;
-    index = Number(index);
-
-    const wallet = wallets[index];
-
-    index++;
-    if(index >= wallets.length) index = 0;
-
-    localStorage.setItem("walletIndex", index);
-
-    return wallet;
-}
+let timerInterval;
 
 // ===============================
 // 🔐 AUTH
@@ -102,7 +68,7 @@ onAuthStateChanged(auth, async (user)=>{
 
     loadHistory();
 
-    // ✅ restore payment
+    // ✅ restore payment if exists
     const saved = localStorage.getItem("activeTopup");
     if(saved){
         const data = JSON.parse(saved);
@@ -118,11 +84,9 @@ async function fetchUserData(){
 }
 
 // ===============================
-// 🚀 CREATE TOPUP
+// 🚀 CREATE TOPUP (FIXED)
 // ===============================
 window.topup = async function(amount){
-
-    const wallet = getNextWallet();
 
     const userData = await fetchUserData();
 
@@ -131,8 +95,7 @@ window.topup = async function(amount){
         headers:{"Content-Type":"application/json"},
         body: JSON.stringify({
             userId: userData.userId,
-            amount: amount,
-            wallet: wallet   // 🔥 IMPORTANT
+            amount: amount
         })
     });
 
@@ -143,7 +106,7 @@ window.topup = async function(amount){
         const saveData = {
             topupId: data.topupId,
             amount: amount,
-            wallet: wallet,
+            wallet: data.wallet, // ✅ FROM BACKEND
             startTime: Date.now()
         };
 
@@ -152,12 +115,12 @@ window.topup = async function(amount){
         renderPayment(
             data.topupId,
             amount,
-            wallet,
+            data.wallet,
             saveData.startTime
         );
 
     }else{
-        alert("Error");
+        alert("Error creating topup");
     }
 };
 
@@ -184,17 +147,19 @@ function renderPayment(topupId, amount, wallet, startTime){
 }
 
 // ===============================
-// ⏳ TIMER + CHECK
+// ⏳ TIMER (FIXED)
 // ===============================
 function startTimer(topupId, startTime){
 
-    const interval = setInterval(()=>{
+    clearInterval(timerInterval);
+
+    timerInterval = setInterval(()=>{
 
         let passed = Math.floor((Date.now()-startTime)/1000);
         let remaining = 900 - passed;
 
         if(remaining <= 0){
-            clearInterval(interval);
+            clearInterval(timerInterval);
             localStorage.removeItem("activeTopup");
             document.getElementById("timer").innerHTML="Expired";
             return;
@@ -206,15 +171,13 @@ function startTimer(topupId, startTime){
         document.getElementById("timer").innerHTML =
             `Time: ${m}:${s<10?"0"+s:s}`;
 
-        if(remaining % 5 === 0){
-            checkStatus(topupId);
-        }
+        checkStatus(topupId);
 
-    },1000);
+    },3000);
 }
 
 // ===============================
-// 🔍 CHECK STATUS
+// 🔍 CHECK STATUS (FIXED)
 // ===============================
 async function checkStatus(topupId){
 
@@ -228,20 +191,19 @@ async function checkStatus(topupId){
 
         const data = await res.json();
 
-        console.log("STATUS:", data);
-
         if(data.status === "completed"){
 
+            clearInterval(timerInterval);
             localStorage.removeItem("activeTopup");
 
             document.getElementById("paymentBox").innerHTML = `
                 <h3 style="color:#4cd964;">Payment Completed ✅</h3>
-                <p>Coins added to your account</p>
+                <p>Coins added successfully</p>
             `;
 
             setTimeout(()=>{
                 window.location.href="dashboard.html";
-            },2000);
+            },1500);
         }
 
     } catch(e){
