@@ -75,10 +75,10 @@ button {
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
+  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
   authDomain: "galmet-app.firebaseapp.com",
   projectId: "galmet-app"
 };
@@ -86,24 +86,38 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// 🔥 REPLACE WITH YOUR FUNCTION URLS
-const CREATE_URL = "https://createtopup-k3vzdssf...run.app";
-const HISTORY_URL = "https://gettopups-k3vzdssf...run.app";
+let currentUser = null;
 
+// ✅ WAIT FOR LOGIN STATE
+onAuthStateChanged(auth, (user) => {
+
+    if (user) {
+        currentUser = user;
+        console.log("✅ Logged in:", user.uid);
+
+        // load history after login
+        loadHistory();
+
+    } else {
+        console.log("❌ Not logged in");
+    }
+
+});
+
+
+// ✅ TOPUP FUNCTION
 window.topup = async function(amount){
 
-    const user = auth.currentUser;
-
-    if(!user){
+    if(!currentUser){
         alert("Login required");
         return;
     }
 
-    const res = await fetch(CREATE_URL, {
+    const res = await fetch("https://createtopup-k3vzdssfra-uc.a.run.app", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-            userId: user.uid,
+            userId: currentUser.uid,
             amount: amount
         })
     });
@@ -114,42 +128,30 @@ window.topup = async function(amount){
         showPayment(data.topupId, amount);
         loadHistory();
     } else {
-        alert("Error creating topup");
+        alert("Error");
     }
 };
 
-// 🔥 SHOW PAYMENT UI
-function showPayment(topupId, amount){
-    document.getElementById("paymentBox").style.display = "block";
-    document.getElementById("tid").innerText = topupId;
-    document.getElementById("amt").innerText = amount;
-}
 
-// 🔥 LOAD HISTORY
+// ✅ HISTORY
 async function loadHistory(){
 
-    const user = auth.currentUser;
-    if(!user) return;
+    if(!currentUser) return;
 
-    const res = await fetch(HISTORY_URL + "?userId=" + user.uid);
+    const res = await fetch(
+        "https://gettopups-k3vzdssfra-uc.a.run.app?userId=" + currentUser.uid
+    );
+
     const data = await res.json();
 
     let html = "";
 
     data.forEach(t => {
         html += `
-        <div style="margin-bottom:10px;">
+        <div>
             ${t.amount} USDT - <b>${t.status}</b>
         </div>`;
     });
 
     document.getElementById("history").innerHTML = html;
 }
-
-// AUTO LOAD
-setTimeout(loadHistory, 2000);
-
-</script>
-
-</body>
-</html>
