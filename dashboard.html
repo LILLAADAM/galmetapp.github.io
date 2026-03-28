@@ -216,6 +216,49 @@ onAuthStateChanged(auth, async (user) => {
     }
 
 });
+    // OPEN BOX
+window.openWithdraw = function(){
+    document.getElementById("withdrawBox").style.display = "block";
+};
+
+// SUBMIT WITHDRAW
+window.submitWithdraw = async function(){
+
+    const amount = document.getElementById("withdrawAmount").value;
+    const wallet = document.getElementById("withdrawWallet").value;
+
+    if(!amount || !wallet){
+        alert("Enter all fields");
+        return;
+    }
+
+    try{
+
+        const userData = await fetchUserData();
+
+        const res = await fetch("https://createwithdraw-k3vzdssfra-uc.a.run.app",{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body: JSON.stringify({
+                userId: userData.userId,
+                amount: amount,
+                wallet: wallet
+            })
+        });
+
+        const data = await res.json();
+
+        if(data.success){
+            alert("Withdraw request submitted ✅");
+            document.getElementById("withdrawBox").style.display = "none";
+        }else{
+            alert(data.error || "Error");
+        }
+
+    }catch(e){
+        alert("Request failed");
+    }
+};
 
 // LOGOUT
 window.logout = function(){
@@ -241,3 +284,52 @@ window.goGame = function(page){
     <button onclick="window.location.href='topup.html'">
 💳 Top Up
 </button>
+
+    <button onclick="openWithdraw()" style="
+  background:#ff3b30;
+  padding:12px;
+  border:none;
+  border-radius:8px;
+  color:white;
+  font-weight:bold;
+  width:100%;
+  margin-top:10px;
+">
+💸 Withdraw Coins
+</button>
+
+    <div id="withdrawBox" style="
+  display:none;
+  background:#111;
+  padding:20px;
+  border-radius:10px;
+  margin-top:15px;
+">
+
+  <h3>Withdraw</h3>
+
+  <input id="withdrawAmount" placeholder="Amount (coins)" style="
+    width:100%;
+    padding:10px;
+    margin-bottom:10px;
+  ">
+
+  <input id="withdrawWallet" placeholder="Your Wallet Address" style="
+    width:100%;
+    padding:10px;
+    margin-bottom:10px;
+  ">
+
+  <button onclick="submitWithdraw()" style="
+    background:#4cd964;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    color:white;
+    font-weight:bold;
+    width:100%;
+  ">
+    Submit Withdraw
+  </button>
+
+</div>
