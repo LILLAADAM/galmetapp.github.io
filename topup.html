@@ -41,7 +41,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// 🔥 FIREBASE CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
   authDomain: "galmet-app.firebaseapp.com",
@@ -53,7 +52,8 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 let currentUser = null;
-let timerInterval;
+let checkInterval = null;
+let timerInterval = null;
 
 // ===============================
 // 🔐 AUTH
@@ -68,11 +68,10 @@ onAuthStateChanged(auth, async (user)=>{
 
     loadHistory();
 
-    // ✅ restore payment if exists
     const saved = localStorage.getItem("activeTopup");
     if(saved){
         const data = JSON.parse(saved);
-        renderPayment(data.topupId, data.amount, data.wallet, data.startTime);
+        renderPayment(data.topupId, data.amount, data.wallet, data.network, data.startTime);
     }
 });
 
@@ -84,7 +83,7 @@ async function fetchUserData(){
 }
 
 // ===============================
-// 🚀 CREATE TOPUP (FIXED)
+// 🚀 CREATE TOPUP
 // ===============================
 window.topup = async function(amount){
 
@@ -106,7 +105,8 @@ window.topup = async function(amount){
         const saveData = {
             topupId: data.topupId,
             amount: amount,
-            wallet: data.wallet, // ✅ FROM BACKEND
+            wallet: data.wallet,
+            network: data.network,
             startTime: Date.now()
         };
 
@@ -116,6 +116,7 @@ window.topup = async function(amount){
             data.topupId,
             amount,
             data.wallet,
+            data.network,
             saveData.startTime
         );
 
@@ -127,7 +128,7 @@ window.topup = async function(amount){
 // ===============================
 // 💳 RENDER PAYMENT
 // ===============================
-function renderPayment(topupId, amount, wallet, startTime){
+function renderPayment(topupId, amount, wallet, network, startTime){
 
     const qr = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${wallet}`;
 
@@ -136,22 +137,23 @@ function renderPayment(topupId, amount, wallet, startTime){
     document.getElementById("paymentBox").innerHTML = `
         <h3>Send Payment</h3>
         <img src="${qr}" />
-        <p>Network: TRC20</p>
+        <p>Network: ${network}</p>
         <p>Wallet: ${wallet}</p>
         <p>Amount: ${amount} USDT</p>
         <div id="timer"></div>
         <p>Waiting for payment...</p>
     `;
 
-    startTimer(topupId, startTime);
+    startTimer(startTime);
+    startChecking(topupId);
 }
 
 // ===============================
 // ⏳ TIMER (FIXED)
 // ===============================
-function startTimer(topupId, startTime){
+function startTimer(startTime){
 
-    clearInterval(timerInterval);
+    if(timerInterval) clearInterval(timerInterval);
 
     timerInterval = setInterval(()=>{
 
@@ -171,44 +173,51 @@ function startTimer(topupId, startTime){
         document.getElementById("timer").innerHTML =
             `Time: ${m}:${s<10?"0"+s:s}`;
 
-        checkStatus(topupId);
-
-    },3000);
+    },1000);
 }
 
 // ===============================
-// 🔍 CHECK STATUS (FIXED)
+// 🔍 STATUS CHECK
 // ===============================
-async function checkStatus(topupId){
+function startChecking(topupId){
 
-    try {
+    if(checkInterval) clearInterval(checkInterval);
 
-        const res = await fetch(
-            "https://gettopups-k3vzdssfra-uc.a.run.app?topupId=" + topupId
-        );
+    checkInterval = setInterval(async ()=>{
 
-        if(!res.ok) return;
+        try{
+            const res = await fetch(
+                "https://gettopups-k3vzdssfra-uc.a.run.app?topupId="+topupId
+            );
 
-        const data = await res.json();
+            if(!res.ok) return;
 
-        if(data.status === "completed"){
+            const data = await res.json();
 
-            clearInterval(timerInterval);
-            localStorage.removeItem("activeTopup");
+            if(data.status === "completed"){
 
-            document.getElementById("paymentBox").innerHTML = `
-                <h3 style="color:#4cd964;">Payment Completed ✅</h3>
-                <p>Coins added successfully</p>
-            `;
+                clearInterval(checkInterval);
+                clearInterval(timerInterval);
 
-            setTimeout(()=>{
-                window.location.href="dashboard.html";
-            },1500);
+                localStorage.removeItem("activeTopup");
+
+                document.getElementById("paymentBox").innerHTML = `
+                    <h3 style="color:#4cd964;">Payment Completed ✅</h3>
+                    <p>Coins added successfully</p>
+                `;
+
+                loadHistory();
+
+                setTimeout(()=>{
+                    window.location.href="dashboard.html";
+                },2000);
+            }
+
+        }catch(e){
+            console.log("Check error");
         }
 
-    } catch(e){
-        console.log("Check failed");
-    }
+    },3000);
 }
 
 // ===============================
