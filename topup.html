@@ -38,37 +38,57 @@ button {
 
 <h2>💳 Top Up Balance</h2>
 
+<!-- ✅ STEP 1: SELECT AMOUNT -->
 <div class="card">
-    <p>Choose amount:</p>
+    <p>Select USDT amount:</p>
 
-    <button onclick="topup(100)">100 Coins</button>
-    <button onclick="topup(500)">500 Coins</button>
-    <button onclick="topup(1000)">1000 Coins</button>
+    <button onclick="topup(1)">1 USDT</button>
+    <button onclick="topup(10)">10 USDT</button>
+    <button onclick="topup(50)">50 USDT</button>
+    <button onclick="topup(100)">100 USDT</button>
+</div>
+
+<!-- ✅ STEP 2: PAYMENT SCREEN -->
+<div id="paymentBox" style="display:none;" class="card">
+    <h3>Send Payment</h3>
+
+    <p><b>Topup ID:</b> <span id="tid"></span></p>
+    <p><b>Amount:</b> <span id="amt"></span> USDT</p>
+
+    <p><b>Network:</b> TRC20</p>
+
+    <p><b>Wallet Address:</b></p>
+    <p id="wallet">TXYZ123ABC456789XXXX</p>
+
+    <!-- 🔥 PUT YOUR QR IMAGE HERE -->
+    <img src="https://via.placeholder.com/150" width="150">
+
+    <p style="margin-top:10px;">After payment, wait for confirmation.</p>
+</div>
+
+<!-- ✅ STEP 3: HISTORY -->
+<div class="card">
+    <h3>Topup History</h3>
+    <div id="history"></div>
 </div>
 
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-import { 
-    getFirestore, 
-    doc, 
-    getDoc, 
-    updateDoc, 
-    addDoc, 
-    collection,
-    serverTimestamp 
-} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+  apiKey: "YOUR_API_KEY",
   authDomain: "galmet-app.firebaseapp.com",
   projectId: "galmet-app"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
+
+// 🔥 REPLACE WITH YOUR FUNCTION URLS
+const CREATE_URL = "https://createtopup-k3vzdssf...run.app";
+const HISTORY_URL = "https://gettopups-k3vzdssf...run.app";
 
 window.topup = async function(amount){
 
@@ -79,35 +99,55 @@ window.topup = async function(amount){
         return;
     }
 
-    const ref = doc(db, "users", user.uid);
-    const snap = await getDoc(ref);
+    const res = await fetch(CREATE_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            userId: user.uid,
+            amount: amount
+        })
+    });
 
-    if(!snap.exists()){
-        alert("User not found");
-        return;
+    const data = await res.json();
+
+    if(data.success){
+        showPayment(data.topupId, amount);
+        loadHistory();
+    } else {
+        alert("Error creating topup");
     }
+};
 
-    const data = snap.data();
-
-    // ❌ FRONTEND UPDATE (TEMP ONLY)
-    const newCoins = (data.coins || 0) + amount;
-
-    await updateDoc(ref, {
-        coins: newCoins
-    });
-
-    // ✅ TRANSACTION LOG
-    await addDoc(collection(db, "transactions"), {
-        userId: user.uid,
-        type: "credit",
-        amount: amount,
-        reason: "topup",
-        createdAt: serverTimestamp()
-    });
-
-    alert("✅ Top-up successful!");
-
+// 🔥 SHOW PAYMENT UI
+function showPayment(topupId, amount){
+    document.getElementById("paymentBox").style.display = "block";
+    document.getElementById("tid").innerText = topupId;
+    document.getElementById("amt").innerText = amount;
 }
+
+// 🔥 LOAD HISTORY
+async function loadHistory(){
+
+    const user = auth.currentUser;
+    if(!user) return;
+
+    const res = await fetch(HISTORY_URL + "?userId=" + user.uid);
+    const data = await res.json();
+
+    let html = "";
+
+    data.forEach(t => {
+        html += `
+        <div style="margin-bottom:10px;">
+            ${t.amount} USDT - <b>${t.status}</b>
+        </div>`;
+    });
+
+    document.getElementById("history").innerHTML = html;
+}
+
+// AUTO LOAD
+setTimeout(loadHistory, 2000);
 
 </script>
 
