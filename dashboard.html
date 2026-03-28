@@ -238,7 +238,7 @@ window.openWithdraw = function(){
 // SUBMIT WITHDRAW
 window.submitWithdraw = async function(){
 
-    const amount = document.getElementById("withdrawAmount").value;
+    const amount = Number(document.getElementById("withdrawAmount").value);
     const wallet = document.getElementById("withdrawWallet").value;
 
     if(!amount || !wallet){
@@ -246,10 +246,21 @@ window.submitWithdraw = async function(){
         return;
     }
 
+    // 🔥 MIN LIMIT
+    if(amount < 65000){
+        alert("Minimum withdraw is 65,000 coins");
+        return;
+    }
+
+    const userData = await fetchUserData();
+
+    // 🔥 BALANCE CHECK
+    if(userData.coins < amount){
+        alert("Not enough balance");
+        return;
+    }
+
     try{
-
-        const userData = await fetchUserData();
-
         const res = await fetch("https://createwithdraw-k3vzdssfra-uc.a.run.app",{
             method:"POST",
             headers:{"Content-Type":"application/json"},
@@ -263,7 +274,7 @@ window.submitWithdraw = async function(){
         const data = await res.json();
 
         if(data.success){
-            alert("Withdraw request submitted ✅");
+            alert("Withdraw request sent ✅");
             document.getElementById("withdrawBox").style.display = "none";
         }else{
             alert(data.error || "Error");
@@ -293,8 +304,6 @@ window.goGame = function(page){
     window.location.href = page;
 }
     
-</script>
-
     <button onclick="window.location.href='topup.html'">
 💳 Top Up
 </button>
@@ -319,7 +328,20 @@ window.goGame = function(page){
   border-radius:10px;
   margin-top:15px;
 ">
+        
+<button onclick="loadWithdrawHistory()" style="
+  background:#007aff;
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  color:white;
+  width:100%;
+  margin-top:10px;
+">
+📜 View Withdraw History
+</button>
 
+<div id="withdrawHistory" style="margin-top:10px;"></div>
   <h3>Withdraw</h3>
 
   <input id="withdrawAmount" placeholder="Amount (coins)" style="
@@ -347,3 +369,26 @@ window.goGame = function(page){
   </button>
 
 </div>
+
+async function loadWithdrawHistory(){
+
+    const userData = await fetchUserData();
+
+    const res = await fetch("https://us-central1-galmet-app.cloudfunctions.net/getWithdrawals?admin=1");
+    const data = await res.json();
+
+    let html = "";
+
+    data
+    .filter(w => w.userId === userData.userId)
+    .forEach(w=>{
+        html += `
+        <div style="background:#222;padding:10px;margin:5px;border-radius:8px;">
+        ${w.amount} coins → ${w.wallet}<br>
+        Status: <b>${w.status}</b>
+        </div>`;
+    });
+
+    document.getElementById("withdrawHistory").innerHTML = html || "No history";
+}
+</script>
