@@ -171,6 +171,20 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// ===============================
+// 🔥 FETCH USER DATA (IMPORTANT)
+// ===============================
+async function fetchUserData(){
+    const user = auth.currentUser;
+
+    if(!user) return null;
+
+    const ref = doc(db, "users", user.uid);
+    const snap = await getDoc(ref);
+
+    return snap.data();
+}
+
 // ✅ LOAD USER DATA
 onAuthStateChanged(auth, async (user) => {
 
