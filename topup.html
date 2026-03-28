@@ -11,14 +11,12 @@ body{
     color:#fff;
     padding:20px;
 }
-
 .box{
     background:linear-gradient(135deg,#1e3c72,#2a5298);
     padding:20px;
     border-radius:15px;
     margin-bottom:20px;
 }
-
 .btn{
     background:#4cd964;
     padding:15px;
@@ -28,14 +26,8 @@ body{
     cursor:pointer;
     font-weight:bold;
 }
-
 .btn:hover{opacity:0.8}
-
-.small{
-    font-size:13px;
-    opacity:0.7;
-}
-
+.small{font-size:13px;opacity:0.7;}
 #paymentBox{
     background:#111;
     padding:20px;
@@ -43,62 +35,17 @@ body{
 }
 </style>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
-
-</head>
-<body>
-
-<h2>💳 Top Up Balance</h2>
-
-<div class="box">
-    <h3>Select USDT amount:</h3>
-
-    <div class="btn" onclick="topup(1)">
-        1 USDT <br>
-        <span class="small"><s>5000 Coins</s></span><br>
-        5000 Coins
-    </div>
-
-    <div class="btn" onclick="topup(10)">
-        10 USDT <br>
-        <span class="small"><s>50000 Coins</s></span><br>
-        55000 Coins
-    </div>
-
-    <div class="btn" onclick="topup(50)">
-        50 USDT <br>
-        <span class="small"><s>250000 Coins</s></span><br>
-        300000 Coins
-    </div>
-
-    <div class="btn" onclick="topup(100)">
-        100 USDT <br>
-        <span class="small"><s>500000 Coins</s></span><br>
-        620000 Coins
-    </div>
-</div>
-
-<div id="paymentBox" style="display:none;"></div>
-
-<div class="box">
-    <h3>Topup History</h3>
-    <div id="history">Loading...</div>
-</div>
-
 <script type="module">
 
-// ✅ YOUR FIREBASE CONFIG HERE
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+// 🔥 YOUR CONFIG
 const firebaseConfig = {
-    apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
-    authDomain: "galmet-app.firebaseapp.com",
-    projectId: "galmet-app"
+  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+  authDomain: "galmet-app.firebaseapp.com",
+  projectId: "galmet-app"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -107,25 +54,55 @@ const db = getFirestore(app);
 
 let currentUser = null;
 
-// 🔐 WAIT FOR LOGIN
+// ===============================
+// 💰 15 WALLET ROTATION
+// ===============================
+const wallets = [
+"TX1...", "TX2...", "TX3...", "TX4...", "TX5...",
+"TX6...", "TX7...", "TX8...", "TX9...", "TX10...",
+"TX11...", "TX12...", "TX13...", "TX14...", "TX15..."
+];
+
+function getNextWallet(){
+    let index = localStorage.getItem("walletIndex") || 0;
+    index = Number(index);
+
+    const wallet = wallets[index];
+
+    index++;
+    if(index >= wallets.length) index = 0;
+
+    localStorage.setItem("walletIndex", index);
+
+    return wallet;
+}
+
+// ===============================
+// 🔐 AUTH
+// ===============================
 onAuthStateChanged(auth, async (user)=>{
     if(!user){
-        alert("Login required");
-        window.location.href = "login.html";
+        window.location.href="login.html";
         return;
     }
 
     currentUser = user;
 
     loadHistory();
+
+    // ✅ restore payment
+    const saved = localStorage.getItem("activeTopup");
+    if(saved){
+        const data = JSON.parse(saved);
+        renderPayment(data.topupId, data.amount, data.wallet, data.startTime);
+    }
 });
 
-// 🔥 GET USER ID
+// ===============================
 async function fetchUserData(){
     const ref = doc(db,"users",currentUser.uid);
     const snap = await getDoc(ref);
-
-    return snap.data(); // contains userId
+    return snap.data();
 }
 
 // ===============================
@@ -133,38 +110,50 @@ async function fetchUserData(){
 // ===============================
 window.topup = async function(amount){
 
-    try{
+    const wallet = getNextWallet();
 
-        const userData = await fetchUserData();
+    const userData = await fetchUserData();
 
-        const res = await fetch("https://createtopup-k3vzdssfra-uc.a.run.app",{
-            method:"POST",
-            headers:{"Content-Type":"application/json"},
-            body: JSON.stringify({
-                userId: userData.userId,
-                amount: amount
-            })
-        });
+    const res = await fetch("https://createtopup-k3vzdssfra-uc.a.run.app",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({
+            userId: userData.userId,
+            amount: amount,
+            wallet: wallet   // 🔥 IMPORTANT
+        })
+    });
 
-        const data = await res.json();
+    const data = await res.json();
 
-        if(data.success){
-            showPayment(data.topupId, amount);
-        }else{
-            alert("Error creating topup");
-        }
+    if(data.success){
 
-    }catch(e){
-        alert("Request failed");
+        const saveData = {
+            topupId: data.topupId,
+            amount: amount,
+            wallet: wallet,
+            startTime: Date.now()
+        };
+
+        localStorage.setItem("activeTopup", JSON.stringify(saveData));
+
+        renderPayment(
+            data.topupId,
+            amount,
+            wallet,
+            saveData.startTime
+        );
+
+    }else{
+        alert("Error");
     }
 };
 
 // ===============================
-// 💳 SHOW PAYMENT + QR
+// 💳 RENDER PAYMENT
 // ===============================
-function showPayment(topupId, amount){
+function renderPayment(topupId, amount, wallet, startTime){
 
-    const wallet = "TXYZ123456ABCDEF"; // change here
     const qr = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${wallet}`;
 
     document.getElementById("paymentBox").style.display="block";
@@ -175,37 +164,38 @@ function showPayment(topupId, amount){
         <p>Network: TRC20</p>
         <p>Wallet: ${wallet}</p>
         <p>Amount: ${amount} USDT</p>
-
         <div id="timer"></div>
         <p>Waiting for payment...</p>
     `;
 
-    startTimer(topupId);
+    startTimer(topupId, startTime);
 }
 
 // ===============================
-// ⏳ TIMER + AUTO CHECK
+// ⏳ TIMER + CHECK
 // ===============================
-function startTimer(topupId){
+function startTimer(topupId, startTime){
 
-    let time = 900;
+    const interval = setInterval(()=>{
 
-    const interval = setInterval(async ()=>{
+        let passed = Math.floor((Date.now()-startTime)/1000);
+        let remaining = 900 - passed;
 
-        let m = Math.floor(time/60);
-        let s = time%60;
+        if(remaining <= 0){
+            clearInterval(interval);
+            localStorage.removeItem("activeTopup");
+            document.getElementById("timer").innerHTML="Expired";
+            return;
+        }
+
+        let m = Math.floor(remaining/60);
+        let s = remaining%60;
 
         document.getElementById("timer").innerHTML =
             `Time: ${m}:${s<10?"0"+s:s}`;
 
-        if(time % 5 === 0){
+        if(remaining % 5 === 0){
             checkStatus(topupId);
-        }
-
-        time--;
-
-        if(time <= 0){
-            clearInterval(interval);
         }
 
     },1000);
@@ -223,13 +213,14 @@ async function checkStatus(topupId){
     const data = await res.json();
 
     if(data.status === "completed"){
+        localStorage.removeItem("activeTopup");
         alert("Payment confirmed ✅");
         window.location.href="dashboard.html";
     }
 }
 
 // ===============================
-// 📜 LOAD HISTORY
+// 📜 HISTORY
 // ===============================
 async function loadHistory(){
 
@@ -241,11 +232,6 @@ async function loadHistory(){
 
     const data = await res.json();
 
-    if(!Array.isArray(data)){
-        document.getElementById("history").innerHTML="No data";
-        return;
-    }
-
     let html="";
 
     data.forEach(t=>{
@@ -256,6 +242,38 @@ async function loadHistory(){
 }
 
 </script>
+</head>
+
+<body>
+
+<h2>💳 Top Up Balance</h2>
+
+<div class="box">
+
+<div class="btn" onclick="topup(1)">
+1 USDT <br><span class="small"><s>5000</s></span><br>5000 Coins
+</div>
+
+<div class="btn" onclick="topup(10)">
+10 USDT <br><span class="small"><s>50000</s></span><br>55000 Coins
+</div>
+
+<div class="btn" onclick="topup(50)">
+50 USDT <br><span class="small"><s>250000</s></span><br>300000 Coins
+</div>
+
+<div class="btn" onclick="topup(100)">
+100 USDT <br><span class="small"><s>500000</s></span><br>620000 Coins
+</div>
+
+</div>
+
+<div id="paymentBox" style="display:none;"></div>
+
+<div class="box">
+<h3>Topup History</h3>
+<div id="history">Loading...</div>
+</div>
 
 </body>
 </html>
