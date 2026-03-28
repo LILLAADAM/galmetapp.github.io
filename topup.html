@@ -99,17 +99,20 @@ onAuthStateChanged(auth, (user) => {
 
 
 // ✅ GET NUMERIC USER ID FROM FIRESTORE
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const db = getFirestore(app);
+
 async function fetchUserData() {
 
-    const res = await fetch(
-        "https://firestore.googleapis.com/v1/projects/galmet-app/databases/(default)/documents/users/" + currentUser.uid
-    );
+    const userRef = doc(db, "users", currentUser.uid);
+    const snap = await getDoc(userRef);
 
-    const data = await res.json();
+    if(!snap.exists()){
+        throw new Error("User not found");
+    }
 
-    return {
-        userId: Number(data.fields.userId.integerValue)
-    };
+    return snap.data(); // ✅ contains userId
 }
 
 
