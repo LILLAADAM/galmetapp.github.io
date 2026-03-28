@@ -206,16 +206,34 @@ function startTimer(topupId, startTime){
 // ===============================
 async function checkStatus(topupId){
 
-    const res = await fetch(
-        "https://gettopups-k3vzdssfra-uc.a.run.app?topupId="+topupId
-    );
+    try {
 
-    const data = await res.json();
+        const res = await fetch(
+            "https://gettopups-k3vzdssfra-uc.a.run.app?topupId=" + topupId
+        );
 
-    if(data.status === "completed"){
-        localStorage.removeItem("activeTopup");
-        alert("Payment confirmed ✅");
-        window.location.href="dashboard.html";
+        if(!res.ok) return;
+
+        const data = await res.json();
+
+        console.log("STATUS:", data);
+
+        if(data.status === "completed"){
+
+            localStorage.removeItem("activeTopup");
+
+            document.getElementById("paymentBox").innerHTML = `
+                <h3 style="color:#4cd964;">Payment Completed ✅</h3>
+                <p>Coins added to your account</p>
+            `;
+
+            setTimeout(()=>{
+                window.location.href="dashboard.html";
+            },2000);
+        }
+
+    } catch(e){
+        console.log("Check failed");
     }
 }
 
