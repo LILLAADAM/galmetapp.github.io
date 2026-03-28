@@ -41,22 +41,9 @@ body {
     margin-bottom:15px;
 }
 
-.user-id {
-    color:#00ffcc;
-    font-size:18px;
-    font-weight:bold;
-}
-
-.email {
-    font-size:16px;
-    font-weight:600;
-}
-
-.coins {
-    font-size:32px;
-    font-weight:bold;
-    color:#00ffcc;
-}
+.user-id { color:#00ffcc; font-size:18px; font-weight:bold; }
+.email { font-size:16px; font-weight:600; }
+.coins { font-size:32px; font-weight:bold; color:#00ffcc; }
 
 .invite-box {
     display:flex;
@@ -89,19 +76,9 @@ body {
     cursor:pointer;
 }
 
-.game:hover {
-    background:#333;
-}
-
-.coming {
-    opacity:0.5;
-}
-
-.title {
-    font-size:18px;
-    margin-bottom:10px;
-    font-weight:bold;
-}
+.game:hover { background:#333; }
+.coming { opacity:0.5; }
+.title { font-size:18px; margin-bottom:10px; font-weight:bold; }
 </style>
 </head>
 
@@ -131,184 +108,21 @@ body {
         <span id="inviteCode">---</span>
         <button class="copy-btn" onclick="copyCode()">Copy</button>
     </div>
-    <div style="margin-top:8px;font-size:13px;">
-        Invite friends & earn rewards instantly 🚀
-    </div>
 </div>
 
 <div class="card">
     <div class="title">Play Games 🎮</div>
-
     <div class="games">
         <div class="game" onclick="goGame('spin.html')">🎯 Spin Wheel</div>
         <div class="game" onclick="goGame('lucky.html')">🍀 Lucky Game</div>
-
         <div class="game coming">🏁 Race<br>Coming Soon</div>
         <div class="game coming">🎮 More<br>Coming Soon</div>
     </div>
 </div>
 
-</div>
+<button onclick="window.location.href='topup.html'">💳 Top Up</button>
 
-<script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } 
-from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-import { getFirestore, doc, getDoc } 
-from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
-  authDomain: "galmet-app.firebaseapp.com",
-  projectId: "galmet-app",
-  storageBucket: "galmet-app.firebasestorage.app",
-  messagingSenderId: "900590512024",
-  appId: "1:900590512024:web:16a36a085809a728c92ded"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-// ===============================
-// 🔥 FETCH USER DATA (IMPORTANT)
-// ===============================
-async function fetchUserData(){
-    const user = auth.currentUser;
-
-    if(!user) return null;
-
-    const ref = doc(db, "users", user.uid);
-    const snap = await getDoc(ref);
-
-    return snap.data();
-}
-
-// ✅ LOAD USER DATA
-onAuthStateChanged(auth, async (user) => {
-
-    if (!user) {
-        setTimeout(() => {
-            window.location.href = "index.html";
-        }, 500);
-        return;
-    }
-
-    const ref = doc(db, "users", user.uid);
-
-    try {
-
-        // ✅ RETRY SYSTEM (FIXED)
-        let snap;
-        let attempts = 0;
-
-        while (attempts < 5) {
-            snap = await getDoc(ref);
-
-            if (snap.exists()) break;
-
-            console.log("⏳ Waiting for Firestore...");
-            await new Promise(r => setTimeout(r, 400));
-            attempts++;
-        }
-
-        if (!snap.exists()) {
-            console.error("❌ Data not ready yet");
-            return;
-        }
-
-        const data = snap.data();
-
-        document.getElementById("email").innerText = data.email || "-";
-        document.getElementById("coins").innerText = data.coins ?? 0;
-        document.getElementById("inviteCode").innerText = data.inviteCode || "-";
-        document.getElementById("userId").innerText = data.userId || "Not Assigned";
-
-    } catch (err) {
-        console.error("Error:", err);
-    }
-
-});
-    // OPEN BOX
-window.openWithdraw = function(){
-    document.getElementById("withdrawBox").style.display = "block";
-};
-
-// SUBMIT WITHDRAW
-window.submitWithdraw = async function(){
-
-    const amount = Number(document.getElementById("withdrawAmount").value);
-    const wallet = document.getElementById("withdrawWallet").value;
-
-    if(!amount || !wallet){
-        alert("Enter all fields");
-        return;
-    }
-
-    // 🔥 MIN LIMIT
-    if(amount < 65000){
-        alert("Minimum withdraw is 65,000 coins");
-        return;
-    }
-
-    const userData = await fetchUserData();
-
-    // 🔥 BALANCE CHECK
-    if(userData.coins < amount){
-        alert("Not enough balance");
-        return;
-    }
-
-    try{
-        const res = await fetch("https://createwithdraw-k3vzdssfra-uc.a.run.app",{
-            method:"POST",
-            headers:{"Content-Type":"application/json"},
-            body: JSON.stringify({
-                userId: userData.userId,
-                amount: amount,
-                wallet: wallet
-            })
-        });
-
-        const data = await res.json();
-
-        if(data.success){
-            alert("Withdraw request sent ✅");
-            document.getElementById("withdrawBox").style.display = "none";
-        }else{
-            alert(data.error || "Error");
-        }
-
-    }catch(e){
-        alert("Request failed");
-    }
-};
-
-// LOGOUT
-window.logout = function(){
-    signOut(auth).then(()=>{
-        window.location.href = "index.html";
-    });
-}
-
-// COPY
-window.copyCode = function(){
-    const code = document.getElementById("inviteCode").innerText;
-    navigator.clipboard.writeText(code);
-    alert("Copied: " + code);
-}
-
-// GAME
-window.goGame = function(page){
-    window.location.href = page;
-}
-    
-    <button onclick="window.location.href='topup.html'">
-💳 Top Up
-</button>
-
-    <button onclick="openWithdraw()" style="
+<button onclick="openWithdraw()" style="
   background:#ff3b30;
   padding:12px;
   border:none;
@@ -321,14 +135,14 @@ window.goGame = function(page){
 💸 Withdraw Coins
 </button>
 
-    <div id="withdrawBox" style="
+<div id="withdrawBox" style="
   display:none;
   background:#111;
   padding:20px;
   border-radius:10px;
   margin-top:15px;
 ">
-        
+
 <button onclick="loadWithdrawHistory()" style="
   background:#007aff;
   padding:10px;
@@ -342,47 +156,123 @@ window.goGame = function(page){
 </button>
 
 <div id="withdrawHistory" style="margin-top:10px;"></div>
-  <h3>Withdraw</h3>
 
-  <input id="withdrawAmount" placeholder="Amount (coins)" style="
-    width:100%;
-    padding:10px;
-    margin-bottom:10px;
-  ">
+<h3>Withdraw</h3>
 
-  <input id="withdrawWallet" placeholder="Your Wallet Address" style="
-    width:100%;
-    padding:10px;
-    margin-bottom:10px;
-  ">
+<input id="withdrawAmount" placeholder="Amount (coins)" style="width:100%;padding:10px;margin-bottom:10px;">
+<input id="withdrawWallet" placeholder="Your Wallet Address" style="width:100%;padding:10px;margin-bottom:10px;">
 
-  <button onclick="submitWithdraw()" style="
-    background:#4cd964;
-    padding:12px;
-    border:none;
-    border-radius:8px;
-    color:white;
-    font-weight:bold;
-    width:100%;
-  ">
-    Submit Withdraw
-  </button>
+<button onclick="submitWithdraw()" style="
+  background:#4cd964;
+  padding:12px;
+  border:none;
+  border-radius:8px;
+  color:white;
+  font-weight:bold;
+  width:100%;
+">
+Submit Withdraw
+</button>
 
 </div>
 
-async function loadWithdrawHistory(){
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } 
+from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } 
+from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+  authDomain: "galmet-app.firebaseapp.com",
+  projectId: "galmet-app"
+});
+
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// FETCH USER
+async function fetchUserData(){
+    const user = auth.currentUser;
+    if(!user) return null;
+    const snap = await getDoc(doc(db,"users",user.uid));
+    return snap.data();
+}
+
+// LOAD USER
+onAuthStateChanged(auth, async (user)=>{
+    if(!user){ window.location="index.html"; return; }
+    const data = await fetchUserData();
+    document.getElementById("email").innerText = data.email;
+    document.getElementById("coins").innerText = data.coins ?? 0;
+    document.getElementById("inviteCode").innerText = data.inviteCode;
+    document.getElementById("userId").innerText = data.userId;
+});
+
+// OPEN BOX
+window.openWithdraw = ()=> document.getElementById("withdrawBox").style.display="block";
+
+// ✅ FIXED SUBMIT
+window.submitWithdraw = async function(){
+
+    const amount = Number(document.getElementById("withdrawAmount").value);
+    const wallet = document.getElementById("withdrawWallet").value;
+
+    if(!amount || !wallet){
+        alert("Enter all fields");
+        return;
+    }
+
+    if(amount < 65000){
+        alert("Minimum withdraw is 65,000 coins");
+        return;
+    }
+
+    const userData = await fetchUserData();
+
+    if(userData.coins < amount){
+        alert("Not enough balance");
+        return;
+    }
+
+    const res = await fetch("https://createwithdraw-k3vzdssfra-uc.a.run.app",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({
+            userId:userData.userId,
+            amount,
+            wallet
+        })
+    });
+
+    const data = await res.json();
+
+    if(data.success){
+        alert("Withdraw request sent ✅");
+        document.getElementById("withdrawBox").style.display="none";
+    }else{
+        alert("Error");
+    }
+};
+
+// ✅ FIXED (NOW OUTSIDE)
+window.loadWithdrawHistory = async function(){
 
     const userData = await fetchUserData();
 
     const res = await fetch("https://us-central1-galmet-app.cloudfunctions.net/getWithdrawals?admin=1");
     const data = await res.json();
 
-    let html = "";
+    let html="";
 
     data
-    .filter(w => w.userId === userData.userId)
+    .filter(w=>w.userId===userData.userId)
     .forEach(w=>{
-        html += `
+        html+=`
         <div style="background:#222;padding:10px;margin:5px;border-radius:8px;">
         ${w.amount} coins → ${w.wallet}<br>
         Status: <b>${w.status}</b>
@@ -390,5 +280,18 @@ async function loadWithdrawHistory(){
     });
 
     document.getElementById("withdrawHistory").innerHTML = html || "No history";
-}
+};
+
+// OTHER
+window.logout = ()=> signOut(auth).then(()=>location="index.html");
+window.copyCode = ()=>{
+    const code = document.getElementById("inviteCode").innerText;
+    navigator.clipboard.writeText(code);
+    alert("Copied: "+code);
+};
+window.goGame = (p)=> location=p;
+
 </script>
+
+</body>
+</html>
