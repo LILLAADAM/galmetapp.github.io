@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Galmet Wheel PRO | No Free Coins</title>
+    <title>Galmet Wheel PRO | Real Economy</title>
     <style>
         * {
             box-sizing: border-box;
@@ -306,6 +306,7 @@
     ];
     const SEGMENT_COUNT = segments.length;
     const ANGLE_PER_SEGMENT = 360 / SEGMENT_COUNT; // 60°
+    const POINTER_ANGLE = 270; // pointer at top
 
     const canvas = document.getElementById("wheelCanvas");
     const ctx = canvas.getContext("2d");
@@ -362,33 +363,39 @@
     }
     drawWheel();
 
-    // ================= HELPER: get winning segment =================
-    function getSegmentIndexFromRotation(rotationDeg) {
-        const pointerAngle = 270;
-        let rawAngle = (pointerAngle - rotationDeg) % 360;
-        if (rawAngle < 0) rawAngle += 360;
-        for (let i = 0; i < SEGMENT_COUNT; i++) {
-            const start = i * ANGLE_PER_SEGMENT;
-            const end = (i + 1) * ANGLE_PER_SEGMENT;
-            if (rawAngle >= start && rawAngle < end) return i;
+    // ================= CONTROLLED MULTIPLIER (exactly as provided) =================
+    function getControlledMultiplier(bet) {
+        if (bet >= 1000) {
+            const r = Math.random();
+            if (r < 0.60) return 0;
+            if (r < 0.80) return 1;
+            if (r < 0.92) return 2;
+            if (r < 0.98) return 3;
+            if (r < 0.995) return 5;
+            return 10;
         }
-        return 0;
+
+        const r = Math.random();
+        if (r < 0.40) return 0;
+        if (r < 0.65) return 1;
+        if (r < 0.85) return 2;
+        if (r < 0.95) return 3;
+        if (r < 0.99) return 5;
+        return 10;
     }
 
-    // ================= COINS (Firebase only) =================
-    async function updateCoinsUI() {
-        document.getElementById("coins").innerText = coins;
+    // ================= COINS (Firebase only, update only once per spin) =================
+    async function updateCoinsInFirestore() {
         if (userRef) {
             await updateDoc(userRef, { coins: coins });
         }
     }
 
-    // Redirect to topup page
-    function goToTopup() {
-        window.location.href = "topup.html";
+    function updateCoinsUI() {
+        document.getElementById("coins").innerText = coins;
     }
 
-    // ================= MAIN SPIN (fair, pointer-based) =================
+    // ================= SPIN LOGIC (controlled multiplier + rotation) =================
     async function spin() {
         if (spinning) return;
 
@@ -400,41 +407,57 @@
         }
         if (bet > coins) {
             alert("❌ Insufficient coins! Please top up to continue playing.");
-            goToTopup();
+            window.location.href = "topup.html";
             return;
         }
 
         spinning = true;
-        // deduct bet
+
+        // --- Deduct bet locally (Firestore will be updated later) ---
         coins -= bet;
-        await updateCoinsUI();
+        updateCoinsUI();
 
-        // random final angle (0..360) – where the wheel stops
-        const finalAngle = Math.random() * 360;
-        const fullSpins = 360 * 5; // 5 full rotations
-        const totalRotation = fullSpins + finalAngle;
+        // --- Determine multiplier (controlled) ---
+        const multiplier = getControlledMultiplier(bet);
+        const winningIdx = segments.findIndex(s => s.value === multiplier);
+        if (winningIdx === -1) {
+            // fallback (should never happen)
+            console.error("Segment not found");
+            spinning = false;
+            return;
+        }
 
-        // reset animation
+        // Calculate center angle of winning segment (in degrees)
+        const segmentCenter = winningIdx * ANGLE_PER_SEGMENT + ANGLE_PER_SEGMENT / 2;
+        // Desired rotation to bring that center under pointer (270°)
+        let targetRotation = (POINTER_ANGLE - segmentCenter) % 360;
+        if (targetRotation < 0) targetRotation += 360;
+
+        // Add extra full spins for visual effect
+        const fullSpins = 360 * 5;
+        const totalRotation = fullSpins + targetRotation;
+
+        // Reset wheel animation
         canvas.style.transition = "none";
         canvas.style.transform = "rotate(0deg)";
         void canvas.offsetHeight;
 
-        // start spin
+        // Animate
         canvas.style.transition = "transform 4s cubic-bezier(0.22, 0.98, 0.35, 1.05)";
         canvas.style.transform = `rotate(${totalRotation}deg)`;
 
+        // After spin ends
         setTimeout(async () => {
-            // after animation, determine winning segment
-            const winningIdx = getSegmentIndexFromRotation(finalAngle);
-            const multiplier = segments[winningIdx].value;
             const winAmount = bet * multiplier;
 
             if (multiplier > 0) {
                 coins += winAmount;
-                await updateCoinsUI();
             }
+            // Update Firestore only once, after final coin change
+            await updateCoinsInFirestore();
+            updateCoinsUI();
 
-            // update result display
+            // Update result display
             const resultDiv = document.getElementById("result");
             if (multiplier === 0) {
                 resultDiv.innerHTML = `💀 LOST ${bet} coins · 0x 💀`;
@@ -442,7 +465,7 @@
                 resultDiv.innerHTML = `🎉 YOU WON ${winAmount} COINS (${multiplier}x) 🎉`;
             }
 
-            // update history
+            // Update history
             const historyBox = document.getElementById("history");
             const newEntry = document.createElement("span");
             newEntry.textContent = multiplier === 0 ? `💀 0x (lost ${bet})` : `🏆 ${multiplier}x +${winAmount}`;
@@ -470,30 +493,32 @@
     }
     setInterval(updateFakePlayers, 2500);
 
-    // ================= AUTH & INIT (NO FREE COINS) =================
+    // ================= AUTH & INIT (SINGLE LISTENER) =================
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
             window.location.href = "index.html";
             return;
         }
+
         userRef = doc(db, "users", user.uid);
         const snap = await getDoc(userRef);
         let data = snap.data();
 
         if (!data || data.coins === undefined || data.coins === null) {
-            // New user: initialize with 0 coins, no freebies
+            // New user: start with 0 coins, no freebies
             await setDoc(userRef, { coins: 0 }, { merge: true });
             coins = 0;
         } else {
             coins = data.coins;
         }
-        await updateCoinsUI(); // ensures Firestore has the correct amount
-        document.getElementById("coins").innerText = coins;
+        updateCoinsUI();
     });
 
     // ================= EVENT LISTENERS =================
     document.getElementById("spinBtn").addEventListener("click", spin);
-    document.getElementById("topupBtn").addEventListener("click", goToTopup);
+    document.getElementById("topupBtn").addEventListener("click", () => {
+        window.location.href = "topup.html";
+    });
 
     // ================= THEME SWITCH =================
     const themeToggle = document.getElementById("themeToggle");
@@ -505,7 +530,7 @@
     const savedTheme = localStorage.getItem("galmetTheme");
     if (savedTheme === "dark") document.body.classList.add("dark");
 
-    // reset wheel visual on load
+    // Reset wheel visual on load
     window.addEventListener("load", () => {
         canvas.style.transform = "rotate(0deg)";
         drawWheel();
