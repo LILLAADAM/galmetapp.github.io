@@ -44,7 +44,11 @@ async function loadWithdrawals(){
         <b>User:</b> ${w.userId}<br>
         <b>Amount:</b> ${w.amount}<br>
         <b>Wallet:</b> ${w.wallet}<br>
-        <b>Status:</b> ${w.status}
+        <b>Status:</b> ${w.status}<br>
+
+        ${w.status === "pending" ? 
+        `<button onclick="completeWithdraw('${w.id}')">Complete</button>` : ""}
+
         </div>
         `;
     });
@@ -105,8 +109,22 @@ async function ban(){
 }
 
 loadTopups();
-loadWithdrawals();
 
+async function completeWithdraw(id){
+
+    await fetch("https://us-central1-galmet-app.cloudfunctions.net/confirmWithdraw",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({
+            withdrawId:id,
+            secret:SECRET
+        })
+    });
+
+    alert("Withdraw completed ✅");
+    loadWithdrawals();
+}
+    
 </script>
 
 </body>
