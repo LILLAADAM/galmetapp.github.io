@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Galmet Wheel PRO | Theme Switch</title>
+    <title>Galmet Wheel PRO | No Free Coins</title>
     <style>
         * {
             box-sizing: border-box;
@@ -11,7 +11,6 @@
             transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s;
         }
 
-        /* Light theme (default) */
         :root {
             --bg-primary: #f5f7fe;
             --bg-secondary: #ffffff;
@@ -25,7 +24,7 @@
             --topbar-bg: #2c3e8f;
             --topbar-text: white;
             --button-spin: linear-gradient(135deg, #2ecc71, #27ae60);
-            --button-reset: linear-gradient(135deg, #e67e22, #d35400);
+            --button-topup: linear-gradient(135deg, #f39c12, #e67e22);
         }
 
         body.dark {
@@ -41,7 +40,7 @@
             --topbar-bg: #0f172a;
             --topbar-text: #facc15;
             --button-spin: linear-gradient(135deg, #3b82f6, #2563eb);
-            --button-reset: linear-gradient(135deg, #ef4444, #dc2626);
+            --button-topup: linear-gradient(135deg, #f97316, #ea580c);
         }
 
         body {
@@ -171,8 +170,8 @@
             background: var(--button-spin);
         }
 
-        .resetBtn {
-            background: var(--button-reset);
+        .topupBtn {
+            background: var(--button-topup);
         }
 
         .result-area {
@@ -231,6 +230,13 @@
             margin: 20px 0 10px;
             color: var(--text-secondary);
         }
+
+        .low-coins {
+            color: #e67e22;
+            font-weight: bold;
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
@@ -252,7 +258,8 @@
 </div>
 
 <div>
-    <button class="spinBtn" onclick="spin()">🎲 SPIN</button>
+    <button class="spinBtn" id="spinBtn">🎲 SPIN</button>
+    <button class="topupBtn" id="topupBtn">💎 TOP UP</button>
 </div>
 
 <div id="result" class="result-area">✨ SPIN TO WIN ✨</div>
@@ -267,203 +274,193 @@
     <div id="players" class="players-scroll">⚡ waiting for action...</div>
 </div>
 <footer>⚡ fair spin · pointer decides reward ⚡</footer>
-    
+
 <script type="module">
+    // ================= FIREBASE =================
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-// ================= FIREBASE =================
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+    const firebaseConfig = {
+        apiKey: "My key",
+        authDomain: "galmet-app.firebaseapp.com",
+        projectId: "galmet-app",
+    };
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
-  authDomain: "galmet-app.firebaseapp.com",
-  projectId: "galmet-app",
-};
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+    let coins = 0;
+    let userRef = null;
+    let spinning = false;
 
-let coins = 0;
-let userRef = null;
-let spinning = false;
+    // ================= WHEEL SEGMENTS =================
+    const segments = [
+        { value: 0, color: "#e34d4d" },
+        { value: 1, color: "#f4b942" },
+        { value: 2, color: "#48b54a" },
+        { value: 3, color: "#ff8833" },
+        { value: 5, color: "#3b8bc0" },
+        { value: 10, color: "#aa6dc9" }
+    ];
+    const SEGMENT_COUNT = segments.length;
+    const ANGLE_PER_SEGMENT = 360 / SEGMENT_COUNT; // 60°
 
+    const canvas = document.getElementById("wheelCanvas");
+    const ctx = canvas.getContext("2d");
+    const size = 300;
+    canvas.width = size;
+    canvas.height = size;
 
-// 🔐 LOGIN CHECK
-onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-        window.location.href = "index.html";
-        return;
-    }
+    // ================= DRAW WHEEL =================
+    function drawWheel() {
+        const centerX = size / 2;
+        const centerY = size / 2;
+        const radius = size / 2;
 
-    userRef = doc(db, "users", user.uid);
-    const snap = await getDoc(userRef);
-    const data = snap.data();
+        for (let i = 0; i < SEGMENT_COUNT; i++) {
+            const start = i * (Math.PI * 2 / SEGMENT_COUNT);
+            const end = start + (Math.PI * 2 / SEGMENT_COUNT);
 
-    coins = data.coins || 0;
-    updateCoinsUI();
-});
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.arc(centerX, centerY, radius, start, end);
+            ctx.closePath();
+            ctx.fillStyle = segments[i].color;
+            ctx.fill();
+            ctx.strokeStyle = "#ffdd99";
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
 
-
-// ================= WHEEL =================
-
-const segments = [
-    { value: 0, color: "#e34d4d" },
-    { value: 1, color: "#f4b942" },
-    { value: 2, color: "#48b54a" },
-    { value: 3, color: "#ff8833" },
-    { value: 5, color: "#3b8bc0" },
-    { value: 10, color: "#aa6dc9" }
-];
-
-const canvas = document.getElementById("wheelCanvas");
-const ctx = canvas.getContext("2d");
-const size = 300;
-
-canvas.width = size;
-canvas.height = size;
-
-
-// 🎡 DRAW WHEEL
-function drawWheel(){
-
-    const centerX = size / 2;
-    const centerY = size / 2;
-    const radius = size / 2;
-
-    for (let i = 0; i < segments.length; i++){
-
-        const start = i * 2 * Math.PI / segments.length;
-        const end = start + 2 * Math.PI / segments.length;
-
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.arc(centerX, centerY, radius, start, end);
-        ctx.closePath();
-
-        ctx.fillStyle = segments[i].color;
-        ctx.fill();
-        ctx.strokeStyle = "#fff";
-        ctx.stroke();
-
-        // TEXT
-        ctx.save();
-        ctx.translate(centerX, centerY);
-        ctx.rotate(start + (Math.PI / segments.length));
-        ctx.textAlign = "right";
-        ctx.fillStyle = "white";
-        ctx.font = "bold 16px Arial";
-        ctx.fillText(segments[i].value + "x", radius - 10, 5);
-        ctx.restore();
-    }
-}
-
-drawWheel();
-
-
-// ================= COINS =================
-
-async function updateCoinsUI(){
-    document.getElementById("coins").innerText = coins;
-
-    if(userRef){
-        await updateDoc(userRef, { coins: coins });
-    }
-}
-
-
-// ================= WIN CONTROL =================
-
-function getControlledMultiplier(bet){
-
-    if(bet >= 1000){
-        const r = Math.random();
-        if(r < 0.60) return 0;
-        if(r < 0.80) return 1;
-        if(r < 0.92) return 2;
-        if(r < 0.98) return 3;
-        if(r < 0.995) return 5;
-        return 10;
-    }
-
-    const r = Math.random();
-    if(r < 0.40) return 0;
-    if(r < 0.65) return 1;
-    if(r < 0.85) return 2;
-    if(r < 0.95) return 3;
-    if(r < 0.99) return 5;
-    return 10;
-}
-
-
-// ================= SPIN =================
-
-window.spin = async function(){
-
-    if(spinning) return;
-
-    let bet = parseInt(document.getElementById("bet").value);
-
-    if(!bet || bet < 10){
-        alert("Minimum bet 10");
-        return;
-    }
-
-    if(bet > coins){
-        alert("Not enough coins");
-        return;
-    }
-
-    spinning = true;
-
-    // 💸 deduct
-    coins -= bet;
-    await updateCoinsUI();
-
-    // 🎯 RESULT
-    const multiplier = getControlledMultiplier(bet);
-    const winningIdx = segments.findIndex(s => s.value === multiplier);
-
-    const segmentAngle = 360 / segments.length;
-    const targetAngle = (winningIdx * segmentAngle) + (segmentAngle / 2);
-
-    const totalRotation = (360 * 5) + (360 - targetAngle);
-
-    canvas.style.transition = "none";
-    canvas.style.transform = "rotate(0deg)";
-    void canvas.offsetHeight;
-
-    canvas.style.transition = "transform 4s ease";
-    canvas.style.transform = `rotate(${totalRotation}deg)`;
-
-    setTimeout(async () => {
-
-        const winAmount = bet * multiplier;
-
-        if(multiplier > 0){
-            coins += winAmount;
-            await updateCoinsUI();
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            const midAngle = start + (Math.PI / SEGMENT_COUNT);
+            const textRadius = radius * 0.7;
+            const x = Math.cos(midAngle) * textRadius;
+            const y = Math.sin(midAngle) * textRadius;
+            ctx.translate(x, y);
+            ctx.rotate(midAngle + Math.PI / 2);
+            ctx.font = "bold 18px 'Segoe UI', system-ui";
+            ctx.fillStyle = "white";
+            ctx.shadowBlur = 0;
+            ctx.fillText(segments[i].value + "x", -12, 6);
+            ctx.restore();
         }
 
-        document.getElementById("result").innerHTML =
-            multiplier === 0
-            ? `💀 LOST ${bet}`
-            : `🎉 WON ${winAmount} (${multiplier}x)`;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 28, 0, 2 * Math.PI);
+        ctx.fillStyle = "#ffcf40";
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 18, 0, 2 * Math.PI);
+        ctx.fillStyle = "#2c2e4e";
+        ctx.fill();
+        ctx.fillStyle = "gold";
+        ctx.font = "bold 20px monospace";
+        ctx.fillText("★", centerX - 8, centerY + 8);
+    }
+    drawWheel();
 
-        spinning = false;
+    // ================= HELPER: get winning segment =================
+    function getSegmentIndexFromRotation(rotationDeg) {
+        const pointerAngle = 270;
+        let rawAngle = (pointerAngle - rotationDeg) % 360;
+        if (rawAngle < 0) rawAngle += 360;
+        for (let i = 0; i < SEGMENT_COUNT; i++) {
+            const start = i * ANGLE_PER_SEGMENT;
+            const end = (i + 1) * ANGLE_PER_SEGMENT;
+            if (rawAngle >= start && rawAngle < end) return i;
+        }
+        return 0;
+    }
 
-    }, 4000);
-};
+    // ================= COINS (Firebase only) =================
+    async function updateCoinsUI() {
+        document.getElementById("coins").innerText = coins;
+        if (userRef) {
+            await updateDoc(userRef, { coins: coins });
+        }
+    }
 
-    // Fake live feed (cosmetic)
+    // Redirect to topup page
+    function goToTopup() {
+        window.location.href = "topup.html";
+    }
+
+    // ================= MAIN SPIN (fair, pointer-based) =================
+    async function spin() {
+        if (spinning) return;
+
+        const betInput = document.getElementById("bet");
+        let bet = parseInt(betInput.value);
+        if (isNaN(bet) || bet < 10) {
+            alert("Minimum bet is 10");
+            return;
+        }
+        if (bet > coins) {
+            alert("❌ Insufficient coins! Please top up to continue playing.");
+            goToTopup();
+            return;
+        }
+
+        spinning = true;
+        // deduct bet
+        coins -= bet;
+        await updateCoinsUI();
+
+        // random final angle (0..360) – where the wheel stops
+        const finalAngle = Math.random() * 360;
+        const fullSpins = 360 * 5; // 5 full rotations
+        const totalRotation = fullSpins + finalAngle;
+
+        // reset animation
+        canvas.style.transition = "none";
+        canvas.style.transform = "rotate(0deg)";
+        void canvas.offsetHeight;
+
+        // start spin
+        canvas.style.transition = "transform 4s cubic-bezier(0.22, 0.98, 0.35, 1.05)";
+        canvas.style.transform = `rotate(${totalRotation}deg)`;
+
+        setTimeout(async () => {
+            // after animation, determine winning segment
+            const winningIdx = getSegmentIndexFromRotation(finalAngle);
+            const multiplier = segments[winningIdx].value;
+            const winAmount = bet * multiplier;
+
+            if (multiplier > 0) {
+                coins += winAmount;
+                await updateCoinsUI();
+            }
+
+            // update result display
+            const resultDiv = document.getElementById("result");
+            if (multiplier === 0) {
+                resultDiv.innerHTML = `💀 LOST ${bet} coins · 0x 💀`;
+            } else {
+                resultDiv.innerHTML = `🎉 YOU WON ${winAmount} COINS (${multiplier}x) 🎉`;
+            }
+
+            // update history
+            const historyBox = document.getElementById("history");
+            const newEntry = document.createElement("span");
+            newEntry.textContent = multiplier === 0 ? `💀 0x (lost ${bet})` : `🏆 ${multiplier}x +${winAmount}`;
+            if (historyBox.innerHTML === "—") historyBox.innerHTML = "";
+            historyBox.prepend(newEntry);
+            if (historyBox.children.length > 12) historyBox.removeChild(historyBox.lastChild);
+
+            spinning = false;
+        }, 4100);
+    }
+
+    // ================= FAKE PLAYER FEED =================
     function updateFakePlayers() {
         const fakeNames = ["Kai 🔥", "Alex ⚡", "Lee 🎯", "Sam 💎", "Sara 🌟", "John 🃏", "Mia 🎲", "Zane 🧧"];
         const randomName = fakeNames[Math.floor(Math.random() * fakeNames.length)];
         const possibleValues = [0, 1, 2, 3, 5, 10];
         const randomMult = possibleValues[Math.floor(Math.random() * possibleValues.length)];
         const winText = randomMult === 0 ? `lost 😵` : `won ${randomMult}x 🎉`;
-        
         const playersBox = document.getElementById("players");
         const newFeed = document.createElement("span");
         newFeed.textContent = `${randomName} ${winText}`;
@@ -473,32 +470,46 @@ window.spin = async function(){
     }
     setInterval(updateFakePlayers, 2500);
 
-    // Theme switcher
+    // ================= AUTH & INIT (NO FREE COINS) =================
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+            window.location.href = "index.html";
+            return;
+        }
+        userRef = doc(db, "users", user.uid);
+        const snap = await getDoc(userRef);
+        let data = snap.data();
+
+        if (!data || data.coins === undefined || data.coins === null) {
+            // New user: initialize with 0 coins, no freebies
+            await setDoc(userRef, { coins: 0 }, { merge: true });
+            coins = 0;
+        } else {
+            coins = data.coins;
+        }
+        await updateCoinsUI(); // ensures Firestore has the correct amount
+        document.getElementById("coins").innerText = coins;
+    });
+
+    // ================= EVENT LISTENERS =================
+    document.getElementById("spinBtn").addEventListener("click", spin);
+    document.getElementById("topupBtn").addEventListener("click", goToTopup);
+
+    // ================= THEME SWITCH =================
     const themeToggle = document.getElementById("themeToggle");
     themeToggle.addEventListener("click", () => {
         document.body.classList.toggle("dark");
-        // Optional: save preference
         const isDark = document.body.classList.contains("dark");
         localStorage.setItem("galmetTheme", isDark ? "dark" : "light");
     });
-    
-    // Load saved theme
     const savedTheme = localStorage.getItem("galmetTheme");
-    if (savedTheme === "dark") {
-        document.body.classList.add("dark");
-    }
-    
-    // Initial UI setup
+    if (savedTheme === "dark") document.body.classList.add("dark");
+
+    // reset wheel visual on load
     window.addEventListener("load", () => {
-        updateCoinsUI();
         canvas.style.transform = "rotate(0deg)";
         drawWheel();
-        if (document.getElementById("history").innerHTML === "") document.getElementById("history").innerHTML = "—";
     });
-    
-    // Expose functions globally
-    window.spin = spin;
-    window.resetCoins = resetCoins;
 </script>
 </body>
 </html>
