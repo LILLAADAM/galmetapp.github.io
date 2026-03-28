@@ -27,7 +27,30 @@ input{padding:8px;margin-top:10px;}
 <script>
 
 const SECRET = "GCW_SUPER_SECURE_2026";
+    
+// ===============================
+// 💸 LOAD WITHDRAWALS
+// ===============================
+async function loadWithdrawals(){
 
+    const res = await fetch("https://us-central1-galmet-app.cloudfunctions.net/getWithdrawals?admin=1");
+    const data = await res.json();
+
+    let html = "";
+
+    data.forEach(w=>{
+        html += `
+        <div class="box">
+        <b>User:</b> ${w.userId}<br>
+        <b>Amount:</b> ${w.amount}<br>
+        <b>Wallet:</b> ${w.wallet}<br>
+        <b>Status:</b> ${w.status}
+        </div>
+        `;
+    });
+
+    document.getElementById("withdrawals").innerHTML = html;
+}
 // LOAD TOPUPS
 async function loadTopups(){
     const res = await fetch("https://gettopups-k3vzdssfra-uc.a.run.app?admin=1");
@@ -82,6 +105,7 @@ async function ban(){
 }
 
 loadTopups();
+loadWithdrawals();
 
 </script>
 
