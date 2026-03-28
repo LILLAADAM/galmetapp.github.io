@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Panel</title>
+<style>
+body{background:#111;color:#fff;font-family:Arial;padding:20px;}
+.box{background:#222;padding:15px;margin:10px;border-radius:10px;}
+button{padding:8px 15px;background:#4cd964;border:none;border-radius:5px;margin-top:5px;}
+input{padding:8px;margin-top:10px;}
+</style>
+</head>
+
+<body>
+
+<h2>🔥 Admin Panel</h2>
+
+<h3>Topups</h3>
+<div id="topups">Loading...</div>
+
+<h3>Withdrawals</h3>
+<div id="withdrawals">Loading...</div>
+
+<h3>🚫 Ban User</h3>
+<input id="banId" placeholder="Enter userId">
+<button onclick="ban()">Ban User</button>
+
+<script>
+
+const SECRET = "GCW_SUPER_SECURE_2026";
+
+// LOAD TOPUPS
+async function loadTopups(){
+    const res = await fetch("https://gettopups-k3vzdssfra-uc.a.run.app?admin=1");
+    const data = await res.json();
+
+    let html="";
+    data.forEach(t=>{
+        html += `
+        <div class="box">
+        User: ${t.userId}<br>
+        Amount: ${t.amount}<br>
+        Wallet: ${t.wallet}<br>
+        Status: ${t.status}<br>
+
+        ${t.status==="pending" ?
+        `<button onclick="confirmTopup('${t.id}')">Confirm</button>` : ""}
+        </div>`;
+    });
+
+    document.getElementById("topups").innerHTML = html;
+}
+
+// CONFIRM
+async function confirmTopup(id){
+    await fetch("https://confirmtopup-k3vzdssfra-uc.a.run.app",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({
+            topupId:id,
+            secret:SECRET
+        })
+    });
+
+    alert("Done ✅");
+    loadTopups();
+}
+
+// BAN USER
+async function ban(){
+    const userId = document.getElementById("banId").value;
+
+    await fetch("https://banuser-k3vzdssfra-uc.a.run.app",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({
+            userId:userId,
+            secret:SECRET
+        })
+    });
+
+    alert("User Banned 🚫");
+}
+
+loadTopups();
+
+</script>
+
+</body>
+</html>
