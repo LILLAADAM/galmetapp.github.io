@@ -270,6 +270,7 @@
     
 <script type="module">
 
+// ================= FIREBASE =================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
@@ -288,7 +289,8 @@ let coins = 0;
 let userRef = null;
 let spinning = false;
 
-// 🔐 FORCE LOGIN
+
+// 🔐 LOGIN CHECK
 onAuthStateChanged(auth, async (user) => {
     if (!user) {
         window.location.href = "index.html";
@@ -303,7 +305,65 @@ onAuthStateChanged(auth, async (user) => {
     updateCoinsUI();
 });
 
-// ✅ UPDATE COINS (REAL DB)
+
+// ================= WHEEL =================
+
+const segments = [
+    { value: 0, color: "#e34d4d" },
+    { value: 1, color: "#f4b942" },
+    { value: 2, color: "#48b54a" },
+    { value: 3, color: "#ff8833" },
+    { value: 5, color: "#3b8bc0" },
+    { value: 10, color: "#aa6dc9" }
+];
+
+const canvas = document.getElementById("wheelCanvas");
+const ctx = canvas.getContext("2d");
+const size = 300;
+
+canvas.width = size;
+canvas.height = size;
+
+
+// 🎡 DRAW WHEEL
+function drawWheel(){
+
+    const centerX = size / 2;
+    const centerY = size / 2;
+    const radius = size / 2;
+
+    for (let i = 0; i < segments.length; i++){
+
+        const start = i * 2 * Math.PI / segments.length;
+        const end = start + 2 * Math.PI / segments.length;
+
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, radius, start, end);
+        ctx.closePath();
+
+        ctx.fillStyle = segments[i].color;
+        ctx.fill();
+        ctx.strokeStyle = "#fff";
+        ctx.stroke();
+
+        // TEXT
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(start + (Math.PI / segments.length));
+        ctx.textAlign = "right";
+        ctx.fillStyle = "white";
+        ctx.font = "bold 16px Arial";
+        ctx.fillText(segments[i].value + "x", radius - 10, 5);
+        ctx.restore();
+    }
+}
+
+drawWheel();
+
+
+// ================= COINS =================
+
 async function updateCoinsUI(){
     document.getElementById("coins").innerText = coins;
 
@@ -312,7 +372,9 @@ async function updateCoinsUI(){
     }
 }
 
-// 🎯 CONTROLLED WIN SYSTEM
+
+// ================= WIN CONTROL =================
+
 function getControlledMultiplier(bet){
 
     if(bet >= 1000){
@@ -334,7 +396,9 @@ function getControlledMultiplier(bet){
     return 10;
 }
 
-// 🎡 SPIN
+
+// ================= SPIN =================
+
 window.spin = async function(){
 
     if(spinning) return;
@@ -353,25 +417,24 @@ window.spin = async function(){
 
     spinning = true;
 
-    // deduct
+    // 💸 deduct
     coins -= bet;
     await updateCoinsUI();
 
-    // 🎯 decide result BEFORE spin
+    // 🎯 RESULT
     const multiplier = getControlledMultiplier(bet);
     const winningIdx = segments.findIndex(s => s.value === multiplier);
 
     const segmentAngle = 360 / segments.length;
     const targetAngle = (winningIdx * segmentAngle) + (segmentAngle / 2);
 
-    const fullSpins = 360 * 5;
-    const totalRotation = fullSpins + (360 - targetAngle);
+    const totalRotation = (360 * 5) + (360 - targetAngle);
 
     canvas.style.transition = "none";
     canvas.style.transform = "rotate(0deg)";
     void canvas.offsetHeight;
 
-    canvas.style.transition = "transform 4s cubic-bezier(0.22,0.98,0.35,1.05)";
+    canvas.style.transition = "transform 4s ease";
     canvas.style.transform = `rotate(${totalRotation}deg)`;
 
     setTimeout(async () => {
@@ -383,17 +446,14 @@ window.spin = async function(){
             await updateCoinsUI();
         }
 
-        const resultDiv = document.getElementById("result");
-
-        if(multiplier === 0){
-            resultDiv.innerHTML = `💀 LOST ${bet}`;
-        }else{
-            resultDiv.innerHTML = `🎉 WON ${winAmount} (${multiplier}x)`;
-        }
+        document.getElementById("result").innerHTML =
+            multiplier === 0
+            ? `💀 LOST ${bet}`
+            : `🎉 WON ${winAmount} (${multiplier}x)`;
 
         spinning = false;
 
-    }, 4100);
+    }, 4000);
 };
 
     // Fake live feed (cosmetic)
