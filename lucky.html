@@ -1,209 +1,752 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Galmet Lucky</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Galmet Crash | Heli X-Flight</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
 
-<style>
+        :root {
+            --bg-primary: #f5f7fe;
+            --bg-secondary: #ffffff;
+            --card-bg: #ffffffdd;
+            --text-primary: #1e2a3e;
+            --text-secondary: #2c3e50;
+            --accent: #ffc107;
+            --accent-dark: #e6a800;
+            --border-light: #e2e8f0;
+            --shadow: 0 8px 20px rgba(0,0,0,0.1);
+            --topbar-bg: #2c3e8f;
+            --topbar-text: white;
+            --button-start: linear-gradient(135deg, #2ecc71, #27ae60);
+            --button-cash: linear-gradient(135deg, #f39c12, #e67e22);
+            --crash-glow: #e74c3c;
+            --heli-color: #2c3e8f;
+        }
 
-body{
-font-family:Arial;
-background:#0b0f2a;
-color:white;
-text-align:center;
-margin:0;
-}
+        body.dark {
+            --bg-primary: #0a0f1f;
+            --bg-secondary: #111827;
+            --card-bg: #1f2937cc;
+            --text-primary: #f0f3fa;
+            --text-secondary: #cbd5e1;
+            --accent: #ffcd4a;
+            --accent-dark: #ffb347;
+            --border-light: #2d3748;
+            --shadow: 0 8px 20px rgba(0,0,0,0.5);
+            --topbar-bg: #0f172a;
+            --topbar-text: #facc15;
+            --button-start: linear-gradient(135deg, #3b82f6, #2563eb);
+            --button-cash: linear-gradient(135deg, #f97316, #ea580c);
+            --heli-color: #facc15;
+        }
 
-.topbar{
-background:#1324a0;
-padding:12px;
-display:flex;
-justify-content:space-between;
-font-size:18px;
-}
+        body {
+            background: var(--bg-primary);
+            font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+            transition: background 0.2s;
+        }
 
-.multiplier{
-font-size:70px;
-margin-top:40px;
-color:#ffc400;
-}
+        .topbar {
+            background: var(--topbar-bg);
+            padding: 14px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            border-bottom: 2px solid var(--accent);
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            border-radius: 0 0 24px 24px;
+            color: var(--topbar-text);
+            font-size: 1.2rem;
+        }
 
-input{
-padding:10px;
-font-size:16px;
-margin-top:10px;
-}
+        .theme-toggle, .rules-icon {
+            background: var(--accent);
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            border-radius: 40px;
+            padding: 5px 14px;
+            font-weight: bold;
+            color: #1e293b;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            transition: 0.2s;
+            margin-left: 8px;
+        }
 
-button{
-padding:12px 25px;
-border:none;
-border-radius:8px;
-margin:10px;
-font-size:16px;
-cursor:pointer;
-}
+        .rules-icon {
+            background: var(--accent-dark);
+            font-size: 1rem;
+            padding: 5px 12px;
+        }
 
-.start{background:#00c853;color:white;}
-.cash{background:#ff9800;color:white;}
+        .game-stage {
+            background: var(--card-bg);
+            backdrop-filter: blur(8px);
+            border-radius: 48px;
+            margin: 20px auto;
+            padding: 20px;
+            width: 90%;
+            max-width: 580px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--accent);
+            position: relative;
+        }
 
-.box{
-background:white;
-color:black;
-margin:20px;
-padding:10px;
-border-radius:10px;
-height:120px;
-overflow:auto;
-font-size:14px;
-}
+        .multiplier-panel {
+            font-size: 4rem;
+            font-weight: 800;
+            text-align: center;
+            color: var(--accent);
+            text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            letter-spacing: 2px;
+            background: var(--bg-secondary);
+            display: inline-block;
+            padding: 10px 30px;
+            border-radius: 100px;
+            margin-bottom: 20px;
+            width: auto;
+            font-family: monospace;
+        }
 
-</style>
+        .flight-zone {
+            background: var(--bg-secondary);
+            border-radius: 40px;
+            padding: 12px 20px;
+            margin: 15px 0;
+            position: relative;
+            height: 100px;
+            overflow: hidden;
+            border: 2px solid var(--accent);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .helicopter {
+            position: absolute;
+            bottom: 20px;
+            left: 0%;
+            transform: translateX(-10%);
+            font-size: 3rem;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+            transition: left 0.05s linear, transform 0.3s ease;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0,0,0,0.4);
+            padding: 4px 12px;
+            border-radius: 60px;
+            backdrop-filter: blur(4px);
+            white-space: nowrap;
+        }
+
+        .helicopter span {
+            font-size: 1.2rem;
+            font-weight: bold;
+            background: black;
+            padding: 2px 8px;
+            border-radius: 40px;
+            color: gold;
+        }
+
+        .crash-effect {
+            animation: heliCrash 0.6s forwards ease-in !important;
+        }
+
+        @keyframes heliCrash {
+            0% { transform: translateX(-10%) rotate(0deg); opacity: 1; bottom: 20px; }
+            40% { transform: translateX(20px) rotate(45deg); opacity: 0.9; }
+            100% { transform: translateX(80px) rotate(90deg) translateY(60px); opacity: 0; bottom: -30px; }
+        }
+
+        .flight-track {
+            position: absolute;
+            bottom: 45px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--accent);
+            opacity: 0.5;
+        }
+
+        .bet-panel {
+            background: var(--card-bg);
+            padding: 12px 20px;
+            border-radius: 60px;
+            display: inline-flex;
+            gap: 16px;
+            align-items: baseline;
+            margin: 10px auto;
+        }
+
+        input {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            color: var(--text-primary);
+            padding: 10px 16px;
+            font-size: 1.2rem;
+            width: 120px;
+            border-radius: 40px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        button {
+            padding: 12px 28px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 60px;
+            margin: 8px 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 5px 0 rgba(0,0,0,0.2);
+            color: white;
+        }
+
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 rgba(0,0,0,0.2);
+        }
+
+        .startBtn {
+            background: var(--button-start);
+        }
+
+        .cashBtn {
+            background: var(--button-cash);
+        }
+
+        .result-area {
+            background: var(--card-bg);
+            font-size: 1.1rem;
+            font-weight: bold;
+            padding: 8px 18px;
+            border-radius: 60px;
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        .info-box {
+            background: var(--card-bg);
+            backdrop-filter: blur(4px);
+            border-radius: 28px;
+            padding: 10px 16px;
+            margin: 12px auto;
+            width: 90%;
+            max-width: 550px;
+            text-align: left;
+            border: 1px solid var(--accent);
+        }
+
+        .history-scroll, .players-scroll {
+            max-height: 85px;
+            overflow-y: auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+
+        .history-scroll span, .players-scroll span {
+            background: var(--bg-secondary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            border-left: 3px solid var(--accent);
+        }
+
+        /* Modal Rules */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            max-width: 400px;
+            width: 80%;
+            padding: 20px;
+            border-radius: 32px;
+            border-top: 6px solid var(--accent);
+            text-align: left;
+        }
+        .close-modal {
+            float: right;
+            font-size: 28px;
+            cursor: pointer;
+        }
+        footer {
+            font-size: 10px;
+            opacity: 0.6;
+            margin: 15px;
+        }
+        .disable-btn {
+            opacity: 0.6;
+            transform: none;
+            pointer-events: none;
+        }
+    </style>
 </head>
-
 <body>
 
 <div class="topbar">
-<div>Galmet Lucky</div>
-<div>Coins: <span id="coins"></span></div>
+    <div>🚁 GALMET CRASH X</div>
+    <div>💰 COINS: <span id="coins">0</span></div>
+    <div style="display: flex; gap: 8px;">
+        <button class="rules-icon" id="rulesBtn">📜 RULES</button>
+        <button class="theme-toggle" id="themeToggle">🌓</button>
+    </div>
 </div>
 
-<div class="multiplier" id="multi">1.00x</div>
+<div class="game-stage">
+    <div style="text-align: center;">
+        <div class="multiplier-panel" id="multiplierDisplay">1.00x</div>
+    </div>
 
-<div>Bet</div>
+    <!-- HELICOPTER FLIGHT AREA -->
+    <div class="flight-zone" id="flightZone">
+        <div class="flight-track"></div>
+        <div class="helicopter" id="helicopter">
+            🚁 <span id="heliMulti">1.00x</span>
+        </div>
+    </div>
 
-<input id="bet" value="50">
+    <div class="bet-panel">
+        <label>⚡ BET</label>
+        <input id="betAmount" value="50" type="number" min="10" step="10">
+    </div>
 
-<br>
+    <div>
+        <button class="startBtn" id="startGameBtn">🛫 START FLIGHT</button>
+        <button class="cashBtn" id="cashOutBtn">💰 CASH OUT</button>
+        <button class="topupBtn" style="background: linear-gradient(135deg,#8e44ad,#5b2c6f);" id="topupBtn">💎 TOP UP</button>
+    </div>
 
-<button id="startBtn" class="start">Start</button>
-<button id="cashBtn" class="cash">Cash Out</button>
+    <div id="gameResult" class="result-area">✨ Place bet & take off ✨</div>
+</div>
 
-<div class="box" id="players"></div>
-<div class="box" id="history"></div>
+<div class="info-box">
+    <h4>📜 RECENT CRASHES / CASHOUTS</h4>
+    <div id="historyLog" class="history-scroll">—</div>
+</div>
+<div class="info-box">
+    <h4>🎮 LIVE FEED (Pilots)</h4>
+    <div id="liveFeed" class="players-scroll">⚡ waiting for action...</div>
+</div>
+<footer>🎯 House edge 4% · Risky bets crash faster · Fair randomness</footer>
 
-<script>
+<!-- RULES MODAL -->
+<div id="rulesModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" id="closeModalBtn">&times;</span>
+        <h3>✈️ HOW TO PLAY - CRASH X</h3>
+        <p><strong>1. Place your bet</strong> (minimum 10 coins).<br>
+        <strong>2. Press START FLIGHT</strong> → multiplier rises from 1.00x.<br>
+        <strong>3. CASH OUT</strong> before the helicopter CRASHES! Your win = bet × current multiplier.<br>
+        <strong>4. If it crashes</strong> → you lose the bet.<br>
+        🔥 <strong>Risk rule:</strong> If you bet more than 50% of your total coins, the crash comes FASTER!<br>
+        🚁 Helicopter flies further with multiplier. Cash out → stops; Crash → falls!<br>
+        💎 Platform profit built-in with fair odds. Good luck pilot!</p>
+        <button id="closeModalButton" style="background: var(--accent); margin-top: 10px;">Got it</button>
+    </div>
+</div>
 
-let coins = localStorage.getItem("galmetCoins")
+<script type="module">
+    // ------------------- FIREBASE IMPORT -------------------
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-if(!coins){
-coins = 500
-localStorage.setItem("galmetCoins",coins)
-}
+    // 🔧 REPLACE WITH YOUR FIREBASE CONFIG (galmet-app project)
+    const firebaseConfig = {
+        apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",           // <-- PASTE YOUR API KEY
+        authDomain: "galmet-app.firebaseapp.com",
+        projectId: "galmet-app",
+        storageBucket: "galmet-app.firebasestorage.app",
+        messagingSenderId: "900590512024",
+        appId: "1:900590512024:web:16a36a085809a728c92ded"
+    };
 
-coins = parseInt(coins)
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-let multiplier = 1
-let playing = false
-let crashPoint = 0
-let bet = 0
-let gameLoop = null
+    // Game state
+    let currentCoins = 0;
+    let userDocRef = null;
+    let playing = false;
+    let gameInterval = null;
+    let currentMultiplier = 1.0;
+    let crashPoint = 1.0;
+    let currentBet = 0;
+    let coinsBeforeBet = 0;
+    let helicopterInterval = null;
 
-const coinsEl = document.getElementById("coins")
-const multiEl = document.getElementById("multi")
-const betEl = document.getElementById("bet")
-const playersEl = document.getElementById("players")
-const historyEl = document.getElementById("history")
+    // DOM elements
+    const coinsSpan = document.getElementById("coins");
+    const multiplierDisplay = document.getElementById("multiplierDisplay");
+    const betInput = document.getElementById("betAmount");
+    const startBtn = document.getElementById("startGameBtn");
+    const cashBtn = document.getElementById("cashOutBtn");
+    const topupBtn = document.getElementById("topupBtn");
+    const gameResultDiv = document.getElementById("gameResult");
+    const historyDiv = document.getElementById("historyLog");
+    const liveFeedDiv = document.getElementById("liveFeed");
+    const helicopterDiv = document.getElementById("helicopter");
+    const heliMultiSpan = document.getElementById("heliMulti");
 
-coinsEl.textContent = coins
+    // Helper: update UI coins
+    function updateCoinsUI() {
+        coinsSpan.innerText = currentCoins;
+    }
 
-document.getElementById("startBtn").addEventListener("click",startGame)
-document.getElementById("cashBtn").addEventListener("click",cashOut)
+    // Update firestore with current coins
+    async function syncCoinsToFirestore() {
+        if (userDocRef) {
+            await updateDoc(userDocRef, { coins: currentCoins });
+        }
+    }
 
-function saveCoins(){
-localStorage.setItem("galmetCoins",coins)
-}
+    // Add history entry
+    function addHistoryEntry(text, multiplierVal = null) {
+        const entry = document.createElement("span");
+        entry.textContent = text;
+        if (historyDiv.innerHTML === "—") historyDiv.innerHTML = "";
+        historyDiv.prepend(entry);
+        while (historyDiv.children.length > 12) historyDiv.removeChild(historyDiv.lastChild);
+        // Also add to fake player feed
+        addLiveFeedFake(multiplierVal);
+    }
 
-function startGame(){
+    function addLiveFeedFake(multiplierVal) {
+        const fakeNames = ["Capt.Kai", "Ace⚡", "Maverick", "Ghost", "RocketLee", "SkyQueen", "Vortex", "Phoenix"];
+        const randName = fakeNames[Math.floor(Math.random() * fakeNames.length)];
+        const isCrash = multiplierVal === undefined ? Math.random() > 0.6 : false;
+        let msg = "";
+        if (multiplierVal !== undefined && !isCrash) msg = `${randName} cashed ${multiplierVal.toFixed(2)}x 🎉`;
+        else if (multiplierVal === undefined && Math.random() > 0.5) msg = `${randName} crashed at ${(Math.random()*3+1).toFixed(2)}x 💥`;
+        else msg = `${randName} won ${(Math.random()*5+1).toFixed(2)}x 🚁`;
+        const feedSpan = document.createElement("span");
+        feedSpan.textContent = msg;
+        if (liveFeedDiv.innerHTML === "⚡ waiting for action...") liveFeedDiv.innerHTML = "";
+        liveFeedDiv.prepend(feedSpan);
+        while (liveFeedDiv.children.length > 8) liveFeedDiv.removeChild(liveFeedDiv.lastChild);
+    }
 
-if(playing) return
+    // DYNAMIC CRASH POINT (based on bet risk & house edge)
+    function generateCrashPoint(betAmount, userTotalCoins) {
+        if (userTotalCoins <= 0) return 1.01;
+        const riskFactor = betAmount / userTotalCoins;  // 0 to 1
+        let baseCrash = 1.0;
+        // House edge 4% standard
+        const houseEdge = 0.04;
+        let r = Math.random();
+        // standard crash: 1 / (r*(1-h) + h)
+        let rawCrash = 1 / (r * (1 - houseEdge) + houseEdge);
+        // clamp between 1.01 and 1000
+        rawCrash = Math.min(100, Math.max(1.01, rawCrash));
+        
+        // Risk adjustment: bet > 50% of total coins => crash multiplier reduced drastically
+        let adjustedCrash = rawCrash;
+        if (riskFactor > 0.5) {
+            let penalty = 1 - (riskFactor - 0.5) * 1.2;  // up to 40% reduction when riskFactor=1
+            penalty = Math.max(0.3, penalty);
+            adjustedCrash = rawCrash * penalty;
+            adjustedCrash = Math.max(1.01, adjustedCrash);
+        }
+        // additionally if bet > 80% -> extra hard crash
+        if (riskFactor > 0.8) {
+            adjustedCrash = adjustedCrash * 0.7;
+            adjustedCrash = Math.max(1.01, adjustedCrash);
+        }
+        return parseFloat(adjustedCrash.toFixed(3));
+    }
 
-bet = parseInt(betEl.value)
+    // Stop helicopter movement, clear loop
+    function stopFlightLoop() {
+        if (gameInterval) {
+            clearInterval(gameInterval);
+            gameInterval = null;
+        }
+    }
 
-if(!bet || bet <=0){
-alert("Enter bet amount")
-return
-}
+    // Reset helicopter position and style
+    function resetHelicopter() {
+        helicopterDiv.style.left = "0%";
+        helicopterDiv.classList.remove("crash-effect");
+        helicopterDiv.style.transform = "translateX(-10%)";
+        helicopterDiv.style.opacity = "1";
+        helicopterDiv.style.bottom = "20px";
+        heliMultiSpan.innerText = "1.00x";
+    }
 
-if(bet > coins){
-alert("Not enough coins")
-return
-}
+    // Update helicopter position based on multiplier progress to crash point
+    function updateHelicopterPosition(multiplier, crashPointValue) {
+        if (!playing) return;
+        let progress = multiplier / crashPointValue;
+        if (progress > 1) progress = 1;
+        let leftPercent = progress * 80; // max 80% of container width
+        leftPercent = Math.min(80, leftPercent);
+        helicopterDiv.style.left = leftPercent + "%";
+        heliMultiSpan.innerText = multiplier.toFixed(2) + "x";
+    }
 
-coins -= bet
-saveCoins()
-coinsEl.textContent = coins
+    // Crash logic
+    async function crashGame() {
+        if (!playing) return;
+        playing = false;
+        stopFlightLoop();
+        
+        // crash animation
+        helicopterDiv.classList.add("crash-effect");
+        gameResultDiv.innerHTML = `💥 CRASH at ${currentMultiplier.toFixed(2)}x! You lost ${currentBet} coins 💥`;
+        addHistoryEntry(`💀 CRASH ${currentMultiplier.toFixed(2)}x · lost ${currentBet}`, currentMultiplier);
+        
+        // No win, coins already deducted. Just sync current state (already deducted)
+        await syncCoinsToFirestore();
+        updateCoinsUI();
+        
+        // reset game active flag
+        currentMultiplier = 1.0;
+        multiplierDisplay.innerText = "1.00x";
+        // disable cashout button while crashed
+        cashBtn.disabled = false;
+        startBtn.disabled = false;
+    }
 
-multiplier = 1
+    // Cash out
+    async function cashOut() {
+        if (!playing) return;
+        playing = false;
+        stopFlightLoop();
+        
+        const winAmount = Math.floor(currentBet * currentMultiplier);
+        currentCoins += winAmount;
+        await syncCoinsToFirestore();
+        updateCoinsUI();
+        
+        gameResultDiv.innerHTML = `🏆 CASH OUT! ${currentMultiplier.toFixed(2)}x → +${winAmount} coins 🏆`;
+        addHistoryEntry(`✅ CASH OUT ${currentMultiplier.toFixed(2)}x · +${winAmount}`, currentMultiplier);
+        
+        // freeze helicopter
+        helicopterDiv.style.transition = "none";
+        // remove crash effect if any
+        helicopterDiv.classList.remove("crash-effect");
+        startBtn.disabled = false;
+        cashBtn.disabled = false;
+        currentMultiplier = 1.0;
+        multiplierDisplay.innerText = "1.00x";
+    }
 
-crashPoint = 1 / (Math.random()*0.9 + 0.1)
+    // Main game loop (multiplier increment)
+    function startGameLoop() {
+        if (gameInterval) clearInterval(gameInterval);
+        gameInterval = setInterval(async () => {
+            if (!playing) return;
+            // increase multiplier smoothly
+            currentMultiplier += 0.02;
+            if (currentMultiplier >= crashPoint) {
+                // CRASH
+                clearInterval(gameInterval);
+                gameInterval = null;
+                await crashGame();
+                return;
+            }
+            multiplierDisplay.innerText = currentMultiplier.toFixed(2) + "x";
+            updateHelicopterPosition(currentMultiplier, crashPoint);
+        }, 60);
+    }
 
-playing = true
+    // Start flight
+    async function startFlight() {
+        if (playing) return;
+        if (!userDocRef) {
+            gameResultDiv.innerHTML = "⚠️ Loading user...";
+            return;
+        }
+        
+        // Get fresh user coins from Firestore
+        const snap = await getDoc(userDocRef);
+        let freshCoins = snap.exists() ? snap.data().coins : 0;
+        if (freshCoins === undefined) freshCoins = 0;
+        currentCoins = freshCoins;
+        updateCoinsUI();
+        
+        let bet = parseInt(betInput.value);
+        if (isNaN(bet) || bet < 10) {
+            gameResultDiv.innerHTML = "❌ Minimum bet is 10 coins";
+            return;
+        }
+        if (bet > currentCoins) {
+            gameResultDiv.innerHTML = "❌ Insufficient coins! Go TOP UP.";
+            return;
+        }
+        
+        // Deduct bet
+        currentCoins -= bet;
+        await syncCoinsToFirestore();
+        updateCoinsUI();
+        
+        // Store bet data
+        currentBet = bet;
+        coinsBeforeBet = freshCoins;  // total before deduction
+        currentMultiplier = 1.0;
+        multiplierDisplay.innerText = "1.00x";
+        
+        // Generate crash point based on risk (bet / total before deduction)
+        crashPoint = generateCrashPoint(bet, coinsBeforeBet);
+        // ensure at least 1.01
+        if (crashPoint < 1.01) crashPoint = 1.01;
+        
+        playing = true;
+        gameResultDiv.innerHTML = `✈️ FLYING! Target crash: ${crashPoint.toFixed(2)}x | Bet: ${bet}`;
+        
+        // Reset helicopter visual
+        resetHelicopter();
+        helicopterDiv.style.transition = "left 0.05s linear";
+        helicopterDiv.classList.remove("crash-effect");
+        
+        // start multiplier loop
+        startGameLoop();
+        
+        // enable cash out, disable start temporarily
+        startBtn.disabled = false;  // we keep it but while playing no double start due to playing flag
+        cashBtn.disabled = false;
+    }
 
-gameLoop = setInterval(updateGame,100)
+    // Emergency reset after crash or cashout, plus firebase sync
+    window.addEventListener("beforeunload", () => {
+        if (playing && gameInterval) {
+            clearInterval(gameInterval);
+        }
+    });
 
-}
-
-function updateGame(){
-
-multiplier += 0.05
-
-multiEl.textContent = multiplier.toFixed(2)+"x"
-
-if(multiplier >= crashPoint){
-
-clearInterval(gameLoop)
-
-multiEl.textContent = "CRASH "+crashPoint.toFixed(2)+"x"
-
-addHistory(crashPoint)
-
-playing = false
-
-}
-
-}
-
-function cashOut(){
-
-if(!playing) return
-
-clearInterval(gameLoop)
-
-let win = Math.floor(bet * multiplier)
-
-coins += win
-
-saveCoins()
-
-coinsEl.textContent = coins
-
-multiEl.textContent = "CASHED "+multiplier.toFixed(2)+"x"
-
-addHistory(multiplier)
-
-playing=false
-
-}
-
-function addHistory(value){
-
-historyEl.innerHTML = value.toFixed(2)+"x<br>"+historyEl.innerHTML
-
-}
-
-setInterval(function(){
-
-let names=["Alex","Sam","Kai","Lee","Mia","John","Max","Sara"]
-
-let name = names[Math.floor(Math.random()*names.length)]
-
-let m = (Math.random()*4+1).toFixed(2)
-
-playersEl.innerHTML = name+" cashed out "+m+"x<br>"+playersEl.innerHTML
-
-},2000)
-
+    // Live feed periodic fake players (crash/cash fake)
+    setInterval(() => {
+        if (!playing) {
+            addLiveFeedFake();
+        } else {
+            // occasional live fake activity during game
+            if (Math.random() > 0.6) addLiveFeedFake();
+        }
+    }, 2800);
+    
+    // periodic fake feed for history-like players
+    setInterval(() => {
+        const fakeNames = ["Neo", "Trinity", "Morpheus", "Miles", "Zara", "Helix"];
+        const randName = fakeNames[Math.floor(Math.random() * fakeNames.length)];
+        const fakeMult = (Math.random() * 7 + 1).toFixed(2);
+        const msg = `${randName} cashed ${fakeMult}x 💰`;
+        const feedSpan = document.createElement("span");
+        feedSpan.textContent = msg;
+        if (liveFeedDiv.innerHTML === "⚡ waiting for action...") liveFeedDiv.innerHTML = "";
+        liveFeedDiv.prepend(feedSpan);
+        while (liveFeedDiv.children.length > 8) liveFeedDiv.removeChild(liveFeedDiv.lastChild);
+    }, 4000);
+    
+    // ----- AUTH & FIREBASE INIT -----
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+            // redirect to dashboard / login page
+            window.location.href = "index.html";
+            return;
+        }
+        userDocRef = doc(db, "users", user.uid);
+        const snap = await getDoc(userDocRef);
+        let userData = snap.data();
+        if (!userData || userData.coins === undefined || userData.coins === null) {
+            // New user: start with 0 coins, no free coins (must topup)
+            await setDoc(userDocRef, { coins: 0 }, { merge: true });
+            currentCoins = 0;
+        } else {
+            currentCoins = userData.coins;
+        }
+        updateCoinsUI();
+        // Reset any ghost game
+        playing = false;
+        if (gameInterval) clearInterval(gameInterval);
+        multiplierDisplay.innerText = "1.00x";
+        resetHelicopter();
+    });
+    
+    // ----- EVENT LISTENERS -----
+    startBtn.addEventListener("click", startFlight);
+    cashBtn.addEventListener("click", cashOut);
+    topupBtn.addEventListener("click", () => {
+        window.location.href = "topup.html";
+    });
+    
+    // Rules Modal
+    const modal = document.getElementById("rulesModal");
+    const rulesBtn = document.getElementById("rulesBtn");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+    const closeModalButton = document.getElementById("closeModalButton");
+    
+    function openModal() { modal.style.display = "flex"; }
+    function closeModalFunc() { modal.style.display = "none"; }
+    rulesBtn.addEventListener("click", openModal);
+    closeModalBtn.addEventListener("click", closeModalFunc);
+    closeModalButton.addEventListener("click", closeModalFunc);
+    window.addEventListener("click", (e) => { if (e.target === modal) closeModalFunc(); });
+    
+    // Theme toggler
+    const themeToggle = document.getElementById("themeToggle");
+    themeToggle.addEventListener("click", () => {
+        document.body.classList.toggle("dark");
+        const isDark = document.body.classList.contains("dark");
+        localStorage.setItem("galmetTheme", isDark ? "dark" : "light");
+    });
+    if (localStorage.getItem("galmetTheme") === "dark") document.body.classList.add("dark");
+    
+    // Cash button style update based on game state (minor)
+    function setButtonsState() {
+        if (playing) {
+            cashBtn.disabled = false;
+            startBtn.disabled = false;
+        } else {
+            cashBtn.disabled = false;
+            startBtn.disabled = false;
+        }
+    }
+    setButtonsState();
+    
+    // Additional: re-sync user coins if visibility changes
+    document.addEventListener("visibilitychange", async () => {
+        if (!document.hidden && userDocRef) {
+            const snap = await getDoc(userDocRef);
+            if (snap.exists()) {
+                currentCoins = snap.data().coins;
+                updateCoinsUI();
+            }
+            if (!playing && gameInterval) {
+                clearInterval(gameInterval);
+                gameInterval = null;
+            }
+        }
+    });
+    
+    console.log("Galmet Crash X ready | Helicopter dynamic risk system active");
 </script>
-
 </body>
 </html>
