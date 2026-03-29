@@ -287,13 +287,18 @@ window.loadWithdrawHistory = async function(){
 
 // OTHER
 window.logout = ()=> signOut(auth).then(()=>location="index.html");
-window.copyCode = () => {
-    const inviteCode = userData.inviteCode;
+window.copyCode = async () => {
+    try {
+        const inviteCode = userData.inviteCode;
+        const inviteLink = `${window.location.origin}/index.html?ref=${inviteCode}`;
 
-    const inviteLink = `${window.location.origin}/index.html?ref=${inviteCode}`;
+        await navigator.clipboard.writeText(inviteLink);
 
-    navigator.clipboard.writeText(inviteLink);
-    alert("Invite link copied!");
+        alert("✅ Invite link copied!");
+    } catch (err) {
+        alert("❌ Copy failed. Please copy manually.");
+        console.error(err);
+    }
 };
     
 window.goGame = (p)=> location=p;
