@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Galmet Lucky Fly | Runway Crash</title>
+    <title>Galmet Lucky Fly | Dynamic Crash Runway</title>
     <style>
         * {
             box-sizing: border-box;
@@ -136,7 +136,7 @@
             letter-spacing: 2px;
         }
 
-        /* FLIGHT ZONE - centered dashed line, helicopter stays in middle */
+        /* FLIGHT ZONE - centered dashed runway */
         .flight-zone {
             background: var(--bg-secondary);
             border-radius: 48px;
@@ -148,7 +148,7 @@
             border: 2px solid var(--accent);
             box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
         }
-        /* Dashed center line */
+        /* Dashed center line only (no corner markers) */
         .runway-line {
             position: absolute;
             top: 50%;
@@ -160,7 +160,7 @@
             pointer-events: none;
             z-index: 1;
         }
-        /* helicopter perfectly centered on the line, moves horizontally without touching corners */
+        /* helicopter stays perfectly on the dashed line */
         .helicopter {
             position: absolute;
             top: 50%;
@@ -188,14 +188,14 @@
             border-radius: 30px;
             color: gold;
         }
-        /* Crash effect - helicopter falls straight down from its current horizontal position */
+        /* Crash effect - fall from current position */
         .crash-effect {
-            animation: heliCrashCenter 0.7s forwards cubic-bezier(0.4, 0, 0.6, 1.2) !important;
+            animation: heliCrashRandom 0.7s forwards cubic-bezier(0.4, 0, 0.6, 1.2) !important;
         }
-        @keyframes heliCrashCenter {
+        @keyframes heliCrashRandom {
             0% { transform: translate(-5%, -50%) rotate(0deg); opacity: 1; top: 50%; }
-            30% { transform: translate(5px, 15px) rotate(30deg); opacity: 0.9; }
-            100% { transform: translate(15px, 80px) rotate(110deg); opacity: 0; top: 120%; }
+            30% { transform: translate(5px, 20px) rotate(35deg); opacity: 0.9; }
+            100% { transform: translate(20px, 80px) rotate(110deg); opacity: 0; top: 130%; }
         }
 
         .bet-panel {
@@ -329,7 +329,7 @@
         <div class="multiplier-panel" id="multiplierDisplay">1.00x</div>
     </div>
 
-    <!-- FLIGHT ZONE: centered dashed runway, helicopter moves smoothly from left to middle-right only (never corner) -->
+    <!-- FLIGHT ZONE: only dashed center line, no corner markers -->
     <div class="flight-zone" id="flightZone">
         <div class="runway-line"></div>
         <div class="helicopter" id="helicopter">
@@ -359,20 +359,20 @@
     <h4>🎮 LIVE FEED (Pilots)</h4>
     <div id="liveFeed" class="players-scroll">⚡ waiting for action...</div>
 </div>
-<footer>🎲 Centered runway • Cash out before crash • Galmet holds all rights</footer>
+<footer>🎲 Random crash position • Cash out before it drops • Galmet holds all rights</footer>
 
 <!-- RULES MODAL -->
 <div id="rulesModal" class="modal">
     <div class="modal-content">
         <span class="close-modal" id="closeModalBtn">&times;</span>
-        <h3>✈️ HOW TO PLAY - RUNWAY CRASH</h3>
+        <h3>✈️ HOW TO PLAY - DYNAMIC RUNWAY</h3>
         <p><strong>1. Choose your bet</strong> (min 10 coins).<br>
-        <strong>2. Press START FLIGHT</strong> → Helicopter flies along the dashed center line, multiplier rises from 1.00x.<br>
+        <strong>2. Press START FLIGHT</strong> → Helicopter flies along the dashed center line, multiplier rises.<br>
         <strong>3. CASH OUT</strong> before the helicopter crashes! Win = bet × current multiplier.<br>
         <strong>4. If it crashes</strong> → you lose the bet.<br><br>
-        🔥 <strong>RISK RULE:</strong> Higher bets increase volatility. Betting >50% of your total coins makes the flight more unstable.<br>
-        🚁 The helicopter moves from left to right on the middle line. The farther it goes, the higher the multiplier.<br>
-        ✅ <strong>Galmet holds all rights & reverse.</strong> Fair algorithm. Always cash out in time.</p>
+        🔥 <strong>RISK RULE:</strong> Higher bets increase volatility. Betting >50% of total coins makes flight more unstable.<br>
+        🚁 The helicopter crashes at a RANDOM position each round — never the same corner. Stay alert!<br>
+        ✅ <strong>Galmet holds all rights & reverse.</strong> Fair algorithm. Good luck pilot.</p>
         <button id="closeModalButton" style="background: var(--accent); margin-top: 8px; width: 100%;">Got it</button>
     </div>
 </div>
@@ -406,6 +406,7 @@
     let crashPoint = 1.0;
     let currentBet = 0;
     let totalCoinsBeforeBet = 0;
+    let crashLeftTarget = 65; // random % where crash will happen (between 40% and 85%)
 
     // DOM elements
     const coinsSpan = document.getElementById("coins");
@@ -449,7 +450,7 @@
         while (liveFeedDiv.children.length > 8) liveFeedDiv.removeChild(liveFeedDiv.lastChild);
     }
 
-    // Generate hidden crash point (never shown)
+    // Generate hidden crash multiplier (never shown to user)
     function generateCrashPoint(betAmount, userTotalCoins) {
         if (userTotalCoins <= 0) return 1.02;
         const riskFactor = betAmount / userTotalCoins;
@@ -468,14 +469,20 @@
         return parseFloat(Math.max(1.01, adjustedCrash).toFixed(3));
     }
 
-    // 🚁 HELICOPTER POSITION: moves from left 2% to max 78% (never touches corners)
-    function updateHelicopterPosition(multiplier, crashPointVal) {
+    // 🚁 FIX: random crash position (between 40% and 85%) -> crash never at corner
+    function getRandomCrashLeft() {
+        // random between 40% and 85% - helicopter crashes at different spots on runway
+        return 40 + Math.random() * 45;
+    }
+
+    // Update helicopter position based on multiplier progress, using dynamic crash target left%
+    function updateHelicopterPosition(multiplier, crashPointVal, crashLeftPercent) {
         if (!playing) return;
         let progress = multiplier / crashPointVal;
         if (progress > 1) progress = 1;
-        // Map progress to left%: start 2% , end 78% -> always centered on the dashed line, no corner crash
-        let leftPercent = 2 + (progress * 76);
-        leftPercent = Math.min(78, Math.max(2, leftPercent));
+        // start at 2% left, end at crashLeftPercent (random per flight)
+        let leftPercent = 2 + (progress * (crashLeftPercent - 2));
+        leftPercent = Math.min(crashLeftPercent, Math.max(2, leftPercent));
         helicopterDiv.style.left = leftPercent + "%";
         heliMultiSpan.innerText = multiplier.toFixed(2) + "x";
     }
@@ -488,7 +495,7 @@
         heliMultiSpan.innerText = "1.00x";
     }
 
-    // Crash sequence - helicopter falls from its current centered position
+    // Crash sequence - helicopter falls from its current (random) position
     async function crashGame() {
         if (!playing) return;
         playing = false;
@@ -503,7 +510,6 @@
         multiplierDisplay.innerText = "1.00x";
         startBtn.disabled = false;
         cashBtn.disabled = false;
-        // after animation reset position
         setTimeout(() => {
             if (!playing) resetHelicopterVisual();
         }, 800);
@@ -541,11 +547,11 @@
                 return;
             }
             multiplierDisplay.innerText = currentMultiplier.toFixed(2) + "x";
-            updateHelicopterPosition(currentMultiplier, crashPoint);
+            updateHelicopterPosition(currentMultiplier, crashPoint, crashLeftTarget);
         }, 55);
     }
 
-    // Start flight - hidden crash point, helicopter starts from left line
+    // Start flight - random crash position + hidden multiplier
     async function startFlight() {
         if (playing) return;
         if (!userDocRef) {
@@ -577,12 +583,15 @@
         totalCoinsBeforeBet = freshCoins;
         currentMultiplier = 1.0;
         multiplierDisplay.innerText = "1.00x";
-        // generate hidden crash point (never displayed to user)
+        
+        // generate hidden crash multiplier
         crashPoint = generateCrashPoint(bet, totalCoinsBeforeBet);
         crashPoint = Math.max(1.01, crashPoint);
         
+        // 🚁 IMPORTANT: random visual crash position (between 40% and 85%) – never corner
+        crashLeftTarget = getRandomCrashLeft();
+        
         playing = true;
-        // No target crash text shown to player
         gameResultDiv.innerHTML = `✈️ FLIGHT ACTIVE · Multiplier rising · Cash out anytime ✈️`;
         
         resetHelicopterVisual();
@@ -664,7 +673,7 @@
             if (snap.exists()) { currentCoins = snap.data().coins; updateCoinsUI(); }
         }
     });
-    console.log("Galmet Lucky Fly - Centered runway, helicopter stays on middle line, no corner crash");
+    console.log("Galmet Lucky Fly - Random crash position, smooth runway");
 </script>
 </body>
 </html>
