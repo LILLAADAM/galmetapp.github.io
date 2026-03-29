@@ -413,7 +413,7 @@
         passwordInput.setAttribute("type", type);
         togglePasswordBtn.textContent = type === "password" ? "👁️" : "🙈";
     });
-
+    
     // Helper: set error message with auto-clear
     function setErrorMsg(msg) {
         errorDiv.innerText = msg || "";
@@ -706,6 +706,13 @@ setTimeout(() => {
         });
     });
     
+    // 🔥 AUTO FILL REFERRAL FROM LINK
+const params = new URLSearchParams(window.location.search);
+const refCodeFromURL = params.get("ref");
+
+if (refCodeFromURL) {
+    document.getElementById("referral").value = refCodeFromURL;
+}
     // Clear error on focus
     inputs.forEach(inp => {
         inp.addEventListener("focus", () => setErrorMsg(""));
