@@ -289,7 +289,8 @@ window.loadWithdrawHistory = async function(){
 window.logout = ()=> signOut(auth).then(()=>location="index.html");
 window.copyCode = async () => {
     try {
-        const inviteCode = userData.inviteCode;
+        const inviteCode = document.getElementById("inviteCode").innerText;
+
         const inviteLink = `${window.location.origin}/index.html?ref=${inviteCode}`;
 
         await navigator.clipboard.writeText(inviteLink);
