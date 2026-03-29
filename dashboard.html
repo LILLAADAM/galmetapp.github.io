@@ -291,7 +291,7 @@ window.copyCode = async () => {
     try {
         const inviteCode = document.getElementById("inviteCode").innerText;
 
-        const inviteLink = `${window.location.origin}/index.html?ref=${inviteCode}`;
+        const inviteLink = `${window.location.origin}${window.location.pathname.replace('dashboard.html','')}index.html?ref=${inviteCode}`;
 
         await navigator.clipboard.writeText(inviteLink);
 
