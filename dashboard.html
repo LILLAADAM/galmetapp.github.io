@@ -321,7 +321,16 @@ window.loadWithdrawHistory = async function(){
         const snapshot = await getDocs(q);
 
         let totalInvites = snapshot.size;
-        let totalEarned = totalInvites * 1000;
+        let completedTopups = 0;
+
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            if (data.firstTopup === true) {
+                completedTopups++;
+            }
+        });
+
+        let totalEarned = completedTopups * 1000;
 
         document.getElementById("totalInvites").innerText = totalInvites;
         document.getElementById("totalEarned").innerText = totalEarned;
