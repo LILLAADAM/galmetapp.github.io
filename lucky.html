@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Galmet Lucky Fly & Win | Crash X</title>
+    <title>Galmet Lucky Fly | Runway Crash</title>
     <style>
         * {
             box-sizing: border-box;
@@ -24,8 +24,7 @@
             --topbar-text: white;
             --button-start: linear-gradient(135deg, #2ecc71, #27ae60);
             --button-cash: linear-gradient(135deg, #f39c12, #e67e22);
-            --crash-glow: #e74c3c;
-            --heli-color: #2c3e8f;
+            --runway-line: #94a3b8;
         }
 
         body.dark {
@@ -42,7 +41,7 @@
             --topbar-text: #facc15;
             --button-start: linear-gradient(135deg, #3b82f6, #2563eb);
             --button-cash: linear-gradient(135deg, #f97316, #ea580c);
-            --heli-color: #facc15;
+            --runway-line: #64748b;
         }
 
         body {
@@ -90,9 +89,6 @@
             padding: 4px 12px;
             border-radius: 40px;
         }
-        .coins-icon {
-            font-size: 1.2rem;
-        }
         .theme-toggle, .rules-icon {
             background: var(--accent);
             border: none;
@@ -110,9 +106,7 @@
             font-size: 0.85rem;
             padding: 4px 10px;
         }
-        .theme-toggle:active, .rules-icon:active {
-            transform: scale(0.96);
-        }
+        .theme-toggle:active, .rules-icon:active { transform: scale(0.96); }
 
         .game-stage {
             background: var(--card-bg);
@@ -124,7 +118,6 @@
             max-width: 580px;
             box-shadow: var(--shadow);
             border: 1px solid var(--accent);
-            transition: all 0.2s;
         }
 
         .multiplier-panel {
@@ -143,44 +136,49 @@
             letter-spacing: 2px;
         }
 
+        /* FLIGHT ZONE - centered dashed line, helicopter stays in middle */
         .flight-zone {
             background: var(--bg-secondary);
             border-radius: 48px;
-            padding: 10px 16px;
+            padding: 16px 12px;
             margin: 12px 0 18px;
             position: relative;
-            height: 130px;
-            overflow: hidden;
+            height: 110px;
+            overflow: visible;
             border: 2px solid var(--accent);
             box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
         }
-        .flight-track {
+        /* Dashed center line */
+        .runway-line {
             position: absolute;
-            bottom: 25px;
+            top: 50%;
             left: 0;
             width: 100%;
-            height: 3px;
-            background: var(--accent);
-            opacity: 0.4;
-            border-radius: 2px;
+            height: 2px;
+            background: repeating-linear-gradient(90deg, var(--runway-line), var(--runway-line) 14px, transparent 14px, transparent 32px);
+            transform: translateY(-50%);
+            pointer-events: none;
+            z-index: 1;
         }
+        /* helicopter perfectly centered on the line, moves horizontally without touching corners */
         .helicopter {
             position: absolute;
-            bottom: 20px;
-            left: 0%;
-            transform: translateX(-5%);
-            font-size: 2.8rem;
+            top: 50%;
+            left: 2%;
+            transform: translate(-5%, -50%);
+            font-size: 2.6rem;
             filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
-            transition: left 0.05s linear, bottom 0.08s ease-out;
-            z-index: 5;
+            transition: left 0.05s linear;
+            z-index: 12;
             display: flex;
             align-items: center;
             gap: 6px;
-            background: rgba(0,0,0,0.45);
+            background: rgba(0,0,0,0.55);
             padding: 2px 12px;
             border-radius: 60px;
             backdrop-filter: blur(6px);
             white-space: nowrap;
+            pointer-events: none;
         }
         .helicopter span {
             font-size: 1rem;
@@ -190,13 +188,14 @@
             border-radius: 30px;
             color: gold;
         }
+        /* Crash effect - helicopter falls straight down from its current horizontal position */
         .crash-effect {
-            animation: heliCrash 0.65s forwards cubic-bezier(0.5, -0.5, 0.8, 1.2) !important;
+            animation: heliCrashCenter 0.7s forwards cubic-bezier(0.4, 0, 0.6, 1.2) !important;
         }
-        @keyframes heliCrash {
-            0% { transform: translateX(-5%) rotate(0deg); opacity: 1; bottom: 20px; left: var(--crash-left, 60%); }
-            40% { transform: translateX(10px) rotate(35deg); opacity: 0.9; }
-            100% { transform: translateX(40px) rotate(120deg) translateY(70px); opacity: 0; bottom: -40px; left: 80%; }
+        @keyframes heliCrashCenter {
+            0% { transform: translate(-5%, -50%) rotate(0deg); opacity: 1; top: 50%; }
+            30% { transform: translate(5px, 15px) rotate(30deg); opacity: 0.9; }
+            100% { transform: translate(15px, 80px) rotate(110deg); opacity: 0; top: 120%; }
         }
 
         .bet-panel {
@@ -306,16 +305,11 @@
             opacity: 0.55;
             margin: 12px;
         }
-        .disable-btn {
-            opacity: 0.5;
-            pointer-events: none;
-        }
         @media (max-width: 500px) {
             .multiplier-panel { font-size: 2.8rem; padding: 4px 16px; }
             .helicopter { font-size: 2.2rem; padding: 2px 8px; }
-            .flight-zone { height: 115px; }
+            .flight-zone { height: 100px; }
             button { padding: 8px 18px; font-size: 0.9rem; }
-            .topbar { font-size: 0.9rem; padding: 10px 14px; }
         }
     </style>
 </head>
@@ -335,9 +329,9 @@
         <div class="multiplier-panel" id="multiplierDisplay">1.00x</div>
     </div>
 
-    <!-- FLIGHT ZONE - HELICOPTER FLIES UP & RIGHT -->
+    <!-- FLIGHT ZONE: centered dashed runway, helicopter moves smoothly from left to middle-right only (never corner) -->
     <div class="flight-zone" id="flightZone">
-        <div class="flight-track"></div>
+        <div class="runway-line"></div>
         <div class="helicopter" id="helicopter">
             🚁 <span id="heliMulti">1.00x</span>
         </div>
@@ -365,21 +359,20 @@
     <h4>🎮 LIVE FEED (Pilots)</h4>
     <div id="liveFeed" class="players-scroll">⚡ waiting for action...</div>
 </div>
-<footer>🎲 Fly high, cash out in time. Galmet holds all rights.</footer>
+<footer>🎲 Centered runway • Cash out before crash • Galmet holds all rights</footer>
 
-<!-- RULES MODAL (Professional & Clear) -->
+<!-- RULES MODAL -->
 <div id="rulesModal" class="modal">
     <div class="modal-content">
         <span class="close-modal" id="closeModalBtn">&times;</span>
-        <h3>✈️ HOW TO PLAY - CRASH FLIGHT</h3>
+        <h3>✈️ HOW TO PLAY - RUNWAY CRASH</h3>
         <p><strong>1. Choose your bet</strong> (min 10 coins).<br>
-        <strong>2. Press START FLIGHT</strong> → Helicopter takes off, multiplier rises from 1.00x.<br>
-        <strong>3. CASH OUT</strong> before the helicopter CRASHES! Your win = bet × current multiplier.<br>
-        <strong>4. If it crashes</strong> → you lose the bet amount.<br><br>
-        🔥 <strong>RISK RULE:</strong> Higher bets increase both winning potential and crash risk. Bet more than 50% of your total coins → helicopter becomes more volatile!<br>
-        🚁 The helicopter flies upwards & forward. Cash out to stop safely; crash makes it fall.<br>
-        ✅ <strong>Galmet holds all rights & reverse.</strong> Fair odds, transparent algorithm.<br>
-        Good luck, pilot!</p>
+        <strong>2. Press START FLIGHT</strong> → Helicopter flies along the dashed center line, multiplier rises from 1.00x.<br>
+        <strong>3. CASH OUT</strong> before the helicopter crashes! Win = bet × current multiplier.<br>
+        <strong>4. If it crashes</strong> → you lose the bet.<br><br>
+        🔥 <strong>RISK RULE:</strong> Higher bets increase volatility. Betting >50% of your total coins makes the flight more unstable.<br>
+        🚁 The helicopter moves from left to right on the middle line. The farther it goes, the higher the multiplier.<br>
+        ✅ <strong>Galmet holds all rights & reverse.</strong> Fair algorithm. Always cash out in time.</p>
         <button id="closeModalButton" style="background: var(--accent); margin-top: 8px; width: 100%;">Got it</button>
     </div>
 </div>
@@ -413,7 +406,6 @@
     let crashPoint = 1.0;
     let currentBet = 0;
     let totalCoinsBeforeBet = 0;
-    let animationFrame = null;
 
     // DOM elements
     const coinsSpan = document.getElementById("coins");
@@ -431,7 +423,7 @@
     function updateCoinsUI() { coinsSpan.innerText = currentCoins; }
     async function syncCoinsToFirestore() { if (userDocRef) await updateDoc(userDocRef, { coins: currentCoins }); }
 
-    // Add history & live feed
+    // History & random live feed
     function addHistoryEntry(text, multiplierVal = null) {
         const entry = document.createElement("span");
         entry.textContent = text;
@@ -440,7 +432,6 @@
         while (historyDiv.children.length > 12) historyDiv.removeChild(historyDiv.lastChild);
         addRandomFeed(multiplierVal);
     }
-
     function addRandomFeed(multiplierVal) {
         const fakeNames = ["SkyAce", "RocketMia", "NeoPilot", "LuckyLee", "Vortex", "Helix", "Phoenix", "Jester"];
         const randName = fakeNames[Math.floor(Math.random() * fakeNames.length)];
@@ -458,7 +449,7 @@
         while (liveFeedDiv.children.length > 8) liveFeedDiv.removeChild(liveFeedDiv.lastChild);
     }
 
-    // Generate hidden crash point (no display to user)
+    // Generate hidden crash point (never shown)
     function generateCrashPoint(betAmount, userTotalCoins) {
         if (userTotalCoins <= 0) return 1.02;
         const riskFactor = betAmount / userTotalCoins;
@@ -477,40 +468,32 @@
         return parseFloat(Math.max(1.01, adjustedCrash).toFixed(3));
     }
 
-    // HELICOPTER DYNAMIC: moves RIGHT + UP (soaring effect)
+    // 🚁 HELICOPTER POSITION: moves from left 2% to max 78% (never touches corners)
     function updateHelicopterPosition(multiplier, crashPointVal) {
         if (!playing) return;
         let progress = multiplier / crashPointVal;
         if (progress > 1) progress = 1;
-        // horizontal: max 82% of container width
-        let leftPercent = progress * 78;
-        leftPercent = Math.min(78, leftPercent);
-        // vertical lift: start bottom 20px, go up to 58px (fly higher)
-        let bottomOffset = 20 + (progress * 45);
-        bottomOffset = Math.min(65, bottomOffset);
+        // Map progress to left%: start 2% , end 78% -> always centered on the dashed line, no corner crash
+        let leftPercent = 2 + (progress * 76);
+        leftPercent = Math.min(78, Math.max(2, leftPercent));
         helicopterDiv.style.left = leftPercent + "%";
-        helicopterDiv.style.bottom = bottomOffset + "px";
         heliMultiSpan.innerText = multiplier.toFixed(2) + "x";
     }
 
     function resetHelicopterVisual() {
-        helicopterDiv.style.left = "0%";
-        helicopterDiv.style.bottom = "20px";
+        helicopterDiv.style.left = "2%";
         helicopterDiv.classList.remove("crash-effect");
-        helicopterDiv.style.transform = "translateX(-5%)";
+        helicopterDiv.style.transform = "translate(-5%, -50%)";
         helicopterDiv.style.opacity = "1";
         heliMultiSpan.innerText = "1.00x";
     }
 
-    // Crash!
+    // Crash sequence - helicopter falls from its current centered position
     async function crashGame() {
         if (!playing) return;
         playing = false;
         if (gameInterval) clearInterval(gameInterval);
         gameInterval = null;
-        // Store current left for crash animation
-        let currentLeft = helicopterDiv.style.left || "0%";
-        helicopterDiv.style.setProperty('--crash-left', currentLeft);
         helicopterDiv.classList.add("crash-effect");
         gameResultDiv.innerHTML = `💥 CRASH at ${currentMultiplier.toFixed(2)}x! You lost ${currentBet} coins 💥`;
         addHistoryEntry(`💀 CRASH ${currentMultiplier.toFixed(2)}x · lost ${currentBet}`, currentMultiplier);
@@ -520,6 +503,10 @@
         multiplierDisplay.innerText = "1.00x";
         startBtn.disabled = false;
         cashBtn.disabled = false;
+        // after animation reset position
+        setTimeout(() => {
+            if (!playing) resetHelicopterVisual();
+        }, 800);
     }
 
     // Cash out
@@ -534,14 +521,12 @@
         updateCoinsUI();
         gameResultDiv.innerHTML = `🏆 CASH OUT! ${currentMultiplier.toFixed(2)}x → +${winAmount} coins 🏆`;
         addHistoryEntry(`✅ CASH OUT ${currentMultiplier.toFixed(2)}x · +${winAmount}`, currentMultiplier);
-        helicopterDiv.style.transition = "left 0.1s, bottom 0.1s";
         helicopterDiv.classList.remove("crash-effect");
         startBtn.disabled = false;
         cashBtn.disabled = false;
         currentMultiplier = 1.0;
         multiplierDisplay.innerText = "1.00x";
-        // keep helicopter at current position then slight reset after delay
-        setTimeout(() => { if (!playing) resetHelicopterVisual(); }, 800);
+        setTimeout(() => { if (!playing) resetHelicopterVisual(); }, 400);
     }
 
     function startGameLoop() {
@@ -560,7 +545,7 @@
         }, 55);
     }
 
-    // Start flight (hidden crash point, never shown to player)
+    // Start flight - hidden crash point, helicopter starts from left line
     async function startFlight() {
         if (playing) return;
         if (!userDocRef) {
@@ -592,26 +577,27 @@
         totalCoinsBeforeBet = freshCoins;
         currentMultiplier = 1.0;
         multiplierDisplay.innerText = "1.00x";
-        // generate hidden crash point (never revealed to player)
+        // generate hidden crash point (never displayed to user)
         crashPoint = generateCrashPoint(bet, totalCoinsBeforeBet);
         crashPoint = Math.max(1.01, crashPoint);
         
         playing = true;
+        // No target crash text shown to player
         gameResultDiv.innerHTML = `✈️ FLIGHT ACTIVE · Multiplier rising · Cash out anytime ✈️`;
         
         resetHelicopterVisual();
-        helicopterDiv.style.transition = "left 0.05s linear, bottom 0.08s ease-out";
+        helicopterDiv.style.transition = "left 0.05s linear";
         helicopterDiv.classList.remove("crash-effect");
         startGameLoop();
         startBtn.disabled = false;
         cashBtn.disabled = false;
     }
 
-    // Live feed generator (fake activity)
+    // Periodic fake live feed
     setInterval(() => {
         if (!playing) addRandomFeed();
         else if (Math.random() > 0.65) addRandomFeed();
-    }, 2900);
+    }, 3000);
     setInterval(() => {
         const fakeNames = ["StarPilot", "Maverick", "Risky", "CashMaster", "AceVentura"];
         const randName = fakeNames[Math.floor(Math.random() * fakeNames.length)];
@@ -622,7 +608,7 @@
         if (liveFeedDiv.innerHTML === "⚡ waiting for action...") liveFeedDiv.innerHTML = "";
         liveFeedDiv.prepend(feedSpan);
         while (liveFeedDiv.children.length > 8) liveFeedDiv.removeChild(liveFeedDiv.lastChild);
-    }, 4200);
+    }, 4400);
 
     // ========== FIREBASE AUTH ==========
     onAuthStateChanged(auth, async (user) => {
@@ -646,12 +632,12 @@
         resetHelicopterVisual();
     });
 
-    // EVENT LISTENERS
+    // Event listeners
     startBtn.addEventListener("click", startFlight);
     cashBtn.addEventListener("click", cashOut);
     topupBtn.addEventListener("click", () => { window.location.href = "topup.html"; });
 
-    // RULES MODAL
+    // Rules Modal
     const modal = document.getElementById("rulesModal");
     const rulesBtn = document.getElementById("rulesBtn");
     const closeModalBtn = document.getElementById("closeModalBtn");
@@ -663,7 +649,7 @@
     closeModalButton.addEventListener("click", closeModalFunc);
     window.addEventListener("click", (e) => { if (e.target === modal) closeModalFunc(); });
 
-    // THEME
+    // Theme
     const themeToggle = document.getElementById("themeToggle");
     themeToggle.addEventListener("click", () => {
         document.body.classList.toggle("dark");
@@ -671,14 +657,14 @@
     });
     if (localStorage.getItem("galmetTheme") === "dark") document.body.classList.add("dark");
 
-    // re-sync on visibility
+    // sync on visibility
     document.addEventListener("visibilitychange", async () => {
         if (!document.hidden && userDocRef && !playing) {
             const snap = await getDoc(userDocRef);
             if (snap.exists()) { currentCoins = snap.data().coins; updateCoinsUI(); }
         }
     });
-    console.log("Galmet Lucky Fly & Win — Hidden crash point, dynamic helicopter soaring");
+    console.log("Galmet Lucky Fly - Centered runway, helicopter stays on middle line, no corner crash");
 </script>
 </body>
 </html>
