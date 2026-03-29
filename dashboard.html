@@ -108,6 +108,9 @@ body {
         <span id="inviteCode">---</span>
         <button class="copy-btn" onclick="copyCode()">Copy</button>
     </div>
+<div style="margin-top:8px; font-size:13px; color:#cbd5f5; line-height:1.4;">
+🚀 Invite friends and earn rewards <br>
+💰 Get <b>1,000 Coins</b> when they complete their first top-up
 </div>
 
 <div class="card">
@@ -285,10 +288,12 @@ window.loadWithdrawHistory = async function(){
 // OTHER
 window.logout = ()=> signOut(auth).then(()=>location="index.html");
 window.copyCode = ()=>{
-    const code = document.getElementById("inviteCode").innerText;
-    navigator.clipboard.writeText(code);
-    alert("Copied: "+code);
-};
+    const inviteCode = userData.inviteCode;
+const inviteLink = `${window.location.origin}/?ref=${inviteCode}`;
+
+navigator.clipboard.writeText(inviteLink);
+alert("Invite link copied!");
+    
 window.goGame = (p)=> location=p;
 
 </script>
