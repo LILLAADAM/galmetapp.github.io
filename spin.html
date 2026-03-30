@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Galmet Wheel PRO | Real Economy</title>
+    <title>Galmet Wheel PRO | Real Risk</title>
     <style>
         * {
             box-sizing: border-box;
@@ -25,6 +25,7 @@
             --topbar-text: white;
             --button-spin: linear-gradient(135deg, #2ecc71, #27ae60);
             --button-topup: linear-gradient(135deg, #f39c12, #e67e22);
+            --loading-bg: rgba(0,0,0,0.7);
         }
 
         body.dark {
@@ -41,6 +42,7 @@
             --topbar-text: #facc15;
             --button-spin: linear-gradient(135deg, #3b82f6, #2563eb);
             --button-topup: linear-gradient(135deg, #f97316, #ea580c);
+            --loading-bg: rgba(0,0,0,0.8);
         }
 
         body {
@@ -54,6 +56,40 @@
             align-items: center;
             justify-content: center;
             color: var(--text-primary);
+        }
+
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--loading-bg);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            transition: opacity 0.5s;
+        }
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid rgba(255,255,255,0.3);
+            border-top: 6px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .loading-text {
+            font-size: 1.2rem;
+            color: var(--accent);
         }
 
         .topbar {
@@ -71,6 +107,20 @@
             margin: 0 auto;
             border-radius: 0 0 24px 24px;
             color: var(--topbar-text);
+        }
+
+        .rule-btn {
+            background: none;
+            border: none;
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: var(--topbar-text);
+            padding: 0 8px;
+            margin: 0;
+            box-shadow: none;
+        }
+        .rule-btn:active {
+            transform: none;
         }
 
         .theme-toggle {
@@ -166,6 +216,12 @@
             box-shadow: 0 2px 0 rgba(0,0,0,0.2);
         }
 
+        button:disabled {
+            opacity: 0.6;
+            transform: none;
+            cursor: not-allowed;
+        }
+
         .spinBtn {
             background: var(--button-spin);
         }
@@ -231,20 +287,66 @@
             color: var(--text-secondary);
         }
 
-        .low-coins {
-            color: #e67e22;
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1100;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: var(--bg-secondary);
+            padding: 24px;
+            border-radius: 28px;
+            max-width: 400px;
+            width: 85%;
+            border: 2px solid var(--accent);
+            color: var(--text-primary);
+        }
+        .modal-content h3 {
+            margin-top: 0;
+            color: var(--accent);
+        }
+        .modal-content p {
+            line-height: 1.5;
+        }
+        .close-modal {
+            background: var(--accent);
+            margin-top: 20px;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
             font-weight: bold;
+        }
+
+        .cooldown-timer {
+            font-size: 0.8rem;
             margin-top: 5px;
-            font-size: 0.9rem;
+            color: var(--accent);
         }
     </style>
 </head>
 <body>
 
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <div class="loading-text">Loading Game...</div>
+</div>
+
 <div class="topbar">
     <div>🎡 GALMET WHEEL</div>
     <div>💰 COINS: <span id="coins">0</span></div>
-    <button class="theme-toggle" id="themeToggle" aria-label="Switch theme">🌓</button>
+    <div style="display: flex; gap: 8px;">
+        <button class="rule-btn" id="ruleBtn">📜</button>
+        <button class="theme-toggle" id="themeToggle">🌓</button>
+    </div>
 </div>
 
 <div class="wheel-container">
@@ -261,6 +363,7 @@
     <button class="spinBtn" id="spinBtn">🎲 SPIN</button>
     <button class="topupBtn" id="topupBtn">💎 TOP UP</button>
 </div>
+<div id="cooldownMsg" class="cooldown-timer"></div>
 
 <div id="result" class="result-area">✨ SPIN TO WIN ✨</div>
 
@@ -274,6 +377,21 @@
     <div id="players" class="players-scroll">⚡ waiting for action...</div>
 </div>
 <footer>⚡ fair spin · pointer decides reward ⚡</footer>
+
+<!-- Rules Modal -->
+<div id="rulesModal" class="modal">
+    <div class="modal-content">
+        <h3>🎡 How to Play</h3>
+        <p>1. Enter your bet amount (minimum 10 coins).<br>
+        2. Click SPIN and watch the wheel turn.<br>
+        3. The pointer decides your multiplier (0x to 10x).<br>
+        4. Win = bet × multiplier (if multiplier > 0).<br>
+        5. After each spin, wait 3 seconds before next spin.<br>
+        6. Top up coins when needed via the TOP UP button.</p>
+        <p style="font-size:0.9rem; margin-top:10px;">🎲 The wheel is fair and uses a certified random system. Good luck!</p>
+        <button class="close-modal">Got it!</button>
+    </div>
+</div>
 
 <script type="module">
     // ================= FIREBASE =================
@@ -294,6 +412,8 @@
     let coins = 0;
     let userRef = null;
     let spinning = false;
+    let cooldown = false;
+    let cooldownTimer = null;
 
     // ================= WHEEL SEGMENTS =================
     const segments = [
@@ -363,24 +483,37 @@
     }
     drawWheel();
 
-    // ================= CONTROLLED MULTIPLIER (exactly as provided) =================
-    function getControlledMultiplier(bet) {
-        if (bet >= 1000) {
-            const r = Math.random();
-            if (r < 0.60) return 0;
-            if (r < 0.80) return 1;
-            if (r < 0.92) return 2;
-            if (r < 0.98) return 3;
-            if (r < 0.995) return 5;
-            return 10;
-        }
+    // ================= DYNAMIC RISK-BASED MULTIPLIER =================
+    // Adjusts probabilities based on bet/totalCoins ratio.
+    // Higher ratio -> higher chance of losing.
+    function getRiskBasedMultiplier(bet, totalCoins) {
+        let ratio = bet / totalCoins;
+        // Clamp ratio between 0 and 1
+        ratio = Math.min(1, Math.max(0, ratio));
+
+        // Base probabilities (low risk)
+        let p0 = 0.40, p1 = 0.25, p2 = 0.20, p3 = 0.10, p5 = 0.04, p10 = 0.01;
+        // Adjust: as ratio increases, shift probability mass to 0 and low multipliers
+        // Intensity factor: up to 0.6 extra loss probability when ratio = 1
+        let riskFactor = ratio * 0.6;
+        p0 += riskFactor;
+        // Reduce higher multipliers proportionally
+        let reduction = riskFactor / 5; // distribute reduction across non-zero
+        p1 = Math.max(0, p1 - reduction);
+        p2 = Math.max(0, p2 - reduction);
+        p3 = Math.max(0, p3 - reduction);
+        p5 = Math.max(0, p5 - reduction);
+        p10 = Math.max(0, p10 - reduction);
+        // Renormalize to sum to 1
+        let sum = p0 + p1 + p2 + p3 + p5 + p10;
+        p0 /= sum; p1 /= sum; p2 /= sum; p3 /= sum; p5 /= sum; p10 /= sum;
 
         const r = Math.random();
-        if (r < 0.40) return 0;
-        if (r < 0.65) return 1;
-        if (r < 0.85) return 2;
-        if (r < 0.95) return 3;
-        if (r < 0.99) return 5;
+        if (r < p0) return 0;
+        if (r < p0 + p1) return 1;
+        if (r < p0 + p1 + p2) return 2;
+        if (r < p0 + p1 + p2 + p3) return 3;
+        if (r < p0 + p1 + p2 + p3 + p5) return 5;
         return 10;
     }
 
@@ -395,9 +528,9 @@
         document.getElementById("coins").innerText = coins;
     }
 
-    // ================= SPIN LOGIC (controlled multiplier + rotation) =================
+    // ================= SPIN LOGIC (risk-based multiplier + rotation) =================
     async function spin() {
-        if (spinning) return;
+        if (spinning || cooldown) return;
 
         const betInput = document.getElementById("bet");
         let bet = parseInt(betInput.value);
@@ -412,18 +545,22 @@
         }
 
         spinning = true;
+        const spinButton = document.getElementById("spinBtn");
+        spinButton.disabled = true;
 
         // --- Deduct bet locally (Firestore will be updated later) ---
         coins -= bet;
         updateCoinsUI();
 
-        // --- Determine multiplier (controlled) ---
-        const multiplier = getControlledMultiplier(bet);
+        // --- Determine multiplier using risk-based logic (depends on bet and total coins BEFORE bet) ---
+        // Use the original coins amount before deduction for realistic risk assessment
+        const originalCoins = coins + bet;
+        const multiplier = getRiskBasedMultiplier(bet, originalCoins);
         const winningIdx = segments.findIndex(s => s.value === multiplier);
         if (winningIdx === -1) {
-            // fallback (should never happen)
             console.error("Segment not found");
             spinning = false;
+            spinButton.disabled = false;
             return;
         }
 
@@ -474,7 +611,28 @@
             if (historyBox.children.length > 12) historyBox.removeChild(historyBox.lastChild);
 
             spinning = false;
+            // Start 3-second cooldown
+            startCooldown();
         }, 4100);
+    }
+
+    function startCooldown() {
+        cooldown = true;
+        const spinButton = document.getElementById("spinBtn");
+        const cooldownMsg = document.getElementById("cooldownMsg");
+        let remaining = 3;
+        cooldownMsg.innerText = `⏳ Wait ${remaining}s to spin again`;
+        cooldownTimer = setInterval(() => {
+            remaining--;
+            if (remaining <= 0) {
+                clearInterval(cooldownTimer);
+                cooldown = false;
+                cooldownMsg.innerText = "";
+                spinButton.disabled = false;
+            } else {
+                cooldownMsg.innerText = `⏳ Wait ${remaining}s to spin again`;
+            }
+        }, 1000);
     }
 
     // ================= FAKE PLAYER FEED =================
@@ -505,19 +663,36 @@
         let data = snap.data();
 
         if (!data || data.coins === undefined || data.coins === null) {
-            // New user: start with 0 coins, no freebies
             await setDoc(userRef, { coins: 0 }, { merge: true });
             coins = 0;
         } else {
             coins = data.coins;
         }
         updateCoinsUI();
+        // Hide loading overlay
+        const loader = document.getElementById("loadingOverlay");
+        loader.style.opacity = "0";
+        setTimeout(() => loader.style.display = "none", 500);
     });
 
     // ================= EVENT LISTENERS =================
     document.getElementById("spinBtn").addEventListener("click", spin);
     document.getElementById("topupBtn").addEventListener("click", () => {
         window.location.href = "topup.html";
+    });
+
+    // Rules modal
+    const modal = document.getElementById("rulesModal");
+    const ruleBtn = document.getElementById("ruleBtn");
+    const closeModal = document.querySelector(".close-modal");
+    ruleBtn.addEventListener("click", () => {
+        modal.style.display = "flex";
+    });
+    closeModal.addEventListener("click", () => {
+        modal.style.display = "none";
+    });
+    window.addEventListener("click", (e) => {
+        if (e.target === modal) modal.style.display = "none";
     });
 
     // ================= THEME SWITCH =================
