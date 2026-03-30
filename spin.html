@@ -2,13 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Galmet Wheel PRO | Dynamic Risk</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Galmet Wheel PRO | Dynamic Profit</title>
     <style>
         * {
             box-sizing: border-box;
             user-select: none;
-            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s;
         }
 
         :root {
@@ -58,6 +57,7 @@
             color: var(--text-primary);
         }
 
+        /* Loading overlay */
         .loading-overlay {
             position: fixed;
             top: 0;
@@ -91,13 +91,14 @@
             color: var(--accent);
         }
 
+        /* Top bar */
         .topbar {
             background: var(--topbar-bg);
-            padding: 14px 20px;
+            padding: 12px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: bold;
             border-bottom: 2px solid var(--accent);
             box-shadow: var(--shadow);
@@ -107,191 +108,178 @@
             border-radius: 0 0 24px 24px;
             color: var(--topbar-text);
         }
-
-        .rule-btn {
+        .topbar-left, .topbar-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .icon-btn {
             background: none;
-            border: none;
-            font-size: 1.4rem;
-            cursor: pointer;
-            color: var(--topbar-text);
-            padding: 0 8px;
-            margin: 0;
-            box-shadow: none;
-        }
-        .rule-btn:active {
-            transform: none;
-        }
-
-        .theme-toggle {
-            background: var(--accent);
             border: none;
             font-size: 1.3rem;
             cursor: pointer;
-            border-radius: 40px;
-            padding: 5px 12px;
-            font-weight: bold;
-            color: #1e293b;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-            transition: 0.2s;
+            color: inherit;
+            padding: 0;
+            margin: 0;
+            box-shadow: none;
         }
-        .theme-toggle:active {
+        .icon-btn:active {
             transform: scale(0.95);
         }
 
+        /* Wheel */
         .wheel-container {
-            width: 300px;
-            height: 300px;
-            margin: 30px auto 15px;
+            width: min(280px, 80vw);
+            height: min(280px, 80vw);
+            margin: 20px auto;
             position: relative;
-            filter: drop-shadow(var(--shadow));
         }
-
         #wheelCanvas {
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            box-shadow: 0 0 0 8px var(--bg-secondary), 0 0 0 14px var(--accent), 0 18px 32px black;
+            box-shadow: 0 0 0 6px var(--bg-secondary), 0 0 0 12px var(--accent), 0 12px 24px black;
             transition: transform 4s cubic-bezier(0.2, 0.9, 0.3, 1.1);
         }
-
         #pointer {
             position: absolute;
-            top: -26px;
+            top: -20px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 48px;
-            filter: drop-shadow(0 4px 6px black);
+            font-size: 40px;
+            filter: drop-shadow(0 2px 4px black);
             z-index: 12;
             color: #ffdd77;
-            text-shadow: 0 0 4px black;
         }
 
+        /* Bet panel */
         .bet-panel {
             background: var(--card-bg);
             backdrop-filter: blur(8px);
-            padding: 12px 20px;
+            padding: 8px 16px;
             border-radius: 60px;
             display: inline-flex;
-            gap: 16px;
+            gap: 12px;
             align-items: baseline;
             margin: 15px auto;
             border: 1px solid var(--accent);
         }
-
         .bet-panel label {
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
         }
-
         input {
             background: var(--bg-secondary);
             border: 1px solid var(--border-light);
             color: var(--text-primary);
-            padding: 10px 16px;
-            font-size: 1.2rem;
-            width: 110px;
+            padding: 8px 12px;
+            font-size: 1rem;
+            width: 90px;
             border-radius: 40px;
             text-align: center;
             font-weight: bold;
-            font-family: monospace;
         }
 
+        /* Buttons */
         button {
-            padding: 12px 28px;
-            font-size: 1.2rem;
+            padding: 10px 24px;
+            font-size: 1.1rem;
             font-weight: bold;
             border: none;
             border-radius: 60px;
-            margin: 8px 12px;
+            margin: 6px 8px;
             cursor: pointer;
             transition: 0.2s;
-            box-shadow: 0 5px 0 rgba(0,0,0,0.2);
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
             color: white;
         }
-
         button:active {
             transform: translateY(2px);
-            box-shadow: 0 2px 0 rgba(0,0,0,0.2);
+            box-shadow: 0 1px 0 rgba(0,0,0,0.2);
         }
-
         button:disabled {
             opacity: 0.6;
             transform: none;
             cursor: not-allowed;
         }
-
         .spinBtn {
             background: var(--button-spin);
         }
-
         .topupBtn {
             background: var(--button-topup);
         }
 
+        /* Result area */
         .result-area {
             background: var(--card-bg);
             backdrop-filter: blur(8px);
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: bold;
-            padding: 10px 24px;
+            padding: 8px 20px;
             border-radius: 60px;
             display: inline-block;
             margin: 12px auto;
-            border-left: 6px solid var(--accent);
-            border-right: 6px solid var(--accent);
+            border-left: 5px solid var(--accent);
+            border-right: 5px solid var(--accent);
+            transition: all 0.3s;
+        }
+        .win-animation {
+            animation: flash 0.5s ease-in-out 2;
+        }
+        @keyframes flash {
+            0% { background: rgba(255,193,7,0.2); transform: scale(1); }
+            50% { background: rgba(255,193,7,0.6); transform: scale(1.05); }
+            100% { background: transparent; transform: scale(1); }
         }
 
+        /* Info boxes */
         .info-box {
             background: var(--card-bg);
             backdrop-filter: blur(4px);
             border-radius: 28px;
-            padding: 10px 16px;
-            margin: 15px auto;
+            padding: 8px 12px;
+            margin: 12px auto;
             width: 90%;
             max-width: 480px;
             text-align: left;
             border: 1px solid var(--accent);
         }
-
         .info-box h4 {
-            margin: 0 0 8px 0;
+            margin: 0 0 6px 0;
             color: var(--accent);
             text-align: center;
+            font-size: 1rem;
         }
-
         .history-scroll, .players-scroll {
-            max-height: 85px;
+            max-height: 70px;
             overflow-y: auto;
             font-family: monospace;
-            font-size: 0.9rem;
-            padding: 5px;
+            font-size: 0.8rem;
+            padding: 4px;
             display: flex;
             flex-wrap: wrap;
-            gap: 6px;
+            gap: 5px;
         }
-
         .history-scroll span, .players-scroll span {
             background: var(--bg-secondary);
-            padding: 4px 12px;
+            padding: 2px 8px;
             border-radius: 20px;
-            color: var(--text-primary);
             border-left: 3px solid var(--accent);
         }
 
-        footer {
-            font-size: 11px;
-            opacity: 0.7;
-            margin: 20px 0 10px;
-            color: var(--text-secondary);
-        }
-
         .cooldown-timer {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             margin-top: 5px;
             color: var(--accent);
         }
 
-        /* Modal */
+        footer {
+            font-size: 10px;
+            opacity: 0.6;
+            margin: 15px 0 10px;
+        }
+
+        /* Modals */
         .modal {
             display: none;
             position: fixed;
@@ -306,10 +294,12 @@
         }
         .modal-content {
             background: var(--bg-secondary);
-            padding: 24px;
+            padding: 20px;
             border-radius: 28px;
             max-width: 400px;
             width: 85%;
+            max-height: 80vh;
+            overflow-y: auto;
             border: 2px solid var(--accent);
             color: var(--text-primary);
         }
@@ -317,17 +307,20 @@
             margin-top: 0;
             color: var(--accent);
         }
-        .modal-content p {
-            line-height: 1.5;
-        }
         .close-modal {
             background: var(--accent);
-            margin-top: 20px;
-            padding: 8px 20px;
-            border: none;
-            border-radius: 40px;
-            cursor: pointer;
-            font-weight: bold;
+            margin-top: 15px;
+            padding: 6px 16px;
+        }
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        .history-item {
+            border-bottom: 1px solid var(--border-light);
+            padding: 6px;
+            font-size: 0.85rem;
         }
     </style>
 </head>
@@ -339,11 +332,14 @@
 </div>
 
 <div class="topbar">
-    <div>🎡 GALMET WHEEL</div>
-    <div>💰 COINS: <span id="coins">0</span></div>
-    <div style="display: flex; gap: 8px;">
-        <button class="rule-btn" id="ruleBtn">📜</button>
-        <button class="theme-toggle" id="themeToggle">🌓</button>
+    <div class="topbar-left">
+        <span>🎡 GALMET</span>
+        <button class="icon-btn" id="ruleBtn" aria-label="Rules">📜</button>
+        <button class="icon-btn" id="historyModalBtn" aria-label="History">📋</button>
+    </div>
+    <div class="topbar-right">
+        <span>💰 <span id="coins">0</span></span>
+        <button class="icon-btn" id="themeToggle">🌓</button>
     </div>
 </div>
 
@@ -371,23 +367,34 @@
 </div>
 
 <div class="info-box">
-    <h4>🎲 LIVE FEED (players)</h4>
-    <div id="players" class="players-scroll">⚡ waiting for action...</div>
+    <h4>🎲 LIVE FEED</h4>
+    <div id="players" class="players-scroll">⚡ waiting...</div>
 </div>
-<footer>⚡ fair spin · pointer decides reward ⚡</footer>
+<footer>⚡ fair spin · house edge ~10% ⚡</footer>
 
 <!-- Rules Modal -->
 <div id="rulesModal" class="modal">
     <div class="modal-content">
         <h3>🎡 How to Play</h3>
-        <p>1. Enter your bet amount (minimum 10 coins).<br>
-        2. Click SPIN and watch the wheel turn.<br>
-        3. The pointer decides your multiplier (0x, 1x, 2x, 3x, 5x, 10x).<br>
-        4. Win = bet × multiplier (if multiplier > 0).<br>
-        5. After each spin, wait 3 seconds before next spin.<br>
-        6. Top up coins when needed via the TOP UP button.</p>
-        <p style="font-size:0.9rem; margin-top:10px;">🎲 The wheel uses a fair random system. Good luck!</p>
-        <button class="close-modal">Got it!</button>
+        <p>1. Enter your bet (min 10 coins).<br>
+        2. Click SPIN – the wheel stops after 4 seconds.<br>
+        3. The pointer shows your multiplier (0x–10x).<br>
+        4. Win = bet × multiplier (0x loses the bet).<br>
+        5. Wait 3 seconds between spins.<br>
+        6. Top up using the button if you run out of coins.</p>
+        <p style="font-size:0.85rem;">🎲 The wheel is fair and random. Good luck!</p>
+        <button class="close-modal">Got it</button>
+    </div>
+</div>
+
+<!-- History Modal -->
+<div id="historyModal" class="modal">
+    <div class="modal-content">
+        <h3>📋 Spin History</h3>
+        <div id="historyList" class="history-list">
+            <p style="text-align:center;">Loading...</p>
+        </div>
+        <button class="close-modal">Close</button>
     </div>
 </div>
 
@@ -395,7 +402,7 @@
     // ================= FIREBASE =================
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, updateDoc, setDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
@@ -414,7 +421,7 @@
     let cooldownTimer = null;
     let spinTimeout = null;
 
-    // ================= WHEEL SEGMENTS (6 segments, no 50x) =================
+    // ================= WHEEL (6 segments) =================
     const segments = [
         { value: 0, color: "#e34d4d" },
         { value: 1, color: "#f4b942" },
@@ -424,204 +431,170 @@
         { value: 10, color: "#aa6dc9" }
     ];
     const SEGMENT_COUNT = segments.length;
-    const ANGLE_PER_SEGMENT = 360 / SEGMENT_COUNT; // 60°
-    const POINTER_ANGLE = 270; // pointer at top
+    const ANGLE_PER_SEGMENT = 360 / SEGMENT_COUNT;
+    const POINTER_ANGLE = 270;
 
     const canvas = document.getElementById("wheelCanvas");
     const ctx = canvas.getContext("2d");
-    const size = 300;
-    canvas.width = size;
-    canvas.height = size;
+    let canvasSize = 300;
+    function resizeCanvas() {
+        const container = document.querySelector('.wheel-container');
+        const size = container.clientWidth;
+        canvas.width = size;
+        canvas.height = size;
+        canvasSize = size;
+        drawWheel();
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
 
-    // ================= DRAW WHEEL =================
     function drawWheel() {
-        const centerX = size / 2;
-        const centerY = size / 2;
-        const radius = size / 2;
-
-        for (let i = 0; i < SEGMENT_COUNT; i++) {
-            const start = i * (Math.PI * 2 / SEGMENT_COUNT);
-            const end = start + (Math.PI * 2 / SEGMENT_COUNT);
-
+        const center = canvasSize/2;
+        const radius = canvasSize/2;
+        ctx.clearRect(0,0,canvasSize,canvasSize);
+        for (let i=0; i<SEGMENT_COUNT; i++) {
+            const start = i * 2*Math.PI/SEGMENT_COUNT;
+            const end = start + 2*Math.PI/SEGMENT_COUNT;
             ctx.beginPath();
-            ctx.moveTo(centerX, centerY);
-            ctx.arc(centerX, centerY, radius, start, end);
-            ctx.closePath();
+            ctx.moveTo(center,center);
+            ctx.arc(center,center,radius,start,end);
             ctx.fillStyle = segments[i].color;
             ctx.fill();
             ctx.strokeStyle = "#ffdd99";
-            ctx.lineWidth = 1.5;
             ctx.stroke();
-
             ctx.save();
-            ctx.translate(centerX, centerY);
-            const midAngle = start + (Math.PI / SEGMENT_COUNT);
-            const textRadius = radius * 0.7;
-            const x = Math.cos(midAngle) * textRadius;
-            const y = Math.sin(midAngle) * textRadius;
-            ctx.translate(x, y);
-            ctx.rotate(midAngle + Math.PI / 2);
-            ctx.font = "bold 18px 'Segoe UI', system-ui";
+            ctx.translate(center,center);
+            const mid = start + Math.PI/SEGMENT_COUNT;
+            const tx = Math.cos(mid)*radius*0.7;
+            const ty = Math.sin(mid)*radius*0.7;
+            ctx.translate(tx,ty);
+            ctx.rotate(mid + Math.PI/2);
+            ctx.font = `bold ${Math.max(14, canvasSize/20)}px "Segoe UI"`;
             ctx.fillStyle = "white";
-            ctx.shadowBlur = 0;
-            ctx.fillText(segments[i].value + "x", -12, 6);
+            ctx.fillText(segments[i].value+"x", -12, 6);
             ctx.restore();
         }
-
         ctx.beginPath();
-        ctx.arc(centerX, centerY, 28, 0, 2 * Math.PI);
+        ctx.arc(center,center, canvasSize*0.09, 0, 2*Math.PI);
         ctx.fillStyle = "#ffcf40";
         ctx.fill();
         ctx.beginPath();
-        ctx.arc(centerX, centerY, 18, 0, 2 * Math.PI);
+        ctx.arc(center,center, canvasSize*0.06, 0, 2*Math.PI);
         ctx.fillStyle = "#2c2e4e";
         ctx.fill();
         ctx.fillStyle = "gold";
-        ctx.font = "bold 20px monospace";
-        ctx.fillText("★", centerX - 8, centerY + 8);
+        ctx.font = `bold ${canvasSize/12}px monospace`;
+        ctx.fillText("★", center-8, center+8);
     }
-    drawWheel();
 
-    // ================= DYNAMIC MULTIPLIER (based purely on bet/coins ratio) =================
-    // loss probability = 0.2 + ratio*0.3, capped at 0.6
-    // remaining probability distributed among other multipliers (higher multipliers get lower chance)
+    // ================= PROFIT-FOCUSED DYNAMIC MULTIPLIER =================
+    // Expected return ~90% (house edge 10%) overall.
+    // Probabilities: lose 0x ~25% base, win 1x ~35%, 2x ~20%, 3x ~12%, 5x ~6%, 10x ~2%.
+    // But we adjust based on bet/totalCoins ratio: higher bet -> higher loss chance, lower win multipliers.
     function getDynamicMultiplier(bet, totalCoins) {
-        let ratio = bet / totalCoins;
-        ratio = Math.min(1, Math.max(0, ratio));
-        let lossProb = 0.2 + ratio * 0.3;
-        lossProb = Math.min(0.6, lossProb); // never more than 60% loss
-
-        // Remaining probability mass for wins (1x,2x,3x,5x,10x)
-        let winProb = 1 - lossProb;
-
-        // Distribute win probability among the 5 win segments: higher multipliers get smaller share
-        // We'll assign weights: 1x: 0.35, 2x: 0.25, 3x: 0.18, 5x: 0.12, 10x: 0.10
-        const winWeights = [0.35, 0.25, 0.18, 0.12, 0.10];
-        let totalWeight = winWeights.reduce((a,b) => a+b, 0);
-        let normalizedWeights = winWeights.map(w => w / totalWeight); // sum = 1
-        let winCumulative = 0;
-        for (let i = 0; i < normalizedWeights.length; i++) {
-            winCumulative += normalizedWeights[i] * winProb;
-            normalizedWeights[i] = winCumulative;
+        let ratio = Math.min(1, Math.max(0, bet / totalCoins));
+        // Base loss prob 0.25, increase up to 0.55 if ratio=1
+        let lossProb = 0.25 + ratio * 0.3;
+        // Win probabilities for 1,2,3,5,10 (base)
+        let winProbs = [0.35, 0.20, 0.12, 0.06, 0.02];
+        // Adjust win probs down if ratio high, shifting mass to lower multipliers
+        if (ratio > 0.5) {
+            let shift = (ratio - 0.5) * 0.5;
+            winProbs[0] = Math.min(0.45, winProbs[0] + shift*0.2);
+            winProbs[1] = Math.max(0.12, winProbs[1] - shift*0.05);
+            winProbs[2] = Math.max(0.06, winProbs[2] - shift*0.03);
+            winProbs[3] = Math.max(0.02, winProbs[3] - shift*0.02);
+            winProbs[4] = Math.max(0.005, winProbs[4] - shift*0.01);
         }
-
+        // Normalize winProbs to sum to (1-lossProb)
+        let totalWin = winProbs.reduce((a,b)=>a+b,0);
+        let scale = (1-lossProb) / totalWin;
+        winProbs = winProbs.map(p => p * scale);
+        // Build cumulative distribution
+        let cum = 0;
+        let thresholds = [lossProb];
+        for (let p of winProbs) {
+            cum += p;
+            thresholds.push(lossProb + cum);
+        }
         const r = Math.random();
-        if (r < lossProb) return 0;
-
-        // find which win segment
-        for (let i = 0; i < normalizedWeights.length; i++) {
-            if (r < lossProb + normalizedWeights[i]) {
-                // map to multipliers: 1,2,3,5,10
-                const multipliers = [1,2,3,5,10];
-                return multipliers[i];
-            }
+        if (r < thresholds[0]) return 0;
+        for (let i=0; i<5; i++) {
+            if (r < thresholds[i+1]) return [1,2,3,5,10][i];
         }
         return 1; // fallback
     }
 
     // ================= COINS (Firebase) =================
     async function updateCoinsInFirestore() {
-        if (userRef) {
-            await updateDoc(userRef, { coins: coins });
-        }
+        if (userRef) await updateDoc(userRef, { coins });
     }
 
     function updateCoinsUI() {
         document.getElementById("coins").innerText = coins;
     }
 
-    // ================= PERSISTENCE =================
-    function saveSpinState(bet, multiplier, startTime) {
-        const state = {
-            bet,
-            multiplier,
-            startTime,
-            spinning: true
-        };
+    // ================= SPIN PERSISTENCE =================
+    function saveSpinState(bet, multiplier, startTime, rotationDeg) {
+        const state = { bet, multiplier, startTime, rotationDeg, spinning: true };
         localStorage.setItem("pendingSpin", JSON.stringify(state));
     }
-
     function clearSpinState() {
         localStorage.removeItem("pendingSpin");
     }
-
     function getPendingSpin() {
         const raw = localStorage.getItem("pendingSpin");
-        if (!raw) return null;
-        try {
-            return JSON.parse(raw);
-        } catch(e) { return null; }
+        return raw ? JSON.parse(raw) : null;
     }
 
-    // ================= RESUME SPIN IF PAGE REFRESHED DURING SPIN =================
-    async function resumeSpinIfNeeded() {
-        const pending = getPendingSpin();
-        if (!pending) return;
-        const { bet, multiplier, startTime } = pending;
-        const elapsed = Date.now() - startTime;
-        const totalDuration = 4100; // matches spin timeout
-        if (elapsed >= totalDuration) {
-            // spin already finished, just show result
-            const winAmount = bet * multiplier;
-            const resultDiv = document.getElementById("result");
-            if (multiplier === 0) {
-                resultDiv.innerHTML = `💀 LOST ${bet} coins · 0x 💀`;
-            } else {
-                resultDiv.innerHTML = `🎉 YOU WON ${winAmount} COINS (${multiplier}x) 🎉`;
-            }
-            clearSpinState();
+    // ================= ADD WIN TO HISTORY (Firestore) =================
+    async function addToHistory(multiplier, bet, winAmount) {
+        if (!userRef) return;
+        const entry = {
+            timestamp: Date.now(),
+            multiplier,
+            bet,
+            winAmount,
+            netChange: winAmount - bet,
+        };
+        await updateDoc(userRef, {
+            history: arrayUnion(entry)
+        });
+    }
+
+    // ================= LOAD HISTORY MODAL =================
+    async function loadHistoryModal() {
+        if (!userRef) return;
+        const snap = await getDoc(userRef);
+        const data = snap.data();
+        const history = data?.history || [];
+        const container = document.getElementById("historyList");
+        if (!history.length) {
+            container.innerHTML = "<p>No spins yet. Start playing!</p>";
             return;
         }
-        // resume: set the wheel to the same rotation we would have used
-        const winningIdx = segments.findIndex(s => s.value === multiplier);
-        const segmentCenter = winningIdx * ANGLE_PER_SEGMENT + ANGLE_PER_SEGMENT / 2;
-        let targetRotation = (POINTER_ANGLE - segmentCenter) % 360;
-        if (targetRotation < 0) targetRotation += 360;
-        const fullSpins = 360 * 5;
-        const totalRotation = fullSpins + targetRotation;
-        canvas.style.transition = "none";
-        canvas.style.transform = "rotate(0deg)";
-        void canvas.offsetHeight;
-        canvas.style.transition = "transform 4s cubic-bezier(0.22, 0.98, 0.35, 1.05)";
-        canvas.style.transform = `rotate(${totalRotation}deg)`;
-
-        // Show result after remaining time
-        const remaining = totalDuration - elapsed;
-        spinTimeout = setTimeout(async () => {
-            // coins should already reflect deduction and win from previous session? 
-            // But we need to ensure coins are correct. Since we already deducted and added coins on spin start,
-            // but if page reloaded before that, the database might not have been updated.
-            // To be safe, we re-run the result logic, but we need the current coins state from Firebase.
-            // For simplicity, we assume that the deduction and addition already happened when spin started,
-            // but since page reloaded before timeout, the database might not have the final coins.
-            // We'll recompute based on stored multiplier and bet.
-            const snap = await getDoc(userRef);
-            let data = snap.data();
-            let currentCoins = data?.coins || 0;
-            // Bet was already deducted? We can't know, so we need to simulate the same process.
-            // Actually, when spin started, we deducted bet locally and saved pending. But after refresh, coins are reloaded from Firebase,
-            // which still has the old amount (because we didn't update yet). So we need to apply the deduction again? That would double deduct.
-            // To avoid complexity, we can store the final coin result in the pending state, so after resume we can just set coins.
-            // But we didn't store that. Let's enhance: store final coins after spin.
-            // For now, we'll just alert user and clear spin.
-            alert("Your previous spin was interrupted. Please check your coins.");
-            clearSpinState();
-            location.reload();
-        }, remaining);
+        container.innerHTML = "";
+        history.slice().reverse().forEach(entry => {
+            const date = new Date(entry.timestamp).toLocaleString();
+            const div = document.createElement("div");
+            div.className = "history-item";
+            div.innerHTML = `<strong>${entry.multiplier}x</strong> | Bet: ${entry.bet} | Win: ${entry.winAmount} | ${date}`;
+            container.appendChild(div);
+        });
     }
 
-    // ================= SPIN LOGIC =================
+    // ================= SPIN EXECUTION =================
     async function spin() {
         if (spinning || cooldown) return;
 
         const betInput = document.getElementById("bet");
         let bet = parseInt(betInput.value);
         if (isNaN(bet) || bet < 10) {
-            alert("Minimum bet is 10");
+            alert("Minimum bet 10");
             return;
         }
         if (bet > coins) {
-            alert("❌ Insufficient coins! Please top up to continue playing.");
+            alert("❌ Insufficient coins! Please top up.");
             window.location.href = "topup.html";
             return;
         }
@@ -630,42 +603,41 @@
         const spinButton = document.getElementById("spinBtn");
         spinButton.disabled = true;
 
-        // Save current bet to localStorage
+        // Save current bet
         localStorage.setItem("lastBet", bet);
 
-        // Deduct bet locally
+        // Deduct bet
         coins -= bet;
         updateCoinsUI();
 
-        // Determine multiplier using dynamic logic
+        // Get multiplier based on current coins (after deduction? but we need original for ratio)
         const originalCoins = coins + bet;
         const multiplier = getDynamicMultiplier(bet, originalCoins);
         const winningIdx = segments.findIndex(s => s.value === multiplier);
         if (winningIdx === -1) {
-            console.error("Segment not found");
             spinning = false;
             spinButton.disabled = false;
             return;
         }
 
-        // Save spin state for persistence
-        saveSpinState(bet, multiplier, Date.now());
-
-        // Calculate rotation
-        const segmentCenter = winningIdx * ANGLE_PER_SEGMENT + ANGLE_PER_SEGMENT / 2;
+        // Calculate target rotation
+        const segmentCenter = winningIdx * ANGLE_PER_SEGMENT + ANGLE_PER_SEGMENT/2;
         let targetRotation = (POINTER_ANGLE - segmentCenter) % 360;
         if (targetRotation < 0) targetRotation += 360;
         const fullSpins = 360 * 5;
         const totalRotation = fullSpins + targetRotation;
 
+        // Save state for recovery
+        saveSpinState(bet, multiplier, Date.now(), totalRotation);
+
         // Animate
         canvas.style.transition = "none";
         canvas.style.transform = "rotate(0deg)";
         void canvas.offsetHeight;
-        canvas.style.transition = "transform 4s cubic-bezier(0.22, 0.98, 0.35, 1.05)";
+        canvas.style.transition = "transform 4s cubic-bezier(0.2,0.9,0.3,1.1)";
         canvas.style.transform = `rotate(${totalRotation}deg)`;
 
-        // After spin ends
+        // Wait for animation
         spinTimeout = setTimeout(async () => {
             const winAmount = bet * multiplier;
             if (multiplier > 0) {
@@ -674,14 +646,21 @@
             await updateCoinsInFirestore();
             updateCoinsUI();
 
+            // Add to history in Firebase
+            await addToHistory(multiplier, bet, winAmount);
+
+            // Update UI result
             const resultDiv = document.getElementById("result");
             if (multiplier === 0) {
                 resultDiv.innerHTML = `💀 LOST ${bet} coins · 0x 💀`;
+                resultDiv.classList.remove("win-animation");
             } else {
                 resultDiv.innerHTML = `🎉 YOU WON ${winAmount} COINS (${multiplier}x) 🎉`;
+                resultDiv.classList.add("win-animation");
+                setTimeout(() => resultDiv.classList.remove("win-animation"), 1000);
             }
 
-            // Add to history
+            // Update recent wins box
             const historyBox = document.getElementById("history");
             const newEntry = document.createElement("span");
             newEntry.textContent = multiplier === 0 ? `💀 0x (lost ${bet})` : `🏆 ${multiplier}x +${winAmount}`;
@@ -697,38 +676,82 @@
 
     function startCooldown() {
         cooldown = true;
-        const spinButton = document.getElementById("spinBtn");
-        const cooldownMsg = document.getElementById("cooldownMsg");
+        const spinBtn = document.getElementById("spinBtn");
+        const msg = document.getElementById("cooldownMsg");
         let remaining = 3;
-        cooldownMsg.innerText = `⏳ Wait ${remaining}s to spin again`;
+        msg.innerText = `⏳ Wait ${remaining}s`;
         cooldownTimer = setInterval(() => {
             remaining--;
             if (remaining <= 0) {
                 clearInterval(cooldownTimer);
                 cooldown = false;
-                cooldownMsg.innerText = "";
-                spinButton.disabled = false;
+                msg.innerText = "";
+                if (!spinning) spinBtn.disabled = false;
             } else {
-                cooldownMsg.innerText = `⏳ Wait ${remaining}s to spin again`;
+                msg.innerText = `⏳ Wait ${remaining}s`;
             }
         }, 1000);
     }
 
-    // ================= FAKE PLAYER FEED =================
-    function updateFakePlayers() {
-        const fakeNames = ["Kai 🔥", "Alex ⚡", "Lee 🎯", "Sam 💎", "Sara 🌟", "John 🃏", "Mia 🎲", "Zane 🧧"];
-        const randomName = fakeNames[Math.floor(Math.random() * fakeNames.length)];
-        const possibleValues = [0, 1, 2, 3, 5, 10];
-        const randomMult = possibleValues[Math.floor(Math.random() * possibleValues.length)];
-        const winText = randomMult === 0 ? `lost 😵` : `won ${randomMult}x 🎉`;
-        const playersBox = document.getElementById("players");
-        const newFeed = document.createElement("span");
-        newFeed.textContent = `${randomName} ${winText}`;
-        if (playersBox.innerHTML === "⚡ waiting for action...") playersBox.innerHTML = "";
-        playersBox.prepend(newFeed);
-        if (playersBox.children.length > 8) playersBox.removeChild(playersBox.lastChild);
+    // ================= RESUME SPIN ON PAGE RELOAD =================
+    async function resumeSpin() {
+        const pending = getPendingSpin();
+        if (!pending) return;
+        const { bet, multiplier, startTime, rotationDeg } = pending;
+        const elapsed = Date.now() - startTime;
+        const totalDuration = 4100;
+        if (elapsed >= totalDuration) {
+            // Spin already finished, just clean up
+            clearSpinState();
+            return;
+        }
+        // Restore wheel rotation
+        canvas.style.transition = "none";
+        canvas.style.transform = `rotate(${rotationDeg}deg)`;
+        // Wait remaining time to show result
+        const remaining = totalDuration - elapsed;
+        spinTimeout = setTimeout(async () => {
+            const winAmount = bet * multiplier;
+            // We need to know if the deduction already happened. Since we load coins from Firebase,
+            // we need to apply the result again? Actually the deduction was done when spin started,
+            // but after reload we have the original coin amount from Firebase (since we didn't update yet).
+            // So we must apply the deduction now, then add win. To avoid double-deduction, we'll rely
+            // on the fact that after reload, coins are the pre-spin amount. So we deduct and add.
+            const snap = await getDoc(userRef);
+            let data = snap.data();
+            let currentCoins = data?.coins || 0;
+            if (currentCoins >= bet) {
+                // Deduct bet
+                currentCoins -= bet;
+                if (multiplier > 0) currentCoins += bet * multiplier;
+                coins = currentCoins;
+                await updateCoinsInFirestore();
+                updateCoinsUI();
+            } else {
+                // Something wrong, just alert
+                alert("Previous spin could not be completed. Please check your balance.");
+            }
+            clearSpinState();
+            // Refresh page to reset UI state
+            location.reload();
+        }, remaining);
     }
-    setInterval(updateFakePlayers, 2500);
+
+    // ================= FAKE LIVE FEED =================
+    function updateFakePlayers() {
+        const names = ["Kai🔥","Alex⚡","Lee🎯","Sam💎","Sara🌟","John🃏","Mia🎲","Zane🧧"];
+        const name = names[Math.floor(Math.random()*names.length)];
+        const mults = [0,1,2,3,5,10];
+        const m = mults[Math.floor(Math.random()*mults.length)];
+        const text = m===0 ? `${name} lost 😵` : `${name} won ${m}x 🎉`;
+        const box = document.getElementById("players");
+        const span = document.createElement("span");
+        span.textContent = text;
+        if (box.innerHTML === "⚡ waiting...") box.innerHTML = "";
+        box.prepend(span);
+        if (box.children.length > 8) box.removeChild(box.lastChild);
+    }
+    setInterval(updateFakePlayers, 3000);
 
     // ================= AUTH & INIT =================
     onAuthStateChanged(auth, async (user) => {
@@ -736,29 +759,24 @@
             window.location.href = "index.html";
             return;
         }
-
         userRef = doc(db, "users", user.uid);
         const snap = await getDoc(userRef);
         let data = snap.data();
-
-        if (!data || data.coins === undefined || data.coins === null) {
-            await setDoc(userRef, { coins: 0 }, { merge: true });
+        if (!data || data.coins === undefined) {
+            await setDoc(userRef, { coins: 0, history: [] }, { merge: true });
             coins = 0;
         } else {
             coins = data.coins;
         }
         updateCoinsUI();
 
-        // Restore bet value from localStorage
+        // Restore last bet
         const savedBet = localStorage.getItem("lastBet");
-        if (savedBet) {
-            document.getElementById("bet").value = savedBet;
-        }
+        if (savedBet) document.getElementById("bet").value = savedBet;
 
-        // Resume spin if needed (must happen after coins loaded)
-        await resumeSpinIfNeeded();
+        // Resume any pending spin
+        await resumeSpin();
 
-        // Hide loading overlay
         const loader = document.getElementById("loadingOverlay");
         loader.style.opacity = "0";
         setTimeout(() => loader.style.display = "none", 500);
@@ -766,43 +784,35 @@
 
     // ================= EVENT LISTENERS =================
     document.getElementById("spinBtn").addEventListener("click", spin);
-    document.getElementById("topupBtn").addEventListener("click", () => {
-        window.location.href = "topup.html";
-    });
+    document.getElementById("topupBtn").addEventListener("click", () => window.location.href = "topup.html");
+    document.getElementById("bet").addEventListener("input", (e) => localStorage.setItem("lastBet", e.target.value));
 
-    // Save bet on input change
-    document.getElementById("bet").addEventListener("input", (e) => {
-        localStorage.setItem("lastBet", e.target.value);
+    // Modals
+    const ruleModal = document.getElementById("rulesModal");
+    const historyModal = document.getElementById("historyModal");
+    document.getElementById("ruleBtn").onclick = () => ruleModal.style.display = "flex";
+    document.getElementById("historyModalBtn").onclick = async () => {
+        await loadHistoryModal();
+        historyModal.style.display = "flex";
+    };
+    document.querySelectorAll(".close-modal").forEach(btn => {
+        btn.onclick = () => {
+            ruleModal.style.display = "none";
+            historyModal.style.display = "none";
+        };
     });
+    window.onclick = (e) => {
+        if (e.target === ruleModal) ruleModal.style.display = "none";
+        if (e.target === historyModal) historyModal.style.display = "none";
+    };
 
-    // Rules modal
-    const modal = document.getElementById("rulesModal");
-    const ruleBtn = document.getElementById("ruleBtn");
-    const closeModal = document.querySelector(".close-modal");
-    ruleBtn.addEventListener("click", () => {
-        modal.style.display = "flex";
-    });
-    closeModal.addEventListener("click", () => {
-        modal.style.display = "none";
-    });
-    window.addEventListener("click", (e) => {
-        if (e.target === modal) modal.style.display = "none";
-    });
-
-    // Theme switcher
+    // Theme
     const themeToggle = document.getElementById("themeToggle");
     themeToggle.addEventListener("click", () => {
         document.body.classList.toggle("dark");
-        const isDark = document.body.classList.contains("dark");
-        localStorage.setItem("galmetTheme", isDark ? "dark" : "light");
+        localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
     });
-    const savedTheme = localStorage.getItem("galmetTheme");
-    if (savedTheme === "dark") document.body.classList.add("dark");
-
-    window.addEventListener("load", () => {
-        canvas.style.transform = "rotate(0deg)";
-        drawWheel();
-    });
+    if (localStorage.getItem("theme") === "dark") document.body.classList.add("dark");
 </script>
 </body>
 </html>
