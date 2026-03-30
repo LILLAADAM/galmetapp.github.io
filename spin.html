@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Galmet Wheel PRO | Real Risk</title>
+    <title>Galmet Wheel PRO | 50x & Risk Modes</title>
     <style>
         * {
             box-sizing: border-box;
@@ -58,7 +58,6 @@
             color: var(--text-primary);
         }
 
-        /* Loading overlay */
         .loading-overlay {
             position: fixed;
             top: 0;
@@ -135,7 +134,6 @@
             box-shadow: 0 2px 6px rgba(0,0,0,0.2);
             transition: 0.2s;
         }
-
         .theme-toggle:active {
             transform: scale(0.95);
         }
@@ -287,6 +285,12 @@
             color: var(--text-secondary);
         }
 
+        .cooldown-timer {
+            font-size: 0.8rem;
+            margin-top: 5px;
+            color: var(--accent);
+        }
+
         /* Modal */
         .modal {
             display: none;
@@ -324,12 +328,6 @@
             border-radius: 40px;
             cursor: pointer;
             font-weight: bold;
-        }
-
-        .cooldown-timer {
-            font-size: 0.8rem;
-            margin-top: 5px;
-            color: var(--accent);
         }
     </style>
 </head>
@@ -384,11 +382,11 @@
         <h3>🎡 How to Play</h3>
         <p>1. Enter your bet amount (minimum 10 coins).<br>
         2. Click SPIN and watch the wheel turn.<br>
-        3. The pointer decides your multiplier (0x to 10x).<br>
+        3. The pointer decides your multiplier (0x, 1x, 2x, 3x, 5x, 10x or 50x).<br>
         4. Win = bet × multiplier (if multiplier > 0).<br>
         5. After each spin, wait 3 seconds before next spin.<br>
         6. Top up coins when needed via the TOP UP button.</p>
-        <p style="font-size:0.9rem; margin-top:10px;">🎲 The wheel is fair and uses a certified random system. Good luck!</p>
+        <p style="font-size:0.9rem; margin-top:10px;">🎲 The wheel uses a certified fair random system. Good luck!</p>
         <button class="close-modal">Got it!</button>
     </div>
 </div>
@@ -415,17 +413,18 @@
     let cooldown = false;
     let cooldownTimer = null;
 
-    // ================= WHEEL SEGMENTS =================
+    // ================= WHEEL SEGMENTS (now includes 50x) =================
     const segments = [
         { value: 0, color: "#e34d4d" },
         { value: 1, color: "#f4b942" },
         { value: 2, color: "#48b54a" },
         { value: 3, color: "#ff8833" },
         { value: 5, color: "#3b8bc0" },
-        { value: 10, color: "#aa6dc9" }
+        { value: 10, color: "#aa6dc9" },
+        { value: 50, color: "#f7d44a" }   // gold for 50x
     ];
     const SEGMENT_COUNT = segments.length;
-    const ANGLE_PER_SEGMENT = 360 / SEGMENT_COUNT; // 60°
+    const ANGLE_PER_SEGMENT = 360 / SEGMENT_COUNT; // ~51.4286°
     const POINTER_ANGLE = 270; // pointer at top
 
     const canvas = document.getElementById("wheelCanvas");
@@ -434,7 +433,7 @@
     canvas.width = size;
     canvas.height = size;
 
-    // ================= DRAW WHEEL =================
+    // ================= DRAW WHEEL (7 segments) =================
     function drawWheel() {
         const centerX = size / 2;
         const centerY = size / 2;
@@ -462,7 +461,7 @@
             const y = Math.sin(midAngle) * textRadius;
             ctx.translate(x, y);
             ctx.rotate(midAngle + Math.PI / 2);
-            ctx.font = "bold 18px 'Segoe UI', system-ui";
+            ctx.font = "bold 16px 'Segoe UI', system-ui";
             ctx.fillStyle = "white";
             ctx.shadowBlur = 0;
             ctx.fillText(segments[i].value + "x", -12, 6);
@@ -483,30 +482,41 @@
     }
     drawWheel();
 
-    // ================= DYNAMIC RISK-BASED MULTIPLIER =================
-    // Adjusts probabilities based on bet/totalCoins ratio.
-    // Higher ratio -> higher chance of losing.
-    function getRiskBasedMultiplier(bet, totalCoins) {
+    // ================= MULTIPLIER SELECTION LOGIC =================
+
+    // Normal mode (bet <= 1000) – balanced, includes rare 50x
+    function getNormalMultiplier() {
+        const r = Math.random();
+        // Probabilities (sum = 1)
+        // 0x: 0.20, 1x: 0.20, 2x: 0.18, 3x: 0.15, 5x: 0.12, 10x: 0.10, 50x: 0.05
+        if (r < 0.20) return 0;
+        if (r < 0.40) return 1;
+        if (r < 0.58) return 2;
+        if (r < 0.73) return 3;
+        if (r < 0.85) return 5;
+        if (r < 0.95) return 10;
+        return 50;
+    }
+
+    // High‑risk mode (bet > 1000) – risk increases with bet/coins ratio
+    function getRiskMultiplier(bet, totalCoins) {
         let ratio = bet / totalCoins;
-        // Clamp ratio between 0 and 1
         ratio = Math.min(1, Math.max(0, ratio));
 
-        // Base probabilities (low risk)
-        let p0 = 0.40, p1 = 0.25, p2 = 0.20, p3 = 0.10, p5 = 0.04, p10 = 0.01;
-        // Adjust: as ratio increases, shift probability mass to 0 and low multipliers
-        // Intensity factor: up to 0.6 extra loss probability when ratio = 1
-        let riskFactor = ratio * 0.6;
-        p0 += riskFactor;
-        // Reduce higher multipliers proportionally
-        let reduction = riskFactor / 5; // distribute reduction across non-zero
-        p1 = Math.max(0, p1 - reduction);
-        p2 = Math.max(0, p2 - reduction);
-        p3 = Math.max(0, p3 - reduction);
-        p5 = Math.max(0, p5 - reduction);
-        p10 = Math.max(0, p10 - reduction);
-        // Renormalize to sum to 1
-        let sum = p0 + p1 + p2 + p3 + p5 + p10;
-        p0 /= sum; p1 /= sum; p2 /= sum; p3 /= sum; p5 /= sum; p10 /= sum;
+        let p0, p1, p2, p3, p5, p10, p50;
+        if (ratio <= 0.3) {
+            // low risk
+            p0 = 0.25; p1 = 0.20; p2 = 0.18; p3 = 0.15; p5 = 0.12; p10 = 0.07; p50 = 0.03;
+        } else if (ratio <= 0.5) {
+            // medium risk
+            p0 = 0.35; p1 = 0.18; p2 = 0.16; p3 = 0.12; p5 = 0.10; p10 = 0.06; p50 = 0.03;
+        } else {
+            // high risk
+            p0 = 0.50; p1 = 0.15; p2 = 0.12; p3 = 0.10; p5 = 0.07; p10 = 0.04; p50 = 0.02;
+        }
+        // Normalize to sum = 1 (just in case)
+        let sum = p0 + p1 + p2 + p3 + p5 + p10 + p50;
+        p0 /= sum; p1 /= sum; p2 /= sum; p3 /= sum; p5 /= sum; p10 /= sum; p50 /= sum;
 
         const r = Math.random();
         if (r < p0) return 0;
@@ -514,10 +524,11 @@
         if (r < p0 + p1 + p2) return 2;
         if (r < p0 + p1 + p2 + p3) return 3;
         if (r < p0 + p1 + p2 + p3 + p5) return 5;
-        return 10;
+        if (r < p0 + p1 + p2 + p3 + p5 + p10) return 10;
+        return 50;
     }
 
-    // ================= COINS (Firebase only, update only once per spin) =================
+    // ================= COINS (Firebase) =================
     async function updateCoinsInFirestore() {
         if (userRef) {
             await updateDoc(userRef, { coins: coins });
@@ -528,7 +539,7 @@
         document.getElementById("coins").innerText = coins;
     }
 
-    // ================= SPIN LOGIC (risk-based multiplier + rotation) =================
+    // ================= SPIN LOGIC =================
     async function spin() {
         if (spinning || cooldown) return;
 
@@ -548,14 +559,19 @@
         const spinButton = document.getElementById("spinBtn");
         spinButton.disabled = true;
 
-        // --- Deduct bet locally (Firestore will be updated later) ---
+        // Deduct bet locally
         coins -= bet;
         updateCoinsUI();
 
-        // --- Determine multiplier using risk-based logic (depends on bet and total coins BEFORE bet) ---
-        // Use the original coins amount before deduction for realistic risk assessment
+        // Choose multiplier based on bet size
+        let multiplier;
         const originalCoins = coins + bet;
-        const multiplier = getRiskBasedMultiplier(bet, originalCoins);
+        if (bet <= 1000) {
+            multiplier = getNormalMultiplier();
+        } else {
+            multiplier = getRiskMultiplier(bet, originalCoins);
+        }
+
         const winningIdx = segments.findIndex(s => s.value === multiplier);
         if (winningIdx === -1) {
             console.error("Segment not found");
@@ -564,37 +580,29 @@
             return;
         }
 
-        // Calculate center angle of winning segment (in degrees)
+        // Calculate required rotation to bring winning segment under pointer
         const segmentCenter = winningIdx * ANGLE_PER_SEGMENT + ANGLE_PER_SEGMENT / 2;
-        // Desired rotation to bring that center under pointer (270°)
         let targetRotation = (POINTER_ANGLE - segmentCenter) % 360;
         if (targetRotation < 0) targetRotation += 360;
 
-        // Add extra full spins for visual effect
         const fullSpins = 360 * 5;
         const totalRotation = fullSpins + targetRotation;
 
-        // Reset wheel animation
+        // Animate wheel
         canvas.style.transition = "none";
         canvas.style.transform = "rotate(0deg)";
         void canvas.offsetHeight;
-
-        // Animate
         canvas.style.transition = "transform 4s cubic-bezier(0.22, 0.98, 0.35, 1.05)";
         canvas.style.transform = `rotate(${totalRotation}deg)`;
 
-        // After spin ends
         setTimeout(async () => {
             const winAmount = bet * multiplier;
-
             if (multiplier > 0) {
                 coins += winAmount;
             }
-            // Update Firestore only once, after final coin change
             await updateCoinsInFirestore();
             updateCoinsUI();
 
-            // Update result display
             const resultDiv = document.getElementById("result");
             if (multiplier === 0) {
                 resultDiv.innerHTML = `💀 LOST ${bet} coins · 0x 💀`;
@@ -602,7 +610,7 @@
                 resultDiv.innerHTML = `🎉 YOU WON ${winAmount} COINS (${multiplier}x) 🎉`;
             }
 
-            // Update history
+            // Add to history
             const historyBox = document.getElementById("history");
             const newEntry = document.createElement("span");
             newEntry.textContent = multiplier === 0 ? `💀 0x (lost ${bet})` : `🏆 ${multiplier}x +${winAmount}`;
@@ -611,7 +619,6 @@
             if (historyBox.children.length > 12) historyBox.removeChild(historyBox.lastChild);
 
             spinning = false;
-            // Start 3-second cooldown
             startCooldown();
         }, 4100);
     }
@@ -639,7 +646,7 @@
     function updateFakePlayers() {
         const fakeNames = ["Kai 🔥", "Alex ⚡", "Lee 🎯", "Sam 💎", "Sara 🌟", "John 🃏", "Mia 🎲", "Zane 🧧"];
         const randomName = fakeNames[Math.floor(Math.random() * fakeNames.length)];
-        const possibleValues = [0, 1, 2, 3, 5, 10];
+        const possibleValues = [0, 1, 2, 3, 5, 10, 50];
         const randomMult = possibleValues[Math.floor(Math.random() * possibleValues.length)];
         const winText = randomMult === 0 ? `lost 😵` : `won ${randomMult}x 🎉`;
         const playersBox = document.getElementById("players");
@@ -651,7 +658,7 @@
     }
     setInterval(updateFakePlayers, 2500);
 
-    // ================= AUTH & INIT (SINGLE LISTENER) =================
+    // ================= AUTH & INIT =================
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
             window.location.href = "index.html";
@@ -695,7 +702,7 @@
         if (e.target === modal) modal.style.display = "none";
     });
 
-    // ================= THEME SWITCH =================
+    // Theme switcher
     const themeToggle = document.getElementById("themeToggle");
     themeToggle.addEventListener("click", () => {
         document.body.classList.toggle("dark");
@@ -705,7 +712,6 @@
     const savedTheme = localStorage.getItem("galmetTheme");
     if (savedTheme === "dark") document.body.classList.add("dark");
 
-    // Reset wheel visual on load
     window.addEventListener("load", () => {
         canvas.style.transform = "rotate(0deg)";
         drawWheel();
