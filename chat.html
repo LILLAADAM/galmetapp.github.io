@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<div id="chatBox"></div>
+
+<input id="msg">
+<button onclick="send()">Send</button>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } 
+from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+import { getAuth } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+
+const app = initializeApp({
+  apiKey: "YOUR_KEY",
+  authDomain: "galmet-app.firebaseapp.com",
+  projectId: "galmet-app",
+});
+
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+const params = new URLSearchParams(window.location.search);
+const otherUser = params.get("user");
+
+const currentUser = auth.currentUser.uid;
+
+const chatId = [currentUser, otherUser].sort().join("_");
+
+
+// LISTEN
+onSnapshot(collection(db,"chats",chatId,"messages"), (snap) => {
+    let html = "";
+    snap.forEach(doc=>{
+        const msg = doc.data();
+        html += `<p>${msg.text}</p>`;
+    });
+    document.getElementById("chatBox").innerHTML = html;
+});
+
+
+// SEND
+window.send = async () => {
+    const text = document.getElementById("msg").value;
+
+    await addDoc(collection(db,"chats",chatId,"messages"), {
+        text,
+        sender: currentUser,
+        createdAt: serverTimestamp()
+    });
+
+    document.getElementById("msg").value = "";
+};
+
+</script>
+
+</body>
+</html>
