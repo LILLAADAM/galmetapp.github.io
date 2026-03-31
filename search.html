@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Search Users</title>
+</head>
+<body>
+
+<h2>Search User</h2>
+
+<input id="searchInput" placeholder="Enter username">
+<button onclick="searchUser()">Search</button>
+
+<div id="results"></div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getFirestore, collection, query, where, getDocs } 
+from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+  authDomain: "galmet-app.firebaseapp.com",
+  projectId: "galmet-app",
+});
+
+const db = getFirestore(app);
+
+window.searchUser = async () => {
+    const value = document.getElementById("searchInput").value;
+
+    const q = query(collection(db,"users"), where("username","==",value));
+    const snap = await getDocs(q);
+
+    let html = "";
+
+    snap.forEach(doc => {
+        const user = doc.data();
+
+        html += `
+        <div onclick="openProfile('${doc.id}')">
+            <img src="${user.photoURL}" width="50">
+            <p>${user.username}</p>
+        </div>
+        `;
+    });
+
+    document.getElementById("results").innerHTML = html;
+};
+
+window.openProfile = (id) => {
+    window.location = "view.html?id=" + id;
+};
+
+</script>
+
+</body>
+</html>
