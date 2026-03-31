@@ -1,59 +1,93 @@
 <!DOCTYPE html>
 <html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body {margin:0;font-family:Segoe UI;}
+
+.chat {
+    height:90vh;
+    overflow:auto;
+    padding:10px;
+}
+
+.me {text-align:right;}
+.msg {
+    display:inline-block;
+    padding:10px;
+    margin:5px;
+    border-radius:10px;
+    background:#eee;
+}
+
+.me .msg {background:#4cd964;color:white;}
+
+.input {
+    position:fixed;
+    bottom:0;
+    width:100%;
+    display:flex;
+}
+
+input {flex:1;padding:10px;}
+button {padding:10px;}
+</style>
+</head>
+
 <body>
 
-<div id="chatBox"></div>
+<div id="chat" class="chat"></div>
 
+<div class="input">
 <input id="msg">
-<button onclick="send()">Send</button>
+<button onclick="send()">➤</button>
+</div>
 
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } 
+import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, orderBy } 
 from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-
 import { getAuth } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 
 const app = initializeApp({
-  apiKey: "YOUR_KEY",
+  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
   authDomain: "galmet-app.firebaseapp.com",
-  projectId: "galmet-app",
+  projectId: "galmet-app"
 });
 
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-const params = new URLSearchParams(window.location.search);
-const otherUser = params.get("user");
+const me = auth.currentUser.uid;
+const other = new URLSearchParams(location.search).get("user");
 
-const currentUser = auth.currentUser.uid;
+const chatId = [me, other].sort().join("_");
 
-const chatId = [currentUser, otherUser].sort().join("_");
+const q = query(collection(db,"chats",chatId,"messages"), orderBy("createdAt"));
 
-
-// LISTEN
-onSnapshot(collection(db,"chats",chatId,"messages"), (snap) => {
-    let html = "";
+onSnapshot(q, snap=>{
+    let html="";
     snap.forEach(doc=>{
-        const msg = doc.data();
-        html += `<p>${msg.text}</p>`;
+        const m = doc.data();
+        html += `<div class="${m.sender===me?"me":""}">
+                    <div class="msg">${m.text}</div>
+                 </div>`;
     });
-    document.getElementById("chatBox").innerHTML = html;
+    document.getElementById("chat").innerHTML = html;
 });
 
+window.send = async ()=>{
+    const text = msg.value;
 
-// SEND
-window.send = async () => {
-    const text = document.getElementById("msg").value;
-
-    await addDoc(collection(db,"chats",chatId,"messages"), {
+    await addDoc(collection(db,"chats",chatId,"messages"),{
         text,
-        sender: currentUser,
-        createdAt: serverTimestamp()
+        sender:me,
+        createdAt:serverTimestamp()
     });
 
-    document.getElementById("msg").value = "";
+    msg.value="";
 };
 
 </script>
