@@ -1,56 +1,106 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Search Users</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body {
+    margin:0;
+    font-family:Segoe UI;
+}
+
+.top {
+    display:flex;
+    padding:10px;
+    gap:10px;
+}
+
+input {
+    flex:1;
+    padding:10px;
+    border-radius:20px;
+    border:1px solid #ccc;
+}
+
+.user {
+    display:flex;
+    align-items:center;
+    padding:10px;
+    border-bottom:1px solid #eee;
+}
+
+.user img {
+    width:50px;
+    height:50px;
+    border-radius:50%;
+    margin-right:10px;
+}
+
+.info {
+    flex:1;
+}
+
+button {
+    padding:6px 10px;
+}
+</style>
 </head>
+
 <body>
 
-<h2>Search User</h2>
-
-<input id="searchInput" placeholder="Enter username">
-<button onclick="searchUser()">Search</button>
+<div class="top">
+    <input id="searchInput" placeholder="Search ID or username">
+</div>
 
 <div id="results"></div>
 
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getFirestore, collection, query, where, getDocs } 
+import { getFirestore, collection, getDocs } 
 from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 const app = initializeApp({
   apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
   authDomain: "galmet-app.firebaseapp.com",
-  projectId: "galmet-app",
+  projectId: "galmet-app"
 });
 
 const db = getFirestore(app);
 
-window.searchUser = async () => {
-    const value = document.getElementById("searchInput").value;
+document.getElementById("searchInput").addEventListener("input", search);
 
-    const q = query(collection(db,"users"), where("username","==",value));
-    const snap = await getDocs(q);
+async function search() {
+    const val = document.getElementById("searchInput").value.toLowerCase();
+
+    const snap = await getDocs(collection(db,"users"));
 
     let html = "";
 
     snap.forEach(doc => {
-        const user = doc.data();
+        const u = doc.data();
 
-        html += `
-        <div onclick="openProfile('${doc.id}')">
-            <img src="${user.photoURL}" width="50">
-            <p>${user.username}</p>
-        </div>
-        `;
+        if (
+            u.username?.toLowerCase().includes(val) ||
+            doc.id.includes(val)
+        ) {
+            html += `
+            <div class="user">
+                <img src="${u.photoURL || ''}" onclick="view('${doc.id}')">
+                <div class="info" onclick="view('${doc.id}')">
+                    <b>${u.username}</b><br>
+                    <small>${doc.id}</small>
+                </div>
+                <button onclick="chat('${doc.id}')">Chat</button>
+            </div>`;
+        }
     });
 
     document.getElementById("results").innerHTML = html;
-};
+}
 
-window.openProfile = (id) => {
-    window.location = "view.html?id=" + id;
-};
+window.view = (id)=> location="view.html?id="+id;
+window.chat = (id)=> location="chat.html?user="+id;
 
 </script>
 
