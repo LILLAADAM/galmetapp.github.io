@@ -27,10 +27,12 @@ body {
 }
 
 img {
-    width:100px;
-    height:100px;
+    width:110px;
+    height:110px;
     border-radius:50%;
     margin-bottom:10px;
+    object-fit:cover;
+    border:3px solid rgba(255,255,255,0.2);
 }
 
 input, textarea {
@@ -54,6 +56,14 @@ button {
 .save { background:#f39c12; color:white; }
 .logout { background:red; color:white; }
 .back { background:#4cd964; color:white; }
+
+.file-btn {
+    background:#222;
+    padding:10px;
+    border-radius:8px;
+    margin-top:10px;
+    cursor:pointer;
+}
 </style>
 </head>
 
@@ -63,17 +73,24 @@ button {
 
 <h2>Your Profile</h2>
 
-<img id="photo" src="https://ui-avatars.com/api/?name=User">
+<img id="photo">
 
 <h3 id="usernameDisplay">Loading...</h3>
 <p id="email"></p>
+<p style="font-size:13px;opacity:0.7;">User ID: <span id="userId"></span></p>
 
-<!-- EDIT FORM -->
-<input id="fullName" placeholder="Full Name (min 4 words)">
+<!-- USERNAME -->
 <input id="username" placeholder="Username (min 4 chars)">
+
+<!-- BIO -->
 <textarea id="bio" placeholder="Your bio..."></textarea>
-<input id="status" placeholder="Status (Online, Busy...)">
-<input type="file" id="photoInput">
+
+<!-- HIDDEN FILE INPUT -->
+<input type="file" id="photoInput" hidden>
+
+<div class="file-btn" onclick="document.getElementById('photoInput').click()">
+📸 Change Profile Photo
+</div>
 
 <button class="save" onclick="updateProfile()">Save Profile</button>
 <button class="back" onclick="goBack()">⬅ Back</button>
@@ -123,25 +140,23 @@ onAuthStateChanged(auth, async (user) => {
 
     document.getElementById("usernameDisplay").innerText = data.username || "No Username";
     document.getElementById("email").innerText = data.email;
+    document.getElementById("userId").innerText = data.userId;
 
-    document.getElementById("fullName").value = data.fullName || "";
     document.getElementById("username").value = data.username || "";
     document.getElementById("bio").value = data.bio || "";
-    document.getElementById("status").value = data.status || "";
 
-    document.getElementById("photo").src = data.photoURL || "https://ui-avatars.com/api/?name=" + (data.username || "User");
+    document.getElementById("photo").src = 
+        data.photoURL || "https://ui-avatars.com/api/?name=" + (data.username || "User");
 });
 
 
-// UNIQUE USERNAME CHECK
+// ✅ UNIQUE USERNAME CHECK
 async function isUsernameTaken(username) {
     const q = query(collection(db,"users"), where("username","==",username));
     const snap = await getDocs(q);
 
-    if (snap.empty) return false;
-
-    // allow own username
     let taken = false;
+
     snap.forEach(docSnap=>{
         if(docSnap.id !== currentUser.uid){
             taken = true;
@@ -155,17 +170,9 @@ async function isUsernameTaken(username) {
 // UPDATE PROFILE
 window.updateProfile = async () => {
 
-    const fullName = document.getElementById("fullName").value.trim();
     const username = document.getElementById("username").value.trim();
     const bio = document.getElementById("bio").value.trim();
-    const status = document.getElementById("status").value.trim();
     const file = document.getElementById("photoInput").files[0];
-
-    // ✅ VALIDATION
-    if (fullName.split(" ").length < 4) {
-        alert("Full name must be at least 4 words");
-        return;
-    }
 
     if (username.length < 4) {
         alert("Username must be at least 4 characters");
@@ -191,10 +198,8 @@ window.updateProfile = async () => {
 
         // UPDATE FIRESTORE
         await updateDoc(doc(db,"users",currentUser.uid), {
-            fullName,
             username,
             bio,
-            status,
             ...(photoURL && {photoURL})
         });
 
