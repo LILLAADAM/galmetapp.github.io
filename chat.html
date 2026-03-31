@@ -25,25 +25,45 @@ if (!currentUser?.uid) {
 
 const myUid = currentUser.uid;
 const otherUid = new URLSearchParams(location.search).get("id");
-const chatId = [myUid, otherUid].sort().join("_");
 
-/* ================= USER ================= */
-async function loadOtherUser() {
-  const snap = await getDoc(doc(db, "users", otherUid));
-  if (!snap.exists()) return;
-
-  const data = snap.data();
-  name.innerText = data.fullName || data.username;
-  profileImg.src = data.photoURL ||
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(data.username)}`;
+/* ✅ FIX: prevent crash if id missing */
+if (!otherUid) {
+  alert("User not found");
+  location.href = "chats.html";
 }
 
-/* ================= PROFILE CLICK ================= */
+const chatId = [myUid, otherUid].sort().join("_");
+
+/* ✅ FIX HEADER LOAD */
+async function loadOtherUser() {
+  try {
+    const snap = await getDoc(doc(db, "users", otherUid));
+
+    const nameEl = document.getElementById("name");
+    const imgEl = document.getElementById("profileImg");
+
+    if (!snap.exists()) {
+      nameEl.innerText = "User";
+      imgEl.src = "https://ui-avatars.com/api/?name=User";
+      return;
+    }
+
+    const data = snap.data();
+
+    nameEl.innerText = data.fullName || data.username || "User";
+    imgEl.src = data.photoURL || "https://ui-avatars.com/api/?name=User";
+
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+/* CLICK HEADER */
 window.openProfile = () => {
   location.href = `view.html?id=${otherUid}`;
 };
 
-/* ================= MESSAGES ================= */
+/* MESSAGES */
 function loadMessages() {
   const q = query(
     collection(db, "chats", chatId, "messages"),
@@ -51,70 +71,61 @@ function loadMessages() {
   );
 
   onSnapshot(q, (snapshot) => {
-    messages.innerHTML = "";
+    const box = document.getElementById("messages");
+    box.innerHTML = "";
 
     snapshot.forEach(docSnap => {
-      renderMessage(docSnap.data());
+      const m = docSnap.data();
+
+      const div = document.createElement("div");
+      div.className = m.senderId === myUid ? "me" : "other";
+
+      if (m.text) div.innerText = m.text;
+
+      if (m.image) {
+        const img = document.createElement("img");
+        img.src = m.image;
+        img.className = "chat-img";
+        img.onclick = () => openFullImage(m.image);
+        div.appendChild(img);
+      }
+
+      box.appendChild(div);
     });
 
-    messages.scrollTop = messages.scrollHeight;
+    box.scrollTop = box.scrollHeight;
   });
 }
 
-/* ================= RENDER ================= */
-function renderMessage(m) {
-  const div = document.createElement("div");
-  div.className = m.senderId === myUid ? "me" : "other";
-
-  if (m.text) div.innerText = m.text;
-
-  if (m.image) {
-    const img = document.createElement("img");
-    img.src = m.image;
-    img.className = "chat-img";
-    img.onclick = () => openFullImage(m.image);
-    div.appendChild(img);
-  }
-
-  messages.appendChild(div);
-}
-
-/* ================= TEXT ================= */
-window.sendMessage = async () => {
-  const text = msg.value.trim();
-  if (!text) return;
-
-  msg.value = "";
-
-  await addDoc(collection(db, "chats", chatId, "messages"), {
-    text,
-    senderId: myUid,
-    receiverId: otherUid,
-    createdAt: serverTimestamp()
-  });
+/* FULL VIEW */
+window.openFullImage = (url) => {
+  document.getElementById("viewer").style.display = "flex";
+  document.getElementById("viewerImg").src = url;
 };
 
-/* ================= EMOJI ================= */
-window.addEmoji = () => {
-  msg.value += "😊";
+window.closeViewer = () => {
+  document.getElementById("viewer").style.display = "none";
 };
 
-/* ================= IMAGE PICK ================= */
-window.pickImage = () => {
-  imageInput.click();
-};
-
+/* IMAGE PICK */
 let selectedFile = null;
 
-imageInput.onchange = (e) => {
-  selectedFile = e.target.files[0];
-  if (!selectedFile) return;
-
-  previewModal.style.display = "flex";
-  previewImage.src = URL.createObjectURL(selectedFile);
+window.pickImage = () => {
+  document.getElementById("imageInput").click();
 };
 
-/* ================= COMPRESS ================= */
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("imageInput").addEventListener("change", e => {
+    selectedFile = e.target.files[0];
+    if (!selectedFile) return;
+
+    document.getElementById("previewModal").style.display = "flex";
+    document.getElementById("previewImage").src =
+      URL.createObjectURL(selectedFile);
+  });
+});
+
+/* COMPRESS */
 function compressImage(file) {
   return new Promise(resolve => {
     const img = new Image();
@@ -124,10 +135,9 @@ function compressImage(file) {
 
     img.onload = () => {
       const canvas = document.createElement("canvas");
-      const maxWidth = 800;
+      const scale = 800 / img.width;
 
-      let scale = maxWidth / img.width;
-      canvas.width = maxWidth;
+      canvas.width = 800;
       canvas.height = img.height * scale;
 
       const ctx = canvas.getContext("2d");
@@ -140,7 +150,7 @@ function compressImage(file) {
   });
 }
 
-/* ================= SEND IMAGE ================= */
+/* SEND IMAGE */
 window.sendImage = async () => {
   if (!selectedFile) return;
 
@@ -160,26 +170,32 @@ window.sendImage = async () => {
   closePreview();
 };
 
-/* ================= PREVIEW ================= */
+/* ✅ FIX CANCEL BUG */
 window.closePreview = () => {
-  previewModal.style.display = "none";
+  document.getElementById("previewModal").style.display = "none";
   selectedFile = null;
 };
 
-/* ================= FULL VIEW ================= */
-window.openFullImage = (url) => {
-  viewer.style.display = "flex";
-  viewerImg.src = url;
+/* TEXT */
+window.sendMessage = async () => {
+  const input = document.getElementById("msg");
+  const text = input.value.trim();
+  if (!text) return;
+
+  input.value = "";
+
+  await addDoc(collection(db, "chats", chatId, "messages"), {
+    text,
+    senderId: myUid,
+    receiverId: otherUid,
+    createdAt: serverTimestamp()
+  });
 };
 
-window.closeViewer = () => {
-  viewer.style.display = "none";
-};
-
-/* ================= LOAD ================= */
+/* LOAD */
 window.onload = () => {
-  loadMessages();
   loadOtherUser();
+  loadMessages();
 };
 </script>
 
@@ -193,7 +209,6 @@ header {
   padding:12px;
   display:flex;
   align-items:center;
-  cursor:pointer;
 }
 
 header img {
@@ -208,135 +223,73 @@ header img {
   height:calc(100vh - 140px);
   overflow:auto;
   padding:10px;
-  display:flex;
-  flex-direction:column;
 }
 
-/* FIX WIDTH */
+/* ✅ FIX SPACE */
 .me, .other {
   width:fit-content;
   max-width:75%;
-  padding:10px;
+  padding:8px 10px;
   margin:4px;
   border-radius:14px;
-  word-wrap:break-word;
 }
 
-.me {
-  background:#4CAF50;
-  color:white;
-  align-self:flex-end;
-}
-
-.other {
-  background:#e4e6eb;
-  align-self:flex-start;
-}
+.me { background:#4CAF50; color:white; margin-left:auto; }
+.other { background:#e4e6eb; }
 
 .chat-img {
-  max-width:180px;
+  max-width:140px;
   border-radius:10px;
 }
 
-/* BOTTOM */
+/* INPUT */
 .bottom {
   position:fixed;
   bottom:0;
   width:100%;
   display:flex;
-  align-items:center;
   padding:8px;
   background:white;
 }
 
 .plus {
-  width:42px;
-  height:42px;
+  width:40px;
+  height:40px;
   border-radius:50%;
   background:#4CAF50;
   color:white;
   border:none;
-  font-size:22px;
 }
 
 input {
   flex:1;
-  margin:0 6px;
   padding:10px;
   border-radius:20px;
   border:1px solid #ccc;
 }
 
-/* EMOJI */
-.emoji {
-  font-size:20px;
-  cursor:pointer;
-}
-
-/* BUTTON */
-button {
-  background:#4CAF50;
-  color:white;
-  border:none;
-  border-radius:20px;
-  padding:10px;
-}
-
-/* PREVIEW */
-/* PREVIEW MODAL FIXED */
+/* ✅ FIX PREVIEW BUTTON POSITION */
 #previewModal {
   display:none;
   position:fixed;
   inset:0;
   background:black;
-  z-index:999;
-  
   display:flex;
   flex-direction:column;
-  justify-content:space-between;
+  justify-content:center;
   align-items:center;
 }
 
-/* IMAGE AREA */
 #previewModal img {
   max-width:100%;
-  max-height:75vh; /* 🔥 FIX: prevents pushing buttons */
-  object-fit:contain;
-  margin-top:20px;
+  max-height:70vh;
 }
 
-/* BUTTON AREA FIXED */
 .preview-actions {
-  width:100%;
-  padding:15px;
-  display:flex;
-  justify-content:center;
-  gap:20px;
-  background:rgba(0,0,0,0.6);
-}
-
-/* BUTTON STYLE */
-.preview-actions button {
-  background:#4CAF50;
-  border:none;
-  padding:12px 20px;
-  border-radius:25px;
-  color:white;
-  font-size:16px;
-}
-
-/* VIEW */
-#viewer {
-  display:none;
   position:fixed;
-  inset:0;
-  background:black;
-  justify-content:center;
-  align-items:center;
-}
-
-#viewer img {
-  max-width:100%;
+  bottom:30px;
+  display:flex;
+  gap:20px;
 }
 </style>
 </head>
@@ -345,14 +298,13 @@ button {
 
 <header onclick="openProfile()">
   <img id="profileImg">
-  <span id="name"></span>
+  <span id="name">Loading...</span>
 </header>
 
 <div id="messages"></div>
 
 <div class="bottom">
   <button class="plus" onclick="pickImage()">+</button>
-  <span class="emoji" onclick="addEmoji()">😊</span>
   <input id="msg" placeholder="Type message...">
   <button onclick="sendMessage()">Send</button>
   <input type="file" id="imageInput" accept="image/*" hidden>
@@ -361,16 +313,15 @@ button {
 <!-- PREVIEW -->
 <div id="previewModal">
   <img id="previewImage">
-  
   <div class="preview-actions">
     <button onclick="closePreview()">Cancel</button>
     <button onclick="sendImage()">Send</button>
   </div>
 </div>
 
-<!-- FULL -->
-<div id="viewer" onclick="closeViewer()">
-  <img id="viewerImg">
+<!-- FULL VIEW -->
+<div id="viewer" onclick="closeViewer()" style="display:none;position:fixed;inset:0;background:black;justify-content:center;align-items:center;">
+  <img id="viewerImg" style="max-width:100%;">
 </div>
 
 </body>
