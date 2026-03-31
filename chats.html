@@ -1,42 +1,89 @@
 <!DOCTYPE html>
 <html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body { font-family:sans-serif; margin:0; background:#f5f6fa; }
+
+.top {
+    padding:15px;
+    background:#4cd964;
+    color:white;
+    font-weight:bold;
+}
+
+.chat {
+    display:flex;
+    align-items:center;
+    padding:10px;
+    border-bottom:1px solid #eee;
+}
+
+.chat img {
+    width:50px;
+    height:50px;
+    border-radius:50%;
+    margin-right:10px;
+}
+
+.name { font-weight:bold; }
+.msg { color:gray; font-size:13px; }
+
+</style>
+</head>
+
 <body>
 
-<h3>Chats</h3>
+<div class="top">Chats</div>
+
 <div id="list"></div>
 
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 import { getFirestore, collection, getDocs } 
 from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 
 const app = initializeApp({
   apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
   authDomain: "galmet-app.firebaseapp.com",
-  projectId: "galmet-app"
+  projectId: "galmet-app",
+  storageBucket: "galmet-app.firebasestorage.app"
 });
 
-const db = getFirestore(app);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
-const uid = auth.currentUser.uid;
+onAuthStateChanged(auth, async (user) => {
 
-const snap = await getDocs(collection(db,"chats"));
+    if (!user) return;
 
-let html = "";
+    const users = await getDocs(collection(db,"users"));
 
-snap.forEach(doc=>{
-    if(doc.id.includes(uid)){
-        const other = doc.id.replace(uid,"").replace("_","");
-        html += `<div onclick="open('${other}')">${other}</div>`;
-    }
+    let html = "";
+
+    users.forEach(d=>{
+        const u = d.data();
+
+        html += `
+        <div class="chat" onclick="openChat('${u.userId}')">
+            <img src="${u.photoURL || 'https://ui-avatars.com/api/?name='+u.username}">
+            <div>
+                <div class="name">${u.username}</div>
+                <div class="msg">Tap to chat</div>
+            </div>
+        </div>`;
+    });
+
+    document.getElementById("list").innerHTML = html;
+
 });
 
-document.getElementById("list").innerHTML = html;
-
-window.open = (id)=> location="chat.html?user="+id;
+window.openChat = (id) => {
+    location.href = "chat.html?id="+id;
+};
 
 </script>
 
