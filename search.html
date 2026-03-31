@@ -7,25 +7,32 @@
 body {
     margin:0;
     font-family:Segoe UI;
+    background:#fff;
 }
 
+/* TOP BAR */
 .top {
     display:flex;
     padding:10px;
-    gap:10px;
+    gap:8px;
+    position:sticky;
+    top:0;
+    background:white;
+    border-bottom:1px solid #eee;
 }
 
 input {
     flex:1;
-    padding:10px;
-    border-radius:20px;
+    padding:12px;
+    border-radius:25px;
     border:1px solid #ccc;
 }
 
+/* USER CARD */
 .user {
     display:flex;
     align-items:center;
-    padding:10px;
+    padding:12px;
     border-bottom:1px solid #eee;
 }
 
@@ -33,15 +40,29 @@ input {
     width:50px;
     height:50px;
     border-radius:50%;
-    margin-right:10px;
+    margin-right:12px;
+    object-fit:cover;
 }
 
 .info {
     flex:1;
 }
 
+.name {
+    font-weight:bold;
+}
+
+.id {
+    font-size:12px;
+    color:#777;
+}
+
 button {
-    padding:6px 10px;
+    padding:6px 12px;
+    border-radius:15px;
+    border:none;
+    background:#4cd964;
+    color:white;
 }
 </style>
 </head>
@@ -50,6 +71,7 @@ button {
 
 <div class="top">
     <input id="searchInput" placeholder="Search ID or username">
+    <button onclick="search()">Search</button>
 </div>
 
 <div id="results"></div>
@@ -57,7 +79,7 @@ button {
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getFirestore, collection, getDocs } 
+import { getFirestore, collection, query, where, getDocs, limit } 
 from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 const app = initializeApp({
@@ -68,37 +90,75 @@ const app = initializeApp({
 
 const db = getFirestore(app);
 
-document.getElementById("searchInput").addEventListener("input", search);
+// 🔥 FAST SEARCH
+window.search = async () => {
 
-async function search() {
-    const val = document.getElementById("searchInput").value.toLowerCase();
+    const val = document.getElementById("searchInput").value.trim().toLowerCase();
 
-    const snap = await getDocs(collection(db,"users"));
+    if (!val) {
+        document.getElementById("results").innerHTML = "";
+        return;
+    }
 
     let html = "";
 
-    snap.forEach(doc => {
-        const u = doc.data();
+    try {
 
-        if (
-            u.username?.toLowerCase().includes(val) ||
-            doc.id.includes(val)
-        ) {
+        // 🔥 SEARCH BY USERNAME (FAST)
+        const q1 = query(
+            collection(db,"users"),
+            where("username", ">=", val),
+            where("username", "<=", val + "\uf8ff"),
+            limit(10)
+        );
+
+        const snap1 = await getDocs(q1);
+
+        // 🔥 SEARCH BY USER ID
+        const q2 = query(
+            collection(db,"users"),
+            where("userId", "==", val),
+            limit(1)
+        );
+
+        const snap2 = await getDocs(q2);
+
+        const users = [];
+
+        snap1.forEach(d => users.push(d.data()));
+        snap2.forEach(d => users.push(d.data()));
+
+        if (users.length === 0) {
+            document.getElementById("results").innerHTML = "<p style='padding:10px'>No user found</p>";
+            return;
+        }
+
+        users.forEach(u => {
+
+            if (!u.username) return; // skip broken data
+
             html += `
             <div class="user">
-                <img src="${u.photoURL || ''}" onclick="view('${doc.id}')">
-                <div class="info" onclick="view('${doc.id}')">
-                    <b>${u.username}</b><br>
-                    <small>${doc.id}</small>
+                <img src="${u.photoURL || 'https://ui-avatars.com/api/?name=' + u.username}" onclick="view('${u.userId}')">
+                
+                <div class="info" onclick="view('${u.userId}')">
+                    <div class="name">${u.username}</div>
+                    <div class="id">ID: ${u.userId}</div>
                 </div>
-                <button onclick="chat('${doc.id}')">Chat</button>
+
+                <button onclick="chat('${u.userId}')">Chat</button>
             </div>`;
-        }
-    });
+        });
 
-    document.getElementById("results").innerHTML = html;
-}
+        document.getElementById("results").innerHTML = html;
 
+    } catch (err) {
+        console.error(err);
+        alert("Search error");
+    }
+};
+
+// NAVIGATION
 window.view = (id)=> location="view.html?id="+id;
 window.chat = (id)=> location="chat.html?user="+id;
 
