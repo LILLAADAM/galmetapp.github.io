@@ -223,26 +223,6 @@ const app = initializeApp({
 });
     
 const auth = getAuth(app);
-
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        console.log("✅ Logged in:", user.uid);
-
-        // backup localStorage
-        localStorage.setItem("user", JSON.stringify({
-            userId: user.uid,
-            username: user.displayName || "User",
-            photoURL: user.photoURL || ""
-        }));
-
-    } else {
-        console.log("❌ Not logged in → redirect");
-
-        window.location.href = "index.html";
-    }
-});
-    
-const auth = getAuth(app);
 const db = getFirestore(app);
 
 // FETCH USER
@@ -260,9 +240,18 @@ onAuthStateChanged(auth, async (user)=>{
         return; 
     }
 
+    console.log("✅ Logged in:", user.uid);
+
+    // ✅ ADD THIS (LOCAL STORAGE FIX)
+    localStorage.setItem("user", JSON.stringify({
+        userId: user.uid,
+        username: user.displayName || "User",
+        photoURL: user.photoURL || ""
+    }));
+
     let data = null;
 
-    // 🔥 RETRY SYSTEM (VERY IMPORTANT)
+    // 🔥 RETRY SYSTEM
     for (let i = 0; i < 5; i++) {
         data = await fetchUserData();
         if (data) break;
@@ -274,13 +263,19 @@ onAuthStateChanged(auth, async (user)=>{
         return;
     }
 
-    // 🔥 FIX: ONLY redirect if username is REALLY empty
     if (!data.username || data.username.trim() === "") {
         window.location = "setup.html";
         return;
     }
 
-    // ✅ LOAD UI
+    // ✅ UPDATE localStorage with REAL DATA (VERY IMPORTANT)
+    localStorage.setItem("user", JSON.stringify({
+        userId: data.userId,
+        username: data.username || "User",
+        photoURL: data.photoURL || ""
+    }));
+
+    // ✅ UI LOAD
     document.getElementById("email").innerText = data.email;
     document.getElementById("coins").innerText = data.coins ?? 0;
     document.getElementById("inviteCode").innerText = data.inviteCode;
