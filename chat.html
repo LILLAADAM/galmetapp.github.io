@@ -34,7 +34,7 @@
       return [a, b].sort().join("_");
     }
 
-    const chatId = getChatId(currentUser.userId, otherUserId);
+    const chatId = getChatId(currentUser.uid, otherUserId);
 
     // 🔥 LOAD USER PROFILE
     async function loadOtherUser() {
@@ -79,7 +79,7 @@
 
           const div = document.createElement("div");
           div.className =
-            m.senderId === currentUser.userId ? "me" : "other";
+            m.senderId === currentUser.uid ? "me" : "other";
 
           div.innerText = m.text;
 
@@ -99,7 +99,7 @@
 
       const msgData = {
         text,
-        senderId: currentUser.userId,
+        senderId: currentUser.uid,
         receiverId: otherUserId,
         createdAt: serverTimestamp()
       };
