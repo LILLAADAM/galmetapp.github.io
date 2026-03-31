@@ -1,38 +1,37 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body {
-    margin:0;
-    font-family:Segoe UI;
-    background:#fff;
-}
+body { font-family: Arial; margin:0; background:#f5f6fa; }
 
-/* TOP BAR */
 .top {
     display:flex;
     padding:10px;
-    gap:8px;
-    position:sticky;
-    top:0;
-    background:white;
-    border-bottom:1px solid #eee;
+    gap:10px;
 }
 
 input {
     flex:1;
     padding:12px;
-    border-radius:25px;
+    border-radius:20px;
     border:1px solid #ccc;
 }
 
-/* USER CARD */
+button {
+    padding:12px 18px;
+    border:none;
+    border-radius:20px;
+    background:#4cd964;
+    color:white;
+}
+
 .user {
     display:flex;
     align-items:center;
-    padding:12px;
+    gap:10px;
+    padding:10px;
     border-bottom:1px solid #eee;
 }
 
@@ -40,38 +39,21 @@ input {
     width:50px;
     height:50px;
     border-radius:50%;
-    margin-right:12px;
-    object-fit:cover;
 }
 
-.info {
-    flex:1;
-}
+.info { flex:1; }
 
-.name {
-    font-weight:bold;
-}
+.name { font-weight:bold; }
+.id { font-size:12px; color:gray; }
 
-.id {
-    font-size:12px;
-    color:#777;
-}
-
-button {
-    padding:6px 12px;
-    border-radius:15px;
-    border:none;
-    background:#4cd964;
-    color:white;
-}
 </style>
 </head>
 
 <body>
 
 <div class="top">
-    <input id="searchInput" placeholder="Search ID or username">
-    <button onclick="search()">Search</button>
+<input id="searchInput" placeholder="Search ID or username">
+<button onclick="search()">Search</button>
 </div>
 
 <div id="results"></div>
@@ -85,62 +67,54 @@ from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 const app = initializeApp({
   apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
   authDomain: "galmet-app.firebaseapp.com",
-  projectId: "galmet-app"
+  projectId: "galmet-app",
+  storageBucket: "galmet-app.firebasestorage.app"
 });
 
 const db = getFirestore(app);
 
-// 🔥 FAST SEARCH
 window.search = async () => {
 
-    const val = document.getElementById("searchInput").value.trim().toLowerCase();
+    const val = document.getElementById("searchInput").value.trim();
 
-    if (!val) {
-        document.getElementById("results").innerHTML = "";
-        return;
-    }
+    if (!val) return;
 
-    let html = "";
+    let users = [];
 
-    try {
+    // 🔥 USERNAME SEARCH
+    const q1 = query(
+        collection(db,"users"),
+        where("username","==",val.toUpperCase()),
+        limit(1)
+    );
 
-        // 🔥 SEARCH BY USERNAME (FAST)
-        const q1 = query(
-            collection(db,"users"),
-            where("username", ">=", val),
-            where("username", "<=", val + "\uf8ff"),
-            limit(10)
-        );
+    const snap1 = await getDocs(q1);
+    snap1.forEach(d => users.push(d.data()));
 
-        const snap1 = await getDocs(q1);
-
-        // 🔥 SEARCH BY USER ID
+    // 🔥 USERID SEARCH (NUMBER FIX)
+    if (!isNaN(val)) {
         const q2 = query(
             collection(db,"users"),
-            where("userId", "==", val),
+            where("userId","==",Number(val)),
             limit(1)
         );
 
         const snap2 = await getDocs(q2);
-
-        const users = [];
-
-        snap1.forEach(d => users.push(d.data()));
         snap2.forEach(d => users.push(d.data()));
+    }
 
-        if (users.length === 0) {
-            document.getElementById("results").innerHTML = "<p style='padding:10px'>No user found</p>";
-            return;
-        }
+    let html = "";
+
+    if (users.length === 0) {
+        html = "<p style='padding:15px'>No user found</p>";
+    } else {
 
         users.forEach(u => {
-
-            if (!u.username) return; // skip broken data
-
             html += `
             <div class="user">
-                <img src="${u.photoURL || 'https://ui-avatars.com/api/?name=' + u.username}" onclick="view('${u.userId}')">
-                
+                <img src="${u.photoURL || 'https://ui-avatars.com/api/?name='+u.username}" 
+                     onclick="view('${u.userId}')">
+
                 <div class="info" onclick="view('${u.userId}')">
                     <div class="name">${u.username}</div>
                     <div class="id">ID: ${u.userId}</div>
@@ -149,18 +123,13 @@ window.search = async () => {
                 <button onclick="chat('${u.userId}')">Chat</button>
             </div>`;
         });
-
-        document.getElementById("results").innerHTML = html;
-
-    } catch (err) {
-        console.error(err);
-        alert("Search error");
     }
+
+    document.getElementById("results").innerHTML = html;
 };
 
-// NAVIGATION
-window.view = (id)=> location="view.html?id="+id;
-window.chat = (id)=> location="chat.html?user="+id;
+window.view = (id) => location.href = "view.html?id="+id;
+window.chat = (id) => location.href = "chat.html?id="+id;
 
 </script>
 
