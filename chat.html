@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Chat</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Chat</title>
 
 <script type="module">
 import { db } from "./firebase.js";
@@ -16,25 +17,18 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
 
 const storage = getStorage(undefined, "gs://galmet-app.firebasestorage.app");
+
 const currentUser = JSON.parse(localStorage.getItem("user"));
-if (!currentUser || !currentUser.uid) {
+if (!currentUser?.uid) {
   alert("Login required");
-  window.location.href = "index.html";
+  location.href = "index.html";
 }
 
 const myUid = currentUser.uid;
-const otherUid = new URLSearchParams(window.location.search).get("id");
-
+const otherUid = new URLSearchParams(location.search).get("id");
 const chatId = [myUid, otherUid].sort().join("_");
 
-// ✅ MARK READ
-async function markAsRead() {
-  await setDoc(doc(db, "userChats", myUid, "list", otherUid), {
-    unread: 0
-  }, { merge: true });
-}
-
-// ✅ LOAD USER
+/* ================= LOAD USER ================= */
 async function loadOtherUser() {
   const snap = await getDoc(doc(db, "users", otherUid));
   if (!snap.exists()) return;
@@ -49,7 +43,12 @@ async function loadOtherUser() {
     `https://ui-avatars.com/api/?name=${encodeURIComponent(data.username)}`;
 }
 
-// ✅ REALTIME MESSAGES
+/* ================= CLICK HEADER ================= */
+window.openProfile = () => {
+  location.href = `view.html?id=${otherUid}`;
+};
+
+/* ================= LOAD MESSAGES ================= */
 function loadMessages() {
   const q = query(
     collection(db, "chats", chatId, "messages"),
@@ -66,14 +65,13 @@ function loadMessages() {
       const div = document.createElement("div");
       div.className = m.senderId === myUid ? "me" : "other";
 
-      if (m.text) {
-        div.innerText = m.text;
-      }
+      if (m.text) div.innerText = m.text;
 
       if (m.image) {
         const img = document.createElement("img");
         img.src = m.image;
         img.className = "chat-img";
+        img.onclick = () => openFullImage(m.image);
         div.appendChild(img);
       }
 
@@ -84,8 +82,92 @@ function loadMessages() {
   });
 }
 
-// ✅ SEND TEXT
-window.sendMessage = async function () {
+/* ================= FULL IMAGE VIEW ================= */
+window.openFullImage = (url) => {
+  const viewer = document.getElementById("viewer");
+  const img = document.getElementById("viewerImg");
+  img.src = url;
+  viewer.style.display = "flex";
+};
+
+window.closeViewer = () => {
+  document.getElementById("viewer").style.display = "none";
+};
+
+/* ================= COMPRESS IMAGE ================= */
+function compressImage(file) {
+  return new Promise(resolve => {
+    const img = new Image();
+    const reader = new FileReader();
+
+    reader.onload = e => {
+      img.src = e.target.result;
+    };
+
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const maxWidth = 800;
+
+      let scale = maxWidth / img.width;
+      canvas.width = maxWidth;
+      canvas.height = img.height * scale;
+
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      canvas.toBlob(blob => resolve(blob), "image/jpeg", 0.7);
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ================= IMAGE PICK ================= */
+window.pickImage = () => {
+  document.getElementById("imageInput").click();
+};
+
+let selectedFile = null;
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("imageInput").addEventListener("change", e => {
+    selectedFile = e.target.files[0];
+    if (!selectedFile) return;
+
+    document.getElementById("previewModal").style.display = "flex";
+    document.getElementById("previewImage").src =
+      URL.createObjectURL(selectedFile);
+  });
+});
+
+/* ================= SEND IMAGE ================= */
+window.sendImage = async () => {
+  if (!selectedFile) return;
+
+  const compressed = await compressImage(selectedFile);
+
+  const fileRef = ref(storage, "chatImages/" + Date.now());
+  await uploadBytes(fileRef, compressed);
+  const url = await getDownloadURL(fileRef);
+
+  await addDoc(collection(db, "chats", chatId, "messages"), {
+    image: url,
+    senderId: myUid,
+    receiverId: otherUid,
+    createdAt: serverTimestamp()
+  });
+
+  closePreview();
+};
+
+/* ================= PREVIEW CONTROL ================= */
+window.closePreview = () => {
+  document.getElementById("previewModal").style.display = "none";
+  selectedFile = null;
+};
+
+/* ================= TEXT ================= */
+window.sendMessage = async () => {
   const input = document.getElementById("msg");
   const text = input.value.trim();
   if (!text) return;
@@ -97,83 +179,13 @@ window.sendMessage = async function () {
     createdAt: serverTimestamp()
   });
 
-  await updateChatList(text);
   input.value = "";
 };
 
-// ✅ UPDATE CHAT LIST
-async function updateChatList(lastMsg) {
-  await setDoc(doc(db, "userChats", myUid, "list", otherUid), {
-    uid: otherUid,
-    lastMessage: lastMsg,
-    updatedAt: serverTimestamp(),
-    unread: 0
-  });
-
-  await setDoc(doc(db, "userChats", otherUid, "list", myUid), {
-    uid: myUid,
-    lastMessage: lastMsg,
-    updatedAt: serverTimestamp(),
-    unread: 1
-  });
-}
-
-// ✅ OPEN PICKER (FIXED — NO CAMERA FORCE)
-window.pickImage = () => {
-  document.getElementById("imageInput").click();
-};
-
-// ✅ PREVIEW
-document.addEventListener("DOMContentLoaded", () => {
-  const input = document.getElementById("imageInput");
-
-  input.addEventListener("change", (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const preview = document.getElementById("previewImg");
-    preview.src = URL.createObjectURL(file);
-    preview.style.display = "block";
-
-    document.getElementById("sendImageBtn").style.display = "block";
-  });
-});
-
-// ✅ SEND IMAGE
-window.sendImage = async function () {
-  const fileInput = document.getElementById("imageInput");
-  const file = fileInput.files[0];
-  if (!file) return;
-
-  const fileRef = ref(storage, "chatImages/" + Date.now());
-  await uploadBytes(fileRef, file);
-  const url = await getDownloadURL(fileRef);
-
-  await addDoc(collection(db, "chats", chatId, "messages"), {
-    image: url,
-    senderId: myUid,
-    receiverId: otherUid,
-    createdAt: serverTimestamp()
-  });
-
-  await updateChatList("📷 Image");
-
-  // reset
-  document.getElementById("previewImg").style.display = "none";
-  document.getElementById("sendImageBtn").style.display = "none";
-  fileInput.value = "";
-};
-
-// ENTER KEY
-window.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") sendMessage();
-});
-
-// LOAD
+/* ================= LOAD ================= */
 window.onload = () => {
   loadMessages();
   loadOtherUser();
-  markAsRead();
 };
 </script>
 
@@ -186,6 +198,7 @@ header {
   padding:12px;
   display:flex;
   align-items:center;
+  cursor:pointer;
 }
 
 header img {
@@ -196,58 +209,47 @@ header img {
 }
 
 #messages {
-  height:calc(100vh - 160px);
-  overflow-y:auto;
+  height:calc(100vh - 140px);
+  overflow:auto;
   padding:10px;
 }
 
 .me, .other {
-  max-width:75%;
+  max-width:70%;
   padding:10px;
   margin:6px;
   border-radius:14px;
 }
 
-.me {
-  background:#4CAF50;
-  color:white;
-  margin-left:auto;
-}
-
-.other {
-  background:#e4e6eb;
-  margin-right:auto;
-}
+.me { background:#4CAF50; color:white; margin-left:auto; }
+.other { background:#e4e6eb; }
 
 .chat-img {
-  max-width:200px;
+  max-width:120px;
   border-radius:10px;
   margin-top:5px;
 }
 
+/* bottom */
 .bottom {
   position:fixed;
   bottom:0;
   width:100%;
   display:flex;
-  align-items:center;
   padding:8px;
   background:white;
-  border-top:1px solid #ccc;
 }
 
-/* ✅ GREEN + BUTTON FIXED */
 .plus {
   width:42px;
   height:42px;
   border-radius:50%;
-  border:none;
   background:#4CAF50;
   color:white;
+  border:none;
   font-size:22px;
 }
 
-/* INPUT */
 input {
   flex:1;
   margin:0 6px;
@@ -256,53 +258,88 @@ input {
   border:1px solid #ccc;
 }
 
-/* SEND */
 button {
-  padding:10px 14px;
-  border-radius:20px;
   background:#4CAF50;
   color:white;
   border:none;
+  border-radius:20px;
+  padding:10px;
 }
 
-/* PREVIEW */
-#previewImg {
-  position:fixed;
-  bottom:80px;
-  left:10px;
-  max-width:140px;
-  border-radius:10px;
+/* PREVIEW MODAL */
+#previewModal {
   display:none;
+  position:fixed;
+  inset:0;
+  background:black;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
 }
 
-#sendImageBtn {
-  position:fixed;
-  bottom:80px;
-  right:10px;
+#previewModal img {
+  max-width:90%;
+}
+
+.preview-actions {
+  position:absolute;
+  bottom:20px;
+  display:flex;
+  gap:20px;
+}
+
+/* FULL VIEW */
+#viewer {
   display:none;
+  position:fixed;
+  inset:0;
+  background:black;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+}
+
+#viewer img {
+  max-width:100%;
+}
+
+.save-btn {
+  position:absolute;
+  bottom:20px;
+  right:20px;
 }
 </style>
 </head>
 
 <body>
 
-<header>
+<header onclick="openProfile()">
   <img id="profileImg">
-  <span id="name">User</span>
+  <span id="name"></span>
 </header>
 
 <div id="messages"></div>
-
-<img id="previewImg">
-<button id="sendImageBtn" onclick="sendImage()">Send Image</button>
 
 <div class="bottom">
   <button class="plus" onclick="pickImage()">+</button>
   <input id="msg" placeholder="Type message...">
   <button onclick="sendMessage()">Send</button>
-
-  <!-- ✅ FIXED INPUT (NO CAMERA FORCE) -->
   <input type="file" id="imageInput" accept="image/*" hidden>
+</div>
+
+<!-- PREVIEW -->
+<div id="previewModal">
+  <img id="previewImage">
+  <div class="preview-actions">
+    <button onclick="closePreview()">Cancel</button>
+    <button onclick="sendImage()">Send</button>
+  </div>
+</div>
+
+<!-- FULL VIEW -->
+<div id="viewer" onclick="closeViewer()">
+  <img id="viewerImg">
+  <a id="downloadBtn" class="save-btn" download>Save</a>
 </div>
 
 </body>
