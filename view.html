@@ -1,12 +1,45 @@
 <!DOCTYPE html>
 <html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body {margin:0;font-family:Segoe UI;}
+
+.top img {
+    width:100%;
+    height:300px;
+    object-fit:cover;
+}
+
+.info {
+    padding:15px;
+}
+
+button {
+    width:90%;
+    margin:10px;
+    padding:12px;
+    border:none;
+    background:#4cd964;
+    color:white;
+}
+</style>
+</head>
+
 <body>
 
-<img id="photo" width="150">
-<h2 id="username"></h2>
-<p id="bio"></p>
+<div class="top">
+    <img id="photo">
+</div>
 
-<button onclick="startChat()">Chat</button>
+<div class="info">
+    <h2 id="name"></h2>
+    <p id="id"></p>
+    <p id="bio"></p>
+
+    <button onclick="startChat()">Chat</button>
+</div>
 
 <script type="module">
 
@@ -17,24 +50,22 @@ from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 const app = initializeApp({
   apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
   authDomain: "galmet-app.firebaseapp.com",
-  projectId: "galmet-app",
+  projectId: "galmet-app"
 });
 
 const db = getFirestore(app);
 
-const params = new URLSearchParams(window.location.search);
-const id = params.get("id");
+const id = new URLSearchParams(location.search).get("id");
 
 const snap = await getDoc(doc(db,"users",id));
-const user = snap.data();
+const u = snap.data();
 
-document.getElementById("photo").src = user.photoURL;
-document.getElementById("username").innerText = user.username;
-document.getElementById("bio").innerText = user.bio || "";
+document.getElementById("photo").src = u.photoURL;
+document.getElementById("name").innerText = u.username;
+document.getElementById("id").innerText = id;
+document.getElementById("bio").innerText = u.bio || "";
 
-window.startChat = () => {
-    window.location = "chat.html?user=" + id;
-};
+window.startChat = ()=> location="chat.html?user="+id;
 
 </script>
 
