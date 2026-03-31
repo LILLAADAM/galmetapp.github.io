@@ -27,12 +27,13 @@ input{padding:8px;margin-top:10px;}
 <input id="pmsg" placeholder="Write message">
 <button onclick="sendPlatform()">Send</button>
 
+
+<script>
 function sendPlatform(){
   const text = document.getElementById("pmsg").value;
   sendPlatformMessage(text);
 }
-<script>
-
+  
 const SECRET = "GCW_SUPER_SECURE_2026";
     
 // ===============================
