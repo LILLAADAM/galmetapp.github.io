@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Setup Profile</title>
+
+<style>
+body {
+    font-family: sans-serif;
+    background:#0f1b5c;
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    height:100vh;
+}
+
+.box {
+    background:#1f2f9c;
+    padding:20px;
+    border-radius:12px;
+    width:90%;
+    max-width:400px;
+}
+
+input {
+    width:100%;
+    padding:10px;
+    margin-top:10px;
+    border:none;
+    border-radius:8px;
+}
+
+button {
+    margin-top:15px;
+    width:100%;
+    padding:12px;
+    background:#00c853;
+    border:none;
+    color:white;
+    border-radius:8px;
+    font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+    <h2>Setup Profile</h2>
+
+    <input id="username" placeholder="Enter username">
+
+    <input type="file" id="photo">
+
+    <button onclick="saveProfile()">Continue</button>
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { getFirestore, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
+
+const app = initializeApp({
+  apiKey: "AIza...",
+  authDomain: "galmet-app.firebaseapp.com",
+  projectId: "galmet-app",
+  storageBucket: "galmet-app.appspot.com"
+});
+
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+window.saveProfile = async function(){
+
+    const username = document.getElementById("username").value;
+    const file = document.getElementById("photo").files[0];
+
+    if(!username){
+        alert("Enter username");
+        return;
+    }
+
+    const user = auth.currentUser;
+
+    let photoURL = "";
+
+    if(file){
+        const storageRef = ref(storage, "profiles/" + user.uid);
+        await uploadBytes(storageRef, file);
+        photoURL = await getDownloadURL(storageRef);
+    }
+
+    await updateDoc(doc(db,"users",user.uid),{
+        username,
+        photoURL
+    });
+
+    window.location = "dashboard.html";
+};
+
+</script>
+
+</body>
+</html>
