@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<img id="photo" width="150">
+<h2 id="username"></h2>
+<p id="bio"></p>
+
+<button onclick="startChat()">Chat</button>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getFirestore, doc, getDoc } 
+from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+  authDomain: "galmet-app.firebaseapp.com",
+  projectId: "galmet-app",
+});
+
+const db = getFirestore(app);
+
+const params = new URLSearchParams(window.location.search);
+const id = params.get("id");
+
+const snap = await getDoc(doc(db,"users",id));
+const user = snap.data();
+
+document.getElementById("photo").src = user.photoURL;
+document.getElementById("username").innerText = user.username;
+document.getElementById("bio").innerText = user.bio || "";
+
+window.startChat = () => {
+    window.location = "chat.html?user=" + id;
+};
+
+</script>
+
+</body>
+</html>
