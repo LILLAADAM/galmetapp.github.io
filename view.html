@@ -56,35 +56,37 @@ const app = initializeApp({
 
 const db = getFirestore(app);
 
-// ✅ GET UID FROM URL
+// ✅ GET UID
 const uid = new URLSearchParams(location.search).get("id");
 
-// ✅ DIRECT FETCH (NO QUERY)
-const snap = await getDoc(doc(db, "users", uid));
-
-if (!snap.exists()) {
-    document.body.innerHTML = "User not found";
+// ❗ PROTECT AGAINST NULL
+if (!uid) {
+    document.body.innerHTML = "Invalid user";
 } else {
 
-    const u = snap.data();
+    const snap = await getDoc(doc(db, "users", uid));
 
-    document.body.innerHTML = `
-    <div style="text-align:center;padding:20px">
-        <img src="${u.photoURL}" style="width:200px;border-radius:20px">
-        <h2>${u.username}</h2>
-        <p>ID: ${u.userId}</p>
-        <p>${u.bio || ""}</p>
-        <button onclick="startChat()">Chat</button>
-    </div>
-    `;
+    if (!snap.exists()) {
+        document.body.innerHTML = "User not found";
+    } else {
+
+        const u = snap.data();
+
+        document.getElementById("photo").src = u.photoURL || "";
+        document.getElementById("name").innerText = u.username || "User";
+        document.getElementById("id").innerText = "ID: " + (u.userId || "");
+        document.getElementById("bio").innerText = u.bio || "";
+    }
 }
 
 // ✅ CHAT BUTTON
 window.startChat = () => {
-    location = "chat.html?id=" + uid;
+    if (uid) {
+        location.href = "chat.html?id=" + uid;
+    }
 };
 
 </script>
-    
+
 </body>
 </html>
