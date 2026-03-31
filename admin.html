@@ -24,6 +24,13 @@ input{padding:8px;margin-top:10px;}
 <input id="banId" placeholder="Enter userId">
 <button onclick="ban()">Ban User</button>
 
+<input id="pmsg" placeholder="Write message">
+<button onclick="sendPlatform()">Send</button>
+
+function sendPlatform(){
+  const text = document.getElementById("pmsg").value;
+  sendPlatformMessage(text);
+}
 <script>
 
 const SECRET = "GCW_SUPER_SECURE_2026";
@@ -126,6 +133,20 @@ async function completeWithdraw(id){
     
 }
     
+import {
+  collection,
+  addDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+async function sendPlatformMessage(text) {
+
+  await addDoc(collection(db, "platformMessages"), {
+    text: text,
+    createdAt: serverTimestamp()
+  });
+
+}
 </script>
 
 </body>
