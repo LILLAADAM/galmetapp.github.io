@@ -65,7 +65,7 @@ if (!currentUser || !currentUser.uid) {
   location = "index.html";
 }
 
-// 🔥 LOAD CHAT LIST
+// ✅ SORT BY LATEST (ALREADY CORRECT)
 const q = query(
   collection(db, "userChats", currentUser.uid, "list"),
   orderBy("updatedAt", "desc")
@@ -73,16 +73,22 @@ const q = query(
 
 onSnapshot(q, async (snapshot) => {
 
-  let html = "";
+  const list = document.getElementById("list");
+  list.innerHTML = "";
 
   for (const d of snapshot.docs) {
     const chat = d.data();
 
     const userSnap = await getDoc(doc(db, "users", chat.uid));
+    if (!userSnap.exists()) continue;
+
     const u = userSnap.data();
 
-    html += `
-    <div class="chat" onclick="openChat('${chat.uid}')">
+    const div = document.createElement("div");
+    div.className = "chat";
+    div.onclick = () => openChat(chat.uid);
+
+    div.innerHTML = `
       <img src="${u.photoURL || 'https://ui-avatars.com/api/?name='+u.username}">
       
       <div class="info">
@@ -91,11 +97,11 @@ onSnapshot(q, async (snapshot) => {
       </div>
 
       ${chat.unread ? `<div class="badge">${chat.unread}</div>` : ""}
-    </div>
     `;
+
+    list.appendChild(div);
   }
 
-  document.getElementById("list").innerHTML = html;
 });
 
 // 🔥 OPEN CHAT
