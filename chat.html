@@ -2,165 +2,152 @@
 <html>
 <head>
   <title>Chat</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script type="module">
+    import { db } from "./firebase.js";
+    import {
+      collection, addDoc, query, orderBy,
+      onSnapshot, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const currentUser = JSON.parse(localStorage.getItem("user"));
+
+    if (!currentUser) {
+      alert("Login required");
+      window.location.href = "index.html";
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const otherUserId = params.get("id");
+
+    function getChatId(a, b) {
+      return [a, b].sort().join("_");
+    }
+
+    const chatId = getChatId(currentUser.userId, otherUserId);
+
+    window.onload = () => {
+      loadMessages();
+    };
+
+    function loadMessages() {
+      const q = query(
+        collection(db, "chats", chatId, "messages"),
+        orderBy("createdAt")
+      );
+
+      onSnapshot(q, (snapshot) => {
+        const box = document.getElementById("messages");
+        box.innerHTML = "";
+
+        snapshot.forEach(doc => {
+          const m = doc.data();
+          const div = document.createElement("div");
+
+          div.className = m.senderId === currentUser.userId
+            ? "me"
+            : "other";
+
+          div.innerText = m.text;
+          box.appendChild(div);
+        });
+
+        box.scrollTop = box.scrollHeight;
+      });
+    }
+
+    window.sendMessage = async function () {
+      const input = document.getElementById("msg");
+      const text = input.value.trim();
+
+      if (!text) return;
+
+      await addDoc(collection(db, "chats", chatId, "messages"), {
+        text: text,
+        senderId: currentUser.userId,
+        receiverId: otherUserId,
+        createdAt: serverTimestamp()
+      });
+
+      input.value = "";
+    };
+  </script>
 
   <style>
-    body {
-      margin: 0;
-      font-family: Arial;
-      background: #f5f5f5;
+    body { margin:0; font-family:sans-serif; }
+    header {
+      background:#4CAF50; color:white;
+      padding:12px; display:flex; align-items:center;
     }
-
-    .header {
-      display: flex;
-      align-items: center;
-      padding: 10px;
-      background: #4CAF50;
-      color: white;
+    header img {
+      width:35px; height:35px;
+      border-radius:50%; margin-right:10px;
+      cursor:pointer;
     }
-
-    .header img {
-      width: 35px;
-      height: 35px;
-      border-radius: 50%;
-      margin-right: 10px;
+    #messages {
+      height:80vh;
+      overflow-y:auto;
+      padding:10px;
+      background:#f5f5f5;
     }
-
-    #chatBox {
-      height: 75vh;
-      overflow-y: auto;
-      padding: 10px;
-    }
-
     .me {
-      background: #4CAF50;
-      color: white;
-      padding: 10px;
-      margin: 5px;
-      border-radius: 10px;
-      max-width: 70%;
-      margin-left: auto;
+      background:#4CAF50;
+      color:white;
+      padding:8px;
+      margin:5px;
+      border-radius:10px;
+      width:fit-content;
+      margin-left:auto;
     }
-
     .other {
-      background: #ddd;
-      padding: 10px;
-      margin: 5px;
-      border-radius: 10px;
-      max-width: 70%;
+      background:#ddd;
+      padding:8px;
+      margin:5px;
+      border-radius:10px;
+      width:fit-content;
     }
-
-    .inputBox {
-      display: flex;
-      padding: 10px;
-      background: white;
+    .bottom {
+      display:flex;
+      padding:10px;
     }
-
-    .inputBox input {
-      flex: 1;
-      padding: 10px;
-      border-radius: 20px;
-      border: 1px solid #ccc;
+    input {
+      flex:1;
+      padding:10px;
     }
-
-    .inputBox button {
-      margin-left: 10px;
-      padding: 10px 15px;
-      background: #4CAF50;
-      border: none;
-      color: white;
-      border-radius: 50%;
+    button {
+      background:#4CAF50;
+      color:white;
+      border:none;
+      padding:10px;
     }
   </style>
 </head>
 
 <body>
 
-<div class="header">
-  <img id="userPhoto" src="">
-  <span id="userName">User</span>
+<header>
+  <img id="profileImg" src="https://via.placeholder.com/40">
+  <span id="name">User</span>
+</header>
+
+<div id="messages"></div>
+
+<div class="bottom">
+  <input id="msg" placeholder="Type message...">
+  <button onclick="sendMessage()">Send</button>
 </div>
 
-<div id="chatBox"></div>
+<script>
+  const user = JSON.parse(localStorage.getItem("user"));
 
-<div class="inputBox">
-  <input id="messageInput" placeholder="Enter message">
-  <button onclick="sendMessage()">➤</button>
-</div>
+  document.getElementById("name").innerText = user.username || "User";
 
-<script type="module">
-import { db } from "./firebase.js";
-import {
-  collection,
-  addDoc,
-  query,
-  orderBy,
-  onSnapshot,
-  serverTimestamp,
-  doc,
-  getDoc
-} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-
-const chatId = new URLSearchParams(window.location.search).get("id");
-const currentUser = JSON.parse(localStorage.getItem("user"));
-
-const chatBox = document.getElementById("chatBox");
-const input = document.getElementById("messageInput");
-
-// ✅ LOAD OTHER USER INFO
-async function loadUser() {
-  const chatRef = doc(db, "chats", chatId);
-  const snap = await getDoc(chatRef);
-
-  const users = snap.data().users;
-  const otherId = users.find(u => u !== currentUser.userId);
-
-  const userRef = doc(db, "users", otherId);
-  const userSnap = await getDoc(userRef);
-
-  if (userSnap.exists()) {
-    document.getElementById("userName").innerText = userSnap.data().username;
-    document.getElementById("userPhoto").src = userSnap.data().photoURL;
+  if (user.photoURL) {
+    document.getElementById("profileImg").src = user.photoURL;
   }
-}
 
-loadUser();
-
-// ✅ REALTIME CHAT
-const q = query(
-  collection(db, "chats", chatId, "messages"),
-  orderBy("createdAt")
-);
-
-onSnapshot(q, (snapshot) => {
-  chatBox.innerHTML = "";
-
-  snapshot.forEach((doc) => {
-    const msg = doc.data();
-
-    const div = document.createElement("div");
-    div.className =
-      msg.senderId === currentUser.userId ? "me" : "other";
-
-    div.innerText = msg.text;
-    chatBox.appendChild(div);
-  });
-
-  chatBox.scrollTop = chatBox.scrollHeight;
-});
-
-// ✅ SEND
-window.sendMessage = async function () {
-  if (!input.value.trim()) return;
-
-  await addDoc(collection(db, "chats", chatId, "messages"), {
-    text: input.value,
-    senderId: currentUser.userId,
-    createdAt: serverTimestamp()
-  });
-
-  input.value = "";
-};
+  document.getElementById("profileImg").onclick = () => {
+    window.open(user.photoURL, "_blank");
+  };
 </script>
 
 </body>
