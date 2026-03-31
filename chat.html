@@ -15,8 +15,7 @@ import {
   getStorage, ref, uploadBytes, getDownloadURL
 } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
 
-const storage = getStorage();
-
+const storage = getStorage(undefined, "gs://galmet-app.firebasestorage.app");
 const currentUser = JSON.parse(localStorage.getItem("user"));
 if (!currentUser || !currentUser.uid) {
   alert("Login required");
