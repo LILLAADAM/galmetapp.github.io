@@ -1,33 +1,113 @@
-<h2>Your Profile</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Profile</title>
 
-<img id="photo" width="80" style="border-radius:50%"><br><br>
+<style>
+body {
+    margin:0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg,#0f1b5c,#1f2f9c);
+    color:white;
+    padding:20px;
+}
 
-<div id="username"></div>
-<div id="email"></div>
+.card {
+    background: rgba(255,255,255,0.08);
+    padding:20px;
+    border-radius:15px;
+    max-width:400px;
+    margin:auto;
+    text-align:center;
+}
 
-<br>
-<button onclick="logout()">Logout</button>
+img {
+    width:100px;
+    height:100px;
+    border-radius:50%;
+    margin-bottom:15px;
+}
+
+button {
+    padding:10px;
+    border:none;
+    border-radius:8px;
+    margin-top:10px;
+    cursor:pointer;
+}
+
+.logout {
+    background:red;
+    color:white;
+}
+
+.back {
+    background:#4cd964;
+    color:white;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+    <h2>Your Profile</h2>
+
+    <img id="photo" src="https://via.placeholder.com/100">
+
+    <h3 id="username">Loading...</h3>
+    <p id="email"></p>
+
+    <button class="back" onclick="goBack()">⬅ Back</button>
+    <button class="logout" onclick="logout()">Logout</button>
+</div>
 
 <script type="module">
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-const auth = getAuth();
-const db = getFirestore();
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } 
+from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } 
+from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-onAuthStateChanged(auth, async (user)=>{
-    if(!user){
-        location="index.html";
+// ✅ Firebase INIT (THIS WAS MISSING ❌)
+const app = initializeApp({
+  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+  authDomain: "galmet-app.firebaseapp.com",
+  projectId: "galmet-app"
+});
+
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// ✅ LOAD USER
+onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+        window.location = "index.html";
         return;
     }
 
-    const snap = await getDoc(doc(db,"users",user.uid));
+    const snap = await getDoc(doc(db, "users", user.uid));
+
+    if (!snap.exists()) {
+        alert("User data not found");
+        return;
+    }
+
     const data = snap.data();
 
-    document.getElementById("username").innerText = data.username || "No username";
+    document.getElementById("username").innerText = data.username || "No Name";
     document.getElementById("email").innerText = data.email;
-    document.getElementById("photo").src = data.photoURL || "https://via.placeholder.com/80";
+    document.getElementById("photo").src = data.photoURL || "https://via.placeholder.com/100";
 });
 
-window.logout = ()=> signOut(auth).then(()=>location="index.html");
+// ACTIONS
+window.logout = () => signOut(auth).then(()=>location="index.html");
+window.goBack = () => location="dashboard.html";
+
 </script>
+
+</body>
+</html>
