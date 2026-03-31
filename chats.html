@@ -72,8 +72,8 @@ body {
 <div class="top">Chats</div>
 
 <!-- ⭐ PLATFORM MESSAGE -->
-<div class="platform" onclick="openAdmin()">
-  📢 Platform Messages
+<div class="platform" onclick="openPlatform()">
+  📢 Platform Messages <span id="pBadge"></span>
 </div>
 
 <div id="list"></div>
@@ -162,7 +162,7 @@ window.openChat = (id) => {
 
 /* OPEN ADMIN */
 window.openAdmin = () => {
-  location.href = "admin.html";
+  location.href = "platform.html";
 };
 
 </script>
