@@ -271,10 +271,14 @@ onAuthStateChanged(auth, async (user)=>{
 
     // ✅ UPDATE localStorage with REAL DATA (VERY IMPORTANT)
     localStorage.setItem("user", JSON.stringify({
-    uid: user.uid,   // ✅ THIS LINE IS THE KEY
-    username: user.displayName || "User",
-    photoURL: user.photoURL || ""
+    uid: user.uid,
+    username: user.displayName || user.email.split("@")[0] || "User",
+    photoURL: user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.email)}`
 }));
+    
+    
+    
+
 
     // ✅ UI LOAD
     document.getElementById("email").innerText = data.email;
