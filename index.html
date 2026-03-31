@@ -573,6 +573,13 @@ try {
     throw err;
 }
 
+  localStorage.setItem("user", JSON.stringify({
+  uid: user.uid,              // ✅ MUST be uid
+  username: user.username || "User",
+  userId: user.userId || null,
+  photoURL: user.photoURL || ""
+}));
+            
 // 🔥 VERIFY DATA SAVED (VERY IMPORTANT)
 let check = null;
 for (let i = 0; i < 5; i++) {
