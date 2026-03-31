@@ -2,112 +2,76 @@
 <html>
 <head>
   <title>Chats</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script type="module">
+    import { db } from "./firebase.js";
+    import {
+      collection, getDocs
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const currentUser = JSON.parse(localStorage.getItem("user"));
+
+    if (!currentUser) {
+      alert("Login required");
+      window.location.href = "index.html";
+    }
+
+    window.onload = async () => {
+      const snap = await getDocs(collection(db, "users"));
+      const list = document.getElementById("list");
+
+      snap.forEach(doc => {
+        const u = doc.data();
+
+        if (u.userId === currentUser.userId) return;
+
+        const div = document.createElement("div");
+        div.className = "item";
+
+        div.innerHTML = `
+          <img src="${u.photoURL || 'https://via.placeholder.com/40'}">
+          <div>
+            <b>${u.username || u.userId}</b>
+            <div class="sub">Tap to chat</div>
+          </div>
+        `;
+
+        div.onclick = () => {
+          window.location.href = "chat.html?id=" + u.userId;
+        };
+
+        list.appendChild(div);
+      });
+    };
+  </script>
 
   <style>
-    body {
-      margin: 0;
-      font-family: Arial;
+    body { font-family:sans-serif; margin:0; }
+    header {
+      background:#4CAF50;
+      color:white;
+      padding:15px;
     }
-
-    .header {
-      background: #4CAF50;
-      color: white;
-      padding: 15px;
-      font-size: 18px;
+    .item {
+      display:flex;
+      padding:10px;
+      border-bottom:1px solid #eee;
+      cursor:pointer;
     }
-
-    .chat-item {
-      display: flex;
-      align-items: center;
-      padding: 10px;
-      border-bottom: 1px solid #eee;
-      cursor: pointer;
+    .item img {
+      width:40px;
+      height:40px;
+      border-radius:50%;
+      margin-right:10px;
     }
-
-    .avatar {
-      width: 45px;
-      height: 45px;
-      border-radius: 50%;
-      background: #ccc;
-      margin-right: 10px;
-    }
-
-    .info {
-      flex: 1;
-    }
-
-    .name {
-      font-weight: bold;
-    }
-
-    .last {
-      font-size: 12px;
-      color: gray;
-    }
+    .sub { font-size:12px; color:gray; }
   </style>
 </head>
 
 <body>
 
-<div class="header">Chats</div>
-<div id="chatList"></div>
+<header>Chats</header>
 
-<script type="module">
-import { db } from "./firebase.js";
-import {
-  collection,
-  getDocs,
-  doc,
-  getDoc
-} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-
-const currentUser = JSON.parse(localStorage.getItem("user"));
-const list = document.getElementById("chatList");
-
-async function loadChats() {
-  const snapshot = await getDocs(collection(db, "chats"));
-  list.innerHTML = "";
-
-  for (const chat of snapshot.docs) {
-    const data = chat.data();
-
-    if (!data.users.includes(currentUser.userId)) continue;
-
-    const otherId = data.users.find(u => u !== currentUser.userId);
-
-    // get user data
-    const userSnap = await getDoc(doc(db, "users", otherId));
-
-    let username = otherId;
-    let photo = "";
-
-    if (userSnap.exists()) {
-      username = userSnap.data().username;
-      photo = userSnap.data().photoURL;
-    }
-
-    const div = document.createElement("div");
-    div.className = "chat-item";
-
-    div.innerHTML = `
-      <img src="${photo}" class="avatar">
-      <div class="info">
-        <div class="name">${username}</div>
-        <div class="last">Tap to chat</div>
-      </div>
-    `;
-
-    div.onclick = () => {
-      window.location = `chat.html?id=${chat.id}`;
-    };
-
-    list.appendChild(div);
-  }
-}
-
-loadChats();
-</script>
+<div id="list"></div>
 
 </body>
 </html>
