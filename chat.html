@@ -38,17 +38,30 @@
 
     // 🔥 LOAD USER PROFILE
     async function loadOtherUser() {
-      const snap = await getDoc(doc(db, "users", otherUserId));
-      if (!snap.exists()) return;
+  try {
+    const snap = await getDoc(doc(db, "users", otherUserId));
 
-      const data = snap.data();
-
-      document.getElementById("name").innerText =
-        data.username || "User";
-
+    if (!snap.exists()) {
+      document.getElementById("name").innerText = "Unknown";
       document.getElementById("profileImg").src =
-        data.photoURL || "https://ui-avatars.com/api/?name=" + data.username;
+        "https://ui-avatars.com/api/?name=User";
+      return;
     }
+
+    const data = snap.data();
+
+    const username = data.username || "User";
+    const photo =
+      data.photoURL ||
+      `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}`;
+
+    document.getElementById("name").innerText = username;
+    document.getElementById("profileImg").src = photo;
+
+  } catch (err) {
+    console.error("User load error:", err);
+  }
+}
 
     // 🔥 LOAD MESSAGES
     function loadMessages() {
