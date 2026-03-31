@@ -4,90 +4,89 @@
   <title>Chat</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <script type="module">
-    import { db } from "./firebase.js";
-    import {
-      collection, addDoc, query, orderBy,
-      onSnapshot, serverTimestamp, doc, getDoc, setDoc
-    } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+<script type="module">
+import { db } from "./firebase.js";
+import {
+  collection, addDoc, query, orderBy,
+  onSnapshot, serverTimestamp, doc, getDoc, setDoc
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-    // ✅ CURRENT USER
-    const currentUser = JSON.parse(localStorage.getItem("user"));
+const currentUser = JSON.parse(localStorage.getItem("user"));
 
-    if (!currentUser || !currentUser.uid) {
-      alert("Login required");
-      window.location.href = "index.html";
-    }
+if (!currentUser || !currentUser.uid) {
+  alert("Login required");
+  window.location.href = "index.html";
+}
 
-    const myUid = currentUser.uid;
+const myUid = currentUser.uid;
 
-    // ✅ OTHER USER UID
-    const params = new URLSearchParams(window.location.search);
-    const otherUid = params.get("id");
+const params = new URLSearchParams(window.location.search);
+const otherUid = params.get("id");
 
-    if (!otherUid) {
-      alert("No user selected");
-      window.location.href = "dashboard.html";
-    }
+if (!otherUid) {
+  alert("No user selected");
+  window.location.href = "dashboard.html";
+}
 
-    // ✅ CHAT ID (SAFE)
-    const chatId = [myUid, otherUid].sort().join("_");
+const chatId = [myUid, otherUid].sort().join("_");
 
-    // 🔥 LOAD OTHER USER
-    async function loadOtherUser() {
-      try {
-        const snap = await getDoc(doc(db, "users", otherUid));
+// 🔥 MARK AS READ (NEW)
+async function markAsRead() {
+  await setDoc(doc(db, "userChats", myUid, "list", otherUid), {
+    unread: 0
+  }, { merge: true });
+}
 
-        if (!snap.exists()) {
-          document.getElementById("name").innerText = "Unknown";
-          document.getElementById("profileImg").src =
-            "https://ui-avatars.com/api/?name=User";
-          return;
-        }
+// 🔥 LOAD OTHER USER (SAME)
+async function loadOtherUser() {
+  try {
+    const snap = await getDoc(doc(db, "users", otherUid));
 
-        const data = snap.data();
+    if (!snap.exists()) return;
 
-        document.getElementById("name").innerText =
-          data.username || "User";
+    const data = snap.data();
 
-        document.getElementById("profileImg").src =
-          data.photoURL ||
-          `https://ui-avatars.com/api/?name=${encodeURIComponent(data.username)}`;
+    document.getElementById("name").innerText =
+      data.username || "User";
 
-      } catch (err) {
-        console.error(err);
-      }
-    }
+    document.getElementById("profileImg").src =
+      data.photoURL ||
+      `https://ui-avatars.com/api/?name=${encodeURIComponent(data.username)}`;
 
-    // 🔥 LOAD MESSAGES (REALTIME)
-    function loadMessages() {
-      const q = query(
-        collection(db, "chats", chatId, "messages"),
-        orderBy("createdAt")
-      );
+  } catch (err) {
+    console.error(err);
+  }
+}
 
-      onSnapshot(q, (snapshot) => {
-        const box = document.getElementById("messages");
-        box.innerHTML = "";
+// 🔥 LOAD MESSAGES (SAME)
+function loadMessages() {
+  const q = query(
+    collection(db, "chats", chatId, "messages"),
+    orderBy("createdAt")
+  );
 
-        snapshot.forEach(doc => {
-          const m = doc.data();
+  onSnapshot(q, (snapshot) => {
+    const box = document.getElementById("messages");
+    box.innerHTML = "";
 
-          const div = document.createElement("div");
-          div.className =
-            m.senderId === myUid ? "me" : "other";
+    snapshot.forEach(doc => {
+      const m = doc.data();
 
-          div.innerText = m.text;
+      const div = document.createElement("div");
+      div.className =
+        m.senderId === myUid ? "me" : "other";
 
-          box.appendChild(div);
-        });
+      div.innerText = m.text;
 
-        box.scrollTop = box.scrollHeight;
-      });
-    }
+      box.appendChild(div);
+    });
 
-    // 🔥 SEND MESSAGE (FULL FIX)
-  window.sendMessage = async function () {
+    box.scrollTop = box.scrollHeight;
+  });
+}
+
+// 🔥 SEND MESSAGE (SAME — NO CHANGE)
+window.sendMessage = async function () {
   const input = document.getElementById("msg");
   const text = input.value.trim();
 
@@ -96,14 +95,12 @@
   const msgData = {
     text,
     senderId: myUid,
-    receiverId: otherUid, // ✅ FIXED
+    receiverId: otherUid,
     createdAt: serverTimestamp()
   };
 
-  // ✅ SAVE MESSAGE
   await addDoc(collection(db, "chats", chatId, "messages"), msgData);
 
-  // ✅ SAVE CHAT LIST (ME)
   await setDoc(doc(db, "userChats", myUid, "list", otherUid), {
     uid: otherUid,
     lastMessage: text,
@@ -111,7 +108,6 @@
     unread: 0
   });
 
-  // ✅ SAVE CHAT LIST (OTHER USER)
   await setDoc(doc(db, "userChats", otherUid, "list", myUid), {
     uid: myUid,
     lastMessage: text,
@@ -122,18 +118,19 @@
   input.value = "";
 };
 
-    // ENTER KEY
-    window.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") sendMessage();
-    });
+// ENTER KEY (SAME)
+window.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") sendMessage();
+});
 
-    // LOAD
-    window.onload = () => {
-      loadMessages();
-      loadOtherUser();
-    };
+// 🔥 LOAD (UPDATED)
+window.onload = () => {
+  loadMessages();
+  loadOtherUser();
+  markAsRead(); // ✅ IMPORTANT
+};
 
-  </script>
+</script>
 
   <style>
     body {
