@@ -1,77 +1,104 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Chats</title>
-  <script type="module">
-    import { db } from "./firebase.js";
-    import {
-      collection, getDocs
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+<title>Chats</title>
 
-    const currentUser = JSON.parse(localStorage.getItem("user"));
+<script type="module">
+import { db } from "./firebase.js";
+import {
+  collection, query, orderBy,
+  onSnapshot, doc, getDoc
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-    if (!currentUser) {
-      alert("Login required");
-      window.location.href = "index.html";
+const currentUser = JSON.parse(localStorage.getItem("user"));
+
+if (!currentUser) {
+  location = "index.html";
+}
+
+// 🔥 LOAD CHAT LIST
+function loadChats() {
+  const q = query(
+    collection(db, "userChats", currentUser.userId, "list"),
+    orderBy("updatedAt", "desc")
+  );
+
+  onSnapshot(q, async (snap) => {
+    const box = document.getElementById("chatList");
+    box.innerHTML = "";
+
+    for (const d of snap.docs) {
+      const data = d.data();
+
+      // 🔥 get user info
+      const userSnap = await getDoc(doc(db, "users", data.userId));
+      const user = userSnap.data();
+
+      const div = document.createElement("div");
+      div.className = "chatItem";
+
+      div.innerHTML = `
+        <img src="${user.photoURL || 'https://ui-avatars.com/api/?name='+user.username}">
+        <div>
+          <div class="name">${user.username}</div>
+          <div class="msg">${data.lastMessage}</div>
+        </div>
+      `;
+
+      div.onclick = () => {
+        location = "chat.html?id=" + data.userId;
+      };
+
+      box.appendChild(div);
     }
+  });
+}
 
-    window.onload = async () => {
-      const snap = await getDocs(collection(db, "users"));
-      const list = document.getElementById("list");
+window.onload = loadChats;
+</script>
 
-      snap.forEach(doc => {
-        const u = doc.data();
+<style>
+body {
+  margin:0;
+  font-family:sans-serif;
+}
 
-        if (u.userId === currentUser.userId) return;
+.header {
+  background:#4CAF50;
+  color:white;
+  padding:15px;
+  font-size:18px;
+}
 
-        const div = document.createElement("div");
-        div.className = "item";
+.chatItem {
+  display:flex;
+  gap:10px;
+  padding:12px;
+  border-bottom:1px solid #ddd;
+  cursor:pointer;
+}
 
-        div.innerHTML = `
-          <img src="${u.photoURL || 'https://via.placeholder.com/40'}">
-          <div>
-            <b>${u.username || u.userId}</b>
-            <div class="sub">Tap to chat</div>
-          </div>
-        `;
+.chatItem img {
+  width:45px;
+  height:45px;
+  border-radius:50%;
+}
 
-        div.onclick = () => {
-          window.location.href = "chat.html?id=" + u.userId;
-        };
+.name {
+  font-weight:bold;
+}
 
-        list.appendChild(div);
-      });
-    };
-  </script>
-
-  <style>
-    body { font-family:sans-serif; margin:0; }
-    header {
-      background:#4CAF50;
-      color:white;
-      padding:15px;
-    }
-    .item {
-      display:flex;
-      padding:10px;
-      border-bottom:1px solid #eee;
-      cursor:pointer;
-    }
-    .item img {
-      width:40px;
-      height:40px;
-      border-radius:50%;
-      margin-right:10px;
-    }
-    .sub { font-size:12px; color:gray; }
-  </style>
+.msg {
+  color:gray;
+  font-size:13px;
+}
+</style>
 </head>
 
 <body>
 
-<header>Chats</header>
-
-<div id="list"></div>
+<div class="header">Chats</div>
+<div id="chatList"></div>
 
 </body>
 </html>
