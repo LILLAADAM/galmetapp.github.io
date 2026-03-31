@@ -244,7 +244,7 @@ onAuthStateChanged(auth, async (user)=>{
 
     // ✅ ADD THIS (LOCAL STORAGE FIX)
     localStorage.setItem("user", JSON.stringify({
-        userId: user.uid,
+        uid: user.uid,
         username: user.displayName || "User",
         photoURL: user.photoURL || ""
     }));
