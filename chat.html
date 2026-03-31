@@ -17,6 +17,7 @@ import {
 
 const storage = getStorage(undefined, "gs://galmet-app.firebasestorage.app");
 
+/* USER */
 const currentUser = JSON.parse(localStorage.getItem("user"));
 if (!currentUser?.uid) {
   alert("Login required");
@@ -25,37 +26,21 @@ if (!currentUser?.uid) {
 
 const myUid = currentUser.uid;
 const otherUid = new URLSearchParams(location.search).get("id");
-
-/* ✅ FIX: prevent crash if id missing */
-if (!otherUid) {
-  alert("User not found");
-  location.href = "chats.html";
-}
-
 const chatId = [myUid, otherUid].sort().join("_");
 
-/* ✅ FIX HEADER LOAD */
+/* LOAD USER */
 async function loadOtherUser() {
-  try {
-    const snap = await getDoc(doc(db, "users", otherUid));
+  const snap = await getDoc(doc(db, "users", otherUid));
+  if (!snap.exists()) return;
 
-    const nameEl = document.getElementById("name");
-    const imgEl = document.getElementById("profileImg");
+  const data = snap.data();
 
-    if (!snap.exists()) {
-      nameEl.innerText = "User";
-      imgEl.src = "https://ui-avatars.com/api/?name=User";
-      return;
-    }
+  document.getElementById("name").innerText =
+    data.fullName || data.username || "User";
 
-    const data = snap.data();
-
-    nameEl.innerText = data.fullName || data.username || "User";
-    imgEl.src = data.photoURL || "https://ui-avatars.com/api/?name=User";
-
-  } catch (e) {
-    console.log(e);
-  }
+  document.getElementById("profileImg").src =
+    data.photoURL ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(data.username)}`;
 }
 
 /* CLICK HEADER */
@@ -63,7 +48,7 @@ window.openProfile = () => {
   location.href = `view.html?id=${otherUid}`;
 };
 
-/* MESSAGES */
+/* LOAD MESSAGES */
 function loadMessages() {
   const q = query(
     collection(db, "chats", chatId, "messages"),
@@ -86,7 +71,6 @@ function loadMessages() {
         const img = document.createElement("img");
         img.src = m.image;
         img.className = "chat-img";
-        img.onclick = () => openFullImage(m.image);
         div.appendChild(img);
       }
 
@@ -97,29 +81,22 @@ function loadMessages() {
   });
 }
 
-/* FULL VIEW */
-window.openFullImage = (url) => {
-  document.getElementById("viewer").style.display = "flex";
-  document.getElementById("viewerImg").src = url;
-};
-
-window.closeViewer = () => {
-  document.getElementById("viewer").style.display = "none";
-};
-
 /* IMAGE PICK */
-let selectedFile = null;
-
 window.pickImage = () => {
   document.getElementById("imageInput").click();
 };
 
+let selectedFile = null;
+
 document.addEventListener("DOMContentLoaded", () => {
+  const previewModal = document.getElementById("previewModal");
+  previewModal.style.display = "none"; // ✅ FIX (IMPORTANT)
+
   document.getElementById("imageInput").addEventListener("change", e => {
     selectedFile = e.target.files[0];
     if (!selectedFile) return;
 
-    document.getElementById("previewModal").style.display = "flex";
+    previewModal.style.display = "flex";
     document.getElementById("previewImage").src =
       URL.createObjectURL(selectedFile);
   });
@@ -135,9 +112,10 @@ function compressImage(file) {
 
     img.onload = () => {
       const canvas = document.createElement("canvas");
-      const scale = 800 / img.width;
+      const maxWidth = 800;
 
-      canvas.width = 800;
+      let scale = maxWidth / img.width;
+      canvas.width = maxWidth;
       canvas.height = img.height * scale;
 
       const ctx = canvas.getContext("2d");
@@ -170,19 +148,17 @@ window.sendImage = async () => {
   closePreview();
 };
 
-/* ✅ FIX CANCEL BUG */
+/* CLOSE PREVIEW */
 window.closePreview = () => {
   document.getElementById("previewModal").style.display = "none";
   selectedFile = null;
 };
 
-/* TEXT */
+/* SEND TEXT */
 window.sendMessage = async () => {
   const input = document.getElementById("msg");
   const text = input.value.trim();
   if (!text) return;
-
-  input.value = "";
 
   await addDoc(collection(db, "chats", chatId, "messages"), {
     text,
@@ -190,19 +166,20 @@ window.sendMessage = async () => {
     receiverId: otherUid,
     createdAt: serverTimestamp()
   });
+
+  input.value = "";
 };
 
 /* LOAD */
 window.onload = () => {
-  loadOtherUser();
   loadMessages();
+  loadOtherUser();
 };
 </script>
 
 <style>
 body { margin:0; font-family:sans-serif; background:#f5f5f5; }
 
-/* HEADER */
 header {
   background:#4CAF50;
   color:white;
@@ -220,16 +197,20 @@ header img {
 
 /* CHAT */
 #messages {
-  height:calc(100vh - 140px);
+  position:fixed;
+  top:60px;
+  bottom:60px;
+  left:0;
+  right:0;
   overflow:auto;
   padding:10px;
 }
 
-/* ✅ FIX SPACE */
+/* BUBBLES */
 .me, .other {
   width:fit-content;
   max-width:75%;
-  padding:8px 10px;
+  padding:8px;
   margin:4px;
   border-radius:14px;
 }
@@ -237,9 +218,11 @@ header img {
 .me { background:#4CAF50; color:white; margin-left:auto; }
 .other { background:#e4e6eb; }
 
+/* IMAGE */
 .chat-img {
   max-width:140px;
   border-radius:10px;
+  display:block;
 }
 
 /* INPUT */
@@ -261,35 +244,37 @@ header img {
   border:none;
 }
 
-input {
-  flex:1;
-  padding:10px;
-  border-radius:20px;
-  border:1px solid #ccc;
-}
-
-/* ✅ FIX PREVIEW BUTTON POSITION */
+/* PREVIEW */
 #previewModal {
   display:none;
   position:fixed;
   inset:0;
   background:black;
-  display:flex;
-  flex-direction:column;
+  z-index:999;
   justify-content:center;
   align-items:center;
+  flex-direction:column;
 }
 
 #previewModal img {
-  max-width:100%;
+  max-width:90%;
   max-height:70vh;
 }
 
+/* ✅ GREEN BUTTONS FIX */
 .preview-actions {
-  position:fixed;
-  bottom:30px;
+  position:absolute;
+  bottom:40px;
   display:flex;
   gap:20px;
+}
+
+.preview-actions button {
+  background:#4CAF50;
+  color:white;
+  border:none;
+  padding:10px 20px;
+  border-radius:20px;
 }
 </style>
 </head>
@@ -298,7 +283,7 @@ input {
 
 <header onclick="openProfile()">
   <img id="profileImg">
-  <span id="name">Loading...</span>
+  <span id="name"></span>
 </header>
 
 <div id="messages"></div>
@@ -317,11 +302,6 @@ input {
     <button onclick="closePreview()">Cancel</button>
     <button onclick="sendImage()">Send</button>
   </div>
-</div>
-
-<!-- FULL VIEW -->
-<div id="viewer" onclick="closeViewer()" style="display:none;position:fixed;inset:0;background:black;justify-content:center;align-items:center;">
-  <img id="viewerImg" style="max-width:100%;">
 </div>
 
 </body>
