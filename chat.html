@@ -104,20 +104,17 @@
       };
 
       // save message
-      await addDoc(collection(db, "chats", chatId, "messages"), msgData);
+      await setDoc(doc(db, "userChats", currentUser.uid, "list", otherUserId), {
+  userId: otherUserId,
+  lastMessage: text,
+  updatedAt: serverTimestamp()
+});
 
-      // save chat list (for both users)
-      await setDoc(doc(db, "userChats", currentUser.userId, "list", otherUserId), {
-        userId: otherUserId,
-        lastMessage: text,
-        updatedAt: serverTimestamp()
-      });
-
-      await setDoc(doc(db, "userChats", otherUserId, "list", currentUser.userId), {
-        userId: currentUser.userId,
-        lastMessage: text,
-        updatedAt: serverTimestamp()
-      });
+await setDoc(doc(db, "userChats", otherUserId, "list", currentUser.uid), {
+  userId: currentUser.uid,
+  lastMessage: text,
+  updatedAt: serverTimestamp()
+});
 
       input.value = "";
     };
