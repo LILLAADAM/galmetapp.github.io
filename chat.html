@@ -2,14 +2,13 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Chat</title>
 
 <script type="module">
 import { db } from "./firebase.js";
 import {
   collection, addDoc, query, orderBy,
-  onSnapshot, serverTimestamp, doc, getDoc, setDoc
+  onSnapshot, serverTimestamp, doc, getDoc
 } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 import {
@@ -19,36 +18,23 @@ import {
 const storage = getStorage(undefined, "gs://galmet-app.firebasestorage.app");
 
 const currentUser = JSON.parse(localStorage.getItem("user"));
-if (!currentUser?.uid) {
-  alert("Login required");
-  location.href = "index.html";
-}
+if (!currentUser?.uid) location.href = "index.html";
 
 const myUid = currentUser.uid;
 const otherUid = new URLSearchParams(location.search).get("id");
-const chatId = [myUid, otherUid].sort().join("_");
+const chatId = [myUid, otherUid].sort().join("_);
 
-/* ================= LOAD USER ================= */
+/* LOAD USER */
 async function loadOtherUser() {
   const snap = await getDoc(doc(db, "users", otherUid));
   if (!snap.exists()) return;
-
   const data = snap.data();
 
-  document.getElementById("name").innerText =
-    data.fullName || data.username || "User";
-
-  document.getElementById("profileImg").src =
-    data.photoURL ||
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(data.username)}`;
+  name.innerText = data.fullName || data.username;
+  profileImg.src = data.photoURL;
 }
 
-/* ================= CLICK HEADER ================= */
-window.openProfile = () => {
-  location.href = `view.html?id=${otherUid}`;
-};
-
-/* ================= LOAD MESSAGES ================= */
+/* REALTIME (FIXED FAST) */
 function loadMessages() {
   const q = query(
     collection(db, "chats", chatId, "messages"),
@@ -56,121 +42,46 @@ function loadMessages() {
   );
 
   onSnapshot(q, (snapshot) => {
-    const box = document.getElementById("messages");
-    box.innerHTML = "";
-
-    snapshot.forEach(docSnap => {
-      const m = docSnap.data();
-
-      const div = document.createElement("div");
-      div.className = m.senderId === myUid ? "me" : "other";
-
-      if (m.text) div.innerText = m.text;
-
-      if (m.image) {
-        const img = document.createElement("img");
-        img.src = m.image;
-        img.className = "chat-img";
-        img.onclick = () => openFullImage(m.image);
-        div.appendChild(img);
+    snapshot.docChanges().forEach(change => {
+      if (change.type === "added") {
+        renderMessage(change.doc.data());
       }
-
-      box.appendChild(div);
     });
-
-    box.scrollTop = box.scrollHeight;
   });
 }
 
-/* ================= FULL IMAGE VIEW ================= */
-window.openFullImage = (url) => {
-  const viewer = document.getElementById("viewer");
-  const img = document.getElementById("viewerImg");
-  img.src = url;
-  viewer.style.display = "flex";
-};
+/* RENDER (NO EXTRA SPACE) */
+function renderMessage(m) {
+  const div = document.createElement("div");
+  div.className = m.senderId === myUid ? "me" : "other";
 
-window.closeViewer = () => {
-  document.getElementById("viewer").style.display = "none";
-};
+  if (m.text) {
+    div.innerText = m.text;
+  }
 
-/* ================= COMPRESS IMAGE ================= */
-function compressImage(file) {
-  return new Promise(resolve => {
-    const img = new Image();
-    const reader = new FileReader();
+  if (m.image) {
+    const img = document.createElement("img");
+    img.src = m.image;
+    img.className = "chat-img";
+    img.onclick = () => openFullImage(m.image);
+    div.appendChild(img);
+  }
 
-    reader.onload = e => {
-      img.src = e.target.result;
-    };
-
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      const maxWidth = 800;
-
-      let scale = maxWidth / img.width;
-      canvas.width = maxWidth;
-      canvas.height = img.height * scale;
-
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-      canvas.toBlob(blob => resolve(blob), "image/jpeg", 0.7);
-    };
-
-    reader.readAsDataURL(file);
-  });
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
 }
 
-/* ================= IMAGE PICK ================= */
-window.pickImage = () => {
-  document.getElementById("imageInput").click();
-};
-
-let selectedFile = null;
-
-document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("imageInput").addEventListener("change", e => {
-    selectedFile = e.target.files[0];
-    if (!selectedFile) return;
-
-    document.getElementById("previewModal").style.display = "flex";
-    document.getElementById("previewImage").src =
-      URL.createObjectURL(selectedFile);
-  });
-});
-
-/* ================= SEND IMAGE ================= */
-window.sendImage = async () => {
-  if (!selectedFile) return;
-
-  const compressed = await compressImage(selectedFile);
-
-  const fileRef = ref(storage, "chatImages/" + Date.now());
-  await uploadBytes(fileRef, compressed);
-  const url = await getDownloadURL(fileRef);
-
-  await addDoc(collection(db, "chats", chatId, "messages"), {
-    image: url,
-    senderId: myUid,
-    receiverId: otherUid,
-    createdAt: serverTimestamp()
-  });
-
-  closePreview();
-};
-
-/* ================= PREVIEW CONTROL ================= */
-window.closePreview = () => {
-  document.getElementById("previewModal").style.display = "none";
-  selectedFile = null;
-};
-
-/* ================= TEXT ================= */
+/* SEND TEXT (INSTANT UI) */
 window.sendMessage = async () => {
-  const input = document.getElementById("msg");
-  const text = input.value.trim();
+  const text = msg.value.trim();
   if (!text) return;
+
+  renderMessage({
+    text,
+    senderId: myUid
+  });
+
+  msg.value = "";
 
   await addDoc(collection(db, "chats", chatId, "messages"), {
     text,
@@ -178,11 +89,54 @@ window.sendMessage = async () => {
     receiverId: otherUid,
     createdAt: serverTimestamp()
   });
-
-  input.value = "";
 };
 
-/* ================= LOAD ================= */
+/* IMAGE */
+let selectedFile = null;
+
+window.pickImage = () => imageInput.click();
+
+imageInput.onchange = e => {
+  selectedFile = e.target.files[0];
+  previewModal.style.display = "flex";
+  previewImage.src = URL.createObjectURL(selectedFile);
+};
+
+window.sendImage = async () => {
+  if (!selectedFile) return;
+
+  previewModal.style.display = "none";
+
+  const fileRef = ref(storage, "chatImages/" + Date.now());
+  await uploadBytes(fileRef, selectedFile);
+  const url = await getDownloadURL(fileRef);
+
+  renderMessage({
+    image: url,
+    senderId: myUid
+  });
+
+  await addDoc(collection(db, "chats", chatId, "messages"), {
+    image: url,
+    senderId: myUid,
+    receiverId: otherUid,
+    createdAt: serverTimestamp()
+  });
+};
+
+/* FULL IMAGE */
+window.openFullImage = (url) => {
+  viewer.style.display = "flex";
+  viewerImg.src = url;
+};
+
+window.closeViewer = () => viewer.style.display = "none";
+
+/* EMOJI */
+window.addEmoji = () => {
+  msg.value += "😊";
+};
+
 window.onload = () => {
   loadMessages();
   loadOtherUser();
@@ -192,13 +146,13 @@ window.onload = () => {
 <style>
 body { margin:0; font-family:sans-serif; background:#f5f5f5; }
 
+/* HEADER */
 header {
   background:#4CAF50;
   color:white;
   padding:12px;
   display:flex;
   align-items:center;
-  cursor:pointer;
 }
 
 header img {
@@ -208,29 +162,44 @@ header img {
   margin-right:10px;
 }
 
+/* CHAT */
 #messages {
   height:calc(100vh - 140px);
   overflow:auto;
   padding:10px;
+  display:flex;
+  flex-direction:column;
 }
 
+/* FIXED WIDTH */
 .me, .other {
-  max-width:70%;
+  width:fit-content;
+  max-width:75%;
   padding:10px;
-  margin:6px;
+  margin:4px;
   border-radius:14px;
+  word-wrap:break-word;
 }
 
-.me { background:#4CAF50; color:white; margin-left:auto; }
-.other { background:#e4e6eb; }
+.me {
+  background:#4CAF50;
+  color:white;
+  align-self:flex-end;
+}
 
+.other {
+  background:#e4e6eb;
+  align-self:flex-start;
+}
+
+/* IMAGE FIX */
 .chat-img {
-  max-width:120px;
+  max-width:180px;
   border-radius:10px;
-  margin-top:5px;
+  display:block;
 }
 
-/* bottom */
+/* BOTTOM */
 .bottom {
   position:fixed;
   bottom:0;
@@ -238,16 +207,17 @@ header img {
   display:flex;
   padding:8px;
   background:white;
+  align-items:center;
 }
 
 .plus {
-  width:42px;
-  height:42px;
+  width:40px;
+  height:40px;
   border-radius:50%;
   background:#4CAF50;
   color:white;
   border:none;
-  font-size:22px;
+  font-size:20px;
 }
 
 input {
@@ -258,6 +228,14 @@ input {
   border:1px solid #ccc;
 }
 
+/* EMOJI */
+.emoji {
+  font-size:20px;
+  margin-right:5px;
+  cursor:pointer;
+}
+
+/* BUTTON */
 button {
   background:#4CAF50;
   color:white;
@@ -266,7 +244,7 @@ button {
   padding:10px;
 }
 
-/* PREVIEW MODAL */
+/* PREVIEW */
 #previewModal {
   display:none;
   position:fixed;
@@ -277,18 +255,9 @@ button {
   flex-direction:column;
 }
 
-#previewModal img {
-  max-width:90%;
-}
+#previewModal img { max-width:90%; }
 
-.preview-actions {
-  position:absolute;
-  bottom:20px;
-  display:flex;
-  gap:20px;
-}
-
-/* FULL VIEW */
+/* VIEWER */
 #viewer {
   display:none;
   position:fixed;
@@ -296,24 +265,14 @@ button {
   background:black;
   justify-content:center;
   align-items:center;
-  flex-direction:column;
 }
-
-#viewer img {
-  max-width:100%;
-}
-
-.save-btn {
-  position:absolute;
-  bottom:20px;
-  right:20px;
-}
+#viewer img { max-width:100%; }
 </style>
 </head>
 
 <body>
 
-<header onclick="openProfile()">
+<header>
   <img id="profileImg">
   <span id="name"></span>
 </header>
@@ -322,24 +281,21 @@ button {
 
 <div class="bottom">
   <button class="plus" onclick="pickImage()">+</button>
+  <span class="emoji" onclick="addEmoji()">😊</span>
   <input id="msg" placeholder="Type message...">
   <button onclick="sendMessage()">Send</button>
-  <input type="file" id="imageInput" accept="image/*" hidden>
+  <input type="file" id="imageInput" hidden>
 </div>
 
 <!-- PREVIEW -->
 <div id="previewModal">
   <img id="previewImage">
-  <div class="preview-actions">
-    <button onclick="closePreview()">Cancel</button>
-    <button onclick="sendImage()">Send</button>
-  </div>
+  <button onclick="sendImage()">Send</button>
 </div>
 
-<!-- FULL VIEW -->
+<!-- FULL -->
 <div id="viewer" onclick="closeViewer()">
   <img id="viewerImg">
-  <a id="downloadBtn" class="save-btn" download>Save</a>
 </div>
 
 </body>
