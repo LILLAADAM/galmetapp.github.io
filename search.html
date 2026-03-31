@@ -110,19 +110,19 @@ window.search = async () => {
     } else {
 
         users.forEach(u => {
-            html += `
-            <div class="user">
-                <img src="${u.photoURL || 'https://ui-avatars.com/api/?name='+u.username}" 
-                     onclick="view('${u.userId}')">
+    html += `
+    <div class="user">
+        <img src="${u.photoURL || 'https://ui-avatars.com/api/?name='+u.username}" 
+             onclick="view('${u.uid}')">
 
-                <div class="info" onclick="view('${u.userId}')">
-                    <div class="name">${u.username}</div>
-                    <div class="id">ID: ${u.userId}</div>
-                </div>
+        <div class="info" onclick="view('${u.uid}')">
+            <div class="name">${u.username}</div>
+            <div class="id">ID: ${u.userId}</div>
+        </div>
 
-                <button onclick="chat('${u.userId}')">Chat</button>
-            </div>`;
-        });
+        <button onclick="chat('${u.uid}')">Chat</button>
+    </div>`;
+});
     }
 
     document.getElementById("results").innerHTML = html;
