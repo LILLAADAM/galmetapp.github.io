@@ -61,7 +61,7 @@ button {
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getFirestore, collection, query, where, getDocs, limit } 
+import { getFirestore, doc, getDoc } 
 from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 const app = initializeApp({
@@ -73,73 +73,33 @@ const app = initializeApp({
 
 const db = getFirestore(app);
 
-window.search = async () => {
+// ✅ NOW THIS IS UID
+const uid = new URLSearchParams(location.search).get("id");
 
-    const val = document.getElementById("searchInput").value.trim();
+// 🔥 DIRECT GET BY UID
+const snap = await getDoc(doc(db, "users", uid));
 
-    if (!val) return;
+if (!snap.exists()) {
+    document.body.innerHTML = "User not found";
+} else {
 
-    let users = [];
+    const u = snap.data();
 
-    // 🔥 USERNAME SEARCH
-    const q1 = query(
-        collection(db,"users"),
-        where("username","==",val.toUpperCase()),
-        limit(1)
-    );
+    document.body.innerHTML = `
+    <div style="text-align:center;padding:20px">
+        <img src="${u.photoURL}" style="width:200px;border-radius:20px">
+        <h2>${u.username}</h2>
+        <p>ID: ${u.userId}</p>
+        <p>${u.bio || ""}</p>
+        <button onclick="startChat()">Chat</button>
+    </div>
+    `;
+}
 
-    const snap1 = await getDocs(q1);
-    snap1.forEach(d => {
-    users.push({
-        ...d.data(),
-        uid: d.id   // ✅ THIS IS IMPORTANT
-    });
-});
-
-    // 🔥 USERID SEARCH (NUMBER FIX)
-    if (!isNaN(val)) {
-        const q2 = query(
-            collection(db,"users"),
-            where("userId","==",Number(val)),
-            limit(1)
-        );
-
-        const snap2 = await getDocs(q2);
-        snap2.forEach(d => {
-    users.push({
-        ...d.data(),
-        uid: d.id   // ✅ ADD THIS
-    });
-});
-    }
-
-    let html = "";
-
-    if (users.length === 0) {
-        html = "<p style='padding:15px'>No user found</p>";
-    } else {
-
-        users.forEach(u => {
-    html += `
-    <div class="user">
-        <img src="${u.photoURL || 'https://ui-avatars.com/api/?name='+u.username}" 
-             onclick="view('${u.uid}')">
-
-        <div class="info" onclick="view('${u.uid}')">
-            <div class="name">${u.username}</div>
-            <div class="id">ID: ${u.userId}</div>
-        </div>
-
-        <button onclick="chat('${u.uid}')">Chat</button>
-    </div>`;
-});
-    }
-
-    document.getElementById("results").innerHTML = html;
+// ✅ CHAT BUTTON (PASS UID)
+window.startChat = () => {
+    location = "chat.html?id=" + uid;
 };
-
-window.view = (id) => location.href = "view.html?id="+id;
-window.chat = (id) => location = "chat.html?id=" + id;
 
 </script>
 
