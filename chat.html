@@ -18,23 +18,32 @@ import {
 const storage = getStorage(undefined, "gs://galmet-app.firebasestorage.app");
 
 const currentUser = JSON.parse(localStorage.getItem("user"));
-if (!currentUser?.uid) location.href = "index.html";
+if (!currentUser?.uid) {
+  alert("Login required");
+  location.href = "index.html";
+}
 
 const myUid = currentUser.uid;
 const otherUid = new URLSearchParams(location.search).get("id");
-const chatId = [myUid, otherUid].sort().join("_);
+const chatId = [myUid, otherUid].sort().join("_");
 
-/* LOAD USER */
+/* ================= USER ================= */
 async function loadOtherUser() {
   const snap = await getDoc(doc(db, "users", otherUid));
   if (!snap.exists()) return;
-  const data = snap.data();
 
+  const data = snap.data();
   name.innerText = data.fullName || data.username;
-  profileImg.src = data.photoURL;
+  profileImg.src = data.photoURL ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(data.username)}`;
 }
 
-/* REALTIME (FIXED FAST) */
+/* ================= PROFILE CLICK ================= */
+window.openProfile = () => {
+  location.href = `view.html?id=${otherUid}`;
+};
+
+/* ================= MESSAGES ================= */
 function loadMessages() {
   const q = query(
     collection(db, "chats", chatId, "messages"),
@@ -42,22 +51,22 @@ function loadMessages() {
   );
 
   onSnapshot(q, (snapshot) => {
-    snapshot.docChanges().forEach(change => {
-      if (change.type === "added") {
-        renderMessage(change.doc.data());
-      }
+    messages.innerHTML = "";
+
+    snapshot.forEach(docSnap => {
+      renderMessage(docSnap.data());
     });
+
+    messages.scrollTop = messages.scrollHeight;
   });
 }
 
-/* RENDER (NO EXTRA SPACE) */
+/* ================= RENDER ================= */
 function renderMessage(m) {
   const div = document.createElement("div");
   div.className = m.senderId === myUid ? "me" : "other";
 
-  if (m.text) {
-    div.innerText = m.text;
-  }
+  if (m.text) div.innerText = m.text;
 
   if (m.image) {
     const img = document.createElement("img");
@@ -68,18 +77,12 @@ function renderMessage(m) {
   }
 
   messages.appendChild(div);
-  messages.scrollTop = messages.scrollHeight;
 }
 
-/* SEND TEXT (INSTANT UI) */
+/* ================= TEXT ================= */
 window.sendMessage = async () => {
   const text = msg.value.trim();
   if (!text) return;
-
-  renderMessage({
-    text,
-    senderId: myUid
-  });
 
   msg.value = "";
 
@@ -91,30 +94,61 @@ window.sendMessage = async () => {
   });
 };
 
-/* IMAGE */
+/* ================= EMOJI ================= */
+window.addEmoji = () => {
+  msg.value += "😊";
+};
+
+/* ================= IMAGE PICK ================= */
+window.pickImage = () => {
+  imageInput.click();
+};
+
 let selectedFile = null;
 
-window.pickImage = () => imageInput.click();
-
-imageInput.onchange = e => {
+imageInput.onchange = (e) => {
   selectedFile = e.target.files[0];
+  if (!selectedFile) return;
+
   previewModal.style.display = "flex";
   previewImage.src = URL.createObjectURL(selectedFile);
 };
 
+/* ================= COMPRESS ================= */
+function compressImage(file) {
+  return new Promise(resolve => {
+    const img = new Image();
+    const reader = new FileReader();
+
+    reader.onload = e => img.src = e.target.result;
+
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const maxWidth = 800;
+
+      let scale = maxWidth / img.width;
+      canvas.width = maxWidth;
+      canvas.height = img.height * scale;
+
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      canvas.toBlob(blob => resolve(blob), "image/jpeg", 0.7);
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ================= SEND IMAGE ================= */
 window.sendImage = async () => {
   if (!selectedFile) return;
 
-  previewModal.style.display = "none";
+  const compressed = await compressImage(selectedFile);
 
   const fileRef = ref(storage, "chatImages/" + Date.now());
-  await uploadBytes(fileRef, selectedFile);
+  await uploadBytes(fileRef, compressed);
   const url = await getDownloadURL(fileRef);
-
-  renderMessage({
-    image: url,
-    senderId: myUid
-  });
 
   await addDoc(collection(db, "chats", chatId, "messages"), {
     image: url,
@@ -122,21 +156,27 @@ window.sendImage = async () => {
     receiverId: otherUid,
     createdAt: serverTimestamp()
   });
+
+  closePreview();
 };
 
-/* FULL IMAGE */
+/* ================= PREVIEW ================= */
+window.closePreview = () => {
+  previewModal.style.display = "none";
+  selectedFile = null;
+};
+
+/* ================= FULL VIEW ================= */
 window.openFullImage = (url) => {
   viewer.style.display = "flex";
   viewerImg.src = url;
 };
 
-window.closeViewer = () => viewer.style.display = "none";
-
-/* EMOJI */
-window.addEmoji = () => {
-  msg.value += "😊";
+window.closeViewer = () => {
+  viewer.style.display = "none";
 };
 
+/* ================= LOAD ================= */
 window.onload = () => {
   loadMessages();
   loadOtherUser();
@@ -153,6 +193,7 @@ header {
   padding:12px;
   display:flex;
   align-items:center;
+  cursor:pointer;
 }
 
 header img {
@@ -171,7 +212,7 @@ header img {
   flex-direction:column;
 }
 
-/* FIXED WIDTH */
+/* FIX WIDTH */
 .me, .other {
   width:fit-content;
   max-width:75%;
@@ -192,11 +233,9 @@ header img {
   align-self:flex-start;
 }
 
-/* IMAGE FIX */
 .chat-img {
   max-width:180px;
   border-radius:10px;
-  display:block;
 }
 
 /* BOTTOM */
@@ -205,19 +244,19 @@ header img {
   bottom:0;
   width:100%;
   display:flex;
+  align-items:center;
   padding:8px;
   background:white;
-  align-items:center;
 }
 
 .plus {
-  width:40px;
-  height:40px;
+  width:42px;
+  height:42px;
   border-radius:50%;
   background:#4CAF50;
   color:white;
   border:none;
-  font-size:20px;
+  font-size:22px;
 }
 
 input {
@@ -231,7 +270,6 @@ input {
 /* EMOJI */
 .emoji {
   font-size:20px;
-  margin-right:5px;
   cursor:pointer;
 }
 
@@ -255,9 +293,11 @@ button {
   flex-direction:column;
 }
 
-#previewModal img { max-width:90%; }
+#previewModal img {
+  max-width:90%;
+}
 
-/* VIEWER */
+/* VIEW */
 #viewer {
   display:none;
   position:fixed;
@@ -266,13 +306,16 @@ button {
   justify-content:center;
   align-items:center;
 }
-#viewer img { max-width:100%; }
+
+#viewer img {
+  max-width:100%;
+}
 </style>
 </head>
 
 <body>
 
-<header>
+<header onclick="openProfile()">
   <img id="profileImg">
   <span id="name"></span>
 </header>
@@ -284,13 +327,16 @@ button {
   <span class="emoji" onclick="addEmoji()">😊</span>
   <input id="msg" placeholder="Type message...">
   <button onclick="sendMessage()">Send</button>
-  <input type="file" id="imageInput" hidden>
+  <input type="file" id="imageInput" accept="image/*" hidden>
 </div>
 
 <!-- PREVIEW -->
 <div id="previewModal">
   <img id="previewImage">
-  <button onclick="sendImage()">Send</button>
+  <div>
+    <button onclick="closePreview()">Cancel</button>
+    <button onclick="sendImage()">Send</button>
+  </div>
 </div>
 
 <!-- FULL -->
