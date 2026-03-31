@@ -271,10 +271,10 @@ onAuthStateChanged(auth, async (user)=>{
 
     // ✅ UPDATE localStorage with REAL DATA (VERY IMPORTANT)
     localStorage.setItem("user", JSON.stringify({
-        userId: data.userId,
-        username: data.username || "User",
-        photoURL: data.photoURL || ""
-    }));
+    uid: user.uid,   // ✅ THIS LINE IS THE KEY
+    username: user.displayName || "User",
+    photoURL: user.photoURL || ""
+}));
 
     // ✅ UI LOAD
     document.getElementById("email").innerText = data.email;
