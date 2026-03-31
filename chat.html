@@ -17,7 +17,6 @@ import {
 
 const storage = getStorage(undefined, "gs://galmet-app.firebasestorage.app");
 
-/* USER */
 const currentUser = JSON.parse(localStorage.getItem("user"));
 if (!currentUser?.uid) {
   alert("Login required");
@@ -43,11 +42,6 @@ async function loadOtherUser() {
     `https://ui-avatars.com/api/?name=${encodeURIComponent(data.username)}`;
 }
 
-/* CLICK HEADER */
-window.openProfile = () => {
-  location.href = `view.html?id=${otherUid}`;
-};
-
 /* LOAD MESSAGES */
 function loadMessages() {
   const q = query(
@@ -71,6 +65,7 @@ function loadMessages() {
         const img = document.createElement("img");
         img.src = m.image;
         img.className = "chat-img";
+        img.onclick = () => openViewer(m.image);
         div.appendChild(img);
       }
 
@@ -81,6 +76,22 @@ function loadMessages() {
   });
 }
 
+/* FULL IMAGE VIEW */
+window.openViewer = (url) => {
+  const viewer = document.getElementById("viewer");
+  const img = document.getElementById("viewerImg");
+  const download = document.getElementById("downloadBtn");
+
+  img.src = url;
+  download.href = url;
+
+  viewer.style.display = "flex";
+};
+
+window.closeViewer = () => {
+  document.getElementById("viewer").style.display = "none";
+};
+
 /* IMAGE PICK */
 window.pickImage = () => {
   document.getElementById("imageInput").click();
@@ -90,7 +101,6 @@ let selectedFile = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   const previewModal = document.getElementById("previewModal");
-  previewModal.style.display = "none"; // ✅ FIX (IMPORTANT)
 
   document.getElementById("imageInput").addEventListener("change", e => {
     selectedFile = e.target.files[0];
@@ -148,7 +158,6 @@ window.sendImage = async () => {
   closePreview();
 };
 
-/* CLOSE PREVIEW */
 window.closePreview = () => {
   document.getElementById("previewModal").style.display = "none";
   selectedFile = null;
@@ -170,7 +179,6 @@ window.sendMessage = async () => {
   input.value = "";
 };
 
-/* LOAD */
 window.onload = () => {
   loadMessages();
   loadOtherUser();
@@ -180,6 +188,7 @@ window.onload = () => {
 <style>
 body { margin:0; font-family:sans-serif; background:#f5f5f5; }
 
+/* HEADER */
 header {
   background:#4CAF50;
   color:white;
@@ -199,7 +208,7 @@ header img {
 #messages {
   position:fixed;
   top:60px;
-  bottom:60px;
+  bottom:70px;
   left:0;
   right:0;
   overflow:auto;
@@ -210,9 +219,9 @@ header img {
 .me, .other {
   width:fit-content;
   max-width:75%;
-  padding:8px;
-  margin:4px;
-  border-radius:14px;
+  padding:10px;
+  margin:6px;
+  border-radius:16px;
 }
 
 .me { background:#4CAF50; color:white; margin-left:auto; }
@@ -220,28 +229,46 @@ header img {
 
 /* IMAGE */
 .chat-img {
-  max-width:140px;
-  border-radius:10px;
-  display:block;
+  max-width:160px;
+  border-radius:12px;
+  cursor:pointer;
 }
 
-/* INPUT */
+/* INPUT FIX (BIG + MOBILE) */
 .bottom {
   position:fixed;
   bottom:0;
   width:100%;
   display:flex;
-  padding:8px;
+  padding:10px;
   background:white;
+  gap:6px;
 }
 
 .plus {
-  width:40px;
-  height:40px;
+  width:42px;
+  height:42px;
   border-radius:50%;
   background:#4CAF50;
   color:white;
   border:none;
+  font-size:20px;
+}
+
+input {
+  flex:1;
+  padding:12px;
+  border-radius:25px;
+  border:1px solid #ccc;
+  font-size:15px;
+}
+
+button {
+  background:#4CAF50;
+  color:white;
+  border:none;
+  padding:10px 14px;
+  border-radius:20px;
 }
 
 /* PREVIEW */
@@ -250,7 +277,6 @@ header img {
   position:fixed;
   inset:0;
   background:black;
-  z-index:999;
   justify-content:center;
   align-items:center;
   flex-direction:column;
@@ -261,7 +287,6 @@ header img {
   max-height:70vh;
 }
 
-/* ✅ GREEN BUTTONS FIX */
 .preview-actions {
   position:absolute;
   bottom:40px;
@@ -269,19 +294,37 @@ header img {
   gap:20px;
 }
 
-.preview-actions button {
+/* FULL VIEW */
+#viewer {
+  display:none;
+  position:fixed;
+  inset:0;
+  background:black;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+}
+
+#viewer img {
+  max-width:100%;
+}
+
+.save-btn {
+  position:absolute;
+  bottom:30px;
+  right:20px;
   background:#4CAF50;
-  color:white;
-  border:none;
-  padding:10px 20px;
+  padding:10px 15px;
   border-radius:20px;
+  color:white;
+  text-decoration:none;
 }
 </style>
 </head>
 
 <body>
 
-<header onclick="openProfile()">
+<header>
   <img id="profileImg">
   <span id="name"></span>
 </header>
@@ -302,6 +345,12 @@ header img {
     <button onclick="closePreview()">Cancel</button>
     <button onclick="sendImage()">Send</button>
   </div>
+</div>
+
+<!-- FULL IMAGE VIEW -->
+<div id="viewer" onclick="closeViewer()">
+  <img id="viewerImg">
+  <a id="downloadBtn" class="save-btn" download>Save</a>
 </div>
 
 </body>
