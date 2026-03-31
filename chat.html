@@ -95,25 +95,25 @@
 
   const msgData = {
     text,
-    senderId: currentUser.uid,
-    receiverId: otherUserId,
+    senderId: myUid,
+    receiverId: otherUid, // ✅ FIXED
     createdAt: serverTimestamp()
   };
 
-  // ✅ SAVE MESSAGE (IMPORTANT)
+  // ✅ SAVE MESSAGE
   await addDoc(collection(db, "chats", chatId, "messages"), msgData);
 
   // ✅ SAVE CHAT LIST (ME)
-  await setDoc(doc(db, "userChats", currentUser.uid, "list", otherUserId), {
-    uid: otherUserId,
+  await setDoc(doc(db, "userChats", myUid, "list", otherUid), {
+    uid: otherUid,
     lastMessage: text,
     updatedAt: serverTimestamp(),
     unread: 0
   });
 
   // ✅ SAVE CHAT LIST (OTHER USER)
-  await setDoc(doc(db, "userChats", otherUserId, "list", currentUser.uid), {
-    uid: currentUser.uid,
+  await setDoc(doc(db, "userChats", otherUid, "list", myUid), {
+    uid: myUid,
     lastMessage: text,
     updatedAt: serverTimestamp(),
     unread: 1
