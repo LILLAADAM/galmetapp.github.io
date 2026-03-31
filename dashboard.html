@@ -84,8 +84,10 @@ body {
 
 <body>
 
-<div class="header">
+<div style="display:flex; align-items:center; gap:10px;">
     Galmet Dashboard
+    <img id="profilePic" src="" style="width:35px;height:35px;border-radius:50%;cursor:pointer;" onclick="openProfile()">
+</div>
     <button class="logout" onclick="logout()">Logout</button>
 </div>
 
@@ -232,12 +234,16 @@ onAuthStateChanged(auth, async (user)=>{
     }
 
     const data = await fetchUserData();
+    if (!data.username) {
+    window.location = "setup.html";
+    return;
+}
 
     document.getElementById("email").innerText = data.email;
     document.getElementById("coins").innerText = data.coins ?? 0;
     document.getElementById("inviteCode").innerText = data.inviteCode;
     document.getElementById("userId").innerText = data.userId;
-
+    document.getElementById("profilePic").src = data.photoURL || "https://via.placeholder.com/35";
     // 🔥 ADD THIS LINE
     loadReferralStats(user);
 
@@ -356,6 +362,9 @@ window.copyCode = async () => {
         console.error(err);
     }
 };
+    window.openProfile = ()=>{
+    location="profile.html";
+}
     
 window.goGame = (p)=> location=p;
 
