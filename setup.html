@@ -76,7 +76,8 @@ button:hover {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 import { getFirestore, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-
+import { getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+    
 const app = initializeApp({
   apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
   authDomain: "galmet-app.firebaseapp.com",
@@ -118,36 +119,29 @@ window.saveProfile = async () => {
 
     try {
 
-        // 🔥 WITH IMAGE
         if (file) {
-
             const reader = new FileReader();
 
             reader.onload = async () => {
-
                 photoURL = reader.result;
 
                 await updateDoc(doc(db, "users", currentUser.uid), {
-                    username: username,
-                    photoURL: photoURL
+                    username,
+                    photoURL
                 });
 
-                alert("Profile saved ✅");
-                window.location = "dashboard.html";
+                await ensureSaved(username);
             };
 
             reader.readAsDataURL(file);
 
-        } 
-        // 🔥 WITHOUT IMAGE
-        else {
+        } else {
 
             await updateDoc(doc(db, "users", currentUser.uid), {
-                username: username
+                username
             });
 
-            alert("Profile saved ✅");
-            window.location = "dashboard.html";
+            await ensureSaved(username);
         }
 
     } catch (err) {
@@ -155,6 +149,21 @@ window.saveProfile = async () => {
         alert("Error saving profile ❌");
     }
 };
+
+
+// 🔥 CONFIRM SAVE BEFORE REDIRECT
+async function ensureSaved(username) {
+    for (let i = 0; i < 5; i++) {
+        const snap = await getDoc(doc(db, "users", currentUser.uid));
+        if (snap.exists() && snap.data().username === username) {
+            window.location = "dashboard.html";
+            return;
+        }
+        await new Promise(r => setTimeout(r, 300));
+    }
+
+    alert("Saving delay... please try again");
+}
 
 </script>
 
