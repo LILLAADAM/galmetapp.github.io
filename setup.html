@@ -1,13 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Setup Profile</title>
 
 <style>
 body {
-    font-family: sans-serif;
-    background:#0f1b5c;
+    margin:0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg,#0f1b5c,#1f2f9c);
     color:white;
     display:flex;
     align-items:center;
@@ -16,30 +18,39 @@ body {
 }
 
 .box {
-    background:#1f2f9c;
-    padding:20px;
-    border-radius:12px;
+    background: rgba(255,255,255,0.08);
+    padding:25px;
+    border-radius:15px;
     width:90%;
     max-width:400px;
 }
 
+h2 {
+    margin-bottom:20px;
+}
+
 input {
     width:100%;
-    padding:10px;
-    margin-top:10px;
-    border:none;
+    padding:12px;
     border-radius:8px;
+    border:none;
+    margin-bottom:15px;
 }
 
 button {
-    margin-top:15px;
     width:100%;
     padding:12px;
-    background:#00c853;
+    background:#4cd964;
     border:none;
-    color:white;
     border-radius:8px;
+    color:white;
     font-weight:bold;
+    font-size:16px;
+    cursor:pointer;
+}
+
+button:hover {
+    opacity:0.9;
 }
 </style>
 </head>
@@ -49,57 +60,88 @@ button {
 <div class="box">
     <h2>Setup Profile</h2>
 
+    <!-- ✅ USERNAME -->
     <input id="username" placeholder="Enter username">
 
+    <!-- ✅ PHOTO -->
     <input type="file" id="photo">
 
+    <!-- ✅ BUTTON -->
     <button onclick="saveProfile()">Continue</button>
 </div>
 
+
 <script type="module">
 
+// 🔥 FIREBASE IMPORTS
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 import { getFirestore, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
 
+// 🔥 YOUR FIREBASE CONFIG (same as dashboard)
 const app = initializeApp({
   apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
   authDomain: "galmet-app.firebaseapp.com",
-  projectId: "galmet-app",
-  storageBucket: "galmet-app.appspot.com"
+  projectId: "galmet-app"
 });
 
 const auth = getAuth(app);
 const db = getFirestore(app);
-const storage = getStorage(app);
 
-window.saveProfile = async function(){
 
-    const username = document.getElementById("username").value;
-    const file = document.getElementById("photo").files[0];
+// ✅ SAVE PROFILE FUNCTION
+window.saveProfile = async () => {
 
-    if(!username){
-        alert("Enter username");
-        return;
+    try {
+        const user = auth.currentUser;
+
+        if (!user) {
+            alert("User not logged in");
+            return;
+        }
+
+        const username = document.getElementById("username").value.trim();
+        const file = document.getElementById("photo").files[0];
+
+        if (!username) {
+            alert("Enter username");
+            return;
+        }
+
+        let photoURL = "";
+
+        // 🔥 IMAGE UPLOAD (base64)
+        if (file) {
+            const reader = new FileReader();
+
+            reader.onload = async () => {
+                photoURL = reader.result;
+
+                await updateDoc(doc(db, "users", user.uid), {
+                    username,
+                    photoURL
+                });
+
+                alert("Profile saved ✅");
+                window.location = "dashboard.html";
+            };
+
+            reader.readAsDataURL(file);
+
+        } else {
+
+            await updateDoc(doc(db, "users", user.uid), {
+                username
+            });
+
+            alert("Profile saved ✅");
+            window.location = "dashboard.html";
+        }
+
+    } catch (err) {
+        console.error(err);
+        alert("Error saving profile ❌");
     }
-
-    const user = auth.currentUser;
-
-    let photoURL = "";
-
-    if(file){
-        const storageRef = ref(storage, "profiles/" + user.uid);
-        await uploadBytes(storageRef, file);
-        photoURL = await getDownloadURL(storageRef);
-    }
-
-    await updateDoc(doc(db,"users",user.uid),{
-        username,
-        photoURL
-    });
-
-    window.location = "dashboard.html";
 };
 
 </script>
