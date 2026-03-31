@@ -539,14 +539,17 @@ const userRef = doc(db, "users", user.uid);
 try {
     // ✅ CREATE USER DATA
     await setDoc(userRef, {
-        email: email,
-        coins: 500,
-        userId: userId,
-        inviteCode: inviteCode,
-        referredBy: referredByUID,
-        firstTopup: false,
-        createdAt: serverTimestamp()
-    });
+    email: email,
+    coins: 500,
+    userId: userId,
+    inviteCode: inviteCode,
+    referredBy: referredByUID,
+    firstTopup: false,
+    username: "",
+    photoURL: "",
+
+    createdAt: serverTimestamp()
+});
 
     console.log("✅ FIRESTORE WRITE SUCCESS");
 
@@ -556,6 +559,8 @@ try {
         type: "credit",
         amount: 500,
         reason: "signup_bonus",
+        username: "",
+        photoURL: "",
         createdAt: serverTimestamp()
     });
 
