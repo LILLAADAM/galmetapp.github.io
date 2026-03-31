@@ -47,50 +47,73 @@ button {padding:10px;}
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, orderBy } 
-from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, getDoc } 
+from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 const app = initializeApp({
   apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
   authDomain: "galmet-app.firebaseapp.com",
-  projectId: "galmet-app"
+  projectId: "galmet-app",
+  storageBucket: "galmet-app.firebasestorage.app"
 });
 
-const db = getFirestore(app);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
-const me = auth.currentUser.uid;
-const other = new URLSearchParams(location.search).get("user");
+const other = new URLSearchParams(location.search).get("id");
 
-const chatId = [me, other].sort().join("_");
+// 🔥 GET MY USER ID
+const myDoc = await getDoc(doc(db,"users",auth.currentUser.uid));
+const myId = myDoc.data().userId;
 
-const q = query(collection(db,"chats",chatId,"messages"), orderBy("createdAt"));
+// 🔥 CHAT ID FIX
+const chatId = [myId, other].sort().join("_");
 
-onSnapshot(q, snap=>{
-    let html="";
-    snap.forEach(doc=>{
-        const m = doc.data();
-        html += `<div class="${m.sender===me?"me":""}">
-                    <div class="msg">${m.text}</div>
-                 </div>`;
+const messagesRef = collection(db,"chats",chatId,"messages");
+
+// SEND
+window.send = async () => {
+
+    const text = document.getElementById("msg").value;
+
+    if (!text) return;
+
+    await addDoc(messagesRef,{
+        text,
+        sender: myId,
+        time: Date.now()
     });
+
+    document.getElementById("msg").value="";
+};
+
+// LISTEN
+onSnapshot(query(messagesRef, orderBy("time")), snap => {
+
+    let html = "";
+
+    snap.forEach(d=>{
+        const m = d.data();
+
+        html += `<div style="
+        padding:10px;
+        margin:5px;
+        border-radius:10px;
+        background:${m.sender==myId?'#4cd964':'#ddd'};
+        text-align:${m.sender==myId?'right':'left'};
+        ">${m.text}</div>`;
+    });
+
     document.getElementById("chat").innerHTML = html;
 });
 
-window.send = async ()=>{
-    const text = msg.value;
-
-    await addDoc(collection(db,"chats",chatId,"messages"),{
-        text,
-        sender:me,
-        createdAt:serverTimestamp()
-    });
-
-    msg.value="";
-};
-
 </script>
+
+<div id="chat"></div>
+
+<input id="msg">
+<button onclick="send()">Send</button>
 
 </body>
 </html>
