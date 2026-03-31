@@ -8,7 +8,7 @@
 <style>
 body {
     margin:0;
-    font-family: 'Segoe UI', sans-serif;
+    font-family:'Segoe UI',sans-serif;
     background: linear-gradient(135deg,#0f1b5c,#1f2f9c);
     color:white;
     display:flex;
@@ -23,10 +23,16 @@ body {
     border-radius:15px;
     width:90%;
     max-width:400px;
+    text-align:center;
 }
 
-h2 {
-    margin-bottom:20px;
+img {
+    width:100px;
+    height:100px;
+    border-radius:50%;
+    margin-bottom:15px;
+    object-fit:cover;
+    border:3px solid rgba(255,255,255,0.2);
 }
 
 input {
@@ -40,56 +46,75 @@ input {
 button {
     width:100%;
     padding:12px;
-    background:#4cd964;
     border:none;
     border-radius:8px;
-    color:white;
     font-weight:bold;
     font-size:16px;
     cursor:pointer;
 }
 
-button:hover {
-    opacity:0.9;
+.upload-btn {
+    background:#222;
+    margin-bottom:10px;
 }
+
+.continue {
+    background:#4cd964;
+    color:white;
+}
+
 </style>
 </head>
 
 <body>
 
 <div class="box">
-    <h2>Setup Profile</h2>
 
-    <!-- USERNAME -->
-    <input id="username" placeholder="Enter username">
+<h2>Setup Profile</h2>
 
-    <!-- PHOTO -->
-    <input type="file" id="photo">
+<img id="preview" src="https://ui-avatars.com/api/?name=User">
 
-    <!-- BUTTON -->
-    <button onclick="saveProfile()">Continue</button>
+<input id="username" placeholder="Enter unique username (min 4 chars)">
+
+<input type="file" id="photoInput" hidden>
+
+<button class="upload-btn" onclick="document.getElementById('photoInput').click()">
+📸 Upload Profile Photo
+</button>
+
+<button class="continue" onclick="saveProfile()">Continue</button>
+
 </div>
-
 
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-import { getFirestore, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-import { getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-    
+
+import { 
+    getFirestore, doc, updateDoc, getDoc, 
+    collection, query, where, getDocs 
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+import { 
+    getStorage, ref, uploadBytes, getDownloadURL 
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
+
 const app = initializeApp({
   apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
   authDomain: "galmet-app.firebaseapp.com",
-  projectId: "galmet-app"
+  projectId: "galmet-app",
+  storageBucket: "galmet-app.appspot.com"
 });
 
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
 let currentUser = null;
+let selectedFile = null;
 
-// ✅ WAIT FOR AUTH (VERY IMPORTANT)
+// AUTH
 onAuthStateChanged(auth, (user) => {
     if (!user) {
         window.location = "index.html";
@@ -98,8 +123,32 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
+// IMAGE PREVIEW
+document.getElementById("photoInput").addEventListener("change", (e)=>{
+    selectedFile = e.target.files[0];
 
-// ✅ SAVE PROFILE
+    if(selectedFile){
+        document.getElementById("preview").src = URL.createObjectURL(selectedFile);
+    }
+});
+
+// USERNAME CHECK
+async function isUsernameTaken(username) {
+    const q = query(collection(db,"users"), where("username","==",username));
+    const snap = await getDocs(q);
+
+    let taken = false;
+
+    snap.forEach(docSnap=>{
+        if(docSnap.id !== currentUser.uid){
+            taken = true;
+        }
+    });
+
+    return taken;
+}
+
+// SAVE PROFILE
 window.saveProfile = async () => {
 
     if (!currentUser) {
@@ -108,10 +157,15 @@ window.saveProfile = async () => {
     }
 
     const username = document.getElementById("username").value.trim();
-    const file = document.getElementById("photo").files[0];
 
-    if (!username) {
-        alert("Enter username");
+    if (!username || username.length < 4) {
+        alert("Username must be at least 4 characters");
+        return;
+    }
+
+    const taken = await isUsernameTaken(username);
+    if (taken) {
+        alert("Username already taken ❌");
         return;
     }
 
@@ -119,51 +173,36 @@ window.saveProfile = async () => {
 
     try {
 
-        if (file) {
-            const reader = new FileReader();
-
-            reader.onload = async () => {
-                photoURL = reader.result;
-
-                await updateDoc(doc(db, "users", currentUser.uid), {
-                    username,
-                    photoURL
-                });
-
-                await ensureSaved(username);
-            };
-
-            reader.readAsDataURL(file);
-
-        } else {
-
-            await updateDoc(doc(db, "users", currentUser.uid), {
-                username
-            });
-
-            await ensureSaved(username);
+        // UPLOAD IMAGE TO FIREBASE
+        if (selectedFile) {
+            const storageRef = ref(storage, "profiles/" + currentUser.uid);
+            await uploadBytes(storageRef, selectedFile);
+            photoURL = await getDownloadURL(storageRef);
         }
+
+        // UPDATE USER
+        await updateDoc(doc(db,"users",currentUser.uid), {
+            username,
+            ...(photoURL && {photoURL})
+        });
+
+        // CONFIRM SAVE
+        for (let i = 0; i < 5; i++) {
+            const snap = await getDoc(doc(db, "users", currentUser.uid));
+            if (snap.exists() && snap.data().username === username) {
+                window.location = "dashboard.html";
+                return;
+            }
+            await new Promise(r => setTimeout(r, 300));
+        }
+
+        alert("Saving delay... try again");
 
     } catch (err) {
         console.error(err);
         alert("Error saving profile ❌");
     }
 };
-
-
-// 🔥 CONFIRM SAVE BEFORE REDIRECT
-async function ensureSaved(username) {
-    for (let i = 0; i < 5; i++) {
-        const snap = await getDoc(doc(db, "users", currentUser.uid));
-        if (snap.exists() && snap.data().username === username) {
-            window.location = "dashboard.html";
-            return;
-        }
-        await new Promise(r => setTimeout(r, 300));
-    }
-
-    alert("Saving delay... please try again");
-}
 
 </script>
 
