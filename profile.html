@@ -149,7 +149,43 @@ onAuthStateChanged(auth, async (user) => {
         data.photoURL || "https://ui-avatars.com/api/?name=" + (data.username || "User");
 });
 
+async function compressImage(file) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        const reader = new FileReader();
 
+        reader.onload = (e) => img.src = e.target.result;
+
+        img.onload = () => {
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+
+            const maxSize = 512;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height && width > maxSize) {
+                height *= maxSize / width;
+                width = maxSize;
+            } else if (height > maxSize) {
+                width *= maxSize / height;
+                height = maxSize;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+
+            ctx.drawImage(img, 0, 0, width, height);
+
+            canvas.toBlob((blob) => {
+                resolve(blob);
+            }, "image/jpeg", 0.8);
+        };
+
+        reader.readAsDataURL(file);
+    });
+}
+    
 // ✅ UNIQUE USERNAME CHECK
 async function isUsernameTaken(username) {
     const q = query(collection(db,"users"), where("username","==",username));
@@ -192,7 +228,8 @@ window.updateProfile = async () => {
         // UPLOAD IMAGE
         if (file) {
             const storageRef = ref(storage, "profiles/" + currentUser.uid);
-            await uploadBytes(storageRef, file);
+            const compressed = await compressImage(file);
+            await uploadBytes(storageRef, compressed);
             photoURL = await getDownloadURL(storageRef);
         }
 
