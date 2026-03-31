@@ -2,146 +2,106 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chats</title>
 
 <style>
-body {margin:0;font-family:Arial;background:#f5f6fa;}
+body { margin:0; font-family:sans-serif; background:#f5f5f5; }
 
-.header {
-    background:#4cd964;
-    color:white;
-    padding:15px;
-    font-size:20px;
-    font-weight:bold;
+.top {
+  background:#4CAF50;
+  color:white;
+  padding:15px;
+  font-size:18px;
 }
 
 .chat {
-    display:flex;
-    align-items:center;
-    padding:12px;
-    border-bottom:1px solid #eee;
-    cursor:pointer;
+  display:flex;
+  align-items:center;
+  padding:10px;
+  border-bottom:1px solid #eee;
+  background:white;
 }
 
 .chat img {
-    width:50px;
-    height:50px;
-    border-radius:50%;
+  width:50px;
+  height:50px;
+  border-radius:50%;
 }
 
 .info {
-    flex:1;
-    margin-left:10px;
+  flex:1;
+  margin-left:10px;
 }
 
-.name {
-    font-weight:bold;
-}
-
-.msg {
-    font-size:13px;
-    color:gray;
-}
-
-.right {
-    text-align:right;
-}
-
-.time {
-    font-size:12px;
-    color:gray;
-}
+.name { font-weight:bold; }
+.msg { font-size:13px; color:gray; }
 
 .badge {
-    background:red;
-    color:white;
-    font-size:12px;
-    padding:3px 6px;
-    border-radius:10px;
-    display:inline-block;
-    margin-top:5px;
+  background:red;
+  color:white;
+  border-radius:50%;
+  padding:5px 8px;
+  font-size:12px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">Chats</div>
-
+<div class="top">Chats</div>
 <div id="list"></div>
 
 <script type="module">
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getFirestore, collection, query, where, getDocs } 
-from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import { db } from "./firebase.js";
+import {
+  collection, onSnapshot, doc, getDoc, query, orderBy
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-const app = initializeApp({
-  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
-  authDomain: "galmet-app.firebaseapp.com",
-  projectId: "galmet-app"
-});
+const currentUser = JSON.parse(localStorage.getItem("user"));
 
-const db = getFirestore(app);
-
-// ⚠️ SET YOUR CURRENT USER UID HERE (IMPORTANT)
-const myUid = localStorage.getItem("uid"); 
-// or manually test:
-// const myUid = "YOUR_UID_HERE";
-
-async function loadChats() {
-
-    const q = query(
-        collection(db,"chats"),
-        where("users","array-contains", myUid)
-    );
-
-    const snap = await getDocs(q);
-
-    let html = "";
-
-    for (const d of snap.docs) {
-
-        const chat = d.data();
-
-        // 👉 get other user
-        const otherUid = chat.users.find(u => u !== myUid);
-
-        // 👉 load other user profile
-        const userSnap = await getDocs(
-            query(collection(db,"users"), where("__name__","==",otherUid))
-        );
-
-        let user = null;
-        userSnap.forEach(x => user = x.data());
-
-        if (!user) continue;
-
-        const unread = chat.unread?.[myUid] || 0;
-
-        html += `
-        <div class="chat" onclick="openChat('${otherUid}')">
-            <img src="${user.photoURL || 'https://ui-avatars.com/api/?name='+user.username}">
-            
-            <div class="info">
-                <div class="name">${user.username}</div>
-                <div class="msg">${chat.lastMessage || ''}</div>
-            </div>
-
-            <div class="right">
-                <div class="time">${chat.lastTime?.toDate().toLocaleTimeString() || ''}</div>
-                ${unread > 0 ? `<div class="badge">${unread}</div>` : ''}
-            </div>
-        </div>`;
-    }
-
-    document.getElementById("list").innerHTML = html;
+if (!currentUser || !currentUser.uid) {
+  alert("Login required");
+  location = "index.html";
 }
 
-window.openChat = (uid) => {
-    location.href = "chat.html?id=" + uid;
-};
+// 🔥 LOAD CHAT LIST
+const q = query(
+  collection(db, "userChats", currentUser.uid, "list"),
+  orderBy("updatedAt", "desc")
+);
 
-loadChats();
+onSnapshot(q, async (snapshot) => {
+
+  let html = "";
+
+  for (const d of snapshot.docs) {
+    const chat = d.data();
+
+    const userSnap = await getDoc(doc(db, "users", chat.uid));
+    const u = userSnap.data();
+
+    html += `
+    <div class="chat" onclick="openChat('${chat.uid}')">
+      <img src="${u.photoURL || 'https://ui-avatars.com/api/?name='+u.username}">
+      
+      <div class="info">
+        <div class="name">${u.username}</div>
+        <div class="msg">${chat.lastMessage || ""}</div>
+      </div>
+
+      ${chat.unread ? `<div class="badge">${chat.unread}</div>` : ""}
+    </div>
+    `;
+  }
+
+  document.getElementById("list").innerHTML = html;
+});
+
+// 🔥 OPEN CHAT
+window.openChat = (id) => {
+  location = "chat.html?id=" + id;
+};
 
 </script>
 
