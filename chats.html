@@ -103,6 +103,44 @@ const myUid = currentUser.uid;
 /* 🔥 CACHE USERS (FIX DISAPPEAR ISSUE) */
 let usersCache = {};
 
+/* PLATFORM BADGE */
+const badge = document.getElementById("pBadge");
+
+async function loadPlatformBadge() {
+
+  const readSnap = await getDoc(doc(db, "platformReads", myUid));
+  let lastSeen = readSnap.exists() ? readSnap.data().lastSeen : null;
+
+  const q = query(
+    collection(db, "platformMessages"),
+    orderBy("createdAt", "desc")
+  );
+
+  onSnapshot(q, (snapshot) => {
+
+    let unread = 0;
+
+    snapshot.forEach(d => {
+      const m = d.data();
+
+      if (!lastSeen || (m.createdAt && m.createdAt > lastSeen)) {
+        unread++;
+      }
+    });
+
+    badge.innerHTML = unread > 0 
+      ? `<span class="badge">${unread}</span>` 
+      : "";
+  });
+}
+
+loadPlatformBadge();
+
+/* OPEN PAGE */
+window.openPlatform = () => {
+  location.href = "platform.html";
+};
+  
 /* REALTIME LIST */
 const q = query(
   collection(db, "userChats", myUid, "list"),
@@ -158,11 +196,6 @@ onSnapshot(q, async (snapshot) => {
 /* OPEN CHAT */
 window.openChat = (id) => {
   location.href = "chat.html?id=" + id;
-};
-
-/* OPEN ADMIN */
-window.openAdmin = () => {
-  location.href = "platform.html";
 };
 
 </script>
