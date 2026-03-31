@@ -8,7 +8,7 @@
 import { db } from "./firebase.js";
 import {
   collection, addDoc, query, orderBy,
-  onSnapshot, serverTimestamp, doc, getDoc
+  onSnapshot, serverTimestamp, doc, getDoc, setDoc
 } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 import {
@@ -17,6 +17,7 @@ import {
 
 const storage = getStorage(undefined, "gs://galmet-app.firebasestorage.app");
 
+/* ================= USER ================= */
 const currentUser = JSON.parse(localStorage.getItem("user"));
 if (!currentUser?.uid) {
   alert("Login required");
@@ -27,7 +28,7 @@ const myUid = currentUser.uid;
 const otherUid = new URLSearchParams(location.search).get("id");
 const chatId = [myUid, otherUid].sort().join("_");
 
-/* LOAD USER */
+/* ================= LOAD USER ================= */
 async function loadOtherUser() {
   const snap = await getDoc(doc(db, "users", otherUid));
   if (!snap.exists()) return;
@@ -42,7 +43,7 @@ async function loadOtherUser() {
     `https://ui-avatars.com/api/?name=${encodeURIComponent(data.username)}`;
 }
 
-/* LOAD MESSAGES */
+/* ================= REALTIME MESSAGES (NO DELAY) ================= */
 function loadMessages() {
   const q = query(
     collection(db, "chats", chatId, "messages"),
@@ -76,23 +77,18 @@ function loadMessages() {
   });
 }
 
-/* FULL IMAGE VIEW */
+/* ================= IMAGE VIEW ================= */
 window.openViewer = (url) => {
-  const viewer = document.getElementById("viewer");
-  const img = document.getElementById("viewerImg");
-  const download = document.getElementById("downloadBtn");
-
-  img.src = url;
-  download.href = url;
-
-  viewer.style.display = "flex";
+  document.getElementById("viewerImg").src = url;
+  document.getElementById("downloadBtn").href = url;
+  document.getElementById("viewer").style.display = "flex";
 };
 
 window.closeViewer = () => {
   document.getElementById("viewer").style.display = "none";
 };
 
-/* IMAGE PICK */
+/* ================= IMAGE PICK ================= */
 window.pickImage = () => {
   document.getElementById("imageInput").click();
 };
@@ -100,19 +96,17 @@ window.pickImage = () => {
 let selectedFile = null;
 
 document.addEventListener("DOMContentLoaded", () => {
-  const previewModal = document.getElementById("previewModal");
-
   document.getElementById("imageInput").addEventListener("change", e => {
     selectedFile = e.target.files[0];
     if (!selectedFile) return;
 
-    previewModal.style.display = "flex";
+    document.getElementById("previewModal").style.display = "flex";
     document.getElementById("previewImage").src =
       URL.createObjectURL(selectedFile);
   });
 });
 
-/* COMPRESS */
+/* ================= COMPRESS ================= */
 function compressImage(file) {
   return new Promise(resolve => {
     const img = new Image();
@@ -138,7 +132,7 @@ function compressImage(file) {
   });
 }
 
-/* SEND IMAGE */
+/* ================= SEND IMAGE (INSTANT + UNREAD) ================= */
 window.sendImage = async () => {
   if (!selectedFile) return;
 
@@ -155,6 +149,8 @@ window.sendImage = async () => {
     createdAt: serverTimestamp()
   });
 
+  await updateChatList("📷 Image");
+
   closePreview();
 };
 
@@ -163,11 +159,13 @@ window.closePreview = () => {
   selectedFile = null;
 };
 
-/* SEND TEXT */
+/* ================= SEND TEXT (NO DELAY) ================= */
 window.sendMessage = async () => {
   const input = document.getElementById("msg");
   const text = input.value.trim();
   if (!text) return;
+
+  input.value = ""; // ⚡ instant feel
 
   await addDoc(collection(db, "chats", chatId, "messages"), {
     text,
@@ -176,12 +174,49 @@ window.sendMessage = async () => {
     createdAt: serverTimestamp()
   });
 
-  input.value = "";
+  await updateChatList(text);
 };
 
-window.onload = () => {
+/* ================= UPDATE CHAT LIST (REAL UNREAD) ================= */
+async function updateChatList(lastMsg) {
+
+  // MY SIDE (reset unread)
+  await setDoc(doc(db, "userChats", myUid, "list", otherUid), {
+    uid: otherUid,
+    lastMessage: lastMsg,
+    updatedAt: serverTimestamp(),
+    unread: 0
+  }, { merge: true });
+
+  // OTHER SIDE (increase unread)
+  const otherRef = doc(db, "userChats", otherUid, "list", myUid);
+  const snap = await getDoc(otherRef);
+
+  let unreadCount = 1;
+  if (snap.exists()) {
+    unreadCount = (snap.data().unread || 0) + 1;
+  }
+
+  await setDoc(otherRef, {
+    uid: myUid,
+    lastMessage: lastMsg,
+    updatedAt: serverTimestamp(),
+    unread: unreadCount
+  }, { merge: true });
+}
+
+/* ================= RESET UNREAD WHEN OPEN ================= */
+async function resetUnread() {
+  await setDoc(doc(db, "userChats", myUid, "list", otherUid), {
+    unread: 0
+  }, { merge: true });
+}
+
+/* ================= LOAD ================= */
+window.onload = async () => {
   loadMessages();
   loadOtherUser();
+  await resetUnread();
 };
 </script>
 
