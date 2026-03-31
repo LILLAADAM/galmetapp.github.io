@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h3>Chats</h3>
+<div id="list"></div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getFirestore, collection, getDocs } 
+from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+  authDomain: "galmet-app.firebaseapp.com",
+  projectId: "galmet-app"
+});
+
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+const uid = auth.currentUser.uid;
+
+const snap = await getDocs(collection(db,"chats"));
+
+let html = "";
+
+snap.forEach(doc=>{
+    if(doc.id.includes(uid)){
+        const other = doc.id.replace(uid,"").replace("_","");
+        html += `<div onclick="open('${other}')">${other}</div>`;
+    }
+});
+
+document.getElementById("list").innerHTML = html;
+
+window.open = (id)=> location="chat.html?user="+id;
+
+</script>
+
+</body>
+</html>
