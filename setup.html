@@ -90,15 +90,12 @@ button {
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { getFirestore, doc, updateDoc, getDoc, collection, query, where, getDocs } 
+from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-import { 
-    getFirestore, doc, updateDoc, getDoc, 
-    collection, query, where, getDocs 
-} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } 
+from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
 
-import { 
-    getStorage, ref, uploadBytes, getDownloadURL 
-} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
 
 const app = initializeApp({
   apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
@@ -112,7 +109,6 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 
 let currentUser = null;
-let selectedFile = null;
 
 // AUTH
 onAuthStateChanged(auth, (user) => {
@@ -123,22 +119,15 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-// IMAGE PREVIEW
-document.getElementById("photoInput").addEventListener("change", (e)=>{
-    selectedFile = e.target.files[0];
 
-    if(selectedFile){
-        document.getElementById("preview").src = URL.createObjectURL(selectedFile);
-    }
-});
-
-// USERNAME CHECK
+// ✅ UNIQUE USERNAME CHECK
 async function isUsernameTaken(username) {
     const q = query(collection(db,"users"), where("username","==",username));
     const snap = await getDocs(q);
 
-    let taken = false;
+    if (snap.empty) return false;
 
+    let taken = false;
     snap.forEach(docSnap=>{
         if(docSnap.id !== currentUser.uid){
             taken = true;
@@ -148,7 +137,8 @@ async function isUsernameTaken(username) {
     return taken;
 }
 
-// SAVE PROFILE
+
+// ✅ SAVE PROFILE
 window.saveProfile = async () => {
 
     if (!currentUser) {
@@ -157,12 +147,14 @@ window.saveProfile = async () => {
     }
 
     const username = document.getElementById("username").value.trim();
+    const file = document.getElementById("photo").files[0];
 
-    if (!username || username.length < 4) {
-        alert("Username must be at least 4 characters");
+    if (!username) {
+        alert("Enter username");
         return;
     }
 
+    // UNIQUE CHECK
     const taken = await isUsernameTaken(username);
     if (taken) {
         alert("Username already taken ❌");
@@ -173,36 +165,43 @@ window.saveProfile = async () => {
 
     try {
 
-        // UPLOAD IMAGE TO FIREBASE
-        if (selectedFile) {
+        // ✅ UPLOAD IMAGE TO FIREBASE STORAGE
+        if (file) {
             const storageRef = ref(storage, "profiles/" + currentUser.uid);
-            await uploadBytes(storageRef, selectedFile);
+
+            await uploadBytes(storageRef, file);
             photoURL = await getDownloadURL(storageRef);
         }
 
-        // UPDATE USER
-        await updateDoc(doc(db,"users",currentUser.uid), {
+        // SAVE DATA
+        await updateDoc(doc(db, "users", currentUser.uid), {
             username,
-            ...(photoURL && {photoURL})
+            ...(photoURL && { photoURL })
         });
 
         // CONFIRM SAVE
-        for (let i = 0; i < 5; i++) {
-            const snap = await getDoc(doc(db, "users", currentUser.uid));
-            if (snap.exists() && snap.data().username === username) {
-                window.location = "dashboard.html";
-                return;
-            }
-            await new Promise(r => setTimeout(r, 300));
-        }
-
-        alert("Saving delay... try again");
+        await ensureSaved(username);
 
     } catch (err) {
         console.error(err);
-        alert("Error saving profile ❌");
+        alert("Upload failed ❌ (check console)");
     }
 };
+
+
+// CONFIRM SAVE
+async function ensureSaved(username) {
+    for (let i = 0; i < 5; i++) {
+        const snap = await getDoc(doc(db, "users", currentUser.uid));
+        if (snap.exists() && snap.data().username === username) {
+            window.location = "dashboard.html";
+            return;
+        }
+        await new Promise(r => setTimeout(r, 300));
+    }
+
+    alert("Saving delay... try again");
+}
 
 </script>
 
