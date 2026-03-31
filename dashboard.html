@@ -233,20 +233,34 @@ onAuthStateChanged(auth, async (user)=>{
         return; 
     }
 
-    const data = await fetchUserData();
-    if (!data || !data.username) {
-    window.location = "setup.html";
-    return;
-}
+    let data = null;
 
+    // 🔥 RETRY SYSTEM (VERY IMPORTANT)
+    for (let i = 0; i < 5; i++) {
+        data = await fetchUserData();
+        if (data) break;
+        await new Promise(r => setTimeout(r, 300));
+    }
+
+    if (!data) {
+        alert("Failed to load user");
+        return;
+    }
+
+    // 🔥 FIX: ONLY redirect if username is REALLY empty
+    if (!data.username || data.username.trim() === "") {
+        window.location = "setup.html";
+        return;
+    }
+
+    // ✅ LOAD UI
     document.getElementById("email").innerText = data.email;
     document.getElementById("coins").innerText = data.coins ?? 0;
     document.getElementById("inviteCode").innerText = data.inviteCode;
     document.getElementById("userId").innerText = data.userId;
     document.getElementById("profilePic").src = data.photoURL || "https://via.placeholder.com/35";
-    // 🔥 ADD THIS LINE
-    loadReferralStats(user);
 
+    loadReferralStats(user);
 });
 
 // OPEN BOX
