@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -58,11 +59,21 @@ const db = getFirestore(app);
 
 const id = new URLSearchParams(location.search).get("id");
 
-const q = query(collection(db,"users"), where("userId","==",Number(id)));
+let userUID = null; // 🔥 store real UID
+
+const q = query(
+  collection(db,"users"),
+  where("userId","==",Number(id))
+);
+
 const snap = await getDocs(q);
 
 let u = null;
-snap.forEach(d => u = d.data());
+
+snap.forEach(d => {
+    u = d.data();
+    userUID = d.id; // ✅ IMPORTANT FIX (REAL UID)
+});
 
 if (!u) {
     document.body.innerHTML = "User not found";
@@ -74,15 +85,18 @@ document.body.innerHTML = `
 <h2>${u.username}</h2>
 <p>ID: ${u.userId}</p>
 <p>${u.bio || ""}</p>
-<button onclick="chat()">Chat</button>
+<button onclick="startChat()">Chat</button>
 </div>
 `;
 
 }
 
-window.chat = () => location = "chat.html?id=" + user.uid;
+// 🔥 FIXED CHAT BUTTON
+window.startChat = () => {
+    location = "chat.html?id=" + userUID;
+};
 
-</script
+</script>
     
 </body>
 </html>
