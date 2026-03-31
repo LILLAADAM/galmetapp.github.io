@@ -8,18 +8,21 @@
 <style>
 body {
     margin:0;
-    font-family: 'Segoe UI', sans-serif;
+    font-family:'Segoe UI',sans-serif;
     background: linear-gradient(135deg,#0f1b5c,#1f2f9c);
     color:white;
-    padding:20px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
 }
 
 .card {
     background: rgba(255,255,255,0.08);
-    padding:20px;
+    padding:25px;
     border-radius:15px;
-    max-width:400px;
-    margin:auto;
+    width:90%;
+    max-width:420px;
     text-align:center;
 }
 
@@ -27,41 +30,55 @@ img {
     width:100px;
     height:100px;
     border-radius:50%;
-    margin-bottom:15px;
+    margin-bottom:10px;
+}
+
+input, textarea {
+    width:100%;
+    padding:10px;
+    margin-top:8px;
+    border:none;
+    border-radius:8px;
 }
 
 button {
-    padding:10px;
+    width:100%;
+    padding:12px;
+    margin-top:10px;
     border:none;
     border-radius:8px;
-    margin-top:10px;
+    font-weight:bold;
     cursor:pointer;
 }
 
-.logout {
-    background:red;
-    color:white;
-}
-
-.back {
-    background:#4cd964;
-    color:white;
-}
+.save { background:#f39c12; color:white; }
+.logout { background:red; color:white; }
+.back { background:#4cd964; color:white; }
 </style>
 </head>
 
 <body>
 
 <div class="card">
-    <h2>Your Profile</h2>
 
-    <img id="photo" src="https://via.placeholder.com/100">
+<h2>Your Profile</h2>
 
-    <h3 id="username">Loading...</h3>
-    <p id="email"></p>
+<img id="photo" src="https://ui-avatars.com/api/?name=User">
 
-    <button class="back" onclick="goBack()">⬅ Back</button>
-    <button class="logout" onclick="logout()">Logout</button>
+<h3 id="usernameDisplay">Loading...</h3>
+<p id="email"></p>
+
+<!-- EDIT FORM -->
+<input id="fullName" placeholder="Full Name (min 4 words)">
+<input id="username" placeholder="Username (min 4 chars)">
+<textarea id="bio" placeholder="Your bio..."></textarea>
+<input id="status" placeholder="Status (Online, Busy...)">
+<input type="file" id="photoInput">
+
+<button class="save" onclick="updateProfile()">Save Profile</button>
+<button class="back" onclick="goBack()">⬅ Back</button>
+<button class="logout" onclick="logout()">Logout</button>
+
 </div>
 
 <script type="module">
@@ -69,43 +86,131 @@ button {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } 
 from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-import { getFirestore, doc, getDoc } 
-from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-// ✅ Firebase INIT (THIS WAS MISSING ❌)
+import { 
+    getFirestore, doc, getDoc, updateDoc, 
+    collection, query, where, getDocs 
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+import { 
+    getStorage, ref, uploadBytes, getDownloadURL 
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
+
 const app = initializeApp({
   apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
   authDomain: "galmet-app.firebaseapp.com",
-  projectId: "galmet-app"
+  projectId: "galmet-app",
+  storageBucket: "galmet-app.appspot.com"
 });
 
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
-// ✅ LOAD USER
+let currentUser = null;
+
+// LOAD USER
 onAuthStateChanged(auth, async (user) => {
     if (!user) {
         window.location = "index.html";
         return;
     }
 
-    const snap = await getDoc(doc(db, "users", user.uid));
+    currentUser = user;
 
-    if (!snap.exists()) {
-        alert("User data not found");
+    const snap = await getDoc(doc(db, "users", user.uid));
+    const data = snap.data();
+
+    document.getElementById("usernameDisplay").innerText = data.username || "No Username";
+    document.getElementById("email").innerText = data.email;
+
+    document.getElementById("fullName").value = data.fullName || "";
+    document.getElementById("username").value = data.username || "";
+    document.getElementById("bio").value = data.bio || "";
+    document.getElementById("status").value = data.status || "";
+
+    document.getElementById("photo").src = data.photoURL || "https://ui-avatars.com/api/?name=" + (data.username || "User");
+});
+
+
+// UNIQUE USERNAME CHECK
+async function isUsernameTaken(username) {
+    const q = query(collection(db,"users"), where("username","==",username));
+    const snap = await getDocs(q);
+
+    if (snap.empty) return false;
+
+    // allow own username
+    let taken = false;
+    snap.forEach(docSnap=>{
+        if(docSnap.id !== currentUser.uid){
+            taken = true;
+        }
+    });
+
+    return taken;
+}
+
+
+// UPDATE PROFILE
+window.updateProfile = async () => {
+
+    const fullName = document.getElementById("fullName").value.trim();
+    const username = document.getElementById("username").value.trim();
+    const bio = document.getElementById("bio").value.trim();
+    const status = document.getElementById("status").value.trim();
+    const file = document.getElementById("photoInput").files[0];
+
+    // ✅ VALIDATION
+    if (fullName.split(" ").length < 4) {
+        alert("Full name must be at least 4 words");
         return;
     }
 
-    const data = snap.data();
+    if (username.length < 4) {
+        alert("Username must be at least 4 characters");
+        return;
+    }
 
-    document.getElementById("username").innerText = data.username || "No Name";
-    document.getElementById("email").innerText = data.email;
-    document.getElementById("photo").src = data.photoURL || "https://via.placeholder.com/100";
-});
+    const taken = await isUsernameTaken(username);
+    if (taken) {
+        alert("Username already taken ❌");
+        return;
+    }
+
+    let photoURL = null;
+
+    try {
+
+        // UPLOAD IMAGE
+        if (file) {
+            const storageRef = ref(storage, "profiles/" + currentUser.uid);
+            await uploadBytes(storageRef, file);
+            photoURL = await getDownloadURL(storageRef);
+        }
+
+        // UPDATE FIRESTORE
+        await updateDoc(doc(db,"users",currentUser.uid), {
+            fullName,
+            username,
+            bio,
+            status,
+            ...(photoURL && {photoURL})
+        });
+
+        alert("Profile updated ✅");
+        location.reload();
+
+    } catch (err) {
+        console.error(err);
+        alert("Error updating profile ❌");
+    }
+};
+
 
 // ACTIONS
-window.logout = () => signOut(auth).then(()=>location="index.html");
-window.goBack = () => location="dashboard.html";
+window.logout = ()=> signOut(auth).then(()=>location="index.html");
+window.goBack = ()=> location="dashboard.html";
 
 </script>
 
