@@ -5,7 +5,15 @@
 <title>Chats</title>
 
 <style>
-body { margin:0; font-family:sans-serif; background:#f5f5f5; }
+body {
+  margin:0;
+  font-family:sans-serif;
+  background:#f5f5f5;
+
+  /* ❌ Disable long press selection */
+  -webkit-user-select:none;
+  user-select:none;
+}
 
 .top {
   background:#4CAF50;
@@ -14,6 +22,16 @@ body { margin:0; font-family:sans-serif; background:#f5f5f5; }
   font-size:18px;
 }
 
+/* PLATFORM MESSAGE */
+.platform {
+  background:#fff3cd;
+  padding:12px;
+  font-weight:bold;
+  border-bottom:1px solid #eee;
+  cursor:pointer;
+}
+
+/* CHAT */
 .chat {
   display:flex;
   align-items:center;
@@ -52,6 +70,12 @@ body { margin:0; font-family:sans-serif; background:#f5f5f5; }
 <body>
 
 <div class="top">Chats</div>
+
+<!-- ⭐ PLATFORM MESSAGE -->
+<div class="platform" onclick="openAdmin()">
+  📢 Platform Messages
+</div>
+
 <div id="list"></div>
 
 <script type="module">
@@ -66,7 +90,7 @@ import {
   orderBy
 } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-/* ================= USER ================= */
+/* USER */
 const currentUser = JSON.parse(localStorage.getItem("user"));
 
 if (!currentUser || !currentUser.uid) {
@@ -76,7 +100,10 @@ if (!currentUser || !currentUser.uid) {
 
 const myUid = currentUser.uid;
 
-/* ================= REALTIME CHAT LIST ================= */
+/* 🔥 CACHE USERS (FIX DISAPPEAR ISSUE) */
+let usersCache = {};
+
+/* REALTIME LIST */
 const q = query(
   collection(db, "userChats", myUid, "list"),
   orderBy("updatedAt", "desc")
@@ -85,6 +112,8 @@ const q = query(
 onSnapshot(q, async (snapshot) => {
 
   const list = document.getElementById("list");
+
+  // ❌ DO NOT CLEAR FULL UI → FIX disappearing issue
   list.innerHTML = "";
 
   for (const d of snapshot.docs) {
@@ -94,10 +123,14 @@ onSnapshot(q, async (snapshot) => {
 
     if (!otherId) continue;
 
-    const userSnap = await getDoc(doc(db, "users", otherId));
-    if (!userSnap.exists()) continue;
+    // 🔥 CACHE USER DATA
+    if (!usersCache[otherId]) {
+      const userSnap = await getDoc(doc(db, "users", otherId));
+      if (!userSnap.exists()) continue;
+      usersCache[otherId] = userSnap.data();
+    }
 
-    const u = userSnap.data();
+    const u = usersCache[otherId];
 
     const div = document.createElement("div");
     div.className = "chat";
@@ -122,9 +155,14 @@ onSnapshot(q, async (snapshot) => {
 
 });
 
-/* ================= OPEN CHAT ================= */
+/* OPEN CHAT */
 window.openChat = (id) => {
   location.href = "chat.html?id=" + id;
+};
+
+/* OPEN ADMIN */
+window.openAdmin = () => {
+  location.href = "admin.html";
 };
 
 </script>
