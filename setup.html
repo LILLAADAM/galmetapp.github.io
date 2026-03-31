@@ -60,25 +60,23 @@ button:hover {
 <div class="box">
     <h2>Setup Profile</h2>
 
-    <!-- ✅ USERNAME -->
+    <!-- USERNAME -->
     <input id="username" placeholder="Enter username">
 
-    <!-- ✅ PHOTO -->
+    <!-- PHOTO -->
     <input type="file" id="photo">
 
-    <!-- ✅ BUTTON -->
+    <!-- BUTTON -->
     <button onclick="saveProfile()">Continue</button>
 </div>
 
 
 <script type="module">
 
-// 🔥 FIREBASE IMPORTS
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 import { getFirestore, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-// 🔥 YOUR FIREBASE CONFIG (same as dashboard)
 const app = initializeApp({
   apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
   authDomain: "galmet-app.firebaseapp.com",
@@ -88,38 +86,50 @@ const app = initializeApp({
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+let currentUser = null;
 
-// ✅ SAVE PROFILE FUNCTION
+// ✅ WAIT FOR AUTH (VERY IMPORTANT)
+onAuthStateChanged(auth, (user) => {
+    if (!user) {
+        window.location = "index.html";
+    } else {
+        currentUser = user;
+    }
+});
+
+
+// ✅ SAVE PROFILE
 window.saveProfile = async () => {
 
+    if (!currentUser) {
+        alert("Please wait...");
+        return;
+    }
+
+    const username = document.getElementById("username").value.trim();
+    const file = document.getElementById("photo").files[0];
+
+    if (!username) {
+        alert("Enter username");
+        return;
+    }
+
+    let photoURL = "";
+
     try {
-        const user = auth.currentUser;
 
-        if (!user) {
-            alert("User not logged in");
-            return;
-        }
-
-        const username = document.getElementById("username").value.trim();
-        const file = document.getElementById("photo").files[0];
-
-        if (!username) {
-            alert("Enter username");
-            return;
-        }
-
-        let photoURL = "";
-
-        // 🔥 IMAGE UPLOAD (base64)
+        // 🔥 WITH IMAGE
         if (file) {
+
             const reader = new FileReader();
 
             reader.onload = async () => {
+
                 photoURL = reader.result;
 
-                await updateDoc(doc(db, "users", user.uid), {
-                    username,
-                    photoURL
+                await updateDoc(doc(db, "users", currentUser.uid), {
+                    username: username,
+                    photoURL: photoURL
                 });
 
                 alert("Profile saved ✅");
@@ -128,10 +138,12 @@ window.saveProfile = async () => {
 
             reader.readAsDataURL(file);
 
-        } else {
+        } 
+        // 🔥 WITHOUT IMAGE
+        else {
 
-            await updateDoc(doc(db, "users", user.uid), {
-                username
+            await updateDoc(doc(db, "users", currentUser.uid), {
+                username: username
             });
 
             alert("Profile saved ✅");
