@@ -89,7 +89,12 @@ window.search = async () => {
     );
 
     const snap1 = await getDocs(q1);
-    snap1.forEach(d => users.push(d.data()));
+    snap1.forEach(d => {
+    users.push({
+        ...d.data(),
+        uid: d.id   // ✅ THIS IS IMPORTANT
+    });
+});
 
     // 🔥 USERID SEARCH (NUMBER FIX)
     if (!isNaN(val)) {
@@ -100,7 +105,12 @@ window.search = async () => {
         );
 
         const snap2 = await getDocs(q2);
-        snap2.forEach(d => users.push(d.data()));
+        snap2.forEach(d => {
+    users.push({
+        ...d.data(),
+        uid: d.id   // ✅ ADD THIS
+    });
+});
     }
 
     let html = "";
@@ -129,7 +139,7 @@ window.search = async () => {
 };
 
 window.view = (id) => location.href = "view.html?id="+id;
-window.chat = (id) => location = "chat.html?id=" + user.uid;
+window.chat = (id) => location = "chat.html?id=" + id;
 
 </script>
 
