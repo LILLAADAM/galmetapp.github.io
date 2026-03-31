@@ -90,6 +90,13 @@ body {
 </div>
     <button class="logout" onclick="logout()">Logout</button>
 </div>
+    
+<div style="position:absolute; top:15px; right:15px; display:flex; gap:10px;">
+    
+    <button onclick="goSearch()">🔍</button>
+    <button onclick="goChats()">💬</button>
+
+</div>
 
 <div class="container">
 
@@ -379,6 +386,13 @@ window.copyCode = async () => {
     window.openProfile = ()=>{
     location="profile.html";
 }
+    window.goSearch = () => {
+    window.location = "search.html";
+};
+
+window.goChats = () => {
+    window.location = "chats.html";
+};
     
 window.goGame = (p)=> location=p;
 
