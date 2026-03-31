@@ -44,30 +44,45 @@ button {
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getFirestore, doc, getDoc } 
+import { getFirestore, collection, query, where, getDocs } 
 from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 const app = initializeApp({
   apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
   authDomain: "galmet-app.firebaseapp.com",
-  projectId: "galmet-app"
+  projectId: "galmet-app",
+  storageBucket: "galmet-app.firebasestorage.app"
 });
 
 const db = getFirestore(app);
 
 const id = new URLSearchParams(location.search).get("id");
 
-const snap = await getDoc(doc(db,"users",id));
-const u = snap.data();
+const q = query(collection(db,"users"), where("userId","==",Number(id)));
+const snap = await getDocs(q);
 
-document.getElementById("photo").src = u.photoURL;
-document.getElementById("name").innerText = u.username;
-document.getElementById("id").innerText = id;
-document.getElementById("bio").innerText = u.bio || "";
+let u = null;
+snap.forEach(d => u = d.data());
 
-window.startChat = ()=> location="chat.html?user="+id;
+if (!u) {
+    document.body.innerHTML = "User not found";
+} else {
 
-</script>
+document.body.innerHTML = `
+<div style="text-align:center;padding:20px">
+<img src="${u.photoURL}" style="width:200px;border-radius:20px">
+<h2>${u.username}</h2>
+<p>ID: ${u.userId}</p>
+<p>${u.bio || ""}</p>
+<button onclick="chat()">Chat</button>
+</div>
+`;
 
+}
+
+window.chat = () => location.href = "chat.html?id="+id;
+
+</script
+    
 </body>
 </html>
