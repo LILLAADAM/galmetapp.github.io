@@ -87,36 +87,40 @@
     }
 
     // 🔥 SEND MESSAGE (FULL FIX)
-    window.sendMessage = async function () {
+  window.sendMessage = async function () {
+  const input = document.getElementById("msg");
+  const text = input.value.trim();
 
-      const input = document.getElementById("msg");
-      const text = input.value.trim();
+  if (!text) return;
 
-      if (!text) return;
+  const msgData = {
+    text,
+    senderId: currentUser.uid,
+    receiverId: otherUserId,
+    createdAt: serverTimestamp()
+  };
 
-      // ✅ SAVE MESSAGE
-      await addDoc(collection(db, "chats", chatId, "messages"), {
-        text: text,
-        senderId: myUid,
-        receiverId: otherUid,
-        createdAt: serverTimestamp()
-      });
+  // ✅ SAVE MESSAGE (IMPORTANT)
+  await addDoc(collection(db, "chats", chatId, "messages"), msgData);
 
-      // ✅ SAVE CHAT LIST (BOTH USERS)
-      await setDoc(doc(db, "userChats", myUid, "list", otherUid), {
-        userId: otherUid,
-        lastMessage: text,
-        updatedAt: serverTimestamp()
-      });
+  // ✅ SAVE CHAT LIST (ME)
+  await setDoc(doc(db, "userChats", currentUser.uid, "list", otherUserId), {
+    uid: otherUserId,
+    lastMessage: text,
+    updatedAt: serverTimestamp(),
+    unread: 0
+  });
 
-      await setDoc(doc(db, "userChats", otherUid, "list", myUid), {
-        userId: myUid,
-        lastMessage: text,
-        updatedAt: serverTimestamp()
-      });
+  // ✅ SAVE CHAT LIST (OTHER USER)
+  await setDoc(doc(db, "userChats", otherUserId, "list", currentUser.uid), {
+    uid: currentUser.uid,
+    lastMessage: text,
+    updatedAt: serverTimestamp(),
+    unread: 1
+  });
 
-      input.value = "";
-    };
+  input.value = "";
+};
 
     // ENTER KEY
     window.addEventListener("keydown", (e) => {
