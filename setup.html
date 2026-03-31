@@ -62,7 +62,6 @@ button {
     background:#4cd964;
     color:white;
 }
-
 </style>
 </head>
 
@@ -101,7 +100,7 @@ const app = initializeApp({
   apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
   authDomain: "galmet-app.firebaseapp.com",
   projectId: "galmet-app",
-  storageBucket: "galmet-app.appspot.com"
+  storageBucket: "galmet-app.firebasestorage.app"
 });
 
 const auth = getAuth(app);
@@ -110,7 +109,8 @@ const storage = getStorage(app);
 
 let currentUser = null;
 
-// AUTH
+
+// ✅ AUTH
 onAuthStateChanged(auth, (user) => {
     if (!user) {
         window.location = "index.html";
@@ -120,7 +120,33 @@ onAuthStateChanged(auth, (user) => {
 });
 
 
-// ✅ UNIQUE USERNAME CHECK
+// ✅ IMAGE PREVIEW + VALIDATION
+const photoInput = document.getElementById("photoInput");
+const preview = document.getElementById("preview");
+
+photoInput.addEventListener("change", () => {
+    const file = photoInput.files[0];
+
+    if (!file) return;
+
+    // ONLY IMAGE
+    if (!file.type.startsWith("image/")) {
+        alert("Only image files allowed ❌");
+        photoInput.value = "";
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        preview.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+
+    document.querySelector(".upload-btn").innerText = "✅ Image Selected";
+});
+
+
+// ✅ UNIQUE USERNAME
 async function isUsernameTaken(username) {
     const q = query(collection(db,"users"), where("username","==",username));
     const snap = await getDocs(q);
@@ -147,14 +173,13 @@ window.saveProfile = async () => {
     }
 
     const username = document.getElementById("username").value.trim();
-    const file = document.getElementById("photo").files[0];
+    const file = photoInput.files[0];
 
-    if (!username) {
-        alert("Enter username");
+    if (!username || username.length < 4) {
+        alert("Username must be at least 4 characters");
         return;
     }
 
-    // UNIQUE CHECK
     const taken = await isUsernameTaken(username);
     if (taken) {
         alert("Username already taken ❌");
@@ -165,7 +190,7 @@ window.saveProfile = async () => {
 
     try {
 
-        // ✅ UPLOAD IMAGE TO FIREBASE STORAGE
+        // UPLOAD IMAGE
         if (file) {
             const storageRef = ref(storage, "profiles/" + currentUser.uid);
 
@@ -179,7 +204,6 @@ window.saveProfile = async () => {
             ...(photoURL && { photoURL })
         });
 
-        // CONFIRM SAVE
         await ensureSaved(username);
 
     } catch (err) {
