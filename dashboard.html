@@ -234,7 +234,7 @@ onAuthStateChanged(auth, async (user)=>{
     }
 
     const data = await fetchUserData();
-    if (!data.username) {
+    if (!data || !data.username) {
     window.location = "setup.html";
     return;
 }
