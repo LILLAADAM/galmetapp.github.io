@@ -4,13 +4,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-body {
-  margin:0;
-  font-family:Segoe UI;
-  background:#fff;
-}
+body { margin:0; font-family:Segoe UI; background:#fff; }
 
-/* TOP IMAGE SECTION */
+/* TOP */
 .top {
   position:relative;
   width:100%;
@@ -19,15 +15,13 @@ body {
   overflow:hidden;
 }
 
-/* IMAGE FIX (NO JUMP ISSUE) */
 .top img {
   width:100%;
   height:100%;
   object-fit:cover;
-  display:block;
 }
 
-/* BACK BUTTON */
+/* BACK */
 .back {
   position:absolute;
   top:10px;
@@ -36,11 +30,10 @@ body {
   color:white;
   padding:6px 10px;
   border-radius:6px;
-  font-size:14px;
   cursor:pointer;
 }
 
-/* ONLINE DOT */
+/* ONLINE */
 .online {
   position:absolute;
   top:10px;
@@ -53,114 +46,150 @@ body {
 }
 
 /* INFO */
-.info {
-  padding:15px;
-}
+.info { padding:15px; }
 
-h2 {
-  margin:5px 0;
-}
-
-p {
-  color:#555;
-}
-
-/* BUTTON */
 button {
   width:90%;
-  margin:15px;
+  margin:10px;
   padding:14px;
   border:none;
-  background:#4cd964;
-  color:white;
-  font-size:16px;
   border-radius:8px;
+  font-size:16px;
 }
+
+/* BUTTON STATES */
+.follow { background:#4cd964; color:white; }
+.following { background:#999; color:white; }
+.friend { background:#007aff; color:white; }
 </style>
 </head>
 
 <body>
 
 <div class="top">
-
-  <!-- BACK -->
-  <div class="back" onclick="goBack()">← Back</div>
-
-  <!-- ONLINE -->
+  <div class="back" onclick="history.back()">← Back</div>
   <div id="onlineBox"></div>
-
-  <!-- IMAGE -->
-  <img id="photo" src="https://via.placeholder.com/600x400">
-
+  <img id="photo">
 </div>
 
 <div class="info">
   <h2 id="name"></h2>
   <p id="id"></p>
   <p id="bio"></p>
-  <button id="followBtn" onclick="toggleFollow()">Follow</button>
+
+  <button id="followBtn" class="follow" onclick="toggleFollow()">Follow</button>
   <button onclick="startChat()">Chat</button>
 </div>
 
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { 
-  getFirestore, 
-  doc, 
-  getDoc 
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  deleteDoc
 } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 const app = initializeApp({
   apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
   authDomain: "galmet-app.firebaseapp.com",
-  projectId: "galmet-app",
-  storageBucket: "galmet-app.firebasestorage.app"
+  projectId: "galmet-app"
 });
 
 const db = getFirestore(app);
 
-/* GET UID */
+/* USERS */
+const currentUser = JSON.parse(localStorage.getItem("user"));
+const myUid = currentUser?.uid;
+
 const uid = new URLSearchParams(location.search).get("id");
 
-if (!uid) {
-  document.body.innerHTML = "Invalid user";
+/* LOAD PROFILE */
+const snap = await getDoc(doc(db, "users", uid));
+
+if (!snap.exists()) {
+  document.body.innerHTML = "User not found";
 } else {
 
-  const snap = await getDoc(doc(db, "users", uid));
+  const u = snap.data();
 
-  if (!snap.exists()) {
-    document.body.innerHTML = "User not found";
-  } else {
+  document.getElementById("photo").src = u.photoURL || "";
+  document.getElementById("name").innerText = u.username || "User";
+  document.getElementById("id").innerText = "ID: " + (u.userId || "");
+  document.getElementById("bio").innerText = u.bio || "";
 
-    const u = snap.data();
+  if (u.online === true) {
+    document.getElementById("onlineBox").innerHTML =
+      `<div class="online">🟢 Online</div>`;
+  }
 
-    /* IMAGE FIX (LOAD PROPERLY) */
-    const img = document.getElementById("photo");
-    img.src = u.photoURL || "https://via.placeholder.com/600x400";
+}
 
-    /* TEXT */
-    document.getElementById("name").innerText = u.username || "User";
-    document.getElementById("id").innerText = "ID: " + (u.userId || "");
-    document.getElementById("bio").innerText = u.bio || "";
+/* CHECK STATUS */
+async function checkFollow() {
 
-    /* 🟢 ONLINE STATUS */
-    if (u.online === true) {
-      document.getElementById("onlineBox").innerHTML = 
-        `<div class="online">🟢 Online</div>`;
-    }
+  const followerRef = doc(db, "followers", uid, "list", myUid);
+  const followingRef = doc(db, "followers", myUid, "list", uid);
 
+  const isFollowing = await getDoc(followerRef);
+  const isFriend = await getDoc(followingRef);
+
+  const btn = document.getElementById("followBtn");
+
+  if (isFollowing.exists() && isFriend.exists()) {
+    btn.innerText = "Friends";
+    btn.className = "friend";
+  }
+  else if (isFollowing.exists()) {
+    btn.innerText = "Following";
+    btn.className = "following";
+  }
+  else {
+    btn.innerText = "Follow";
+    btn.className = "follow";
   }
 }
 
-/* CHAT BUTTON */
-window.startChat = () => {
-  location.href = "chat.html?id=" + uid;
+checkFollow();
+
+/* TOGGLE FOLLOW */
+window.toggleFollow = async () => {
+
+  const followerRef = doc(db, "followers", uid, "list", myUid);
+  const followingRef = doc(db, "following", myUid, "list", uid);
+
+  const snap = await getDoc(followerRef);
+
+  const btn = document.getElementById("followBtn");
+
+  if (snap.exists()) {
+
+    // ❌ UNFOLLOW
+    await deleteDoc(followerRef);
+    await deleteDoc(followingRef);
+
+    btn.innerText = "Follow";
+    btn.className = "follow";
+
+  } else {
+
+    // ✅ FOLLOW
+    await setDoc(followerRef, { uid: myUid });
+    await setDoc(followingRef, { uid: uid });
+
+    btn.innerText = "Following";
+    btn.className = "following";
+  }
+
+  // 🔥 CHECK FRIEND AFTER ACTION
+  setTimeout(checkFollow, 300);
 };
 
-/* BACK */
-window.goBack = () => {
-  history.back();
+/* CHAT */
+window.startChat = () => {
+  location.href = "chat.html?id=" + uid;
 };
 
 </script>
