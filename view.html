@@ -6,47 +6,55 @@
 <style>
 body { margin:0; font-family:Segoe UI; background:#fff; }
 
-/* TOP */
 .top {
   position:relative;
-  width:100%;
   height:320px;
-  background:#ddd;
-  overflow:hidden;
 }
-
 .top img {
   width:100%;
   height:100%;
   object-fit:cover;
 }
 
-/* BACK */
 .back {
   position:absolute;
-  top:10px;
-  left:10px;
+  top:10px; left:10px;
   background:rgba(0,0,0,0.5);
-  color:white;
-  padding:6px 10px;
+  color:white; padding:6px 10px;
   border-radius:6px;
+}
+
+.menu {
+  position:absolute;
+  top:10px; right:10px;
+  color:white;
+  font-size:20px;
   cursor:pointer;
 }
 
-/* ONLINE */
-.online {
-  position:absolute;
-  top:10px;
-  right:10px;
-  background:#4cd964;
-  color:white;
-  padding:5px 10px;
-  border-radius:20px;
-  font-size:12px;
+.popup {
+  position:fixed;
+  bottom:0;
+  width:100%;
+  background:white;
+  border-top-left-radius:15px;
+  border-top-right-radius:15px;
+  display:none;
 }
 
-/* INFO */
+.popup div {
+  padding:15px;
+  text-align:center;
+  border-bottom:1px solid #eee;
+}
+
 .info { padding:15px; }
+
+.stats {
+  display:flex;
+  justify-content:space-around;
+  margin:10px 0;
+}
 
 button {
   width:90%;
@@ -57,17 +65,27 @@ button {
   font-size:16px;
 }
 
-/* BUTTON STATES */
 .follow { background:#4cd964; color:white; }
 .following { background:#999; color:white; }
 .friend { background:#007aff; color:white; }
+.blocked { background:red; color:white; }
+
+.online {
+  position:absolute;
+  right:10px; top:10px;
+  background:#4cd964;
+  padding:5px 10px;
+  border-radius:20px;
+  color:white;
+}
 </style>
 </head>
 
 <body>
 
 <div class="top">
-  <div class="back" onclick="history.back()">← Back</div>
+  <div class="back" onclick="history.back()">←</div>
+  <div class="menu" onclick="openMenu()">⋯</div>
   <div id="onlineBox"></div>
   <img id="photo">
 </div>
@@ -77,19 +95,28 @@ button {
   <p id="id"></p>
   <p id="bio"></p>
 
-  <button id="followBtn" class="follow" onclick="toggleFollow()">Follow</button>
-  <button onclick="startChat()">Chat</button>
+  <div class="stats">
+    <div><b id="fans">0</b><br>Fans</div>
+    <div><b id="following">0</b><br>Following</div>
+    <div><b id="friends">0</b><br>Friends</div>
+  </div>
+
+  <button id="followBtn" onclick="toggleFollow()">Follow</button>
+  <button id="chatBtn" onclick="startChat()">Chat</button>
+</div>
+
+<!-- MENU -->
+<div class="popup" id="menuBox">
+  <div onclick="toggleFollow()">Unfollow</div>
+  <div onclick="toggleBlock()">Block</div>
 </div>
 
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import {
-  getFirestore,
-  doc,
-  getDoc,
-  setDoc,
-  deleteDoc
+  getFirestore, doc, getDoc, setDoc, deleteDoc,
+  collection, onSnapshot
 } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 const app = initializeApp({
@@ -100,96 +127,128 @@ const app = initializeApp({
 
 const db = getFirestore(app);
 
-/* USERS */
-const currentUser = JSON.parse(localStorage.getItem("user"));
-const myUid = currentUser?.uid;
+const me = JSON.parse(localStorage.getItem("user"));
+const myUid = me?.uid;
 
 const uid = new URLSearchParams(location.search).get("id");
 
 /* LOAD PROFILE */
 const snap = await getDoc(doc(db, "users", uid));
+const u = snap.data();
 
-if (!snap.exists()) {
-  document.body.innerHTML = "User not found";
-} else {
+photo.src = u.photoURL || "";
+name.innerText = u.username;
+id.innerText = "ID: " + u.userId;
+bio.innerText = u.bio || "";
 
-  const u = snap.data();
-
-  document.getElementById("photo").src = u.photoURL || "";
-  document.getElementById("name").innerText = u.username || "User";
-  document.getElementById("id").innerText = "ID: " + (u.userId || "");
-  document.getElementById("bio").innerText = u.bio || "";
-
-  if (u.online === true) {
-    document.getElementById("onlineBox").innerHTML =
-      `<div class="online">🟢 Online</div>`;
-  }
-
+if(u.online){
+  onlineBox.innerHTML = `<div class="online">Online</div>`;
 }
 
-/* CHECK STATUS */
-async function checkFollow() {
+/* REALTIME COUNTS */
+onSnapshot(collection(db,"followers",uid,"list"), s=>{
+  fans.innerText = s.size;
+});
+onSnapshot(collection(db,"following",uid,"list"), s=>{
+  following.innerText = s.size;
+});
+onSnapshot(collection(db,"friends",uid,"list"), s=>{
+  friends.innerText = s.size;
+});
 
-  const followerRef = doc(db, "followers", uid, "list", myUid);
-  const followingRef = doc(db, "followers", myUid, "list", uid);
+/* CHECK STATES */
+async function checkState(){
 
-  const isFollowing = await getDoc(followerRef);
-  const isFriend = await getDoc(followingRef);
+  const f1 = await getDoc(doc(db,"followers",uid,"list",myUid));
+  const f2 = await getDoc(doc(db,"followers",myUid,"list",uid));
+  const block = await getDoc(doc(db,"blocked",uid,"list",myUid));
 
-  const btn = document.getElementById("followBtn");
+  const btn = followBtn;
 
-  if (isFollowing.exists() && isFriend.exists()) {
-    btn.innerText = "Friends";
-    btn.className = "friend";
+  if(block.exists()){
+    btn.innerText="Blocked";
+    btn.className="blocked";
+    chatBtn.style.display="none";
+    return;
   }
-  else if (isFollowing.exists()) {
-    btn.innerText = "Following";
-    btn.className = "following";
+
+  if(f1.exists() && f2.exists()){
+    btn.innerText="Friends";
+    btn.className="friend";
   }
-  else {
-    btn.innerText = "Follow";
-    btn.className = "follow";
+  else if(f1.exists()){
+    btn.innerText="Following";
+    btn.className="following";
+  }
+  else{
+    btn.innerText="Follow";
+    btn.className="follow";
   }
 }
 
-checkFollow();
+checkState();
 
-/* TOGGLE FOLLOW */
-window.toggleFollow = async () => {
+/* FOLLOW */
+window.toggleFollow = async()=>{
 
-  const followerRef = doc(db, "followers", uid, "list", myUid);
-  const followingRef = doc(db, "following", myUid, "list", uid);
+  const a = doc(db,"followers",uid,"list",myUid);
+  const b = doc(db,"following",myUid,"list",uid);
 
-  const snap = await getDoc(followerRef);
+  const snap = await getDoc(a);
 
-  const btn = document.getElementById("followBtn");
+  if(snap.exists()){
+    await deleteDoc(a);
+    await deleteDoc(b);
 
-  if (snap.exists()) {
+    // remove friend both sides
+    await deleteDoc(doc(db,"friends",uid,"list",myUid));
+    await deleteDoc(doc(db,"friends",myUid,"list",uid));
+  }
+  else{
+    await setDoc(a,{uid:myUid});
+    await setDoc(b,{uid:uid});
 
-    // ❌ UNFOLLOW
-    await deleteDoc(followerRef);
-    await deleteDoc(followingRef);
-
-    btn.innerText = "Follow";
-    btn.className = "follow";
-
-  } else {
-
-    // ✅ FOLLOW
-    await setDoc(followerRef, { uid: myUid });
-    await setDoc(followingRef, { uid: uid });
-
-    btn.innerText = "Following";
-    btn.className = "following";
+    // check mutual
+    const other = await getDoc(doc(db,"followers",myUid,"list",uid));
+    if(other.exists()){
+      await setDoc(doc(db,"friends",uid,"list",myUid),{uid:myUid});
+      await setDoc(doc(db,"friends",myUid,"list",uid),{uid:uid});
+    }
   }
 
-  // 🔥 CHECK FRIEND AFTER ACTION
-  setTimeout(checkFollow, 300);
+  checkState();
+};
+
+/* BLOCK */
+window.toggleBlock = async()=>{
+
+  const ref = doc(db,"blocked",uid,"list",myUid);
+  const snap = await getDoc(ref);
+
+  if(snap.exists()){
+    await deleteDoc(ref);
+  }else{
+
+    await setDoc(ref,{uid:myUid});
+
+    // remove follow + friend
+    await deleteDoc(doc(db,"followers",uid,"list",myUid));
+    await deleteDoc(doc(db,"following",myUid,"list",uid));
+    await deleteDoc(doc(db,"friends",uid,"list",myUid));
+    await deleteDoc(doc(db,"friends",myUid,"list",uid));
+  }
+
+  checkState();
+};
+
+/* MENU */
+window.openMenu=()=>{
+  menuBox.style.display="block";
 };
 
 /* CHAT */
-window.startChat = () => {
-  location.href = "chat.html?id=" + uid;
+window.startChat=()=>{
+  location="chat.html?id="+uid;
 };
 
 </script>
