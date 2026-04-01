@@ -9,20 +9,28 @@ body {
   margin:0;
   font-family:sans-serif;
   background:#f5f5f5;
-
-  /* ❌ Disable long press selection */
   -webkit-user-select:none;
   user-select:none;
 }
 
+/* HEADER */
 .top {
   background:#4CAF50;
   color:white;
   padding:15px;
   font-size:18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 }
 
-/* PLATFORM MESSAGE */
+/* SEARCH ICON */
+.search {
+  font-size:20px;
+  cursor:pointer;
+}
+
+/* PLATFORM */
 .platform {
   background:#fff3cd;
   padding:12px;
@@ -38,18 +46,18 @@ body {
   padding:10px;
   border-bottom:1px solid #eee;
   background:white;
-  cursor:pointer;
 }
 
 .chat img {
   width:50px;
   height:50px;
   border-radius:50%;
+  margin-right:10px;
+  cursor:pointer;
 }
 
 .info {
   flex:1;
-  margin-left:10px;
 }
 
 .name { font-weight:bold; }
@@ -69,9 +77,12 @@ body {
 
 <body>
 
-<div class="top">Chats</div>
+<div class="top">
+  Chats
+  <span class="search" onclick="openSearch()">🔍</span>
+</div>
 
-<!-- ⭐ PLATFORM MESSAGE -->
+<!-- PLATFORM -->
 <div class="platform" onclick="openPlatform()">
   📢 Platform Messages <span id="pBadge"></span>
 </div>
@@ -87,7 +98,9 @@ import {
   doc,
   getDoc,
   query,
-  orderBy
+  orderBy,
+  setDoc,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 /* USER */
@@ -100,48 +113,55 @@ if (!currentUser || !currentUser.uid) {
 
 const myUid = currentUser.uid;
 
-/* 🔥 CACHE USERS (FIX DISAPPEAR ISSUE) */
+/* CACHE */
 let usersCache = {};
 
-/* PLATFORM BADGE */
+/* ================= PLATFORM BADGE ================= */
+
 const badge = document.getElementById("pBadge");
+let lastSeen = null;
 
-async function loadPlatformBadge() {
+// 🔥 REALTIME READ STATUS
+onSnapshot(doc(db, "platformReads", myUid), (snap) => {
+  lastSeen = snap.exists() ? snap.data().lastSeen : null;
+});
 
-  const readSnap = await getDoc(doc(db, "platformReads", myUid));
-  let lastSeen = readSnap.exists() ? readSnap.data().lastSeen : null;
+// 🔥 REALTIME MESSAGES
+const pQuery = query(
+  collection(db, "platformMessages"),
+  orderBy("createdAt", "desc")
+);
 
-  const q = query(
-    collection(db, "platformMessages"),
-    orderBy("createdAt", "desc")
-  );
+onSnapshot(pQuery, (snapshot) => {
 
-  onSnapshot(q, (snapshot) => {
+  let unread = 0;
 
-    let unread = 0;
+  snapshot.forEach(d => {
+    const m = d.data();
 
-    snapshot.forEach(d => {
-      const m = d.data();
-
-      if (!lastSeen || (m.createdAt && m.createdAt > lastSeen)) {
-        unread++;
-      }
-    });
-
-    badge.innerHTML = unread > 0 
-      ? `<span class="badge">${unread}</span>` 
-      : "";
+    if (!lastSeen || (m.createdAt && m.createdAt > lastSeen)) {
+      unread++;
+    }
   });
-}
 
-loadPlatformBadge();
+  badge.innerHTML = unread > 0 
+    ? `<span class="badge">${unread}</span>` 
+    : "";
+});
 
-/* OPEN PAGE */
-window.openPlatform = () => {
+/* OPEN PLATFORM */
+window.openPlatform = async () => {
+
+  // 🔥 INSTANT MARK READ
+  await setDoc(doc(db, "platformReads", myUid), {
+    lastSeen: serverTimestamp()
+  }, { merge:true });
+
   location.href = "platform.html";
 };
-  
-/* REALTIME LIST */
+
+/* ================= CHAT LIST ================= */
+
 const q = query(
   collection(db, "userChats", myUid, "list"),
   orderBy("updatedAt", "desc")
@@ -150,8 +170,6 @@ const q = query(
 onSnapshot(q, async (snapshot) => {
 
   const list = document.getElementById("list");
-
-  // ❌ DO NOT CLEAR FULL UI → FIX disappearing issue
   list.innerHTML = "";
 
   for (const d of snapshot.docs) {
@@ -161,7 +179,6 @@ onSnapshot(q, async (snapshot) => {
 
     if (!otherId) continue;
 
-    // 🔥 CACHE USER DATA
     if (!usersCache[otherId]) {
       const userSnap = await getDoc(doc(db, "users", otherId));
       if (!userSnap.exists()) continue;
@@ -173,12 +190,10 @@ onSnapshot(q, async (snapshot) => {
     const div = document.createElement("div");
     div.className = "chat";
 
-    div.onclick = () => openChat(otherId);
-
     div.innerHTML = `
-      <img src="${u.photoURL || 'https://ui-avatars.com/api/?name=' + (u.username || 'User')}">
+      <img src="${u.photoURL || 'https://ui-avatars.com/api/?name=' + (u.username || 'User')}" onclick="openProfile('${otherId}')">
       
-      <div class="info">
+      <div class="info" onclick="openChat('${otherId}')">
         <div class="name">${u.fullName || u.username || "User"}</div>
         <div class="msg">${chat.lastMessage || ""}</div>
       </div>
@@ -193,9 +208,18 @@ onSnapshot(q, async (snapshot) => {
 
 });
 
-/* OPEN CHAT */
+/* ================= NAVIGATION ================= */
+
 window.openChat = (id) => {
   location.href = "chat.html?id=" + id;
+};
+
+window.openProfile = (id) => {
+  location.href = "view.html?id=" + id;
+};
+
+window.openSearch = () => {
+  location.href = "search.html";
 };
 
 </script>
