@@ -7,7 +7,7 @@
 <style>
 body {
   margin:0;
-  font-family:sans-serif;
+  font-family: 'Segoe UI', sans-serif;
   background:#f5f5f5;
 }
 
@@ -85,32 +85,55 @@ body {
 
 <script type="module">
 
-import { auth } from "./firebase.js";
-import { signOut } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } 
+from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } 
+from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-/* USER */
-const user = JSON.parse(localStorage.getItem("user"));
+/* SAME CONFIG AS DASHBOARD */
+const app = initializeApp({
+  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+  authDomain: "galmet-app.firebaseapp.com",
+  projectId: "galmet-app"
+});
 
-/* 🔥 MASK EMAIL (PRO STYLE) */
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* 🔥 MASK EMAIL */
 function maskEmail(email) {
   if (!email) return "Unknown";
 
   const [name, domain] = email.split("@");
-
-  let visible = name.substring(0, 3);
-  return `Email: ${visible}***@${domain}`;
+  return `Email: ${name.substring(0,3)}***@${domain}`;
 }
 
-/* SHOW EMAIL */
-if (user?.email) {
-  document.getElementById("accountInfo").innerText = maskEmail(user.email);
-} else {
-  document.getElementById("accountInfo").innerText = "No email found";
-}
+/* LOAD USER */
+onAuthStateChanged(auth, async (user) => {
 
-/* NAV */
+  if (!user) {
+    location = "index.html";
+    return;
+  }
+
+  const snap = await getDoc(doc(db, "users", user.uid));
+
+  if (!snap.exists()) {
+    document.getElementById("accountInfo").innerText = "No data";
+    return;
+  }
+
+  const data = snap.data();
+
+  // ✅ USE SAME EMAIL AS DASHBOARD
+  document.getElementById("accountInfo").innerText =
+    maskEmail(data.email || user.email);
+});
+
+/* NAVIGATION */
 window.openAccount = () => {
-  alert("Next: Account details page");
+  alert("Next: Account page");
 };
 
 window.openPrivacy = () => {
