@@ -28,16 +28,18 @@ const myUid = currentUser.uid;
 const otherUid = new URLSearchParams(location.search).get("id");
 const chatId = [myUid, otherUid].sort().join("_");
 
-/* ================= MENU ================= */
-const menuBox = document.getElementById("menuBox");
-
-/* TOAST */
+/* ================= TOAST ================= */
 function showToast(msg){
   const t = document.getElementById("toast");
   t.innerText = msg;
   t.style.display="block";
   setTimeout(()=> t.style.display="none",2000);
 }
+
+/* ================= HEADER CLICK ================= */
+window.openProfile = () => {
+  location.href = "view.html?id=" + otherUid;
+};
 
 /* ================= LOAD USER ================= */
 async function loadOtherUser() {
@@ -54,37 +56,37 @@ async function loadOtherUser() {
     `https://ui-avatars.com/api/?name=${encodeURIComponent(data.username)}`;
 }
 
-/* ================= CLICK HEADER → PROFILE ================= */
-window.openProfile = () => {
-  location.href = "view.html?id=" + otherUid;
-};
+/* ================= BLOCK CHECK (BOTH SIDES) ================= */
+async function isBlocked(){
+  const a = await getDoc(doc(db,"blocked",otherUid,"list",myUid));
+  const b = await getDoc(doc(db,"blocked",myUid,"list",otherUid));
+  return a.exists() || b.exists();
+}
 
-/* ================= REALTIME STATE ================= */
+/* ================= REALTIME MENU ================= */
 onSnapshot(doc(db,"followers",otherUid,"list",myUid), updateMenu);
 onSnapshot(doc(db,"blocked",otherUid,"list",myUid), updateMenu);
+onSnapshot(doc(db,"blocked",myUid,"list",otherUid), updateMenu);
 
 async function updateMenu(){
 
   const followSnap = await getDoc(doc(db,"followers",otherUid,"list",myUid));
-  const blockSnap = await getDoc(doc(db,"blocked",otherUid,"list",myUid));
+  const blockA = await getDoc(doc(db,"blocked",otherUid,"list",myUid));
+  const blockB = await getDoc(doc(db,"blocked",myUid,"list",otherUid));
+
+  const blocked = blockA.exists() || blockB.exists();
 
   const items = document.querySelectorAll("#menuBox div");
+  const input = document.getElementById("msg");
 
-  if(blockSnap.exists()){
+  if(blocked){
     items[0].innerText = "Follow";
     items[1].innerText = "Unblock";
-
-    document.getElementById("msg").disabled = true;
+    input.disabled = true;
   } else {
+    input.disabled = false;
 
-    document.getElementById("msg").disabled = false;
-
-    if(followSnap.exists()){
-      items[0].innerText = "Unfollow";
-    } else {
-      items[0].innerText = "Follow";
-    }
-
+    items[0].innerText = followSnap.exists() ? "Unfollow" : "Follow";
     items[1].innerText = "Block";
   }
 }
@@ -128,6 +130,7 @@ window.toggleBlock = async () => {
 
     await setDoc(ref,{uid:myUid});
 
+    // REMOVE ALL RELATIONS
     await deleteDoc(doc(db,"followers",otherUid,"list",myUid));
     await deleteDoc(doc(db,"following",myUid,"list",otherUid));
     await deleteDoc(doc(db,"friends",otherUid,"list",myUid));
@@ -149,12 +152,13 @@ function closeMenu(){
 }
 
 window.addEventListener("click",(e)=>{
-  if(!menuBox.contains(e.target) && e.target.innerText !== "⋯"){
+  const menu = document.getElementById("menuBox");
+  if(menu && !menu.contains(e.target) && e.target.innerText !== "⋯"){
     closeMenu();
   }
 });
 
-/* ================= REALTIME MESSAGES ================= */
+/* ================= MESSAGES ================= */
 function loadMessages() {
 
   onSnapshot(query(
@@ -177,7 +181,6 @@ function loadMessages() {
         const img = document.createElement("img");
         img.src = m.image;
         img.className = "chat-img";
-        img.onclick = () => openViewer(m.image);
         div.appendChild(img);
       }
 
@@ -188,13 +191,51 @@ function loadMessages() {
   });
 }
 
-/* ================= BLOCK CHECK SEND ================= */
-async function isBlocked(){
-  const snap = await getDoc(doc(db,"blocked",otherUid,"list",myUid));
-  return snap.exists();
-}
+/* ================= IMAGE PICK ================= */
+window.pickImage = () => {
+  document.getElementById("imageInput").click();
+};
 
-/* ================= SEND MESSAGE ================= */
+let selectedFile = null;
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("imageInput").addEventListener("change", e => {
+    selectedFile = e.target.files[0];
+    if (!selectedFile) return;
+
+    document.getElementById("previewModal").style.display = "flex";
+    document.getElementById("previewImage").src =
+      URL.createObjectURL(selectedFile);
+  });
+});
+
+/* ================= SEND IMAGE ================= */
+window.sendImage = async () => {
+
+  if(await isBlocked()){
+    showToast("Blocked user");
+    return;
+  }
+
+  const fileRef = ref(storage, "chatImages/" + Date.now());
+  await uploadBytes(fileRef, selectedFile);
+  const url = await getDownloadURL(fileRef);
+
+  await addDoc(collection(db, "chats", chatId, "messages"), {
+    image: url,
+    senderId: myUid,
+    receiverId: otherUid,
+    createdAt: serverTimestamp()
+  });
+
+  closePreview();
+};
+
+window.closePreview = () => {
+  document.getElementById("previewModal").style.display = "none";
+};
+
+/* ================= SEND TEXT ================= */
 window.sendMessage = async () => {
 
   if(await isBlocked()){
@@ -242,16 +283,14 @@ header img {
   cursor:pointer;
 }
 
-header span {
-  cursor:pointer;
-}
+header span { cursor:pointer; }
 
 .menu {
   margin-left:auto;
   cursor:pointer;
 }
 
-/* CHAT */
+/* FIXED SPACING */
 #messages {
   position:fixed;
   top:60px;
@@ -295,6 +334,7 @@ header span {
   background:#4CAF50;
   color:white;
   border:none;
+  font-size:20px;
 }
 
 input {
@@ -328,7 +368,6 @@ button {
   border-bottom:1px solid #eee;
 }
 
-/* TOAST */
 .toast {
   position:fixed;
   bottom:80px;
@@ -354,8 +393,10 @@ button {
 <div id="messages"></div>
 
 <div class="bottom">
+  <button class="plus" onclick="pickImage()">+</button>
   <input id="msg" placeholder="Type message...">
   <button onclick="sendMessage()">Send</button>
+  <input type="file" id="imageInput" accept="image/*" hidden>
 </div>
 
 <div class="popup" id="menuBox">
@@ -364,6 +405,15 @@ button {
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- PREVIEW -->
+<div id="previewModal" style="display:none; position:fixed; inset:0; background:black; justify-content:center; align-items:center;">
+  <img id="previewImage" style="max-width:90%;">
+  <div style="position:absolute; bottom:30px;">
+    <button onclick="closePreview()">Cancel</button>
+    <button onclick="sendImage()">Send</button>
+  </div>
+</div>
 
 </body>
 </html>
