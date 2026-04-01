@@ -14,18 +14,27 @@ body { margin:0; font-family:sans-serif; background:#f5f5f5; }
   font-size:18px;
 }
 
+/* CARD */
 .msg {
   background:white;
   margin:10px;
   padding:12px;
+  border-radius:12px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.08);
+}
+
+/* IMAGE */
+.msg img {
+  width:100%;
   border-radius:10px;
-  box-shadow:0 2px 5px rgba(0,0,0,0.05);
+  margin-top:10px;
+  cursor:pointer;
 }
 
 .time {
   font-size:12px;
   color:gray;
-  margin-top:5px;
+  margin-top:6px;
 }
 </style>
 </head>
@@ -42,9 +51,9 @@ import {
   onSnapshot,
   query,
   orderBy,
-  serverTimestamp,
   doc,
-  setDoc
+  setDoc,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 const user = JSON.parse(localStorage.getItem("user"));
@@ -52,7 +61,7 @@ if (!user?.uid) location = "index.html";
 
 const list = document.getElementById("list");
 
-/* LOAD MESSAGES */
+/* LOAD */
 const q = query(
   collection(db, "platformMessages"),
   orderBy("createdAt", "desc")
@@ -68,9 +77,20 @@ onSnapshot(q, (snapshot) => {
     const div = document.createElement("div");
     div.className = "msg";
 
+    let imgHtml = "";
+
+    if (m.image) {
+      imgHtml = `
+        <img src="${m.image}" onclick="openLink('${m.link || ''}')">
+      `;
+    }
+
     div.innerHTML = `
-      <div>${m.text}</div>
-      <div class="time">${m.createdAt?.toDate?.().toLocaleString() || ""}</div>
+      <div>${m.text || ""}</div>
+      ${imgHtml}
+      <div class="time">
+        ${m.createdAt?.toDate?.().toLocaleString() || ""}
+      </div>
     `;
 
     list.appendChild(div);
@@ -78,7 +98,12 @@ onSnapshot(q, (snapshot) => {
 
 });
 
-/* MARK AS READ */
+/* CLICK IMAGE → OPEN LINK */
+window.openLink = (url) => {
+  if (url) window.open(url, "_blank");
+};
+
+/* MARK READ */
 await setDoc(doc(db, "platformReads", user.uid), {
   lastSeen: serverTimestamp()
 }, { merge:true });
