@@ -95,7 +95,7 @@ body {
     
     <button onclick="goSearch()">🔍</button>
     <button onclick="goChats()">💬</button>
-
+    <button onclick="openSettings()" style="margin-left:10px;">⚙️</button>
 </div>
 
 <div class="container">
@@ -434,6 +434,9 @@ window.copyCode = async () => {
 
 window.goChats = () => {
     window.location = "chats.html";
+};
+    window.openSettings = () => {
+  location.href = "settings.html";
 };
     
 window.goGame = (p)=> location=p;
