@@ -6,63 +6,35 @@
 <style>
 body { margin:0; font-family:Segoe UI; background:#fff; }
 
-.top {
-  position:relative;
-  height:320px;
-}
-.top img {
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
+.top { position:relative; height:320px; }
+.top img { width:100%; height:100%; object-fit:cover; }
 
 .back {
-  position:absolute;
-  top:10px; left:10px;
-  background:rgba(0,0,0,0.5);
-  color:white; padding:6px 10px;
-  border-radius:6px;
+  position:absolute; top:10px; left:10px;
+  background:rgba(0,0,0,0.5); color:white;
+  padding:6px 10px; border-radius:6px;
 }
 
 .menu {
-  position:absolute;
-  top:10px; right:10px;
-  color:white;
-  font-size:20px;
-  cursor:pointer;
+  position:absolute; top:10px; right:10px;
+  color:white; font-size:20px; cursor:pointer;
 }
 
 .popup {
-  position:fixed;
-  bottom:0;
-  width:100%;
-  background:white;
-  border-top-left-radius:15px;
-  border-top-right-radius:15px;
+  position:fixed; bottom:0; width:100%;
+  background:white; border-radius:15px 15px 0 0;
   display:none;
 }
 
-.popup div {
-  padding:15px;
-  text-align:center;
-  border-bottom:1px solid #eee;
-}
+.popup div { padding:15px; text-align:center; border-bottom:1px solid #eee; }
 
 .info { padding:15px; }
 
-.stats {
-  display:flex;
-  justify-content:space-around;
-  margin:10px 0;
-}
+.stats { display:flex; justify-content:space-around; margin:10px 0; }
 
 button {
-  width:90%;
-  margin:10px;
-  padding:14px;
-  border:none;
-  border-radius:8px;
-  font-size:16px;
+  width:90%; margin:10px; padding:14px;
+  border:none; border-radius:8px; font-size:16px;
 }
 
 .follow { background:#4cd964; color:white; }
@@ -71,12 +43,9 @@ button {
 .blocked { background:red; color:white; }
 
 .online {
-  position:absolute;
-  right:10px; top:10px;
-  background:#4cd964;
-  padding:5px 10px;
-  border-radius:20px;
-  color:white;
+  position:absolute; right:10px; top:10px;
+  background:#4cd964; padding:5px 10px;
+  border-radius:20px; color:white;
 }
 </style>
 </head>
@@ -105,7 +74,6 @@ button {
   <button id="chatBtn" onclick="startChat()">Chat</button>
 </div>
 
-<!-- MENU -->
 <div class="popup" id="menuBox">
   <div onclick="toggleFollow()">Unfollow</div>
   <div onclick="toggleBlock()">Block</div>
@@ -137,36 +105,38 @@ const snap = await getDoc(doc(db, "users", uid));
 const u = snap.data();
 
 document.getElementById("photo").src = u.photoURL || "";
-
 document.getElementById("name").innerText = u.username || "User";
-
 document.getElementById("id").innerText = "ID: " + (u.userId || "");
-
 document.getElementById("bio").innerText = u.bio || "";
 
 if(u.online){
-  onlineBox.innerHTML = `<div class="online">Online</div>`;
+  document.getElementById("onlineBox").innerHTML = `<div class="online">Online</div>`;
 }
 
 /* REALTIME COUNTS */
 onSnapshot(collection(db,"followers",uid,"list"), s=>{
-  fans.innerText = s.size;
+  document.getElementById("fans").innerText = s.size;
 });
 onSnapshot(collection(db,"following",uid,"list"), s=>{
-  following.innerText = s.size;
+  document.getElementById("following").innerText = s.size;
 });
 onSnapshot(collection(db,"friends",uid,"list"), s=>{
-  friends.innerText = s.size;
+  document.getElementById("friends").innerText = s.size;
 });
 
-/* CHECK STATES */
+/* REALTIME STATE */
+onSnapshot(doc(db,"followers",uid,"list",myUid), ()=> checkState());
+onSnapshot(doc(db,"followers",myUid,"list",uid), ()=> checkState());
+onSnapshot(doc(db,"blocked",uid,"list",myUid), ()=> checkState());
+
 async function checkState(){
 
   const f1 = await getDoc(doc(db,"followers",uid,"list",myUid));
   const f2 = await getDoc(doc(db,"followers",myUid,"list",uid));
   const block = await getDoc(doc(db,"blocked",uid,"list",myUid));
 
-  const btn = followBtn;
+  const btn = document.getElementById("followBtn");
+  const chatBtn = document.getElementById("chatBtn");
 
   if(block.exists()){
     btn.innerText="Blocked";
@@ -174,6 +144,8 @@ async function checkState(){
     chatBtn.style.display="none";
     return;
   }
+
+  chatBtn.style.display="block";
 
   if(f1.exists() && f2.exists()){
     btn.innerText="Friends";
@@ -189,10 +161,8 @@ async function checkState(){
   }
 }
 
-checkState();
-
 /* FOLLOW */
-window.toggleFollow = async()=>{}
+window.toggleFollow = async () => {
 
   const a = doc(db,"followers",uid,"list",myUid);
   const b = doc(db,"following",myUid,"list",uid);
@@ -203,7 +173,6 @@ window.toggleFollow = async()=>{}
     await deleteDoc(a);
     await deleteDoc(b);
 
-    // remove friend both sides
     await deleteDoc(doc(db,"friends",uid,"list",myUid));
     await deleteDoc(doc(db,"friends",myUid,"list",uid));
   }
@@ -211,19 +180,16 @@ window.toggleFollow = async()=>{}
     await setDoc(a,{uid:myUid});
     await setDoc(b,{uid:uid});
 
-    // check mutual
     const other = await getDoc(doc(db,"followers",myUid,"list",uid));
     if(other.exists()){
       await setDoc(doc(db,"friends",uid,"list",myUid),{uid:myUid});
       await setDoc(doc(db,"friends",myUid,"list",uid),{uid:uid});
     }
   }
-
-  checkState();
 };
 
 /* BLOCK */
-window.toggleBlock = async()=>{}
+window.toggleBlock = async () => {
 
   const ref = doc(db,"blocked",uid,"list",myUid);
   const snap = await getDoc(ref);
@@ -231,26 +197,22 @@ window.toggleBlock = async()=>{}
   if(snap.exists()){
     await deleteDoc(ref);
   }else{
-
     await setDoc(ref,{uid:myUid});
 
-    // remove follow + friend
     await deleteDoc(doc(db,"followers",uid,"list",myUid));
     await deleteDoc(doc(db,"following",myUid,"list",uid));
     await deleteDoc(doc(db,"friends",uid,"list",myUid));
     await deleteDoc(doc(db,"friends",myUid,"list",uid));
   }
-
-  checkState();
 };
 
 /* MENU */
-window.openMenu=()=>{}
-  menuBox.style.display="block";
+window.openMenu = () => {
+  document.getElementById("menuBox").style.display="block";
 };
 
 /* CHAT */
-window.startChat=()=>{}
+window.startChat = () => {
   location="chat.html?id="+uid;
 };
 
