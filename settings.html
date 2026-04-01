@@ -91,22 +91,26 @@ import { signOut } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-aut
 /* USER */
 const user = JSON.parse(localStorage.getItem("user"));
 
-/* MASK EMAIL */
+/* 🔥 MASK EMAIL (PRO STYLE) */
 function maskEmail(email) {
-  if (!email) return "";
+  if (!email) return "Unknown";
 
   const [name, domain] = email.split("@");
-  const visible = name.substring(0, 4);
-  return visible + "****@" + domain;
+
+  let visible = name.substring(0, 3);
+  return `Email: ${visible}***@${domain}`;
 }
 
-/* SHOW ACCOUNT */
-document.getElementById("accountInfo").innerText =
-  user?.email ? "Email: " + maskEmail(user.email) : "Unknown";
+/* SHOW EMAIL */
+if (user?.email) {
+  document.getElementById("accountInfo").innerText = maskEmail(user.email);
+} else {
+  document.getElementById("accountInfo").innerText = "No email found";
+}
 
-/* NAVIGATION */
+/* NAV */
 window.openAccount = () => {
-  alert("Next step we build Account page");
+  alert("Next: Account details page");
 };
 
 window.openPrivacy = () => {
