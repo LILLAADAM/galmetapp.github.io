@@ -8,7 +8,7 @@
 import { db } from "./firebase.js";
 import {
   collection, addDoc, query, orderBy,
-  onSnapshot, serverTimestamp, doc, getDoc, setDoc, deleteDoc
+  onSnapshot, serverTimestamp, doc, getDoc, setDoc
 } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 import {
@@ -28,19 +28,6 @@ const myUid = currentUser.uid;
 const otherUid = new URLSearchParams(location.search).get("id");
 const chatId = [myUid, otherUid].sort().join("_");
 
-/* ================= TOAST ================= */
-function showToast(msg){
-  const t = document.getElementById("toast");
-  t.innerText = msg;
-  t.style.display="block";
-  setTimeout(()=> t.style.display="none",2000);
-}
-
-/* ================= HEADER CLICK ================= */
-window.openProfile = () => {
-  location.href = "view.html?id=" + otherUid;
-};
-
 /* ================= LOAD USER ================= */
 async function loadOtherUser() {
   const snap = await getDoc(doc(db, "users", otherUid));
@@ -56,116 +43,14 @@ async function loadOtherUser() {
     `https://ui-avatars.com/api/?name=${encodeURIComponent(data.username)}`;
 }
 
-/* ================= BLOCK CHECK (BOTH SIDES) ================= */
-async function isBlocked(){
-  const a = await getDoc(doc(db,"blocked",otherUid,"list",myUid));
-  const b = await getDoc(doc(db,"blocked",myUid,"list",otherUid));
-  return a.exists() || b.exists();
-}
-
-/* ================= REALTIME MENU ================= */
-onSnapshot(doc(db,"followers",otherUid,"list",myUid), updateMenu);
-onSnapshot(doc(db,"blocked",otherUid,"list",myUid), updateMenu);
-onSnapshot(doc(db,"blocked",myUid,"list",otherUid), updateMenu);
-
-async function updateMenu(){
-
-  const followSnap = await getDoc(doc(db,"followers",otherUid,"list",myUid));
-  const blockA = await getDoc(doc(db,"blocked",otherUid,"list",myUid));
-  const blockB = await getDoc(doc(db,"blocked",myUid,"list",otherUid));
-
-  const blocked = blockA.exists() || blockB.exists();
-
-  const items = document.querySelectorAll("#menuBox div");
-  const input = document.getElementById("msg");
-
-  if(blocked){
-    items[0].innerText = "Follow";
-    items[1].innerText = "Unblock";
-    input.disabled = true;
-  } else {
-    input.disabled = false;
-
-    items[0].innerText = followSnap.exists() ? "Unfollow" : "Follow";
-    items[1].innerText = "Block";
-  }
-}
-
-/* ================= FOLLOW ================= */
-window.toggleFollow = async () => {
-
-  const a = doc(db,"followers",otherUid,"list",myUid);
-  const b = doc(db,"following",myUid,"list",otherUid);
-
-  const snap = await getDoc(a);
-
-  if(snap.exists()){
-    await deleteDoc(a);
-    await deleteDoc(b);
-
-    await deleteDoc(doc(db,"friends",otherUid,"list",myUid));
-    await deleteDoc(doc(db,"friends",myUid,"list",otherUid));
-
-    showToast("Unfollowed");
-  }
-  else{
-    await setDoc(a,{uid:myUid});
-    await setDoc(b,{uid:otherUid});
-    showToast("Followed");
-  }
-
-  closeMenu();
-};
-
-/* ================= BLOCK ================= */
-window.toggleBlock = async () => {
-
-  const ref = doc(db,"blocked",otherUid,"list",myUid);
-  const snap = await getDoc(ref);
-
-  if(snap.exists()){
-    await deleteDoc(ref);
-    showToast("Unblocked");
-  } else {
-
-    await setDoc(ref,{uid:myUid});
-
-    // REMOVE ALL RELATIONS
-    await deleteDoc(doc(db,"followers",otherUid,"list",myUid));
-    await deleteDoc(doc(db,"following",myUid,"list",otherUid));
-    await deleteDoc(doc(db,"friends",otherUid,"list",myUid));
-    await deleteDoc(doc(db,"friends",myUid,"list",otherUid));
-
-    showToast("Blocked");
-  }
-
-  closeMenu();
-};
-
-/* ================= MENU ================= */
-window.openMenu = () => {
-  document.getElementById("menuBox").style.display="block";
-};
-
-function closeMenu(){
-  document.getElementById("menuBox").style.display="none";
-}
-
-window.addEventListener("click",(e)=>{
-  const menu = document.getElementById("menuBox");
-  if(menu && !menu.contains(e.target) && e.target.innerText !== "⋯"){
-    closeMenu();
-  }
-});
-
-/* ================= MESSAGES ================= */
+/* ================= REALTIME MESSAGES (NO DELAY) ================= */
 function loadMessages() {
-
-  onSnapshot(query(
+  const q = query(
     collection(db, "chats", chatId, "messages"),
     orderBy("createdAt")
-  ), (snapshot) => {
+  );
 
+  onSnapshot(q, (snapshot) => {
     const box = document.getElementById("messages");
     box.innerHTML = "";
 
@@ -181,6 +66,7 @@ function loadMessages() {
         const img = document.createElement("img");
         img.src = m.image;
         img.className = "chat-img";
+        img.onclick = () => openViewer(m.image);
         div.appendChild(img);
       }
 
@@ -190,6 +76,17 @@ function loadMessages() {
     box.scrollTop = box.scrollHeight;
   });
 }
+
+/* ================= IMAGE VIEW ================= */
+window.openViewer = (url) => {
+  document.getElementById("viewerImg").src = url;
+  document.getElementById("downloadBtn").href = url;
+  document.getElementById("viewer").style.display = "flex";
+};
+
+window.closeViewer = () => {
+  document.getElementById("viewer").style.display = "none";
+};
 
 /* ================= IMAGE PICK ================= */
 window.pickImage = () => {
@@ -209,16 +106,40 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-/* ================= SEND IMAGE ================= */
-window.sendImage = async () => {
+/* ================= COMPRESS ================= */
+function compressImage(file) {
+  return new Promise(resolve => {
+    const img = new Image();
+    const reader = new FileReader();
 
-  if(await isBlocked()){
-    showToast("Blocked user");
-    return;
-  }
+    reader.onload = e => img.src = e.target.result;
+
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const maxWidth = 800;
+
+      let scale = maxWidth / img.width;
+      canvas.width = maxWidth;
+      canvas.height = img.height * scale;
+
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      canvas.toBlob(blob => resolve(blob), "image/jpeg", 0.7);
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ================= SEND IMAGE (INSTANT + UNREAD) ================= */
+window.sendImage = async () => {
+  if (!selectedFile) return;
+
+  const compressed = await compressImage(selectedFile);
 
   const fileRef = ref(storage, "chatImages/" + Date.now());
-  await uploadBytes(fileRef, selectedFile);
+  await uploadBytes(fileRef, compressed);
   const url = await getDownloadURL(fileRef);
 
   await addDoc(collection(db, "chats", chatId, "messages"), {
@@ -228,26 +149,23 @@ window.sendImage = async () => {
     createdAt: serverTimestamp()
   });
 
+  await updateChatList("📷 Image");
+
   closePreview();
 };
 
 window.closePreview = () => {
   document.getElementById("previewModal").style.display = "none";
+  selectedFile = null;
 };
 
-/* ================= SEND TEXT ================= */
+/* ================= SEND TEXT (NO DELAY) ================= */
 window.sendMessage = async () => {
-
-  if(await isBlocked()){
-    showToast("Blocked user");
-    return;
-  }
-
   const input = document.getElementById("msg");
   const text = input.value.trim();
   if (!text) return;
 
-  input.value = "";
+  input.value = ""; // ⚡ instant feel
 
   await addDoc(collection(db, "chats", chatId, "messages"), {
     text,
@@ -255,18 +173,57 @@ window.sendMessage = async () => {
     receiverId: otherUid,
     createdAt: serverTimestamp()
   });
+
+  await updateChatList(text);
 };
+
+/* ================= UPDATE CHAT LIST (REAL UNREAD) ================= */
+async function updateChatList(lastMsg) {
+
+  // MY SIDE (reset unread)
+  await setDoc(doc(db, "userChats", myUid, "list", otherUid), {
+    uid: otherUid,
+    lastMessage: lastMsg,
+    updatedAt: serverTimestamp(),
+    unread: 0
+  }, { merge: true });
+
+  // OTHER SIDE (increase unread)
+  const otherRef = doc(db, "userChats", otherUid, "list", myUid);
+  const snap = await getDoc(otherRef);
+
+  let unreadCount = 1;
+  if (snap.exists()) {
+    unreadCount = (snap.data().unread || 0) + 1;
+  }
+
+  await setDoc(otherRef, {
+    uid: myUid,
+    lastMessage: lastMsg,
+    updatedAt: serverTimestamp(),
+    unread: unreadCount
+  }, { merge: true });
+}
+
+/* ================= RESET UNREAD WHEN OPEN ================= */
+async function resetUnread() {
+  await setDoc(doc(db, "userChats", myUid, "list", otherUid), {
+    unread: 0
+  }, { merge: true });
+}
 
 /* ================= LOAD ================= */
 window.onload = async () => {
   loadMessages();
   loadOtherUser();
+  await resetUnread();
 };
 </script>
 
 <style>
 body { margin:0; font-family:sans-serif; background:#f5f5f5; }
 
+/* HEADER */
 header {
   background:#4CAF50;
   color:white;
@@ -280,17 +237,9 @@ header img {
   height:40px;
   border-radius:50%;
   margin-right:10px;
-  cursor:pointer;
 }
 
-header span { cursor:pointer; }
-
-.menu {
-  margin-left:auto;
-  cursor:pointer;
-}
-
-/* FIXED SPACING */
+/* CHAT */
 #messages {
   position:fixed;
   top:60px;
@@ -301,7 +250,9 @@ header span { cursor:pointer; }
   padding:10px;
 }
 
+/* BUBBLES */
 .me, .other {
+  width:fit-content;
   max-width:75%;
   padding:10px;
   margin:6px;
@@ -311,12 +262,14 @@ header span { cursor:pointer; }
 .me { background:#4CAF50; color:white; margin-left:auto; }
 .other { background:#e4e6eb; }
 
+/* IMAGE */
 .chat-img {
   max-width:160px;
   border-radius:12px;
+  cursor:pointer;
 }
 
-/* INPUT */
+/* INPUT FIX (BIG + MOBILE) */
 .bottom {
   position:fixed;
   bottom:0;
@@ -342,6 +295,7 @@ input {
   padding:12px;
   border-radius:25px;
   border:1px solid #ccc;
+  font-size:15px;
 }
 
 button {
@@ -352,32 +306,53 @@ button {
   border-radius:20px;
 }
 
-/* MENU */
-.popup {
-  position:fixed;
-  bottom:0;
-  width:100%;
-  background:white;
-  border-radius:15px 15px 0 0;
+/* PREVIEW */
+#previewModal {
   display:none;
-}
-
-.popup div {
-  padding:15px;
-  text-align:center;
-  border-bottom:1px solid #eee;
-}
-
-.toast {
   position:fixed;
-  bottom:80px;
-  left:50%;
-  transform:translateX(-50%);
+  inset:0;
   background:black;
-  color:white;
-  padding:10px 20px;
-  border-radius:20px;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+}
+
+#previewModal img {
+  max-width:90%;
+  max-height:70vh;
+}
+
+.preview-actions {
+  position:absolute;
+  bottom:40px;
+  display:flex;
+  gap:20px;
+}
+
+/* FULL VIEW */
+#viewer {
   display:none;
+  position:fixed;
+  inset:0;
+  background:black;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+}
+
+#viewer img {
+  max-width:100%;
+}
+
+.save-btn {
+  position:absolute;
+  bottom:30px;
+  right:20px;
+  background:#4CAF50;
+  padding:10px 15px;
+  border-radius:20px;
+  color:white;
+  text-decoration:none;
 }
 </style>
 </head>
@@ -385,9 +360,8 @@ button {
 <body>
 
 <header>
-  <img id="profileImg" onclick="openProfile()">
-  <span id="name" onclick="openProfile()"></span>
-  <div class="menu" onclick="openMenu()">⋯</div>
+  <img id="profileImg">
+  <span id="name"></span>
 </header>
 
 <div id="messages"></div>
@@ -399,20 +373,19 @@ button {
   <input type="file" id="imageInput" accept="image/*" hidden>
 </div>
 
-<div class="popup" id="menuBox">
-  <div onclick="toggleFollow()">Follow</div>
-  <div onclick="toggleBlock()">Block</div>
-</div>
-
-<div class="toast" id="toast"></div>
-
 <!-- PREVIEW -->
-<div id="previewModal" style="display:none; position:fixed; inset:0; background:black; justify-content:center; align-items:center;">
-  <img id="previewImage" style="max-width:90%;">
-  <div style="position:absolute; bottom:30px;">
+<div id="previewModal">
+  <img id="previewImage">
+  <div class="preview-actions">
     <button onclick="closePreview()">Cancel</button>
     <button onclick="sendImage()">Send</button>
   </div>
+</div>
+
+<!-- FULL IMAGE VIEW -->
+<div id="viewer" onclick="closeViewer()">
+  <img id="viewerImg">
+  <a id="downloadBtn" class="save-btn" download>Save</a>
 </div>
 
 </body>
