@@ -7,7 +7,6 @@
 <script type="module">
 import { db } from "./firebase.js";
 import {
-import {
   collection, addDoc, query, orderBy,
   onSnapshot, serverTimestamp, doc, getDoc, setDoc, deleteDoc
 } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
@@ -134,16 +133,17 @@ function compressImage(file) {
 }
 
 /* ================= SEND IMAGE (INSTANT + UNREAD) ================= */
-const a = await getDoc(doc(db,"blocked",otherUid,"list",myUid));
-const b = await getDoc(doc(db,"blocked",myUid,"list",otherUid));
-
-if(a.exists() || b.exists()){
-  showToast("Blocked user");
-  return;
-}
 window.sendImage = async () => {
-  if (!selectedFile) return;
 
+  const a = await getDoc(doc(db,"blocked",otherUid,"list",myUid));
+  const b = await getDoc(doc(db,"blocked",myUid,"list",otherUid));
+
+  if(a.exists() || b.exists()){
+    showToast("Blocked user");
+    return;
+  }
+
+  if (!selectedFile) return;
   const compressed = await compressImage(selectedFile);
 
   const fileRef = ref(storage, "chatImages/" + Date.now());
@@ -248,7 +248,6 @@ onSnapshot(doc(db,"blocked",myUid,"list",otherUid), updateMenu);
 async function updateMenu(){
 
   const f1 = await getDoc(doc(db,"followers",otherUid,"list",myUid));
-  const f2 = await getDoc(doc(db,"followers",myUid,"list",otherUid));
   const blockA = await getDoc(doc(db,"blocked",otherUid,"list",myUid));
   const blockB = await getDoc(doc(db,"blocked",myUid,"list",otherUid));
 
@@ -257,22 +256,23 @@ async function updateMenu(){
   const items = menuBox.querySelectorAll("div");
 
   if(isBlocked){
-  items[0].innerText = "Follow";
-  items[1].innerText = "Unblock";
-
-  document.getElementById("msg").disabled = true;
-
-} else {
-
-  document.getElementById("msg").disabled = false;
-
-  if(f1.exists()){
-    items[0].innerText = "Unfollow";
-  } else {
     items[0].innerText = "Follow";
-  }
+    items[1].innerText = "Unblock";
 
-  items[1].innerText = "Block";
+    document.getElementById("msg").disabled = true;
+
+  } else {
+
+    document.getElementById("msg").disabled = false;
+
+    if(f1.exists()){
+      items[0].innerText = "Unfollow";
+    } else {
+      items[0].innerText = "Follow";
+    }
+
+    items[1].innerText = "Block";
+  }
 }
   
 window.toggleFollow = async () => {
@@ -334,13 +334,13 @@ window.toggleBlock = async () => {
   
 window.sendMessage = async () => {
 
-  const a = await getDoc(doc(db,"blocked",otherUid,"list",myUid));
-  const b = await getDoc(doc(db,"blocked",myUid,"list",otherUid));
+const a = await getDoc(doc(db,"blocked",otherUid,"list",myUid));
+const b = await getDoc(doc(db,"blocked",myUid,"list",otherUid));
 
-  if(a.exists() || b.exists()){
-    showToast("Blocked user");
-    return;
-  }
+if(a.exists() || b.exists()){
+  showToast("Blocked user");
+  return;
+}
   const input = document.getElementById("msg");
   const text = input.value.trim();
   if (!text) return;
