@@ -130,8 +130,12 @@ const db = getFirestore(app);
 
 const me = JSON.parse(localStorage.getItem("user"));
 const myUid = me?.uid;
-
 const uid = new URLSearchParams(location.search).get("id");
+
+/* ELEMENTS */
+const menuBox = document.getElementById("menuBox");
+const followBtn = document.getElementById("followBtn");
+const chatBtn = document.getElementById("chatBtn");
 
 /* TOAST */
 function showToast(msg){
@@ -167,13 +171,13 @@ window.copyId = ()=>{
 
 /* REALTIME COUNTS */
 onSnapshot(collection(db,"followers",uid,"list"), s=>{
-  document.getElementById("fans").innerText = s.size;
+  fans.innerText = s.size;
 });
 onSnapshot(collection(db,"following",uid,"list"), s=>{
-  document.getElementById("following").innerText = s.size;
+  following.innerText = s.size;
 });
 onSnapshot(collection(db,"friends",uid,"list"), s=>{
-  document.getElementById("friends").innerText = s.size;
+  friends.innerText = s.size;
 });
 
 /* REALTIME STATE */
@@ -187,29 +191,42 @@ async function checkState(){
   const f2 = await getDoc(doc(db,"followers",myUid,"list",uid));
   const block = await getDoc(doc(db,"blocked",uid,"list",myUid));
 
-  const btn = document.getElementById("followBtn");
-  const chatBtn = document.getElementById("chatBtn");
+  /* MAIN BUTTON */
+  if(block.exists()){
+    followBtn.innerText="Blocked";
+    followBtn.className="blocked";
+    chatBtn.style.display="none";
+  } else {
+    chatBtn.style.display="block";
+
+    if(f1.exists() && f2.exists()){
+      followBtn.innerText="Friends";
+      followBtn.className="friend";
+    }
+    else if(f1.exists()){
+      followBtn.innerText="Following";
+      followBtn.className="following";
+    }
+    else{
+      followBtn.innerText="Follow";
+      followBtn.className="follow";
+    }
+  }
+
+  /* 🔥 MENU TEXT UPDATE */
+  const menuItems = menuBox.querySelectorAll("div");
 
   if(block.exists()){
-    btn.innerText="Blocked";
-    btn.className="blocked";
-    chatBtn.style.display="none";
-    return;
-  }
+    menuItems[0].innerText = "Follow";
+    menuItems[1].innerText = "Unblock";
+  } else {
+    menuItems[1].innerText = "Block";
 
-  chatBtn.style.display="block";
-
-  if(f1.exists() && f2.exists()){
-    btn.innerText="Friends";
-    btn.className="friend";
-  }
-  else if(f1.exists()){
-    btn.innerText="Following";
-    btn.className="following";
-  }
-  else{
-    btn.innerText="Follow";
-    btn.className="follow";
+    if(f1.exists()){
+      menuItems[0].innerText = "Unfollow";
+    } else {
+      menuItems[0].innerText = "Follow";
+    }
   }
 }
 
@@ -243,7 +260,7 @@ window.toggleFollow = async () => {
     showToast("Followed");
   }
 
-  document.getElementById("menuBox").style.display="none";
+  closeMenu();
 };
 
 /* BLOCK */
@@ -266,13 +283,25 @@ window.toggleBlock = async () => {
     showToast("Blocked");
   }
 
-  document.getElementById("menuBox").style.display="none";
+  closeMenu();
 };
 
-/* MENU */
+/* MENU OPEN */
 window.openMenu = () => {
-  document.getElementById("menuBox").style.display="block";
+  menuBox.style.display="block";
 };
+
+/* MENU CLOSE */
+function closeMenu(){
+  menuBox.style.display="none";
+}
+
+/* 🔥 CLICK OUTSIDE CLOSE */
+window.addEventListener("click",(e)=>{
+  if(!menuBox.contains(e.target) && !e.target.classList.contains("menu")){
+    closeMenu();
+  }
+});
 
 /* CHAT */
 window.startChat = () => {
