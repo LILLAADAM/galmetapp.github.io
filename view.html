@@ -13,57 +13,31 @@ body { margin:0; font-family:Segoe UI; background:#fff; }
 /* BACK */
 .back {
   position:absolute; top:10px; left:10px;
-  background:rgba(0,0,0,0.5);
-  color:white; padding:6px 10px;
-  border-radius:8px;
+  background:rgba(0,0,0,0.5); color:white;
+  padding:6px 10px; border-radius:6px;
 }
 
 /* MENU */
 .menu {
   position:absolute; top:10px; right:10px;
-  color:white; font-size:22px;
-  cursor:pointer;
+  color:white; font-size:20px; cursor:pointer;
 }
 
-/* ONLINE BADGE (NEXT TO NAME) */
-.nameRow {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-
-.onlineTag {
-  background:#4cd964;
-  color:white;
-  padding:5px 10px;
-  border-radius:20px;
-  font-size:12px;
+/* ONLINE */
+.online {
+  position:absolute; top:10px; right:45px;
+  background:#4cd964; padding:5px 10px;
+  border-radius:20px; color:white;
 }
 
 /* INFO */
-.info {
-  padding:15px;
-  border-top-left-radius:20px;
-  border-top-right-radius:20px;
-  background:#fff;
-  margin-top:-20px;
-}
+.info { padding:15px; }
 
-/* STATS */
-.stats {
-  display:flex;
-  justify-content:space-around;
-  margin:15px 0;
-}
+.stats { display:flex; justify-content:space-around; margin:10px 0; }
 
-/* BUTTON */
 button {
-  width:90%;
-  margin:10px;
-  padding:14px;
-  border:none;
-  border-radius:12px;
-  font-size:16px;
+  width:90%; margin:10px; padding:14px;
+  border:none; border-radius:8px; font-size:16px;
 }
 
 .follow { background:#4cd964; color:white; }
@@ -71,13 +45,10 @@ button {
 .friend { background:#007aff; color:white; }
 .blocked { background:red; color:white; }
 
-/* MENU POPUP */
+/* POPUP MENU */
 .popup {
-  position:fixed;
-  bottom:0;
-  width:100%;
-  background:white;
-  border-radius:15px 15px 0 0;
+  position:fixed; bottom:0; width:100%;
+  background:white; border-radius:15px 15px 0 0;
   display:none;
 }
 
@@ -90,7 +61,7 @@ button {
 /* TOAST */
 .toast {
   position:fixed;
-  bottom:80px;
+  bottom:70px;
   left:50%;
   transform:translateX(-50%);
   background:black;
@@ -101,10 +72,9 @@ button {
 }
 
 /* COPY */
-.copyBtn {
+.copy {
   margin-left:10px;
   cursor:pointer;
-  font-size:14px;
 }
 </style>
 </head>
@@ -114,17 +84,13 @@ button {
 <div class="top">
   <div class="back" onclick="history.back()">←</div>
   <div class="menu" onclick="openMenu()">⋯</div>
+  <div id="onlineBox"></div>
   <img id="photo">
 </div>
 
 <div class="info">
-
-  <div class="nameRow">
-    <h2 id="name"></h2>
-    <div id="onlineTag"></div>
-  </div>
-
-  <p id="id"></p>
+  <h2 id="name"></h2>
+  <p id="userIdText"></p>
   <p id="bio"></p>
 
   <div class="stats">
@@ -135,7 +101,6 @@ button {
 
   <button id="followBtn" onclick="toggleFollow()">Follow</button>
   <button id="chatBtn" onclick="startChat()">Chat</button>
-
 </div>
 
 <!-- MENU -->
@@ -165,6 +130,7 @@ const db = getFirestore(app);
 
 const me = JSON.parse(localStorage.getItem("user"));
 const myUid = me?.uid;
+
 const uid = new URLSearchParams(location.search).get("id");
 
 /* TOAST */
@@ -175,35 +141,42 @@ function showToast(msg){
   setTimeout(()=> t.style.display="none",2000);
 }
 
-/* PROFILE */
-const snap = await getDoc(doc(db,"users",uid));
+/* LOAD PROFILE */
+const snap = await getDoc(doc(db, "users", uid));
 const u = snap.data();
 
-photo.src = u.photoURL || "";
-name.innerText = u.username || "User";
+document.getElementById("photo").src = u.photoURL || "";
+document.getElementById("name").innerText = u.username || "User";
 
-id.innerHTML = "ID: " + (u.userId || "") + 
-  `<span class="copyBtn" onclick="copyId()">📑</span>`;
+document.getElementById("userIdText").innerHTML =
+  "ID: " + (u.userId || "") +
+  `<span class="copy" onclick="copyId()">📑</span>`;
 
-bio.innerText = u.bio || "";
+document.getElementById("bio").innerText = u.bio || "";
 
-/* ONLINE */
 if(u.online){
-  document.getElementById("onlineTag").innerHTML = "Online";
+  document.getElementById("onlineBox").innerHTML =
+    `<div class="online">Online</div>`;
 }
 
 /* COPY */
 window.copyId = ()=>{
   navigator.clipboard.writeText(u.userId);
-  showToast("Copied ID");
+  showToast("Copied");
 };
 
-/* COUNTS REALTIME */
-onSnapshot(collection(db,"followers",uid,"list"), s=> fans.innerText = s.size);
-onSnapshot(collection(db,"following",uid,"list"), s=> following.innerText = s.size);
-onSnapshot(collection(db,"friends",uid,"list"), s=> friends.innerText = s.size);
+/* REALTIME COUNTS */
+onSnapshot(collection(db,"followers",uid,"list"), s=>{
+  document.getElementById("fans").innerText = s.size;
+});
+onSnapshot(collection(db,"following",uid,"list"), s=>{
+  document.getElementById("following").innerText = s.size;
+});
+onSnapshot(collection(db,"friends",uid,"list"), s=>{
+  document.getElementById("friends").innerText = s.size;
+});
 
-/* STATE */
+/* REALTIME STATE */
 onSnapshot(doc(db,"followers",uid,"list",myUid), checkState);
 onSnapshot(doc(db,"followers",myUid,"list",uid), checkState);
 onSnapshot(doc(db,"blocked",uid,"list",myUid), checkState);
@@ -214,9 +187,12 @@ async function checkState(){
   const f2 = await getDoc(doc(db,"followers",myUid,"list",uid));
   const block = await getDoc(doc(db,"blocked",uid,"list",myUid));
 
+  const btn = document.getElementById("followBtn");
+  const chatBtn = document.getElementById("chatBtn");
+
   if(block.exists()){
-    followBtn.innerText="Blocked";
-    followBtn.className="blocked";
+    btn.innerText="Blocked";
+    btn.className="blocked";
     chatBtn.style.display="none";
     return;
   }
@@ -224,21 +200,21 @@ async function checkState(){
   chatBtn.style.display="block";
 
   if(f1.exists() && f2.exists()){
-    followBtn.innerText="Friends";
-    followBtn.className="friend";
+    btn.innerText="Friends";
+    btn.className="friend";
   }
   else if(f1.exists()){
-    followBtn.innerText="Following";
-    followBtn.className="following";
+    btn.innerText="Following";
+    btn.className="following";
   }
   else{
-    followBtn.innerText="Follow";
-    followBtn.className="follow";
+    btn.innerText="Follow";
+    btn.className="follow";
   }
 }
 
 /* FOLLOW */
-window.toggleFollow = async()=>{
+window.toggleFollow = async () => {
 
   const a = doc(db,"followers",uid,"list",myUid);
   const b = doc(db,"following",myUid,"list",uid);
@@ -253,7 +229,8 @@ window.toggleFollow = async()=>{
     await deleteDoc(doc(db,"friends",myUid,"list",uid));
 
     showToast("Unfollowed");
-  }else{
+  }
+  else{
     await setDoc(a,{uid:myUid});
     await setDoc(b,{uid:uid});
 
@@ -266,11 +243,11 @@ window.toggleFollow = async()=>{
     showToast("Followed");
   }
 
-  menuBox.style.display="none";
+  document.getElementById("menuBox").style.display="none";
 };
 
 /* BLOCK */
-window.toggleBlock = async()=>{
+window.toggleBlock = async () => {
 
   const ref = doc(db,"blocked",uid,"list",myUid);
   const snap = await getDoc(ref);
@@ -289,16 +266,16 @@ window.toggleBlock = async()=>{
     showToast("Blocked");
   }
 
-  menuBox.style.display="none";
+  document.getElementById("menuBox").style.display="none";
 };
 
 /* MENU */
-window.openMenu = ()=>{
-  menuBox.style.display="block";
+window.openMenu = () => {
+  document.getElementById("menuBox").style.display="block";
 };
 
 /* CHAT */
-window.startChat = ()=>{
+window.startChat = () => {
   location="chat.html?id="+uid;
 };
 
