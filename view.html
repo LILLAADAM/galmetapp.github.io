@@ -136,10 +136,13 @@ const uid = new URLSearchParams(location.search).get("id");
 const snap = await getDoc(doc(db, "users", uid));
 const u = snap.data();
 
-photo.src = u.photoURL || "";
-name.innerText = u.username;
-id.innerText = "ID: " + u.userId;
-bio.innerText = u.bio || "";
+document.getElementById("photo").src = u.photoURL || "";
+
+document.getElementById("name").innerText = u.username || "User";
+
+document.getElementById("id").innerText = "ID: " + (u.userId || "");
+
+document.getElementById("bio").innerText = u.bio || "";
 
 if(u.online){
   onlineBox.innerHTML = `<div class="online">Online</div>`;
@@ -189,7 +192,7 @@ async function checkState(){
 checkState();
 
 /* FOLLOW */
-window.toggleFollow = async()=>{
+window.toggleFollow = async()=>{}
 
   const a = doc(db,"followers",uid,"list",myUid);
   const b = doc(db,"following",myUid,"list",uid);
@@ -220,7 +223,7 @@ window.toggleFollow = async()=>{
 };
 
 /* BLOCK */
-window.toggleBlock = async()=>{
+window.toggleBlock = async()=>{}
 
   const ref = doc(db,"blocked",uid,"list",myUid);
   const snap = await getDoc(ref);
@@ -242,12 +245,12 @@ window.toggleBlock = async()=>{
 };
 
 /* MENU */
-window.openMenu=()=>{
+window.openMenu=()=>{}
   menuBox.style.display="block";
 };
 
 /* CHAT */
-window.startChat=()=>{
+window.startChat=()=>{}
   location="chat.html?id="+uid;
 };
 
