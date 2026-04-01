@@ -218,6 +218,156 @@ window.onload = async () => {
   loadOtherUser();
   await resetUnread();
 };
+/* ================= MENU + BLOCK SYSTEM ================= */
+
+const menuBox = document.getElementById("menuBox");
+
+/* TOAST */
+function showToast(msg){
+  const t = document.getElementById("toast");
+  t.innerText = msg;
+  t.style.display="block";
+  setTimeout(()=> t.style.display="none",2000);
+}
+
+/* REALTIME STATE */
+onSnapshot(doc(db,"followers",otherUid,"list",myUid), updateMenu);
+onSnapshot(doc(db,"followers",myUid,"list",otherUid), updateMenu);
+onSnapshot(doc(db,"blocked",otherUid,"list",myUid), updateMenu);
+onSnapshot(doc(db,"blocked",myUid,"list",otherUid), updateMenu);
+  
+/* CHECK STATE */
+async function updateMenu(){
+
+  const f1 = await getDoc(doc(db,"followers",otherUid,"list",myUid));
+  const f2 = await getDoc(doc(db,"followers",myUid,"list",otherUid));
+  const block = await getDoc(doc(db,"blocked",otherUid,"list",myUid));
+
+  const items = menuBox.querySelectorAll("div");
+
+  if(block.exists()){
+    items[0].innerText = "Follow";
+    items[1].innerText = "Unblock";
+
+    // ❌ BLOCK CHAT
+    document.getElementById("msg").disabled = true;
+    showToast("You are blocked / blocked user");
+  } else {
+
+    document.getElementById("msg").disabled = false;
+
+    if(f1.exists()){
+      items[0].innerText = "Unfollow";
+    } else {
+      items[0].innerText = "Follow";
+    }
+
+    items[1].innerText = "Block";
+  }
+}
+window.toggleFollow = async () => {
+
+  const a = doc(db,"followers",otherUid,"list",myUid);
+  const b = doc(db,"following",myUid,"list",otherUid);
+
+  const snap = await getDoc(a);
+
+  if(snap.exists()){
+    await deleteDoc(a);
+    await deleteDoc(b);
+
+    await deleteDoc(doc(db,"friends",otherUid,"list",myUid));
+    await deleteDoc(doc(db,"friends",myUid,"list",otherUid));
+
+    showToast("Unfollowed");
+  }
+  else{
+    await setDoc(a,{uid:myUid});
+    await setDoc(b,{uid:otherUid});
+
+    const other = await getDoc(doc(db,"followers",myUid,"list",otherUid));
+
+    if(other.exists()){
+      await setDoc(doc(db,"friends",otherUid,"list",myUid),{uid:myUid});
+      await setDoc(doc(db,"friends",myUid,"list",otherUid),{uid:otherUid});
+    }
+
+    showToast("Followed");
+  }
+
+  closeMenu();
+};
+window.toggleBlock = async () => {
+
+const blockA = await getDoc(doc(db,"blocked",otherUid,"list",myUid));
+const blockB = await getDoc(doc(db,"blocked",myUid,"list",otherUid));
+
+const isBlocked = blockA.exists() || blockB.exists();
+  const snap = await getDoc(ref);
+
+  if(snap.exists()){
+    await deleteDoc(ref);
+    showToast("Unblocked");
+  } else {
+
+    await setDoc(ref,{uid:myUid});
+
+    // ❌ REMOVE EVERYTHING
+    await deleteDoc(doc(db,"followers",otherUid,"list",myUid));
+    await deleteDoc(doc(db,"following",myUid,"list",otherUid));
+    await deleteDoc(doc(db,"friends",otherUid,"list",myUid));
+    await deleteDoc(doc(db,"friends",myUid,"list",otherUid));
+
+    showToast("Blocked");
+  }
+
+  closeMenu();
+};
+
+window.sendMessage = async () => {
+
+  const a = await getDoc(doc(db,"blocked",otherUid,"list",myUid));
+  const b = await getDoc(doc(db,"blocked",myUid,"list",otherUid));
+
+  if(a.exists() || b.exists()){
+    showToast("Blocked user");
+    return;
+  }
+  const input = document.getElementById("msg");
+  const text = input.value.trim();
+  if (!text) return;
+
+  input.value = "";
+
+  await addDoc(collection(db, "chats", chatId, "messages"), {
+    text,
+    senderId: myUid,
+    receiverId: otherUid,
+    createdAt: serverTimestamp()
+  });
+
+  await updateChatList(text);
+};
+
+window.openMenu = () => {
+  menuBox.style.display="block";
+};
+
+function closeMenu(){
+  menuBox.style.display="none";
+}
+
+/* CLICK OUTSIDE */
+window.addEventListener("click",(e)=>{
+  if(!menuBox.contains(e.target) && e.target.innerText !== "⋯"){
+    closeMenu();
+  }
+});
+
+window.openProfile = () => {
+  location.href = "view.html?id=" + otherUid;
+};
+  
 </script>
 
 <style>
@@ -238,7 +388,32 @@ header img {
   border-radius:50%;
   margin-right:10px;
 }
+.popup {
+  position:fixed;
+  bottom:0;
+  width:100%;
+  background:white;
+  border-radius:15px 15px 0 0;
+  display:none;
+}
 
+.popup div {
+  padding:15px;
+  text-align:center;
+  border-bottom:1px solid #eee;
+}
+
+.toast {
+  position:fixed;
+  bottom:80px;
+  left:50%;
+  transform:translateX(-50%);
+  background:black;
+  color:white;
+  padding:10px 20px;
+  border-radius:20px;
+  display:none;
+}
 /* CHAT */
 #messages {
   position:fixed;
@@ -360,10 +535,20 @@ button {
 <body>
 
 <header>
-  <img id="profileImg">
-  <span id="name"></span>
-</header>
+  <img id="profileImg" onclick="openProfile()">
+  <span id="name" onclick="openProfile()"></span>
 
+  <div onclick="openMenu()" style="margin-left:auto; cursor:pointer;">⋯</div>
+</header>
+<!-- MENU -->
+<div class="popup" id="menuBox">
+  <div onclick="toggleFollow()">Follow</div>
+  <div onclick="toggleBlock()">Block</div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+  
 <div id="messages"></div>
 
 <div class="bottom">
