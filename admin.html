@@ -24,6 +24,14 @@ input{padding:8px;margin-top:10px;}
 <input id="banId" placeholder="Enter userId">
 <button onclick="ban()">Ban User</button>
 
+<h3>📢 Send Platform Message</h3>
+
+<input id="pText" placeholder="Message text"><br><br>
+<input id="pImage" placeholder="Image URL (optional)"><br><br>
+<input id="pLink" placeholder="Link when image clicked (optional)"><br><br>
+
+<button onclick="sendPlatform()">Send Message</button>
+    
 <script>
 
 const SECRET = "GCW_SUPER_SECURE_2026";
@@ -129,5 +137,39 @@ async function completeWithdraw(id){
 
 </script>
 
+<script type="module">
+import { db } from "./firebase.js";
+import {
+  collection,
+  addDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+window.sendPlatform = async () => {
+
+  const text = document.getElementById("pText").value;
+  const image = document.getElementById("pImage").value;
+  const link = document.getElementById("pLink").value;
+
+  if (!text && !image) {
+    alert("Add text or image");
+    return;
+  }
+
+  await addDoc(collection(db, "platformMessages"), {
+    text: text || "",
+    image: image || "",
+    link: link || "",
+    createdAt: serverTimestamp()
+  });
+
+  alert("Sent to all users 🚀");
+
+  document.getElementById("pText").value = "";
+  document.getElementById("pImage").value = "";
+  document.getElementById("pLink").value = "";
+};
+</script
+    
 </body>
 </html>
