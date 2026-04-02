@@ -432,7 +432,17 @@ async function createRoom() {
   location.href = "room.html?id=" + ref.id;
 }
 
+  const userData = JSON.parse(localStorage.getItem("user"));
 
+await setDoc(doc(db,"rooms",roomId),{
+  name: "My Room",
+  hostId: userData.uid,
+  hostName: userData.username,
+  hostPhoto: userData.photoURL,
+  users: 1,
+  createdAt: Date.now()
+});
+        
 // 🎯 BUTTONS CONNECT
 
 // 1. Let's Party button
