@@ -1,93 +1,293 @@
 <!DOCTYPE html>
-<html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chats</title>
 
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Chats - Galmet</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Be+Vietnam+Pro:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <style>
-body {
-  margin:0;
-  font-family:sans-serif;
-  background:#f5f5f5;
-  -webkit-user-select:none;
-  user-select:none;
-}
-
-/* HEADER */
-.top {
-  background:#4CAF50;
-  color:white;
-  padding:15px;
-  font-size:18px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-
-/* SEARCH ICON */
-.search {
-  font-size:20px;
-  cursor:pointer;
-}
-
-/* PLATFORM */
-.platform {
-  background:#fff3cd;
-  padding:12px;
-  font-weight:bold;
-  border-bottom:1px solid #eee;
-  cursor:pointer;
-}
-
-/* CHAT */
-.chat {
-  display:flex;
-  align-items:center;
-  padding:10px;
-  border-bottom:1px solid #eee;
-  background:white;
-}
-
-.chat img {
-  width:50px;
-  height:50px;
-  border-radius:50%;
-  margin-right:10px;
-  cursor:pointer;
-}
-
-.info {
-  flex:1;
-}
-
-.name { font-weight:bold; }
-.msg { font-size:13px; color:gray; }
-
-.badge {
-  background:red;
-  color:white;
-  border-radius:50%;
-  padding:4px 8px;
-  font-size:12px;
-  min-width:18px;
-  text-align:center;
-}
-</style>
-</head>
-
-<body>
-
-<div class="top">
-  Chats
-  <span class="search" onclick="openSearch()">🔍</span>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        /* Custom Loader for "Connecting..." */
+        @keyframes subtle-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-subtle-spin {
+            animation: subtle-spin 2s linear infinite;
+        }
+        /* Hide scrollbar but keep functionality */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-low": "#ecf1f6",
+                        "surface-container": "#e3e9ee",
+                        "secondary-dim": "#664b00",
+                        "tertiary": "#b60051",
+                        "tertiary-dim": "#a00047",
+                        "on-primary": "#d8f8ff",
+                        "on-tertiary": "#ffeff0",
+                        "on-primary-fixed": "#003840",
+                        "on-primary-fixed-variant": "#005762",
+                        "primary": "#006571",
+                        "on-secondary-fixed-variant": "#674c00",
+                        "surface-dim": "#ced5db",
+                        "primary-fixed": "#00e3fd",
+                        "primary-container": "#00e3fd",
+                        "secondary-fixed-dim": "#f7ba00",
+                        "surface-container-high": "#dde3e8",
+                        "tertiary-fixed": "#ff8fa9",
+                        "surface-container-highest": "#d7dee3",
+                        "on-background": "#2a2f32",
+                        "on-secondary-container": "#5c4400",
+                        "secondary": "#755700",
+                        "surface-bright": "#f3f7fb",
+                        "outline": "#73777b",
+                        "error-container": "#fb5151",
+                        "outline-variant": "#a9aeb1",
+                        "inverse-surface": "#0a0f12",
+                        "error-dim": "#9f0519",
+                        "background": "#f3f7fb",
+                        "on-surface": "#2a2f32",
+                        "on-error-container": "#570008",
+                        "on-surface-variant": "#575c60",
+                        "inverse-primary": "#00e3fd",
+                        "primary-dim": "#005863",
+                        "surface-tint": "#006571",
+                        "on-tertiary-fixed": "#380014",
+                        "on-tertiary-fixed-variant": "#770033",
+                        "tertiary-container": "#ff8fa9",
+                        "on-secondary": "#fff1db",
+                        "on-tertiary-container": "#66002b",
+                        "on-error": "#ffefee",
+                        "surface-variant": "#d7dee3",
+                        "surface": "#f3f7fb",
+                        "primary-fixed-dim": "#00d4ec",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed": "#ffca4d",
+                        "tertiary-fixed-dim": "#ff769b",
+                        "on-secondary-fixed": "#443100",
+                        "secondary-container": "#ffca4d",
+                        "error": "#b31b25",
+                        "on-primary-container": "#004d57",
+                        "inverse-on-surface": "#999da1"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Be Vietnam Pro"],
+                        "label": ["Plus Jakarta Sans"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background font-body text-on-surface selection:bg-primary-container">
+<!-- TopAppBar - Mapped from Shared Components JSON -->
+<header class="fixed top-0 w-full z-40 bg-[#f3f7fb] flex justify-between items-center px-6 py-4">
+<div class="flex items-center gap-3">
+<h1 class="font-headline text-2xl font-bold text-cyan-600">Chats</h1>
+<!-- Connecting State -->
+<div class="flex items-center gap-1.5 ml-1">
+<span class="material-symbols-outlined text-[14px] text-cyan-600/60 animate-subtle-spin">sync</span>
+<span class="text-[11px] font-label font-bold text-cyan-600/60 tracking-wider">connecting...</span>
 </div>
-
-<!-- PLATFORM -->
-<div class="platform" onclick="openPlatform()">
-  📢 Platform Messages <span id="pBadge"></span>
 </div>
-
-<div id="list"></div>
+<div class="flex items-center gap-4">
+<button onclick="location.href='search.html'" class="flex items-center justify-center p-2 rounded-full hover:bg-cyan-50 transition-colors">
+<span class="material-symbols-outlined text-cyan-600">search</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-primary/10">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="professional headshot of a smiling young man in a teal polo shirt, neutral studio background, bright lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTJODsXj7nha9DSnv_n37DaQJzwN8lg_0Osr-GwhcgXiXkHaC4r92v80E-dEYoEWXRk6nnwCHQzloYVBKhIul8SERpp1TD-EqsvGd5oT4qUFubOqqKAucE6ppVbUp0u5-vzX_Vh1isZdrQ2zFQsH8mrfI4B2Ah9Zb_SADtZtx_hBdfc3bLPEbSw3HhrgBnqgrt5w89i04YL6-8CR0Ze6TOxs7RyRLhPbfdU8EORaKb2_ELDkKwaLSsr_Pl_FVwmZMTDR-JIxiI5Qtr"/>
+</div>
+</div>
+</header>
+<!-- Content Canvas -->
+<main class="pt-20 pb-28 px-4 max-w-2xl mx-auto min-h-screen">
+<!-- Quick Navigation Bar -->
+<section class="flex justify-between items-center bg-white/40 backdrop-blur-md px-6 py-5 mb-8 rounded-[1.5rem]">
+<div class="flex flex-col items-center gap-2 group cursor-pointer">
+<div class="w-14 h-14 bg-primary/10 rounded-[1.2rem] flex items-center justify-center text-primary group-active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-3xl" data-icon="stars" style="font-variation-settings: 'FILL' 1;">stars</span>
+</div>
+<span class="text-[11px] font-label font-bold text-on-surface-variant uppercase tracking-tighter">Galmet Official</span>
+</div>
+<div onclick="openPlatform()" class="flex flex-col items-center gap-2 group cursor-pointer">
+<div class="w-14 h-14 bg-secondary-container/20 rounded-[1.2rem] flex items-center justify-center text-secondary group-active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-3xl" data-icon="call_log">call_log</span>
+</div>
+<span class="text-[11px] font-label font-bold text-on-surface-variant uppercase tracking-tighter">Call List</span>
+</div>
+<div class="flex flex-col items-center gap-2 group cursor-pointer">
+<div class="w-14 h-14 bg-tertiary-container/20 rounded-[1.2rem] flex items-center justify-center text-tertiary group-active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-3xl" data-icon="photo_library">photo_library</span>
+</div>
+<span class="text-[11px] font-label font-bold text-on-surface-variant uppercase tracking-tighter">Moments</span>
+</div>
+</section>
+<!-- Chat List Section -->
+<section id="chatList" class="space-y-px bg-surface-container-low"></section>
+<!-- System/Special Threads -->
+<div class="bg-white hover:bg-surface-container-low transition-colors cursor-pointer p-4 mb-1 flex items-center gap-4">
+<div class="w-14 h-14 bg-primary flex items-center justify-center text-white shrink-0">
+<span class="material-symbols-outlined text-2xl" data-icon="notifications" style="font-variation-settings: 'FILL' 1;">notifications</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-center mb-0.5">
+<h3 class="font-headline text-[15px] font-bold text-on-surface truncate">Galmet Official</h3>
+<span class="text-[11px] font-label text-outline-variant">10:45 AM</span>
+</div>
+<p class="text-sm text-primary font-medium truncate">Welcome to the sky garden! 🚀</p>
+</div>
+</div>
+<div class="bg-white hover:bg-surface-container-low transition-colors cursor-pointer p-4 mb-1 flex items-center gap-4">
+<div class="relative w-14 h-14 bg-secondary flex items-center justify-center text-white shrink-0">
+<span class="material-symbols-outlined text-2xl" data-icon="group" style="font-variation-settings: 'FILL' 1;">group</span>
+<div class="absolute -top-1 -right-1 w-5 h-5 bg-tertiary rounded-full border-2 border-white flex items-center justify-center">
+<span class="text-[10px] font-bold text-white">8</span>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-center mb-0.5">
+<h3 class="font-headline text-[15px] font-bold text-on-surface truncate">Stranger Messages</h3>
+<span class="text-[11px] font-label text-outline-variant">Yesterday</span>
+</div>
+<p class="text-sm text-on-surface-variant truncate">8 new people want to chat with you</p>
+</div>
+</div>
+<!-- Agent Messages (Agent Only Mockup) -->
+<div class="bg-white hover:bg-surface-container-low transition-colors cursor-pointer p-4 mb-6 flex items-center gap-4">
+<div class="w-14 h-14 bg-on-background flex items-center justify-center text-white shrink-0">
+<span class="material-symbols-outlined text-2xl" data-icon="support_agent" style="font-variation-settings: 'FILL' 1;">support_agent</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-center mb-0.5">
+<h3 class="font-headline text-[15px] font-bold text-on-surface truncate">Agent Panel</h3>
+<span class="text-[11px] font-label text-outline-variant">2d ago</span>
+</div>
+<p class="text-sm text-on-surface-variant truncate">Your verification is almost complete.</p>
+</div>
+</div>
+<!-- Friend Chats -->
+<div class="space-y-px bg-surface-container-low">
+<!-- Chat Item 1 (Active/Unread) -->
+<div class="group relative bg-white hover:bg-surface-container-low transition-colors cursor-pointer p-4 flex items-center gap-4 overflow-hidden">
+<div class="relative shrink-0" onclick="event.stopPropagation();">
+<img class="w-14 h-14 object-cover" data-alt="close up profile photo of a young woman with pink hair and artistic makeup, vibrant studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvoPa0oCE12q2vI34to4mL99LMY1RBSoC61KMPr-PCTY27kdz3NGsuRkDGHnfYyboxxKe5HdyrXm5bs3oGRdM7YWhr-cGbTt_LwwBLP2NmKS0kesX1Vr-pGJGne5Y5N2Hc0E7oyvSol8YDap2NTUHbZ6pdDR9bNuaoSd9SNJyayphA7rf6oi7ypZtB6PbZ9twM_5EBiVsnRKakV1yBbfFd0VgqwSX7N8QtnwwCz6uZo35oIJZHCVRydONqPB1Ci9ufU6WZBqWibS_w"/>
+<div class="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-center mb-0.5">
+<h3 class="font-headline text-[15px] font-bold text-on-surface truncate">Aria Silver</h3>
+<span class="text-[11px] font-label text-primary font-bold">Just now</span>
+</div>
+<div class="flex items-center justify-between">
+<p class="text-sm text-on-surface-variant truncate pr-4">Did you see the new moment I posted? ✨</p>
+<div class="bg-tertiary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">99+</div>
+</div>
+</div>
+<!-- Mock Long-press floating menu (hidden by default, shown here for visual context) -->
+<div class="absolute right-4 top-1/2 -translate-y-1/2 hidden group-active:flex gap-2 bg-white shadow-xl px-3 py-2 rounded-lg border border-surface-container z-10">
+<button class="text-[11px] font-bold text-primary px-2 py-1">Pin</button>
+<button class="text-[11px] font-bold text-error px-2 py-1">Delete</button>
+</div>
+</div>
+<!-- Chat Item 2 -->
+<div class="bg-white hover:bg-surface-container-low transition-colors cursor-pointer p-4 flex items-center gap-4">
+<div class="shrink-0">
+<img class="w-14 h-14 object-cover" data-alt="portrait of a handsome man with a short beard wearing a stylish grey hoodie, urban outdoor background soft focus" src="https://lh3.googleusercontent.com/aida-public/AB6AXuByHDIRdsopAIh9RXZOlsR2eiDqzijDAcQHQFUgoZj433dSt5syGnekuXwJQeUO2Ma9nEi2osMx11VQdWF7ZcGNb8cl9kvNOdGok3_9VzeDV8IDI15PcO7Z6ESyZUuWjv8aGbXWMpdHxxYxPvv8aVui5ycq855d_qAMlKlng5dtPlEP1IoDdD3M6pp8ATJdvxiBuR15jmMqe7G2jxeqMPPAyr-RC1ptepIWdPk52BMzS0BasDRpjYxjxdcujpAYcwHL7WtZymLSnXAf"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-center mb-0.5">
+<h3 class="font-headline text-[15px] font-bold text-on-surface truncate">Julian Chen</h3>
+<span class="text-[11px] font-label text-outline-variant">12:15 PM</span>
+</div>
+<div class="flex items-center justify-between">
+<p class="text-sm text-on-surface-variant truncate">Let's hop on a call later!</p>
+<div class="bg-tertiary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">1</div>
+</div>
+</div>
+</div>
+<!-- Chat Item 3 -->
+<div class="bg-white hover:bg-surface-container-low transition-colors cursor-pointer p-4 flex items-center gap-4">
+<div class="shrink-0">
+<img class="w-14 h-14 object-cover" data-alt="vibrant portrait of a girl with braided hair wearing a yellow sweatshirt, cheerful expression, pastel background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4S_unuOsbbGxehORu0Do1iIHXCysJKEz8GCsTYfTYXCMkzMbXkO3NTJ8xYqUcGFb5krfDE8ETz6PplECdtRA-oQEGjryawX1Y9NmhNDAJ3uU3ja8UF7FJdulZlC9t702ZcWhZUNl0Xr24AOK_j_kSXUIbvxAVtUP3Da5VD6j88cl3pU6_bGHX7Fza6d86f_xXdX0SyJhLEtuGESyQUD4OEV85DYiCtNBWBczZCVkoj5eMMcTjsDtvVJ2M7CrnBluuUlzvYkiP2c4N"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-center mb-0.5">
+<h3 class="font-headline text-[15px] font-bold text-on-surface truncate">Sasha M.</h3>
+<span class="text-[11px] font-label text-outline-variant">Yesterday</span>
+</div>
+<div class="flex items-center justify-between">
+<p class="text-sm text-on-surface-variant truncate font-medium">shared a voice message</p>
+<div class="bg-tertiary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">10</div>
+</div>
+</div>
+</div>
+<!-- Chat Item 4 -->
+<div class="bg-white hover:bg-surface-container-low transition-colors cursor-pointer p-4 flex items-center gap-4 opacity-80">
+<div class="shrink-0">
+<img class="w-14 h-14 object-cover" data-alt="artistic shot of a young man with glasses looking thoughtfully at the camera, neon blue lighting effects" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_QcXymw0bTUtZdWvllq8cRO8dEnA4E3ZlZ64CJsTvYP4HJ6oN4MzsSWouGkWkeZY2TYv4K6p0pzdYW1fQj52uZAhZSmUi0crbIczjE8teETFfDeo50Jg4OMsy1I2VgZnp4eYejfQOyuCgiABVYzh19_36xso728P-Dwga4e5XqmonwGBTFlLgJb7MQwNG7-RwiyxZhWBL46pXxWHXj_UdhjkwmDzm9UsHKrELxvaIX8fbnk1Hn6S5Wdsnjw22o0LQYhGJMXXVnBJ9"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-center mb-0.5">
+<h3 class="font-headline text-[15px] font-bold text-on-surface truncate">Leo V.</h3>
+<span class="text-[11px] font-label text-outline-variant">Aug 24</span>
+</div>
+<p class="text-sm text-on-surface-variant truncate">See you at the party then! 🥳</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation - Mapped from Shared Components JSON -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl rounded-t-[2rem] shadow-[0_-4px_24px_rgba(0,101,113,0.06)]">
+<button class="flex items-center justify-center text-slate-400 p-3 hover:text-cyan-500 transition-transform active:scale-110 duration-200">
+<span class="material-symbols-outlined text-2xl" data-icon="home">home</span>
+</button>
+<button class="flex items-center justify-center text-slate-400 p-3 hover:text-cyan-500 transition-transform active:scale-110 duration-200">
+<span class="material-symbols-outlined text-2xl" data-icon="explore">explore</span>
+</button>
+<!-- Center Action (Not part of standard nav items but implied) -->
+<button class="flex items-center justify-center text-slate-400 p-3 hover:text-cyan-500 transition-transform active:scale-110 duration-200">
+<span class="material-symbols-outlined text-3xl text-cyan-600" data-icon="add_circle" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+</button>
+<!-- Active Item: Chats -->
+<button class="flex items-center justify-center bg-cyan-600 text-white rounded-full p-3 shadow-lg shadow-cyan-600/20 active:scale-110 duration-200 transition-transform relative">
+<span class="material-symbols-outlined text-2xl" data-icon="chat_bubble" style="font-variation-settings: 'FILL' 1;">chat_bubble</span>
+<div class="absolute -top-1 -right-1 bg-tertiary text-white text-[10px] font-bold border-2 border-white rounded-full px-1 py-0.5">99+</div>
+</button>
+<button class="flex items-center justify-center text-slate-400 p-3 hover:text-cyan-500 transition-transform active:scale-110 duration-200">
+<span class="material-symbols-outlined text-2xl" data-icon="person">person</span>
+</button>
+</nav>
+<!-- Floating Action Button for New Chat -->
+<button class="fixed bottom-28 right-6 w-14 h-14 rounded-full bg-primary shadow-xl shadow-primary/30 flex items-center justify-center text-white active:scale-90 transition-transform z-30">
+<span class="material-symbols-outlined text-2xl" data-icon="edit_square">edit_square</span>
+</button>
 
 <script type="module">
 
@@ -103,7 +303,8 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-/* USER */
+/* ================= USER ================= */
+
 const currentUser = JSON.parse(localStorage.getItem("user"));
 
 if (!currentUser || !currentUser.uid) {
@@ -113,52 +314,15 @@ if (!currentUser || !currentUser.uid) {
 
 const myUid = currentUser.uid;
 
-/* CACHE */
+/* ================= PROFILE IMAGE ================= */
+
+document.querySelector("header img").src =
+  currentUser.photoURL ||
+  "https://ui-avatars.com/api/?name=" + (currentUser.username || "User");
+
+/* ================= CACHE ================= */
+
 let usersCache = {};
-
-/* ================= PLATFORM BADGE ================= */
-
-const badge = document.getElementById("pBadge");
-let lastSeen = null;
-
-// 🔥 REALTIME READ STATUS
-onSnapshot(doc(db, "platformReads", myUid), (snap) => {
-  lastSeen = snap.exists() ? snap.data().lastSeen : null;
-});
-
-// 🔥 REALTIME MESSAGES
-const pQuery = query(
-  collection(db, "platformMessages"),
-  orderBy("createdAt", "desc")
-);
-
-onSnapshot(pQuery, (snapshot) => {
-
-  let unread = 0;
-
-  snapshot.forEach(d => {
-    const m = d.data();
-
-    if (!lastSeen || (m.createdAt && m.createdAt > lastSeen)) {
-      unread++;
-    }
-  });
-
-  badge.innerHTML = unread > 0 
-    ? `<span class="badge">${unread}</span>` 
-    : "";
-});
-
-/* OPEN PLATFORM */
-window.openPlatform = async () => {
-
-  // 🔥 INSTANT MARK READ
-  await setDoc(doc(db, "platformReads", myUid), {
-    lastSeen: serverTimestamp()
-  }, { merge:true });
-
-  location.href = "platform.html";
-};
 
 /* ================= CHAT LIST ================= */
 
@@ -169,7 +333,7 @@ const q = query(
 
 onSnapshot(q, async (snapshot) => {
 
-  const list = document.getElementById("list");
+  const list = document.getElementById("chatList");
   list.innerHTML = "";
 
   for (const d of snapshot.docs) {
@@ -179,6 +343,7 @@ onSnapshot(q, async (snapshot) => {
 
     if (!otherId) continue;
 
+    // 🔥 GET USER DATA (CACHE)
     if (!usersCache[otherId]) {
       const userSnap = await getDoc(doc(db, "users", otherId));
       if (!userSnap.exists()) continue;
@@ -188,25 +353,63 @@ onSnapshot(q, async (snapshot) => {
     const u = usersCache[otherId];
 
     const div = document.createElement("div");
-    div.className = "chat";
+
+    div.className =
+      "bg-white hover:bg-surface-container-low transition-colors cursor-pointer p-4 flex items-center gap-4";
+
+    div.onclick = () => openChat(otherId);
 
     div.innerHTML = `
-      <img src="${u.photoURL || 'https://ui-avatars.com/api/?name=' + (u.username || 'User')}" onclick="openProfile('${otherId}')">
-      
-      <div class="info" onclick="openChat('${otherId}')">
-        <div class="name">${u.fullName || u.username || "User"}</div>
-        <div class="msg">${chat.lastMessage || ""}</div>
+      <div class="shrink-0" onclick="event.stopPropagation(); openProfile('${otherId}')">
+        <img 
+          class="w-14 h-14 object-cover rounded-full"
+          src="${u.photoURL || 'https://ui-avatars.com/api/?name=' + (u.username || 'User')}"
+        >
       </div>
 
-      ${chat.unread && chat.unread > 0 
-        ? `<div class="badge">${chat.unread}</div>` 
-        : ""}
+      <div class="flex-1 min-w-0">
+        <div class="flex justify-between items-center mb-0.5">
+          <h3 class="font-headline text-[15px] font-bold text-on-surface truncate">
+            ${u.fullName || u.username || "User"}
+          </h3>
+          <span class="text-[11px] font-label text-outline-variant">
+            ${
+              chat.updatedAt
+                ? new Date(chat.updatedAt.seconds * 1000)
+                    .toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+                : ""
+            }
+          </span>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <p class="text-sm text-on-surface-variant truncate">
+            ${chat.lastMessage || ""}
+          </p>
+
+          ${
+            chat.unread && chat.unread > 0
+              ? `<div class="bg-tertiary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">${chat.unread}</div>`
+              : ""
+          }
+        </div>
+      </div>
     `;
 
     list.appendChild(div);
   }
 
 });
+
+/* ================= PLATFORM ================= */
+
+window.openPlatform = async () => {
+  await setDoc(doc(db, "platformReads", myUid), {
+    lastSeen: serverTimestamp()
+  }, { merge:true });
+
+  location.href = "platform.html";
+};
 
 /* ================= NAVIGATION ================= */
 
@@ -218,11 +421,4 @@ window.openProfile = (id) => {
   location.href = "view.html?id=" + id;
 };
 
-window.openSearch = () => {
-  location.href = "search.html";
-};
-
 </script>
-
-</body>
-</html>
