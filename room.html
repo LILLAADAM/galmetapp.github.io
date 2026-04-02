@@ -349,18 +349,35 @@ async function joinRoom(){
 // ✅ ROOM NAME
 document.getElementById("roomName").innerText = data.name;
 
-// ✅ ROOM ID
+// 🔥 GET USER DATA FROM USERS COLLECTION
+const userRef = doc(db, "users", data.hostId);
+const userSnap = await getDoc(userRef);
+
+let userId = data.hostId;
+let username = data.hostName || "User";
+let photo = "";
+
+if (userSnap.exists()) {
+  const userData = userSnap.data();
+
+  userId = userData.userId || data.hostId;
+  username = userData.username || username;
+  photo = userData.photoURL || "";
+}
+
+// ✅ SHOW USER ID (NOT ROOM ID)
 document.getElementById("roomIdText").innerText =
-  "ID: " + roomId + " • LIVE";
+  "ID: " + userId + " • LIVE";
 
-// ✅ HOST NAME
-document.getElementById("hostName").innerText =
-  data.hostName || "Host";
+// ✅ SHOW NAME
+document.getElementById("hostName").innerText = username;
 
-// ✅ HOST PHOTO
+// ✅ SHOW PHOTO
 document.getElementById("roomHostPhoto").src =
-  data.hostPhoto || "https://ui-avatars.com/api/?name=" + (data.hostName || "User");
-
+  photo !== ""
+    ? photo
+    : "https://ui-avatars.com/api/?name=" + encodeURIComponent(username);
+        
   // add member
   await setDoc(doc(db,"rooms",roomId,"members",uid),{
     uid:uid,
