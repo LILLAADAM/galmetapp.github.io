@@ -417,15 +417,19 @@ onSnapshot(collection(db, "rooms"), (snapshot) => {
 // 🚀 CREATE ROOM FUNCTION
 async function createRoom() {
 
+  const userData = JSON.parse(localStorage.getItem("user"));
+
   const ref = await addDoc(collection(db, "rooms"), {
-    name: user.username + " Room",
-    hostId: user.uid,
+    name: userData.username + " Room",
+    hostId: userData.uid,
+    hostName: userData.username,
+    hostPhoto: userData.photoURL || "",
     users: 1,
     createdAt: serverTimestamp()
   });
 
-  await setDoc(doc(db, "rooms", ref.id, "members", user.uid), {
-    uid: user.uid,
+  await setDoc(doc(db, "rooms", ref.id, "members", userData.uid), {
+    uid: userData.uid,
     role: "host"
   });
 
