@@ -249,7 +249,13 @@ window.updateProfile = async () => {
     }
 };
 
-
+localStorage.setItem("user", JSON.stringify({
+  uid: user.uid,
+  username: data.username,
+  photoURL: data.photoURL,
+  userId: data.userId
+}));
+    
 // ACTIONS
 window.logout = ()=> signOut(auth).then(()=>location="index.html");
 window.goBack = ()=> location="dashboard.html";
