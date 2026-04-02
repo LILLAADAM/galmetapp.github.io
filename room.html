@@ -113,14 +113,14 @@
 </button>
 <div class="flex items-center gap-2">
 <div class="relative">
-<img class="w-9 h-9 rounded-full border-2 border-primary-fixed" data-alt="Professional profile portrait of a young man" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzrVp0vQk0ETE6uy_yyg3lJXxnVDWDb_pmGA9zrAG_I_g6zk4aBlLTjQEfZlm1i-QGRy5vVwLXiGX4rHaof_myo-dA83B6OOzKcPio4VwvIdjWMeTtcGOlZ3mZ5MspUT9RTvNZLFfiaw8n-w9ngWRN6XYekZjamOiQz_Xh9Dymm_BiE8Df9kkFx2kC_WzXor8gNnDuIzb7uVwUq9-UGKT9jRqjRPzOEUF1ouEYxbvh5eW73RJ22rzb74VQkMjX5ro_ZeHfDSTFDMKU"/>
+<img id="roomHostPhoto" class="w-9 h-9 rounded-full border-2 border-primary-fixed" data-alt="Professional profile portrait of a young man" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzrVp0vQk0ETE6uy_yyg3lJXxnVDWDb_pmGA9zrAG_I_g6zk4aBlLTjQEfZlm1i-QGRy5vVwLXiGX4rHaof_myo-dA83B6OOzKcPio4VwvIdjWMeTtcGOlZ3mZ5MspUT9RTvNZLFfiaw8n-w9ngWRN6XYekZjamOiQz_Xh9Dymm_BiE8Df9kkFx2kC_WzXor8gNnDuIzb7uVwUq9-UGKT9jRqjRPzOEUF1ouEYxbvh5eW73RJ22rzb74VQkMjX5ro_ZeHfDSTFDMKU"/>
 <div class="absolute -bottom-0.5 -right-0.5 bg-secondary rounded-full p-0.5">
 <span class="material-symbols-outlined text-[10px] text-white" style="font-variation-settings: 'FILL' 1;">star</span>
 </div>
 </div>
 <div>
-<h1 class="text-[#006571] dark:text-[#00e3fd] font-headline font-bold tracking-tight leading-none text-xs">ADAM-TOP-UP</h1>
-<p class="text-[9px] text-slate-500 font-medium">ID: 8829102 • <span class="text-primary-fixed font-bold">LIVE</span></p>
+<h1 id="roomName" class="text-[#006571] dark:text-[#00e3fd] font-headline font-bold tracking-tight leading-none text-xs"></h1>
+<p id="roomIdText" class="text-[9px] text-slate-500 font-medium"></p> • <span class="text-primary-fixed font-bold">LIVE</span></p>
 </div>
 </div>
 </div>
@@ -157,7 +157,7 @@
 <span class="material-symbols-outlined text-white text-[12px] bg-black/40 rounded-full p-0.5" style="font-variation-settings: 'FILL' 1;">mic</span>
 </div>
 </div>
-<span class="text-white text-[9px] font-medium shadow-sm">Adam</span>
+<span id="hostName" class="text-white text-[9px] font-medium shadow-sm"></span>
 </div>
 <!-- Invite Seat 2 (Empty) -->
 <div class="flex flex-col items-center gap-1">
@@ -317,7 +317,6 @@
 <!-- Safe Area Spacer -->
 <div class="h-4"></div>
 </div>
-</body></html>
 
 <script type="module">
 
@@ -345,7 +344,21 @@ async function joinRoom(){
   }
 
   // update title
-  document.querySelector("h1").innerText = snap.data().name;
+  const data = snap.data();
+
+// ✅ ROOM NAME
+document.getElementById("roomName").innerText = data.name;
+
+// ✅ ROOM ID
+document.getElementById("roomIdText").innerText =
+  "ID: " + data.hostId + " • LIVE";
+
+// ✅ HOST NAME
+document.getElementById("hostName").innerText = data.hostName;
+
+// ✅ HOST PHOTO
+document.getElementById("roomHostPhoto").src =
+  data.hostPhoto || "https://ui-avatars.com/api/?name=" + data.hostName;
 
   // add member
   await setDoc(doc(db,"rooms",roomId,"members",uid),{
