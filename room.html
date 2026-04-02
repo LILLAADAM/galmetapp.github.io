@@ -49,6 +49,69 @@ function sendGift(){
   alert("Gift system next step");
 }
 
+<script type="module">
+
+import { db } from "./firebase.js";
+import {
+  doc, getDoc, setDoc, deleteDoc,
+  collection, onSnapshot, updateDoc
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const params = new URLSearchParams(location.search);
+const roomId = params.get("id");
+
+const user = JSON.parse(localStorage.getItem("user"));
+const uid = user.uid;
+
+document.getElementById("roomId").innerText = "Room: " + roomId;
+
+// ✅ JOIN ROOM
+async function joinRoom(){
+
+  const roomRef = doc(db,"rooms",roomId);
+  const snap = await getDoc(roomRef);
+
+  if(!snap.exists()){
+    alert("Room not found");
+    return;
+  }
+
+  await setDoc(doc(db,"rooms",roomId,"members",uid),{
+    uid:uid,
+    role:"guest"
+  });
+
+  await updateDoc(roomRef,{
+    users: (snap.data().users || 1) + 1
+  });
+
+}
+
+joinRoom();
+
+// 🔥 REALTIME USERS COUNT
+onSnapshot(collection(db,"rooms",roomId,"members"), (snap)=>{
+  document.getElementById("role").innerText =
+    "Users: " + snap.size;
+});
+
+// ❌ LEAVE ROOM
+window.leaveRoom = async () => {
+
+  await deleteDoc(doc(db,"rooms",roomId,"members",uid));
+
+  const roomRef = doc(db,"rooms",roomId);
+  const snap = await getDoc(roomRef);
+
+  if(snap.exists()){
+    await updateDoc(roomRef,{
+      users: Math.max((snap.data().users || 1)-1,0)
+    });
+  }
+
+  location.href = "party.html";
+};
+
 </script>
 
 </body>
