@@ -435,22 +435,12 @@ async function createRoom() {
 
   location.href = "room.html?id=" + ref.id;
 }
-
-  const userData = JSON.parse(localStorage.getItem("user"));
-
-await setDoc(doc(db,"rooms",roomId),{
-  name: "My Room",
-  hostId: userData.uid,
-  hostName: userData.username,
-  hostPhoto: userData.photoURL,
-  users: 1,
-  createdAt: Date.now()
-});
         
 // 🎯 BUTTONS CONNECT
 
-// 1. Let's Party button
-document.querySelector("button").onclick = createRoom;
+document.getElementById("createRoomBtn").onclick = createRoom;
+
+document.querySelector('[data-icon="add"]').onclick = createRoom;
 
 // 2. Top + icon (add_home)
 document.querySelectorAll(".material-symbols-outlined").forEach(icon => {
