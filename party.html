@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Party</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+
+<body class="bg-gray-100 font-sans">
+
+<!-- HEADER -->
+<header class="fixed top-0 w-full bg-white shadow px-4 py-3 flex justify-between items-center z-50">
+  <h2 class="font-bold text-lg">Party</h2>
+  <button onclick="goHome()">Home</button>
+</header>
+
+<!-- CONTENT -->
+<main class="pt-16 pb-24 px-3">
+
+<!-- ROOM GRID -->
+<div class="grid grid-cols-2 gap-3">
+
+<!-- ROOM 1 -->
+<div onclick="joinRoom('room1')" class="bg-white rounded-lg shadow p-2 cursor-pointer">
+  <img src="https://picsum.photos/200" class="rounded-lg"/>
+  <p class="text-sm mt-2 font-bold">Room 1</p>
+</div>
+
+<!-- ROOM 2 -->
+<div onclick="joinRoom('room2')" class="bg-white rounded-lg shadow p-2 cursor-pointer">
+  <img src="https://picsum.photos/201" class="rounded-lg"/>
+  <p class="text-sm mt-2 font-bold">Room 2</p>
+</div>
+
+<!-- ROOM 3 -->
+<div onclick="joinRoom('room3')" class="bg-white rounded-lg shadow p-2 cursor-pointer">
+  <img src="https://picsum.photos/202" class="rounded-lg"/>
+  <p class="text-sm mt-2 font-bold">Room 3</p>
+</div>
+
+<!-- ROOM 4 -->
+<div onclick="joinRoom('room4')" class="bg-white rounded-lg shadow p-2 cursor-pointer">
+  <img src="https://picsum.photos/203" class="rounded-lg"/>
+  <p class="text-sm mt-2 font-bold">Room 4</p>
+</div>
+
+</div>
+
+</main>
+
+<!-- CREATE ROOM BUTTON -->
+<div class="fixed bottom-20 left-1/2 -translate-x-1/2">
+  <button onclick="createRoom()" class="bg-blue-500 text-white px-6 py-3 rounded-full">
+    + Create Party
+  </button>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="fixed bottom-0 w-full bg-white flex justify-around py-3 shadow">
+
+  <button onclick="goHome()">🏠</button>
+  <button>🔍</button>
+  <button>🎮</button>
+  <button onclick="goChat()">💬</button>
+  <button>👤</button>
+
+</div>
+
+<script>
+
+// JOIN ROOM
+function joinRoom(id){
+  window.location.href = "room.html?id=" + id;
+}
+
+// CREATE ROOM
+function createRoom(){
+  const id = "room_" + Date.now();
+  window.location.href = "room.html?id=" + id + "&host=1";
+}
+
+// NAVIGATION
+function goHome(){
+  window.location.href = "dashboard.html";
+}
+
+function goChat(){
+  window.location.href = "chat.html";
+}
+
+</script>
+
+</body>
+</html>
