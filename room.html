@@ -351,14 +351,15 @@ document.getElementById("roomName").innerText = data.name;
 
 // ✅ ROOM ID
 document.getElementById("roomIdText").innerText =
-  "ID: " + data.hostId + " • LIVE";
+  "ID: " + roomId + " • LIVE";
 
 // ✅ HOST NAME
-document.getElementById("hostName").innerText = data.hostName;
+document.getElementById("hostName").innerText =
+  data.hostName || "Host";
 
 // ✅ HOST PHOTO
 document.getElementById("roomHostPhoto").src =
-  data.hostPhoto || "https://ui-avatars.com/api/?name=" + data.hostName;
+  data.hostPhoto || "https://ui-avatars.com/api/?name=" + (data.hostName || "User");
 
   // add member
   await setDoc(doc(db,"rooms",roomId,"members",uid),{
