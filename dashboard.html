@@ -95,7 +95,10 @@ body {
     <button onclick="goChats()">💬</button>
     <button onclick="openSettings()" style="margin-left:10px;">⚙️</button>
 </div>
-
+    <div onclick="openParty()" style="cursor:pointer;">
+    <span class="material-symbols-outlined">sports_esports</span>
+</div>
+    
 <div class="container">
 
 <div class="card">
@@ -435,6 +438,9 @@ window.goChats = () => {
 };
     window.openSettings = () => {
   location.href = "settings.html";
+};
+  function openParty(){
+  window.location.href = "party.html";
 };
     
 window.goGame = (p)=> location=p;
