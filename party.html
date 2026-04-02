@@ -3,311 +3,346 @@
 <html class="light" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Galmet Party - Azure Social</title>
+<!-- Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Be+Vietnam+Pro:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script id="tailwind-config">
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            "tertiary-dim": "#a00047",
-            "primary-dim": "#005863",
-            "secondary": "#755700",
-            "inverse-surface": "#0a0f12",
-            "on-primary-fixed-variant": "#005762",
-            "tertiary-container": "#ff8fa9",
-            "surface-container-high": "#dde3e8",
-            "surface-dim": "#ced5db",
-            "background": "#f3f7fb",
-            "surface-container-low": "#ecf1f6",
-            "on-primary-fixed": "#003840",
-            "secondary-fixed-dim": "#f7ba00",
-            "primary-fixed": "#00e3fd",
-            "on-secondary": "#fff1db",
-            "secondary-dim": "#664b00",
-            "primary-fixed-dim": "#00d4ec",
-            "primary": "#006571",
-            "surface": "#f3f7fb",
-            "on-error": "#ffefee",
-            "on-secondary-container": "#5c4400",
-            "surface-tint": "#006571",
-            "inverse-primary": "#00e3fd",
-            "secondary-fixed": "#ffca4d",
-            "on-surface": "#2a2f32",
-            "tertiary": "#b60051",
-            "surface-bright": "#f3f7fb",
-            "surface-container-lowest": "#ffffff",
-            "on-secondary-fixed-variant": "#674c00",
-            "on-primary": "#d8f8ff",
-            "on-primary-container": "#004d57",
-            "on-tertiary-fixed-variant": "#770033",
-            "on-tertiary-fixed": "#380014",
-            "on-background": "#2a2f32",
-            "primary-container": "#00e3fd",
-            "tertiary-fixed-dim": "#ff769b",
-            "error": "#b31b25",
-            "surface-container-highest": "#d7dee3",
-            "on-secondary-fixed": "#443100",
-            "surface-container": "#e3e9ee",
-            "error-container": "#fb5151",
-            "secondary-container": "#ffca4d",
-            "inverse-on-surface": "#999da1",
-            "on-tertiary-container": "#66002b",
-            "outline-variant": "#a9aeb1",
-            "on-tertiary": "#ffeff0",
-            "surface-variant": "#d7dee3",
-            "on-surface-variant": "#575c60",
-            "on-error-container": "#570008",
-            "tertiary-fixed": "#ff8fa9",
-            "outline": "#73777b",
-            "error-dim": "#9f0519"
-          },
-          fontFamily: {
-            "headline": ["Plus Jakarta Sans"],
-            "body": ["Be Vietnam Pro"],
-            "label": ["Plus Jakarta Sans"]
-          },
-          borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
-        },
-      },
-    }
-  </script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "inverse-primary": "#00e3fd",
+                        "on-tertiary-fixed-variant": "#770033",
+                        "error-container": "#fb5151",
+                        "tertiary-fixed": "#ff8fa9",
+                        "on-error-container": "#570008",
+                        "tertiary-fixed-dim": "#ff769b",
+                        "on-primary-fixed": "#003840",
+                        "on-tertiary": "#ffeff0",
+                        "outline": "#73777b",
+                        "background": "#f3f7fb",
+                        "surface-tint": "#006571",
+                        "primary-fixed-dim": "#00d4ec",
+                        "primary-container": "#00e3fd",
+                        "inverse-surface": "#0a0f12",
+                        "surface-variant": "#d7dee3",
+                        "surface-container-high": "#dde3e8",
+                        "on-secondary-fixed-variant": "#674c00",
+                        "outline-variant": "#a9aeb1",
+                        "primary-dim": "#005863",
+                        "surface-container": "#e3e9ee",
+                        "on-tertiary-fixed": "#380014",
+                        "surface-bright": "#f3f7fb",
+                        "on-primary-fixed-variant": "#005762",
+                        "on-primary": "#d8f8ff",
+                        "on-surface": "#2a2f32",
+                        "tertiary-container": "#ff8fa9",
+                        "primary-fixed": "#00e3fd",
+                        "on-error": "#ffefee",
+                        "surface": "#f3f7fb",
+                        "secondary-container": "#ffca4d",
+                        "on-primary-container": "#004d57",
+                        "tertiary": "#b60051",
+                        "on-surface-variant": "#575c60",
+                        "secondary-dim": "#664b00",
+                        "surface-container-low": "#ecf1f6",
+                        "on-secondary-fixed": "#443100",
+                        "secondary": "#755700",
+                        "on-tertiary-container": "#66002b",
+                        "inverse-on-surface": "#999da1",
+                        "primary": "#006571",
+                        "secondary-fixed": "#ffca4d",
+                        "on-secondary-container": "#5c4400",
+                        "on-secondary": "#fff1db",
+                        "secondary-fixed-dim": "#f7ba00",
+                        "error": "#b31b25",
+                        "error-dim": "#9f0519",
+                        "surface-container-highest": "#d7dee3",
+                        "surface-container-lowest": "#ffffff",
+                        "on-background": "#2a2f32",
+                        "tertiary-dim": "#a00047",
+                        "surface-dim": "#ced5db"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Be Vietnam Pro"],
+                        "label": ["Plus Jakarta Sans"]
+                    },
+                    borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
 <style>
-    .material-symbols-outlined {
-      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-    }
-    .glass-effect {
-      backdrop-filter: blur(20px);
-    }
-    .text-shadow-sm {
-      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-    }
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-    .snap-x {
-      scroll-snap-type: x mandatory;
-    }
-    .snap-center {
-      scroll-snap-align: center;
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .glass-header { backdrop-filter: blur(20px); }
+        .straight-corners { border-radius: 4px !important; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
     }
   </style>
-</head>
+  </head>
 <body class="bg-background font-body text-on-surface">
-<!-- TopAppBar -->
-<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 py-4 bg-[#f3f7fb]/80 dark:bg-slate-950/80 backdrop-blur-xl border-b border-surface-container-high">
-<div class="flex items-center gap-2">
-<span class="font-headline font-extrabold text-2xl text-on-surface tracking-tighter">GAME</span>
-<span class="text-secondary-fixed text-xs self-start mt-1">✦</span>
+<!-- TopAppBar Execution -->
+<header class="fixed top-0 w-full z-50 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl transition-all duration-300">
+<div class="flex justify-between items-center px-4 h-16 w-full">
+<div class="flex items-center gap-3">
+<button class="transition-all duration-300 active:scale-95 text-cyan-600">
+<span class="material-symbols-outlined text-2xl" data-icon="add">add</span>
+</button>
+<h1 class="font-['Plus_Jakarta_Sans'] font-semibold text-lg text-on-surface">Party</h1>
 </div>
-<div class="flex items-center gap-4">
-<span class="material-symbols-outlined text-secondary-fixed">emoji_events</span>
-<span class="material-symbols-outlined text-on-surface-variant">calendar_today</span>
-<span class="material-symbols-outlined text-on-surface-variant">add_home</span>
+<div class="flex items-center gap-3">
+<!-- Currency Section -->
+<div class="bg-secondary-container/20 px-3 py-1.5 rounded-full flex items-center gap-2 border border-secondary-container/30">
+<div class="flex items-center gap-1">
+<span class="text-xs font-label font-bold text-secondary">70</span>
+<span class="material-symbols-outlined text-sm text-secondary" data-icon="monetization_on">monetization_on</span>
+</div>
+<div class="w-[1px] h-3 bg-secondary/30"></div>
+<div class="flex items-center gap-1">
+<span class="text-xs font-label font-bold text-tertiary">120</span>
+<span class="material-symbols-outlined text-sm text-tertiary" data-icon="diamond" style="font-variation-settings: 'FILL' 1;">diamond</span>
+</div>
+</div>
+<div class="flex gap-1">
+<button class="p-2 text-on-surface-variant hover:bg-slate-100/50 rounded-full transition-all">
+<span class="material-symbols-outlined text-xl" data-icon="emoji_events">emoji_events</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-slate-100/50 rounded-full transition-all">
+<span class="material-symbols-outlined text-xl" data-icon="calendar_today">calendar_today</span>
+</button>
+</div>
+</div>
 </div>
 </header>
-<main class="pt-20 pb-32 px-0 space-y-4 max-w-5xl mx-auto">
-<!-- Horizontal Promo Banners -->
-<div class="px-4">
-<div class="flex gap-3 overflow-x-auto no-scrollbar snap-x">
-<!-- Banner 1 -->
-<div class="relative flex-none w-[85%] h-24 rounded-xl overflow-hidden shadow-sm snap-center">
-<img alt="Promo Banner" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9R_Z_V7P-Z-K_P9P-Z_K_P9P-Z_K_P9P-Z_K_P9P-Z_K_P9P-Z_K_P9P-Z_K_P9P-Z_K_P9P-Z_K_P9P-Z_K_P9P-Z_K_P9P-Z_K_P9P-Z_K_P9P-Z_K_P9P-Z_K_P9P-Z_K_P9P-Z_K_P9P-Z_K_P9P-Z_K_P9P-Z_K_P9P-Z_K_P9P-Z_K_P9P-"/>
-<div class="absolute inset-0 bg-gradient-to-r from-orange-500/90 to-yellow-400/70 flex flex-col items-center justify-center text-center p-2">
-<h3 class="text-white font-headline font-black text-xs italic drop-shadow-md">To be Agent</h3>
-<h4 class="text-white font-headline font-black text-lg italic drop-shadow-md leading-tight">To be Millionaire</h4>
+<main class="pt-20 pb-28 px-4 max-w-2xl mx-auto">
+<!-- Promo Banners Section -->
+<section class="mb-8">
+<div class="flex overflow-x-auto gap-4 no-scrollbar snap-x snap-mandatory">
+<div class="min-w-[85%] aspect-[16/7] bg-primary relative straight-corners overflow-hidden snap-start shadow-sm">
+<img class="absolute inset-0 w-full h-full object-cover opacity-60" data-alt="Modern office interior with neon signs and futuristic technology theme for an agency recruitment banner" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBp3Ur3gLthpF6X6M2MkGwKlSsWvvhYG30UF733e7_t1xz4nK34guJyEeVTkyk-oFPTmosUlCsS-nNwF-nPtm4EyL1vaIhPOXNoRxFplG7-KP0GNZ2DeGdwjPIj65prE7OJncTd27Qzrki_KMbgjFJkIT85m1YRe26rPql2c2OTeiTNmZHqbID60THArDVKkAySKHKnDD6lY7NgQmUazgISiTSpdS39MEnuekuf_ZMdjVL19q4eee4_F9nDlN6oYnXjj0UnjIYmvJIe"/>
+<div class="absolute inset-0 bg-gradient-to-r from-primary to-transparent flex flex-col justify-center p-6">
+<span class="text-[10px] font-label uppercase tracking-widest text-primary-container mb-1">Partnership</span>
+<h2 class="text-xl font-headline font-bold text-on-primary leading-tight">To be Agent</h2>
+<button class="mt-3 w-fit px-4 py-1.5 bg-primary-container text-on-primary-container text-xs font-bold straight-corners">Apply Now</button>
 </div>
 </div>
-<!-- Banner 2 (Placeholder) -->
-<div class="relative flex-none w-[85%] h-24 rounded-xl overflow-hidden shadow-sm snap-center">
-<div class="absolute inset-0 bg-gradient-to-r from-primary-dim to-primary flex flex-col items-center justify-center text-center p-2">
-<h3 class="text-white font-headline font-black text-xs italic drop-shadow-md">Weekly Tournament</h3>
-<h4 class="text-white font-headline font-black text-lg italic drop-shadow-md leading-tight">Win 1,000,000 Gems</h4>
+<div class="min-w-[85%] aspect-[16/7] bg-tertiary relative straight-corners overflow-hidden snap-start shadow-sm">
+<img class="absolute inset-0 w-full h-full object-cover opacity-60" data-alt="Vibrant summer beach scene with palm trees and colorful festival decorations for a summer carnival theme" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgU5HCic5LkvoOCJ8P_y7L9megl4rq4Ey2AdCCbmtoh-B0NiceaowE98b3Ar2lDW4ZQBLnpyu9rZl_S_ARd59C7tZExfKPgIyONw2Eoj_R8iMvuOa_6pvkQ3K00oj-Jbg_B7j6-Q1B_xX8UJbym91WFWI_oxZU8C_Zr5Q_pIz5Pn9aHByCD-SQSSB_KakBvUnKWQazYcmofhU-_zJ2pY3o7-rQFLwlLuNM7PcAaFhSbSDiPOEmQNSMut2QCCg1X-ej07kxTEpKxOxD"/>
+<div class="absolute inset-0 bg-gradient-to-r from-tertiary to-transparent flex flex-col justify-center p-6">
+<span class="text-[10px] font-label uppercase tracking-widest text-tertiary-fixed mb-1">Limited Time</span>
+<h2 class="text-xl font-headline font-bold text-white leading-tight">Summer Carnival</h2>
+<button class="mt-3 w-fit px-4 py-1.5 bg-secondary-fixed text-on-secondary-fixed text-xs font-bold straight-corners">Join Fest</button>
 </div>
-</div>
-</div>
-</div>
-<!-- Hot Games Section -->
-<section class="px-4">
-<div class="flex items-center justify-between mb-2">
-<h2 class="font-headline font-bold text-base text-on-surface">Hot Games</h2>
-<span class="material-symbols-outlined text-on-surface-variant text-sm">chevron_right</span>
-</div>
-<div class="flex gap-4 overflow-x-auto no-scrollbar py-1">
-<!-- Game Item -->
-<div class="flex-none w-16 group text-center">
-<div class="relative w-16 h-16 rounded-2xl overflow-hidden border-2 border-white shadow-sm transition-transform group-active:scale-95">
-<img class="w-full h-full object-cover" data-alt="Champ Car Icon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfpvn33NbWFGEwL7Cg4qkmCPVL9eZs7FTAH6zfq2lDi9SALIGnxZKaFLUUVr70He8gUFy1ndoLSPrTbbrOxwka91zH9P2oEMI7k8BujOjvhUOXfNjSygMYvBqltCXDcxMFegmFxcmLCiR29LR-dsE8XVC39SWyIly19efCrj9PMtAVLncHk1HdfYrhTo9yi1niq3g6Oi1K6vKcVgsV1UnyVRZaBVzfO_zLLCnE-nvUm92FMFlSYpqFJLULJ0tOm3_96DMLl0_OmKe4"/>
-<div class="absolute -top-1 -right-1 bg-error px-1 text-[8px] font-black text-white rounded-bl-lg transform rotate-12">HOT!</div>
-</div>
-<p class="mt-1 font-label text-[10px] font-bold text-on-surface truncate">Champ Car</p>
-</div>
-<!-- Game Item -->
-<div class="flex-none w-16 group text-center">
-<div class="relative w-16 h-16 rounded-2xl overflow-hidden border-2 border-white shadow-sm transition-transform group-active:scale-95">
-<img class="w-full h-full object-cover" data-alt="Lucky Reels Icon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8FrPD-FBtofUCbJ5ha0M1NFwes9sqZbc9Yt2ZzuTKHjJZU95ebgvsyb4jZWlTl6wH9mmRtNGBDFCVlAyPUZNE78IUkOXLMpcZAC4MS0bALpUjYIfsoTtBl7kngpZguVpFsyclE-_kYaBZ4LWzx4NW01cOWnJCptEAls_dqlcsv2Xt6UiJE6K8-o_49WxXCvVJEmOfZK31L3GHi9tAbqxncToti6o7-OFpX18y3kij05-EEGXG2EI6HB_AHUC6DzoXxYlcdHuFR_4n"/>
-</div>
-<p class="mt-1 font-label text-[10px] font-bold text-on-surface truncate">Lucky Reels</p>
-</div>
-<!-- Game Item -->
-<div class="flex-none w-16 group text-center">
-<div class="relative w-16 h-16 rounded-2xl overflow-hidden border-2 border-white shadow-sm transition-transform group-active:scale-95">
-<img class="w-full h-full object-cover" data-alt="Gates of Olympus" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBCnQOpcEOQ-DRppfBjo8f0nCMbJhwP_Gc2FTTMQDQe8b-O1IR7F-xvEURq27ubTplA1PM60KfwzzaBGdfiiwelyRaKyxn7lQa--wMY726kAcQ0ElSgiRtWgLDP__xRulqOAgCYaAfBGO0MlPJVeCiw7weTgaoJGZUAnyxRpmT_8btVJDen4l5Q7VbPh4owhS0jepj7honeE5qsQHD8KuDHvZQ28hE1IapChzoXCtcpBVjsk5epBu5TxcmhWQMueyqdb-yVWpxP0LTG"/>
-</div>
-<p class="mt-1 font-label text-[10px] font-bold text-on-surface truncate">Olympus</p>
-</div>
-<!-- Game Item -->
-<div class="flex-none w-16 group text-center">
-<div class="relative w-16 h-16 rounded-2xl overflow-hidden border-2 border-white shadow-sm transition-transform group-active:scale-95">
-<img class="w-full h-full object-cover" data-alt="Sweet Candy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCtp99eFvCVoOF8e7Od6E6kEP1G7J9ETrnDBEYiyHJ7rtaCcolhHQ-Zqqf5JEwS2RWi9JbZJnLsvkIDJJ5m_8gJ23G-9AAUL__AL1EpUJFa3wowAt9xaiySHL6i--H3_u5AXgn9uv4OVugbMGcE7ltEqaJ2hwltOjHVthdPx87TYVHWCQ3BsONlGi7du4fDYfn_z-xEH48SMFNrNfOHrFONN1GNy-k2R3vxqjzIWui0xEMkpSneSJq8u8LG30hiQS2nL-z8X5GRVEF7"/>
-</div>
-<p class="mt-1 font-label text-[10px] font-bold text-on-surface truncate">Sweet Candy</p>
-</div>
-<!-- Game Item -->
-<div class="flex-none w-16 group text-center">
-<div class="relative w-16 h-16 rounded-2xl overflow-hidden border-2 border-white shadow-sm transition-transform group-active:scale-95">
-<img class="w-full h-full object-cover" data-alt="Greedy Feast" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD20Nf0jkqmmF5NSVmzBNnpMUrsaD30L88Y7A2m0uWvyp4-jQMgMXaMq_jiMycrr7HqR2bhgZUDZYqeSBO4KZEoGc7R2Z6Eq5Qyc6t4OP16RHDPtr_OUhaZVkvMY23NXW7zl8QJ49rqohgFrP6-abH9QRlNocXyQPzOQJGW8F1iOK0OOxVgZ92SnetChHlZ1No4oLgOKypP_XcLYLvPzA7HHTWlUG7MNZSTJDUXyaOPffustyFvO0AXBoRf-yMCmiqUuKCBlFj5jjWS"/>
-</div>
-<p class="mt-1 font-label text-[10px] font-bold text-on-surface truncate">Greedy Feast</p>
 </div>
 </div>
 </section>
-<!-- Tabs Navigation -->
-<nav class="flex items-center px-4 space-x-6 border-b border-surface-container">
-<button class="pb-2 text-sm font-bold text-on-surface-variant hover:text-on-surface">New</button>
-<div class="relative pb-2">
-<button class="text-sm font-bold text-on-surface">Popular</button>
-<div class="absolute bottom-0 left-0 w-full h-1 bg-primary-fixed rounded-full"></div>
+<!-- Play Games Section -->
+<section class="mb-8">
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-headline text-lg font-bold flex items-center gap-2">
+                    Play Games <span class="text-xl">🎮</span>
+</h3>
+<span class="text-primary text-xs font-bold font-label">View All</span>
 </div>
-<button class="pb-2 text-sm font-bold text-on-surface-variant hover:text-on-surface">Follow</button>
-<div class="flex-1 flex justify-end pb-2">
-<span class="material-symbols-outlined text-on-surface-variant">grid_view</span>
+<div class="flex overflow-x-auto gap-4 no-scrollbar pb-2">
+<!-- Game Card 1 -->
+<div class="flex-shrink-0 w-24 flex flex-col items-center gap-2">
+<div class="w-20 h-20 bg-surface-container rounded-2xl flex items-center justify-center shadow-inner relative overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close up of a sleek luxury sports car hood with reflective metallic finish" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDHAgFQDCC1hsuxZB3g9V8SsP27RJmGmCfl_HG9UUolc9qs9_iUNJUoY4spfcjotZykjQ1gfCofImWmKJIVzID-eiLU3qgD8EYBxbbcoU-vJwwjB0_kwmIpNOH9vzmGZuVF5PcDZjth4NMiCXFdGrNm6q-GwIa8UA5uUWshtw1u0EWQ7r6xz_MD_0Q7cEmrcFmFOGQAIZa4dJBuOPXFdCE-h1oooeHfEiTTbgy0QQYzgMRB5fQhAlkmqXOogkv0sVJg4u7vAVROidPJ"/>
 </div>
-</nav>
-<!-- Party Rooms Grid - Continuous Scroll, Sharp Corners, Uniform Squares -->
-<div class="grid grid-cols-2 gap-0.5 px-0.5 pb-20">
-<!-- Card 1 -->
-<div class="relative bg-white shadow-sm aspect-square">
-<img class="w-full h-full object-cover" data-alt="haider ali room" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDWH6Wt5MuGznya7vAc8ZleRoE_gOvLrHtyp6KHhsVFbC7AEXisKJ3miZ1YIUKMbFmNtGVfUK_RUxDrk-jbpQ-ky979dLuc9dkM81faCslKWeCwkvYtMMhQz0D1pl-4a12F7IYJlgWavtpIJrvEAqz5Ld61kcQVvKzc8GHB1hipMEgEydz6LUhjfH2DoYeD4822HothiWNvsfM92o15G7UYqYWtrN4DORDYKffHQSUtkiKk0h3OlI06-T7h2I0TbB9Rrox8LzXctFD"/>
-<div class="absolute inset-0 bg-black/10"></div>
-<div class="absolute top-2 left-2 flex items-center gap-1 bg-black/30 backdrop-blur-md rounded px-1.5 py-0.5 text-[9px] text-white font-bold">
-<span class="material-symbols-outlined text-[10px]">card_giftcard</span>
-<span>4,488</span>
-<span class="w-1.5 h-1.5 bg-primary-fixed rounded-full"></span>
+<span class="text-xs font-label font-bold text-center">Lucky Car</span>
 </div>
-<div class="absolute bottom-2 left-2 right-2 flex flex-col gap-0.5">
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-1">
-<div class="w-3 h-2 bg-green-600 rounded-sm"></div>
-<p class="text-white text-[10px] font-bold truncate max-w-[80px]">haider ali</p>
+<!-- Game Card 2 -->
+<div class="flex-shrink-0 w-24 flex flex-col items-center gap-2">
+<div class="w-20 h-20 bg-surface-container rounded-2xl flex items-center justify-center shadow-inner relative overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Colorful carnival wheel of fortune spinning with blurred motion and vibrant neon lights" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBsCnPRul8LNbMkd01yCdFb2emqhhe4QvVZzfWZ3Y5z63zfUdy10gFykvlok7muiGxigCr552Br8CcMX2q-YZg3qa_lG8C4fZh0BF90YQEMK0zNo5IA1q4OxOkXA7Pw39Rr3gMM3Qi9RsICUYwVHd_nCZn5XE-AXve8Gnkn4B1I1Tgalviro2th_xO-3BYayRpVEi0eeVPwVb-9d9oACbS403rJklhQmHjwxwqx7I3_EgHZz8NCJpIbxA-c4OD87K1UO1J1R787Nk83"/>
 </div>
-<div class="flex items-center text-white text-[10px] font-bold">
-<span class="material-symbols-outlined text-[10px]">signal_cellular_alt</span>
-<span>8</span>
+<span class="text-xs font-label font-bold text-center">Lucky Wheel</span>
 </div>
+<!-- Game Card 3 -->
+<div class="flex-shrink-0 w-24 flex flex-col items-center gap-2">
+<div class="w-20 h-20 bg-surface-container rounded-2xl flex items-center justify-center shadow-inner relative overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Futuristic aircraft taking off with glowing engine lights against a dark sky" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAP9YTXwIVSN8rKJKoqISYBk0NmZyB3whPCP2K2xofR7PzOdyhj9zVl3ufDUYpvjl-xs_v1NDCqLHPmVydhk-fEEJuAtIL5xwCRpofythLr6MTeqGchRquT_jTml7KeHAAVVUSfIDctnwQkiRnxN6YFq6lvj3kPYykXd6L8cUjlhyWDqUedK3QSMACD4JyoHTZDw8TY0NmYWe_m0vQ4_bnTeRidJhulDdl4arpRn4vulU0sgHPesCIZWM30el2M-t_AX3XqT7V8vsLQ"/>
 </div>
+<span class="text-xs font-label font-bold text-center">Lucky Fly</span>
 </div>
+<!-- Game Card 4 -->
+<div class="flex-shrink-0 w-24 flex flex-col items-center gap-2">
+<div class="w-20 h-20 bg-surface-container rounded-2xl flex items-center justify-center shadow-inner relative overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close up of poker chips and playing cards on a green felt casino table" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUhDzaseWBEll8Q7eFWK3m_VwcebTB484k-v0zeAzatAZPc55NcDIxpaPWVyiLtQoBHVPW9jfG3GL0fd4wGXD5AMO4OQd4g_80IaQEhq6mN9DBaRfvM0NNwHrmiDSM-NqGSe9bQ_h1_BQ0I5Ri5p5HcMg98tJuk4vS1hhba1nNmOELfiUvLI_ECrnDqdggEXlLq_hKCwd5pfAlCgs57jthR8YWMkI21LLudwy7EXF28M9BGnDCn6NeiUo_9FLYZ9Yxfq_t6HQr0ssE"/>
 </div>
-<!-- Card 2 -->
-<div class="relative bg-white shadow-sm aspect-square">
-<img class="w-full h-full object-cover" data-alt="Mr.Qasim room" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhmIZ5011j1yEZI9G061NfLI9chBqVL57E3sw5YlWtM4S6BHUu8GIyKlM3nfsKzr9bBlF8cnoTM33D-fOfLOQEA8DSDdq0X5_lDlwcy5YLScb3ptqYvYsN5RwhldRHPeEXzFZ9QgBdOFOqkau3zHgtBgQaU9UkL7DFF83Fab7JVYE2uUnvNBLvp_1Ub3JuOBPHUW720yYS4sxMDo3KXyjQq-lJVTpVo69Z0zK-7kolr3yYBlQjYOfpsr1aWRtPtulzmRcwY-Kze9Tx"/>
-<div class="absolute inset-0 bg-black/10"></div>
-<div class="absolute top-2 left-2 flex items-center gap-1 bg-black/30 backdrop-blur-md rounded px-1.5 py-0.5 text-[9px] text-white font-bold">
-<span class="material-symbols-outlined text-[10px]">card_giftcard</span>
-<span>3,282.76K</span>
-<span class="w-1.5 h-1.5 bg-primary-fixed rounded-full"></span>
-</div>
-<div class="absolute bottom-2 left-2 right-2 flex flex-col gap-0.5">
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-1">
-<div class="w-3 h-2 bg-blue-600 rounded-sm"></div>
-<p class="text-white text-[10px] font-bold truncate">Mr.Qasim😎✌️</p>
-</div>
-<div class="flex items-center text-white text-[10px] font-bold">
-<span class="material-symbols-outlined text-[10px]">signal_cellular_alt</span>
-<span>16</span>
+<span class="text-xs font-label font-bold text-center">Poker Pro</span>
 </div>
 </div>
+</section>
+<!-- Filter Tabs & Grid Toggle -->
+<section class="mb-6 sticky top-16 bg-background/80 backdrop-blur-md z-40 py-2">
+<div class="flex items-center justify-between border-b border-outline-variant/10">
+<div class="flex gap-8">
+<button class="pb-3 text-sm font-label font-bold text-on-surface-variant relative transition-colors">New</button>
+<button class="pb-3 text-sm font-label font-bold text-primary relative transition-colors">
+                        Popular
+                        <div class="absolute bottom-0 left-0 w-full h-0.5 bg-primary"></div>
+</button>
+<button class="pb-3 text-sm font-label font-bold text-on-surface-variant relative transition-colors">Follow</button>
 </div>
-</div>
-<!-- Card 3 -->
-<div class="relative bg-white shadow-sm aspect-square">
-<img class="w-full h-full object-cover" data-alt="Kamatesi room" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvoqLrZ5u0GjtLLCfu2YqkSWlWmk5M1AwDxwB0MeDZxvh1mOty9DeSDkucsjkZ76xnn2w4Ycx9mSeha8f6fyNE1ypnkBgGqD5MvT8nsZljkZKosHGtVW3OoRho6VOh_VAjHA0DjlGnhq_H4oCu2XTMp4xSZEQTLPlZrJoMdt-KA4gXE7fxvOkx4F6Hh4Y935TIgaD_wvVw8a4D7VlQo0nuatS1nLP9nSOfX_A5QGtOjIbid1HA0dqxTojz0yI9IdqS7DwtdxGSRIND"/>
-<div class="absolute inset-0 bg-black/10"></div>
-<div class="absolute top-2 left-2 flex items-center gap-1 bg-black/30 backdrop-blur-md rounded px-1.5 py-0.5 text-[9px] text-white font-bold">
-<span class="material-symbols-outlined text-[10px]">card_giftcard</span>
-<span>126.42K</span>
-<span class="w-1.5 h-1.5 bg-primary-fixed rounded-full"></span>
-</div>
-<div class="absolute bottom-2 left-2 right-2 flex flex-col gap-0.5">
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-1">
-<div class="w-3 h-2 bg-red-600 rounded-sm"></div>
-<p class="text-white text-[10px] font-bold truncate">Kamatesi_K°🤴</p>
-</div>
-<div class="flex items-center text-white text-[10px] font-bold">
-<span class="material-symbols-outlined text-[10px]">signal_cellular_alt</span>
-<span>8</span>
-</div>
-</div>
-</div>
-</div>
-<!-- Card 4 -->
-<div class="relative bg-white shadow-sm aspect-square">
-<img class="w-full h-full object-cover" data-alt="Sohag room" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxrONlUPSBpccW9CWiBPmP0_JvVjxnOB1I7RDXbXLszEDcCKsF3xaZ9jZeKx1UwbXOhANbfUf3BlOEHNtD5CB-xz_BILO8Cq08rN2Y25obhCfQBApGTggOmurmpfJU7C2lFDgOgtxpE_RaxyVaOwWweoO2lsucPaDSaqgh9cosCI4BFYjVFUBVA6oLgAxHbjQP8-pi93Z3ptaWVOuS572bpcamFIUGEQKUZNFHDIMpXNCKb-6zXJjDxpTPnRrGhlq6NB_sQg8a0IK0"/>
-<div class="absolute inset-0 bg-black/10"></div>
-<div class="absolute top-2 left-2 flex items-center gap-1 bg-black/30 backdrop-blur-md rounded px-1.5 py-0.5 text-[9px] text-white font-bold">
-<span class="material-symbols-outlined text-[10px]">card_giftcard</span>
-<span>5,897</span>
-<span class="w-1.5 h-1.5 bg-primary-fixed rounded-full"></span>
-</div>
-<div class="absolute bottom-2 left-2 right-2 flex flex-col gap-0.5">
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-1">
-<div class="w-3 h-2 bg-green-500 rounded-sm"></div>
-<p class="text-white text-[10px] font-bold truncate">Sohag🌺🌺</p>
-</div>
-<div class="flex items-center text-white text-[10px] font-bold">
-<span class="material-symbols-outlined text-[10px]">signal_cellular_alt</span>
-<span>6</span>
-</div>
-</div>
-</div>
-</div>
-</div>
-</main>
-<!-- Floating Action Button -->
-<div class="fixed bottom-24 left-1/2 -translate-x-1/2 z-[60]">
-<button class="flex items-center gap-2 px-8 py-3.5 bg-[#00d0e0] text-white rounded-full shadow-[0_8px_20px_rgba(0,208,224,0.4)] transition-transform active:scale-90 border-2 border-white/30 group">
-<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">add_home</span>
-<span class="font-headline font-bold text-lg tracking-tight">Let's party</span>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-all">
+<span class="material-symbols-outlined text-2xl" data-icon="apps">apps</span>
 </button>
 </div>
-<!-- BottomNavBar -->
-<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-end px-4 pb-4 pt-2 bg-white/95 backdrop-blur-xl border-t border-surface-container-high">
-<div class="flex flex-col items-center justify-center text-on-surface-variant p-2 opacity-60">
+</section>
+<!-- Room Grid -->
+<section class="grid grid-cols-2 gap-4">
+<!-- Room Item 1 -->
+<div class="bg-surface-container-lowest straight-corners overflow-hidden shadow-sm flex flex-col group">
+<div class="relative aspect-square">
+<img class="w-full h-full object-cover" data-alt="Young energetic man hosting a live social event with high-quality studio lighting and warm atmosphere" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjjL8h5iLUsnV_ODjF_s8rLeXESfyqLF0i6eLPvKWe5ePqhWUU_L6lMAPyNq2pP_TKFeF-9vWFcqeR5kp6jXPkfOcYYW-EAVYRs6aZQj6oSBg9tpeKONO02gHlTtXypSPp0XQK3yJt9iEaDS3XUlF6zlZNyThlP-Ojnjz7L_74C2miSHrlARsxlsN1GsZEIDJF38V8ZxVyldxj081cItRD7zgHj3a0ySxAybnWFchBBVLDhuQtUWyqmNiDVBSFVMDZpoG0YFvp-Dc3"/>
+<div class="absolute top-2 left-2 flex items-center gap-1.5 px-2 py-0.5 bg-black/40 backdrop-blur-md rounded-full">
+<div class="w-1.5 h-1.5 bg-primary-fixed rounded-full animate-pulse"></div>
+<span class="text-[10px] text-white font-bold">1.2k</span>
+</div>
+<div class="absolute bottom-2 left-2 right-2 flex justify-between items-center">
+<div class="flex items-center gap-1 bg-black/20 backdrop-blur-md px-2 py-0.5 rounded-full">
+<span class="text-[14px]">🇺🇸</span>
+</div>
+<div class="flex items-center gap-1 bg-primary/80 backdrop-blur-md px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-[12px] text-white" data-icon="equalizer">equalizer</span>
+</div>
+</div>
+</div>
+<div class="p-3">
+<h4 class="font-headline text-sm font-bold truncate text-on-surface">Alex Party Room</h4>
+<div class="flex items-center justify-between mt-2">
+<span class="text-[11px] text-on-surface-variant font-medium">@alex_vibe</span>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px] text-tertiary" data-icon="diamond" style="font-variation-settings: 'FILL' 1;">diamond</span>
+<span class="text-[11px] font-bold text-tertiary">42.5k</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Room Item 2 -->
+<div class="bg-surface-container-lowest straight-corners overflow-hidden shadow-sm flex flex-col group">
+<div class="relative aspect-square">
+<img class="w-full h-full object-cover" data-alt="Smiling young woman with headphones in a cozy gaming room setup with purple ambient lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKAbmTID1-93eBMOre79xH-8mPihn3a6inFjjFyipIf7aUjyJZnF5kqLxncOj7GKRnJ_Prq1gkgR7ImOQrU7B-8ENIvqwU8R9OuMWR6vsLdod1jZzqOt9WBXlEzKhgRVvB4dDgmh6yhwv_FmREQy6p8YwDijDIpdr-cQ3WtIY4BweakLOi0H850-dTRG9duYw_MOBii75dy_dHDSF_GJZlrCrQXkVa9z6WW-I8Jw5IdeOIDnxzaHG3ejmh4ZpHciKnoArsQ7AaA8Kh"/>
+<div class="absolute top-2 left-2 flex items-center gap-1.5 px-2 py-0.5 bg-black/40 backdrop-blur-md rounded-full">
+<div class="w-1.5 h-1.5 bg-primary-fixed rounded-full animate-pulse"></div>
+<span class="text-[10px] text-white font-bold">856</span>
+</div>
+<div class="absolute bottom-2 left-2 right-2 flex justify-between items-center">
+<div class="flex items-center gap-1 bg-black/20 backdrop-blur-md px-2 py-0.5 rounded-full">
+<span class="text-[14px]">🇨🇦</span>
+</div>
+<div class="flex items-center gap-1 bg-tertiary/80 backdrop-blur-md px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-[12px] text-white" data-icon="graphic_eq">graphic_eq</span>
+</div>
+</div>
+</div>
+<div class="p-3">
+<h4 class="font-headline text-sm font-bold truncate text-on-surface">Sarah's Lounge</h4>
+<div class="flex items-center justify-between mt-2">
+<span class="text-[11px] text-on-surface-variant font-medium">@sarah_games</span>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px] text-tertiary" data-icon="diamond" style="font-variation-settings: 'FILL' 1;">diamond</span>
+<span class="text-[11px] font-bold text-tertiary">12.8k</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Room Item 3 -->
+<div class="bg-surface-container-lowest straight-corners overflow-hidden shadow-sm flex flex-col group">
+<div class="relative aspect-square">
+<img class="w-full h-full object-cover" data-alt="Portrait of a young man with stylish sunglasses in a bright urban outdoor setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmQkTYiUklpwyC99rbO2H3mSQOOFbdRjL8CRLnAYqr6UVJXl2KRCZTRUgB8kZEcVN_x26b30lrg3t0sm7kb52FbB1ZmRGVffgDA8RZeVM9HaDIVbCWFFscbqjp1lW-HF91fxZd04Lp_f8onLPzQjJGusLsH7Wmt2Ph5AWyToqBgb2FzXABUYKE927_E-XqBFoBWwR6NU5LhF1H6z4QiiemjbxeGXw2zjVOCNk3UHc8cVK22P6AG9d3JXNxUapuFklzJ0HGVfhqVywC"/>
+<div class="absolute top-2 left-2 flex items-center gap-1.5 px-2 py-0.5 bg-black/40 backdrop-blur-md rounded-full">
+<div class="w-1.5 h-1.5 bg-primary-fixed rounded-full animate-pulse"></div>
+<span class="text-[10px] text-white font-bold">2.4k</span>
+</div>
+<div class="absolute bottom-2 left-2 right-2 flex justify-between items-center">
+<div class="flex items-center gap-1 bg-black/20 backdrop-blur-md px-2 py-0.5 rounded-full">
+<span class="text-[14px]">🇬🇧</span>
+</div>
+<div class="flex items-center gap-1 bg-primary/80 backdrop-blur-md px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-[12px] text-white" data-icon="music_note">music_note</span>
+</div>
+</div>
+</div>
+<div class="p-3">
+<h4 class="font-headline text-sm font-bold truncate text-on-surface">Late Night Beats</h4>
+<div class="flex items-center justify-between mt-2">
+<span class="text-[11px] text-on-surface-variant font-medium">@dj_mark</span>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px] text-tertiary" data-icon="diamond" style="font-variation-settings: 'FILL' 1;">diamond</span>
+<span class="text-[11px] font-bold text-tertiary">89.1k</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Room Item 4 -->
+<div class="bg-surface-container-lowest straight-corners overflow-hidden shadow-sm flex flex-col group">
+<div class="relative aspect-square">
+<img class="w-full h-full object-cover" data-alt="Young fashionable woman standing in a colorful street with neon lights at night" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAilPh9FN2Pf8NtG6ngDyK4vav_gDolVZWXa-HIjP7z9y_JBuCcqTIrVT2ZZSuG7GxHTS9O5Fn-i9-bzeTQv_mCRKhjjuQ80P7ic3PvAI0U-iuyUwEHfJ-u8RfhcjHTs_MJK7RWKdgabrHUN5l2oQE3HLb5I7A32TxdqaJj11av07ArqJUi8W9SVqTMVTJ73fF6tfgHMMrofz_HfujJaUYMILaHk2i8tKNpJjEZ7m6WEjlFgFb3eIQwmjT5fXZ9Cipcr7vPW6e-_A6p"/>
+<div class="absolute top-2 left-2 flex items-center gap-1.5 px-2 py-0.5 bg-black/40 backdrop-blur-md rounded-full">
+<div class="w-1.5 h-1.5 bg-primary-fixed rounded-full animate-pulse"></div>
+<span class="text-[10px] text-white font-bold">542</span>
+</div>
+<div class="absolute bottom-2 left-2 right-2 flex justify-between items-center">
+<div class="flex items-center gap-1 bg-black/20 backdrop-blur-md px-2 py-0.5 rounded-full">
+<span class="text-[14px]">🇦🇺</span>
+</div>
+<div class="flex items-center gap-1 bg-secondary/80 backdrop-blur-md px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-[12px] text-white" data-icon="celebration">celebration</span>
+</div>
+</div>
+</div>
+<div class="p-3">
+<h4 class="font-headline text-sm font-bold truncate text-on-surface">Club Azure 🎉</h4>
+<div class="flex items-center justify-between mt-2">
+<span class="text-[11px] text-on-surface-variant font-medium">@lily_rose</span>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px] text-tertiary" data-icon="diamond" style="font-variation-settings: 'FILL' 1;">diamond</span>
+<span class="text-[11px] font-bold text-tertiary">5.2k</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Floating Action Button -->
+<div class="fixed bottom-28 right-6 z-40">
+<button class="bg-gradient-to-r from-primary to-primary-fixed-dim text-white rounded-full px-6 py-4 flex items-center gap-3 shadow-xl shadow-primary/30 transition-all active:scale-95">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+<span class="font-label font-bold text-sm">Let's Party</span>
+</button>
+</div>
+<!-- BottomNavBar Execution -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-6 pb-6 pt-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl rounded-t-[2rem] shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+<button class="flex items-center justify-center text-slate-400 p-3 hover:text-cyan-400 transition-colors">
 <span class="material-symbols-outlined text-2xl" data-icon="videocam">videocam</span>
-</div>
-<div class="flex flex-col items-center justify-center text-primary-dim p-2">
-<span class="material-symbols-outlined text-3xl font-bold" data-icon="search">search</span>
-<div class="w-1 h-1 bg-primary-dim rounded-full mt-1"></div>
-</div>
-<div class="flex flex-col items-center justify-center text-on-surface-variant p-2 opacity-40">
-<span class="material-symbols-outlined text-2xl" data-icon="explore">explore</span>
-</div>
-<div class="relative flex flex-col items-center justify-center text-on-surface-variant p-2 opacity-40">
+</button>
+<!-- Active 'Party' Tab -->
+<button class="flex items-center justify-center bg-cyan-500 text-white rounded-full p-4 shadow-lg shadow-cyan-500/30 scale-110 duration-200 ease-out">
+<span class="material-symbols-outlined text-2xl" data-icon="groups">groups</span>
+</button>
+<button class="flex items-center justify-center text-slate-400 p-3 hover:text-cyan-400 transition-colors">
+<span class="material-symbols-outlined text-2xl" data-icon="auto_awesome">auto_awesome</span>
+</button>
+<button class="flex items-center justify-center text-slate-400 p-3 hover:text-cyan-400 transition-colors relative">
 <span class="material-symbols-outlined text-2xl" data-icon="chat_bubble">chat_bubble</span>
-<span class="absolute top-1 right-1 bg-error text-white text-[8px] font-bold px-1 rounded-full">99+</span>
-</div>
-<div class="flex flex-col items-center justify-center text-on-surface-variant p-2 opacity-40">
-<span class="material-symbols-outlined text-2xl" data-icon="person">face</span>
-</div>
+<span class="absolute top-1 right-1 bg-tertiary text-white text-[8px] font-bold px-1 rounded-full min-w-[16px] h-[16px] flex items-center justify-center">99+</span>
+</button>
+<button class="flex items-center justify-center text-slate-400 p-3 hover:text-cyan-400 transition-colors">
+<span class="material-symbols-outlined text-2xl" data-icon="person">person</span>
+</button>
 </nav>
 
 <script type="module">
