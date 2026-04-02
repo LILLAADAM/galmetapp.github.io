@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Room</title>
+</head>
+
+<body style="margin:0; background:black; color:white; font-family:sans-serif;">
+
+<!-- HEADER -->
+<div style="display:flex; justify-content:space-between; padding:15px;">
+  <h3>Party Room</h3>
+  <button onclick="leaveRoom()">Leave</button>
+</div>
+
+<!-- ROOM INFO -->
+<div style="text-align:center; margin-top:50px;">
+  <h2 id="roomId"></h2>
+  <p id="role"></p>
+</div>
+
+<!-- ACTION BUTTONS -->
+<div style="position:fixed; bottom:20px; width:100%; text-align:center;">
+  <button onclick="toggleMic()">🎤 Mic</button>
+  <button onclick="sendGift()">🎁 Gift</button>
+</div>
+
+<script>
+
+const params = new URLSearchParams(location.search);
+const roomId = params.get("id");
+const isHost = params.get("host");
+
+document.getElementById("roomId").innerText = "Room: " + roomId;
+document.getElementById("role").innerText = isHost ? "Host" : "Guest";
+
+// LEAVE
+function leaveRoom(){
+  window.location.href = "party.html";
+}
+
+// MIC
+function toggleMic(){
+  alert("Mic feature next step");
+}
+
+// GIFT
+function sendGift(){
+  alert("Gift system next step");
+}
+
+</script>
+
+</body>
+</html>
