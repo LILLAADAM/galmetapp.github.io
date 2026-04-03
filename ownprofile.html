@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Profile</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+body { font-family: 'Plus Jakarta Sans', sans-serif; background:#f3f7fb; }
+</style>
+</head>
+
+<body class="pb-24">
+
+<!-- HEADER -->
+<header class="text-center py-4 font-bold text-cyan-600 text-lg">
+  My Profile
+</header>
+
+<!-- PROFILE -->
+<div class="flex items-center gap-4 px-5 py-4 cursor-pointer" onclick="goProfile()">
+
+  <img id="photo" class="w-20 h-20 rounded-full object-cover border">
+
+  <div class="flex-1">
+    <h2 id="name" class="font-bold text-xl"></h2>
+    <p id="uidText" class="text-sm text-gray-500"></p>
+  </div>
+
+  ➜
+</div>
+
+<!-- STATS -->
+<div class="flex justify-around bg-white p-4 mx-4 rounded-xl shadow">
+
+  <div class="text-center">
+    <b id="friends">0</b>
+    <p class="text-xs">Friends</p>
+  </div>
+
+  <div class="text-center">
+    <b id="following">0</b>
+    <p class="text-xs">Following</p>
+  </div>
+
+  <div class="text-center">
+    <b id="followers">0</b>
+    <p class="text-xs">Followers</p>
+  </div>
+
+</div>
+
+<!-- COINS -->
+<div class="bg-white mx-4 mt-4 p-4 rounded-xl shadow flex justify-between">
+  <span>My Coins</span>
+  <b id="coins">0</b>
+</div>
+
+<!-- SETTINGS -->
+<div class="bg-white mx-4 mt-4 rounded-xl shadow">
+
+  <button onclick="goSettings()" class="w-full text-left p-4 border-b">
+    Settings ➜
+  </button>
+
+</div>
+
+<!-- NAVBAR -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around bg-white p-3 shadow">
+
+  <button onclick="goDashboard()">🏠</button>
+  <button onclick="goParty()">🎉</button>
+  <button>➕</button>
+  <button onclick="goChats()">💬</button>
+  <button class="text-cyan-600 font-bold">👤</button>
+
+</nav>
+
+<!-- SCRIPT -->
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import {
+  getFirestore, doc, getDoc,
+  collection, onSnapshot
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+/* FIREBASE */
+const app = initializeApp({
+  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+  authDomain: "galmet-app.firebaseapp.com",
+  projectId: "galmet-app"
+});
+
+const db = getFirestore(app);
+
+/* USER */
+const me = JSON.parse(localStorage.getItem("user"));
+
+if (!me?.uid) {
+  location.href = "index.html";
+}
+
+const myUid = me.uid;
+
+/* LOAD USER */
+async function loadUser(){
+
+  const snap = await getDoc(doc(db,"users",myUid));
+
+  if(!snap.exists()) return;
+
+  const u = snap.data();
+
+  document.getElementById("name").innerText = u.username || "User";
+
+  document.getElementById("uidText").innerText =
+    "ID: " + (u.userId || "");
+
+  document.getElementById("photo").src =
+    u.photoURL || "https://ui-avatars.com/api/?name=User";
+
+  document.getElementById("coins").innerText =
+    u.coins || 0;
+}
+
+/* REALTIME COUNTS */
+onSnapshot(collection(db,"followers",myUid,"list"), s=>{
+  document.getElementById("followers").innerText = s.size;
+});
+
+onSnapshot(collection(db,"following",myUid,"list"), s=>{
+  document.getElementById("following").innerText = s.size;
+});
+
+onSnapshot(collection(db,"friends",myUid,"list"), s=>{
+  document.getElementById("friends").innerText = s.size;
+});
+
+/* NAVIGATION */
+window.goProfile = () => {
+  location.href = "profile.html";
+};
+
+window.goSettings = () => {
+  location.href = "settings.html";
+};
+
+window.goChats = () => {
+  location.href = "chats.html";
+};
+
+window.goDashboard = () => {
+  location.href = "dashboard.html";
+};
+
+window.goParty = () => {
+  location.href = "party.html";
+};
+
+/* START */
+loadUser();
+
+</script>
+
+</body>
+</html>
