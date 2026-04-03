@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Registration Step 2 - Galmet</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Be+Vietnam+Pro:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface": "#f3f7fb",
+              "secondary-dim": "#664b00",
+              "tertiary-container": "#ff8fa9",
+              "tertiary-fixed": "#ff8fa9",
+              "surface-container-highest": "#d7dee3",
+              "primary-fixed-dim": "#00d4ec",
+              "on-background": "#2a2f32",
+              "on-primary-fixed-variant": "#005762",
+              "on-primary-container": "#004d57",
+              "on-error-container": "#570008",
+              "surface-bright": "#f3f7fb",
+              "on-error": "#ffefee",
+              "surface-variant": "#d7dee3",
+              "outline-variant": "#a9aeb1",
+              "on-secondary-fixed-variant": "#674c00",
+              "surface-tint": "#006571",
+              "outline": "#73777b",
+              "on-surface-variant": "#575c60",
+              "on-surface": "#2a2f32",
+              "primary": "#006571",
+              "background": "#f3f7fb",
+              "on-secondary": "#fff1db",
+              "secondary-fixed-dim": "#f7ba00",
+              "primary-container": "#00e3fd",
+              "primary-fixed": "#00e3fd",
+              "on-secondary-container": "#5c4400",
+              "secondary-fixed": "#ffca4d",
+              "primary-dim": "#005863",
+              "error-dim": "#9f0519",
+              "secondary": "#755700",
+              "on-tertiary": "#ffeff0",
+              "surface-container-high": "#dde3e8",
+              "inverse-on-surface": "#999da1",
+              "inverse-primary": "#00e3fd",
+              "tertiary-dim": "#a00047",
+              "surface-container-low": "#ecf1f6",
+              "on-primary-fixed": "#003840",
+              "surface-dim": "#ced5db",
+              "secondary-container": "#ffca4d",
+              "on-tertiary-container": "#66002b",
+              "tertiary": "#b60051",
+              "on-secondary-fixed": "#443100",
+              "surface-container": "#e3e9ee",
+              "on-primary": "#d8f8ff",
+              "error-container": "#fb5151",
+              "error": "#b31b25",
+              "inverse-surface": "#0a0f12",
+              "tertiary-fixed-dim": "#ff769b",
+              "surface-container-lowest": "#ffffff",
+              "on-tertiary-fixed": "#380014",
+              "on-tertiary-fixed-variant": "#770033"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Be Vietnam Pro"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .wheel-mask {
+        mask-image: linear-gradient(to bottom, transparent, black 40%, black 60%, transparent);
+        -webkit-mask-image: linear-gradient(to bottom, transparent, black 40%, black 60%, transparent);
+      }
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
+</style></head>
+<body class="bg-surface font-body text-on-surface min-h-screen flex flex-col items-center justify-center p-6">
+<!-- Top Navigation Suppression: Since this is a transactional registration flow, we prioritize focus over global nav. -->
+<main class="w-full max-w-md flex flex-col gap-8">
+<!-- Header & Progress -->
+<header class="flex flex-col items-center gap-4 text-center">
+<div class="w-20 h-20 rounded-lg bg-gradient-to-br from-primary-container to-primary flex items-center justify-center mb-2">
+<span class="material-symbols-outlined text-on-primary-container text-4xl" style="font-variation-settings: 'FILL' 1;">face</span>
+</div>
+<div class="flex flex-col gap-1">
+<h1 class="font-headline text-3xl font-extrabold tracking-tight text-on-surface">Tell us more</h1>
+<p class="text-on-surface-variant font-medium">Step 2 of 3</p>
+</div>
+<!-- Progress Indicator -->
+<div class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden flex">
+<div class="h-full bg-primary-container w-[66%] rounded-full shadow-[0_0_12px_rgba(0,227,253,0.4)]"></div>
+</div>
+</header>
+<!-- Form Card -->
+<section class="bg-surface-container-lowest rounded-xl p-8 flex flex-col gap-10 shadow-sm">
+<!-- Nickname Input -->
+<div class="flex flex-col gap-3">
+<label class="font-headline font-bold text-sm text-on-surface-variant px-1 uppercase tracking-widest" for="nickname">Nickname</label>
+<div class="relative group">
+<input class="w-full h-14 bg-surface-container-low border-none rounded-lg px-6 font-body text-on-surface placeholder:text-outline-variant focus:ring-2 focus:ring-primary-container transition-all" id="nickname" placeholder="What should we call you?" type="text"/>
+<div class="absolute right-4 top-1/2 -translate-y-1/2 text-outline-variant group-focus-within:text-primary transition-colors">
+<span class="material-symbols-outlined">edit</span>
+</div>
+</div>
+</div>
+<!-- Scrolling Wheel Date Selector -->
+<div class="flex flex-col gap-3">
+<label class="font-headline font-bold text-sm text-on-surface-variant px-1 uppercase tracking-widest">Date of Birth</label>
+<div class="bg-surface-container-low rounded-lg p-4 relative overflow-hidden flex gap-2">
+<!-- Picker Highlight Bar -->
+<div class="absolute top-1/2 -translate-y-1/2 left-4 right-4 h-10 border-y border-outline-variant/15 pointer-events-none"></div>
+<!-- Day Wheel -->
+<div class="flex-1 h-32 overflow-y-auto no-scrollbar wheel-mask snap-y snap-mandatory text-center">
+<div class="h-10"></div> <!-- Padding -->
+<div class="h-10 flex items-center justify-center snap-center text-outline-variant font-medium">21</div>
+<div class="h-10 flex items-center justify-center snap-center text-outline-variant font-medium">22</div>
+<div class="h-10 flex items-center justify-center snap-center text-on-surface font-bold text-lg">23</div>
+<div class="h-10 flex items-center justify-center snap-center text-outline-variant font-medium">24</div>
+<div class="h-10 flex items-center justify-center snap-center text-outline-variant font-medium">25</div>
+<div class="h-10"></div> <!-- Padding -->
+</div>
+<!-- Month Wheel -->
+<div class="flex-[2] h-32 overflow-y-auto no-scrollbar wheel-mask snap-y snap-mandatory text-center">
+<div class="h-10"></div>
+<div class="h-10 flex items-center justify-center snap-center text-outline-variant font-medium">August</div>
+<div class="h-10 flex items-center justify-center snap-center text-outline-variant font-medium">September</div>
+<div class="h-10 flex items-center justify-center snap-center text-on-surface font-bold text-lg">October</div>
+<div class="h-10 flex items-center justify-center snap-center text-outline-variant font-medium">November</div>
+<div class="h-10 flex items-center justify-center snap-center text-outline-variant font-medium">December</div>
+<div class="h-10"></div>
+</div>
+<!-- Year Wheel -->
+<div class="flex-1 h-32 overflow-y-auto no-scrollbar wheel-mask snap-y snap-mandatory text-center">
+<div class="h-10"></div>
+<div class="h-10 flex items-center justify-center snap-center text-outline-variant font-medium">1997</div>
+<div class="h-10 flex items-center justify-center snap-center text-outline-variant font-medium">1998</div>
+<div class="h-10 flex items-center justify-center snap-center text-on-surface font-bold text-lg">1999</div>
+<div class="h-10 flex items-center justify-center snap-center text-outline-variant font-medium">2000</div>
+<div class="h-10 flex items-center justify-center snap-center text-outline-variant font-medium">2001</div>
+<div class="h-10"></div>
+</div>
+</div>
+</div>
+<!-- CTA Section -->
+<div class="flex flex-col gap-4 mt-2">
+<button onclick="saveStep2()" class="w-full h-16 bg-gradient-to-r from-primary to-primary-fixed-dim text-on-primary-container font-headline font-extrabold text-lg rounded-full flex items-center justify-center gap-3 shadow-[0_12px_24px_-8px_rgba(0,101,113,0.3)] hover:scale-[1.02] active:scale-95 transition-all">                   
+  Next
+                    <span class="material-symbols-outlined text-2xl">arrow_forward_ios</span>
+</button>
+<button class="w-full py-2 text-outline font-headline font-bold text-sm tracking-widest uppercase hover:text-on-surface transition-colors">
+                    Back
+                </button>
+</div>
+</section>
+<!-- Decorative Info -->
+<div class="flex items-center gap-4 p-4 rounded-lg bg-surface-container-low/50">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined text-xl">verified_user</span>
+</div>
+<p class="text-xs text-on-surface-variant font-medium leading-relaxed">
+                Your nickname will be visible to everyone on <span class="font-bold text-primary">Galmet</span>. You can change this later in settings.
+            </p>
+</div>
+</main>
+<!-- Visual Polish: Background Elements -->
+<div class="fixed top-[-10%] right-[-10%] w-[50%] h-[50%] bg-primary-container/10 blur-[120px] rounded-full -z-10"></div>
+<div class="fixed bottom-[-5%] left-[-5%] w-[40%] h-[40%] bg-tertiary-container/10 blur-[100px] rounded-full -z-10"></div>
+<!-- Loading Transition Overlay -->
+<div class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-surface/80 backdrop-blur-md hidden" id="loading-overlay">
+<div class="flex flex-col items-center gap-6">
+<!-- Animated Branded Spinner -->
+<div class="relative flex items-center justify-center">
+<div class="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+<div class="absolute">
+<span class="material-symbols-outlined text-primary text-2xl font-bold" style="font-variation-settings: 'FILL' 1;">face</span>
+</div>
+</div>
+<div class="flex flex-col items-center gap-2 text-center">
+<h3 class="font-headline text-xl font-bold text-on-surface">Saving your details...</h3>
+<p class="text-on-surface-variant text-sm font-medium">Taking you to the next step</p>
+</div>
+</div>
+</div></body></html>
+
+<script>
+const BASE_URL = "https://us-central1-galmet-app.cloudfunctions.net";
+
+function saveStep2() {
+
+  const nickname = document.getElementById("nickname").value;
+
+  if (!nickname || nickname.length < 3) {
+    alert("Enter valid nickname");
+    return;
+  }
+
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  if (!user) {
+    alert("User not found");
+    return;
+  }
+
+  fetch(BASE_URL + "/updateUserStep2", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      email: user.email,
+      username: nickname,
+      age: 18   // simple for now (later we upgrade DOB)
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+
+    if (data.success) {
+
+      user.username = nickname;
+      localStorage.setItem("user", JSON.stringify(user));
+
+      window.location.href = "setup.html";
+
+    } else {
+      alert("Failed");
+    }
+
+  })
+  .catch(() => alert("Error"));
+}
+</script>
