@@ -67,9 +67,9 @@ window.sendOtp = async () => {
   }
 
   await sendSignInLinkToEmail(auth, email, {
-    url: window.location.href, // SAME PAGE
-    handleCodeInApp: true,
-  });
+  url: "https://lillaadam.github.io/galmetapp.github.io/otp.html",
+  handleCodeInApp: true,
+});
 
   localStorage.setItem("emailForSignIn", email);
 
