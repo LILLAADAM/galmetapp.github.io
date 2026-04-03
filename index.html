@@ -1,736 +1,239 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
-    <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)">
-    <title>Galmet · Secure Access</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
 
-        :root {
-            --bg-gradient-start: #f8fafc;
-            --bg-gradient-end: #eef2ff;
-            --card-bg: rgba(255, 255, 255, 0.98);
-            --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
-            --text-primary: #0f172a;
-            --text-secondary: #334155;
-            --input-bg: #ffffff;
-            --input-border: #e2e8f0;
-            --input-focus-ring: rgba(79, 70, 229, 0.25);
-            --input-text: #0f172a;
-            --placeholder-color: #94a3b8;
-            --error-bg: #fee2e2;
-            --error-text: #b91c1c;
-            --btn-login-bg: #10b981;
-            --btn-login-hover: #059669;
-            --btn-register-bg: #f59e0b;
-            --btn-register-hover: #d97706;
-            --btn-text: white;
-            --separator-color: #e2e8f0;
-            --link-color: #3b82f6;
-            --icon-btn-bg: #f1f5f9;
-            --icon-btn-hover: #e2e8f0;
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Galmet - Login</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;family=Be+Vietnam+Pro:ital,wght@0,100..900;1,100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface": "#f3f7fb",
+              "secondary-dim": "#664b00",
+              "tertiary-container": "#ff8fa9",
+              "tertiary-fixed": "#ff8fa9",
+              "surface-container-highest": "#d7dee3",
+              "primary-fixed-dim": "#00d4ec",
+              "on-background": "#2a2f32",
+              "on-primary-fixed-variant": "#005762",
+              "on-primary-container": "#004d57",
+              "on-error-container": "#570008",
+              "surface-bright": "#f3f7fb",
+              "on-error": "#ffefee",
+              "surface-variant": "#d7dee3",
+              "outline-variant": "#a9aeb1",
+              "on-secondary-fixed-variant": "#674c00",
+              "surface-tint": "#006571",
+              "outline": "#73777b",
+              "on-surface-variant": "#575c60",
+              "on-surface": "#2a2f32",
+              "primary": "#006571",
+              "background": "#f3f7fb",
+              "on-secondary": "#fff1db",
+              "secondary-fixed-dim": "#f7ba00",
+              "primary-container": "#00e3fd",
+              "primary-fixed": "#00e3fd",
+              "on-secondary-container": "#5c4400",
+              "secondary-fixed": "#ffca4d",
+              "primary-dim": "#005863",
+              "error-dim": "#9f0519",
+              "secondary": "#755700",
+              "on-tertiary": "#ffeff0",
+              "surface-container-high": "#dde3e8",
+              "inverse-on-surface": "#999da1",
+              "inverse-primary": "#00e3fd",
+              "tertiary-dim": "#a00047",
+              "surface-container-low": "#ecf1f6",
+              "on-primary-fixed": "#003840",
+              "surface-dim": "#ced5db",
+              "secondary-container": "#ffca4d",
+              "on-tertiary-container": "#66002b",
+              "tertiary": "#b60051",
+              "on-secondary-fixed": "#443100",
+              "surface-container": "#e3e9ee",
+              "on-primary": "#d8f8ff",
+              "error-container": "#fb5151",
+              "error": "#b31b25",
+              "inverse-surface": "#0a0f12",
+              "tertiary-fixed-dim": "#ff769b",
+              "surface-container-lowest": "#ffffff",
+              "on-tertiary-fixed": "#380014",
+              "on-tertiary-fixed-variant": "#770033"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Be Vietnam Pro"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
         }
-
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg-gradient-start: #0b1120;
-                --bg-gradient-end: #111827;
-                --card-bg: rgba(18, 25, 45, 0.94);
-                --card-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.4), 0 1px 1px rgba(255, 255, 255, 0.03);
-                --text-primary: #f1f5f9;
-                --text-secondary: #cbd5e1;
-                --input-bg: #1e293b;
-                --input-border: #334155;
-                --input-focus-ring: rgba(99, 102, 241, 0.5);
-                --input-text: #f8fafc;
-                --placeholder-color: #64748b;
-                --error-bg: rgba(153, 27, 27, 0.2);
-                --error-text: #f87171;
-                --btn-login-bg: #10b981;
-                --btn-login-hover: #34d399;
-                --btn-register-bg: #f59e0b;
-                --btn-register-hover: #fbbf24;
-                --btn-text: #ffffff;
-                --separator-color: #334155;
-                --link-color: #60a5fa;
-                --icon-btn-bg: #334155;
-                --icon-btn-hover: #475569;
-            }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
-
-        body {
-            background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
-            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
-            transition: background 0.2s ease;
-        }
-
-        .auth-card {
-            max-width: 440px;
-            width: 100%;
-            background: var(--card-bg);
-            backdrop-filter: blur(0px);
-            border-radius: 2rem;
-            box-shadow: var(--card-shadow);
-            padding: 2rem 1.75rem;
-            transition: background 0.2s ease, box-shadow 0.2s ease;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .brand {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        .brand h1 {
-            font-size: 2.25rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            background: linear-gradient(135deg, var(--text-primary), #3b82f6);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
-        .brand p {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-top: 0.4rem;
-            font-weight: 450;
-        }
-
-        .input-group {
-            margin-bottom: 1.25rem;
-        }
-        .password-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-        .password-wrapper input {
-            padding-right: 3rem;
-        }
-        .toggle-password {
-            position: absolute;
-            right: 1rem;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            font-size: 1.2rem;
-            color: var(--text-secondary);
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: color 0.2s;
-        }
-        .toggle-password:hover {
-            color: var(--link-color);
-        }
-        input {
-            width: 100%;
-            padding: 0.9rem 1rem;
-            background: var(--input-bg);
-            border: 1.5px solid var(--input-border);
-            border-radius: 1.25rem;
-            font-size: 1rem;
-            font-weight: 500;
-            color: var(--input-text);
-            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            outline: none;
-            font-family: inherit;
-        }
-        input:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px var(--input-focus-ring);
-        }
-        input::placeholder {
-            color: var(--placeholder-color);
-            font-weight: 450;
-        }
-
-        .action-btn {
-            width: 100%;
-            padding: 0.9rem 1rem;
-            border: none;
-            border-radius: 1.5rem;
-            font-size: 1rem;
-            font-weight: 600;
-            font-family: inherit;
-            cursor: pointer;
-            transition: transform 0.15s ease, background 0.2s ease, box-shadow 0.2s;
-            margin-top: 0.5rem;
-            color: var(--btn-text);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-        .login-btn {
-            background: var(--btn-login-bg);
-            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
-        }
-        .login-btn:hover:not(:disabled) {
-            background: var(--btn-login-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(16, 185, 129, 0.25);
-        }
-        .register-btn {
-            background: var(--btn-register-bg);
-            box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
-        }
-        .register-btn:hover:not(:disabled) {
-            background: var(--btn-register-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(245, 158, 11, 0.25);
-        }
-        .action-btn:active {
-            transform: translateY(1px);
-        }
-        .action-btn:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .error-message {
-            background: var(--error-bg);
-            color: var(--error-text);
-            padding: 0.75rem 1rem;
-            border-radius: 1.25rem;
-            font-size: 0.8rem;
-            font-weight: 500;
-            margin-top: 1rem;
-            text-align: center;
-            word-break: break-word;
-            transition: all 0.2s;
-        }
-        .error-message:empty {
-            display: none;
-        }
-
-        .optional-badge {
-            display: inline-block;
-            font-size: 0.7rem;
-            font-weight: 500;
-            color: var(--text-secondary);
-            background: rgba(100, 116, 139, 0.15);
-            padding: 0.2rem 0.6rem;
-            border-radius: 20px;
-            margin-left: 0.5rem;
-        }
-        .input-label {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-        }
-        .row-flex {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            font-size: 0.85rem;
-        }
-        .checkbox-label {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-            color: var(--text-secondary);
-        }
-        .checkbox-label input {
-            width: 1rem;
-            height: 1rem;
-            margin: 0;
-            accent-color: var(--link-color);
-        }
-        .forgot-link {
-            color: var(--link-color);
-            text-decoration: none;
-            font-weight: 500;
-            transition: opacity 0.2s;
-        }
-        .forgot-link:hover {
-            text-decoration: underline;
-            opacity: 0.8;
-        }
-        .footer-note {
-            text-align: center;
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-            margin-top: 1.5rem;
-            border-top: 1px solid var(--separator-color);
-            padding-top: 1.2rem;
-        }
-        .spinner {
-            display: inline-block;
-            width: 1rem;
-            height: 1rem;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 0.6s linear infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        @media (max-width: 480px) {
-            .auth-card {
-                padding: 1.5rem 1.25rem;
-                border-radius: 1.75rem;
-            }
-            input, .action-btn {
-                padding: 0.8rem 1rem;
-                font-size: 0.95rem;
-            }
-            .brand h1 {
-                font-size: 1.9rem;
-            }
+        .active-scale:active {
+            transform: scale(0.96);
+            transition: transform 0.2s ease;
         }
     </style>
-</head>
-<body>
-
-<div class="auth-card">
-    <div class="brand">
-        <h1>Galmet</h1>
-        <p>Your Gaming Platform • secure & seamless</p>
-    </div>
-
-    <div class="input-group">
-        <div class="input-label">Email address</div>
-        <input type="email" id="email" placeholder="hello@galmet.com" autocomplete="email">
-    </div>
-
-    <div class="input-group">
-        <div class="input-label">Password</div>
-        <div class="password-wrapper">
-            <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
-            <button type="button" class="toggle-password" id="togglePassword" aria-label="Show password">👁️</button>
-        </div>
-    </div>
-
-    <div class="input-group">
-        <div class="input-label">
-            <span>Referral code</span>
-            <span class="optional-badge">Optional</span>
-        </div>
-        <input type="text" id="referral" placeholder="Enter invite code (if any)" autocomplete="off">
-    </div>
-
-    <div class="row-flex">
-        <label class="checkbox-label">
-            <input type="checkbox" id="rememberMe"> Remember me
-        </label>
-        <a href="#" id="forgotPassword" class="forgot-link">Forgot password?</a>
-    </div>
-
-    <button class="action-btn login-btn" id="loginBtn">
-        <span>Sign in</span>
-    </button>
-    <button class="action-btn register-btn" id="registerBtn">
-        <span>Create account</span>
-    </button>
-
-    <div id="error" class="error-message"></div>
-    <div class="footer-note">
-        🔐 Secure authentication • 500 welcome coins
-    
-    <div style="margin-top:8px;">
-        <a href="terms.html" target="_blank" style="color:#3b82f6; font-size:0.75rem;">
-            View Terms & Conditions
-        </a>
-    </div>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface overflow-hidden">
+<!-- Background Montage (The 5 Models Cycle Aesthetic) -->
+<div class="fixed inset-0 grid grid-cols-2 md:grid-cols-5 gap-0 z-0">
+<div class="relative h-full overflow-hidden">
+<img class="absolute inset-0 w-full h-full object-cover grayscale-[20%] brightness-75" data-alt="portrait of a confident young woman with warm natural lighting and soft blurred urban background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWMpBNiNO28iFyH6Lr-LQ871gUJlDBbx7iPjBC2AlgkW0vzCSpGUmaKQKXubPszmaB4zpTM41bj-BZCRJjnXJ0765Y1ipbTJNBS3LO_M7fAERJhodGZhHaKFDahbBAKNB9FX5QUHttk2Qkub9Xve8US6oBjqZywTusfeKwjFlqxoNgNXtQ-X4vYx93fXAowMOIZhTFUcKGPwdICvuGxg_DhrbuWdHPOZMrfN5wUKgEvlSqezJMMocHSx5JV-NalrHSWRk0U-ON7jvE"/>
 </div>
-    
+<div class="relative h-full overflow-hidden hidden md:block">
+<img class="absolute inset-0 w-full h-full object-cover grayscale-[20%] brightness-90" data-alt="close up of a stylish young man with a friendly expression in a sun-drenched outdoor park setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCRF5oZo5_nr9nurUk1djAWhH-ZUxwRonaOr80h2AKtCO4U9cWFXFH93LELw_8dPOiuTQAdspnbXp-BOGFJm5hOI-x3WmfI8N2itnIP9C_64f_rq-_14HyZ9RRRSqrh5BhFn8N6TpN7jWQkv9xWYVLYusv29hgTeN7WLZWX8rpcxJS7hb1zPX-CvV5tl7hfnToxH6r_6A9rCFITWFu3endTLbzb3ZM-Xeie--ec8g-6dCIN3ZjjXI7dHv6sj59kXAdLUTEusRNnYo_0"/>
+</div>
+<div class="relative h-full overflow-hidden">
+<img class="absolute inset-0 w-full h-full object-cover grayscale-[20%] brightness-75" data-alt="joyful young woman with bright smile and glowing skin illuminated by golden hour sunlight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB38lkOgJssufUKjfcu16PubIjc13NDTRAh-91mkwOBTlB0_4cZrUJfL7VYMyepzeBs5AvmHS00zoXhvdIpzU5XwmChNw1jbptE7yo3CtBLDPcgrTJG_UZnSpZiOqRwNpJRxs8A0ieU1b2tQ_Jo6jZPnR2B5wuj2L8DDoGll0HUh3Pj3UvFF8Vf4CIlNsxP35H57axY4sT7BUGne7CzIjOKWGwOFih3aZkYoyEDM4wzvzTPHKsMv0_NgFyrA1dXfEEk5Pz3F1s0ORum"/>
+</div>
+<div class="relative h-full overflow-hidden hidden md:block">
+<img class="absolute inset-0 w-full h-full object-cover grayscale-[20%] brightness-90" data-alt="professional portrait of a man with clean aesthetic and soft natural lighting in a modern interior" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4NW7dGaBb93Fg3BKqE6oSwNr04X-7fnbg4J-di5Xl3KXON4heV66yF-NxTViX_je8rLWY6x1LNiwy-1GAutHavToq0fLbj_PjWpV56JP4TeU6bsBp8NBH-8R4xB_70SYouUlnAqNdP8GkYFpKTkVEkhV1yrpNRnugV6ywE1UQXm7GTJcENl3Io-dC-wRcNnALVHAIg_yRyXIDph7qw1PInkxcGYE2Dj-vx3XOXcJtssOiaCZ_pi832HJ9SaDayxR_YBSiJqf3Lid0"/>
+</div>
+<div class="relative h-full overflow-hidden hidden md:block">
+<img class="absolute inset-0 w-full h-full object-cover grayscale-[20%] brightness-75" data-alt="vibrant fashion portrait of a young person with soft shadows and editorial style lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-1dhcSIaaSbsQrMhgVo2xnTxR17oPAvRgU2vIA7eEo__sJm4ZeRagMrVD7H58KQNMYRp1BCz6CDUtEUN068k5-0eRCmuXb5u7chcuN5sbC3EQkJtR9f5SHWl03zhLT0wRUV93Qw2IketdQKAz9g-3r_iYROPftiJOXA-8YyMBT7ee7R8UBUwW49L0SIBDM0bEnm9uOqx3Ji8ltJbArRdp0TlYgnkO8k8erQvs_3e8hIjoGnYksK2n3g_jssuhaTTlq9oecyyWo28U"/>
+</div>
+<!-- Gradient Overlay for Legibility -->
+<div class="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent z-10"></div>
+</div>
+<!-- Top Action Bar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-end items-center px-6 h-16 pointer-events-none">
+<button class="pointer-events-auto w-10 h-10 flex items-center justify-center rounded-full glass-panel active-scale text-primary">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+</header>
+<!-- Main Content Container -->
+<main class="relative z-20 min-h-screen flex flex-col items-center justify-end md:justify-center px-6 pb-12 pt-20">
+<div class="w-full max-w-md text-center space-y-10">
+<!-- Branding Section -->
+<div class="space-y-2">
+<h1 class="text-6xl md:text-7xl font-headline font-black tracking-tighter bg-gradient-to-r from-primary to-primary-container bg-clip-text text-transparent">
+                    Galmet
+                </h1>
+<p class="font-headline font-bold text-lg tracking-[0.2em] text-on-surface uppercase opacity-80">
+                    Talk · Chat · Fun
+                </p>
+</div>
+<!-- Login Actions Card -->
+<div class="glass-panel rounded-xl p-8 space-y-6 shadow-2xl border border-white/20">
+<!-- Quick Login (Primary) -->
+<button class="active-scale w-full py-4 px-6 rounded-full bg-gradient-to-r from-primary to-primary-fixed-dim text-on-primary font-label font-bold text-lg flex items-center justify-center gap-3 shadow-[0_16px_24px_rgba(0,101,113,0.15)]">
+<span class="material-symbols-outlined" data-icon="bolt" style="font-variation-settings: 'FILL' 1;">bolt</span>
+                    Quick Login
+                </button>
+<!-- Divider Alternative (Visual Shift) -->
+<div class="flex items-center gap-4 py-2">
+<div class="h-px flex-1 bg-outline-variant/30"></div>
+<span class="text-label text-on-surface-variant text-xs uppercase tracking-widest font-bold">or continue with</span>
+<div class="h-px flex-1 bg-outline-variant/30"></div>
+</div>
+<!-- Secondary Logins -->
+<div class="space-y-4">
+<button class="active-scale w-full py-4 px-6 rounded-full bg-surface-container-lowest text-on-surface-variant font-label font-semibold flex items-center justify-center gap-3 transition-colors hover:bg-white shadow-sm">
+<!-- Custom Google Icon using Material Symbols -->
+<span class="material-symbols-outlined text-red-500" data-icon="google">google</span>
+                        Log in with Google
+                    </button>
+<button class="active-scale w-full py-4 px-6 rounded-full bg-surface-container-lowest text-on-surface-variant font-label font-semibold flex items-center justify-center gap-3 transition-colors hover:bg-white shadow-sm">
+<span class="material-symbols-outlined text-primary" data-icon="mail" style="font-variation-settings: 'FILL' 1;">mail</span>
+                        Log in with Email
+                    </button>
+</div>
+<!-- Terms and Conditions -->
+<div class="pt-4 flex items-start gap-3 text-left">
+<div class="relative flex items-center">
+<input checked="" class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary-container bg-white/50 cursor-pointer" id="terms" type="checkbox"/>
+</div>
+<label class="text-body-md text-on-surface-variant/80 text-sm leading-tight cursor-pointer" for="terms">
+                        I agree to <a class="text-primary font-semibold hover:underline" href="#">Privacy Policy</a> and <a class="text-primary font-semibold hover:underline" href="#">User Agreement</a>
+</label>
+</div>
+</div>
+<!-- Bottom Floating Decoration (Subtle) -->
+<div class="hidden md:flex justify-center gap-8 text-on-surface/40">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="security">security</span>
+<span class="text-xs font-label font-bold uppercase tracking-widest">Secure Chat</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="verified_user">verified_user</span>
+<span class="text-xs font-label font-bold uppercase tracking-widest">Verified Profiles</span>
+</div>
+</div>
+</div>
+</main>
+
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-    import { 
-        getAuth, 
-        createUserWithEmailAndPassword, 
-        signInWithEmailAndPassword,
-        setPersistence,
-        browserLocalPersistence,
-        browserSessionPersistence,
-        sendPasswordResetEmail,
-        onAuthStateChanged
-    } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-    import { 
-    getFirestore, 
-    doc, 
-    setDoc, 
-    getDoc,
-    collection, 
-    query, 
-    where, 
-    getDocs,
-    serverTimestamp,
-    addDoc
-} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 
-    // Firebase configuration
-    const firebaseConfig = {
-        apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
-        authDomain: "galmet-app.firebaseapp.com",
-        projectId: "galmet-app",
-        storageBucket: "galmet-app.firebasestorage.app",
-        messagingSenderId: "900590512024",
-        appId: "1:900590512024:web:16a36a085809a728c92ded"
-    };
+// 🔥 YOUR FIREBASE CONFIG (SAME)
+const firebaseConfig = {
+    apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+    authDomain: "galmet-app.firebaseapp.com",
+    projectId: "galmet-app",
+    storageBucket: "galmet-app.firebasestorage.app",
+    messagingSenderId: "900590512024",
+    appId: "1:900590512024:web:16a36a085809a728c92ded"
+};
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
-    // DOM elements
-    const emailInput = document.getElementById("email");
-    const passwordInput = document.getElementById("password");
-    const referralInput = document.getElementById("referral");
-    const errorDiv = document.getElementById("error");
-    const loginBtn = document.getElementById("loginBtn");
-    const registerBtn = document.getElementById("registerBtn");
-    const rememberCheckbox = document.getElementById("rememberMe");
-    const forgotLink = document.getElementById("forgotPassword");
-    const togglePasswordBtn = document.getElementById("togglePassword");
-
-    // Toggle password visibility
-    togglePasswordBtn.addEventListener("click", () => {
-        const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
-        passwordInput.setAttribute("type", type);
-        togglePasswordBtn.textContent = type === "password" ? "👁️" : "🙈";
-    });
-    
-    // Helper: set error message with auto-clear
-    function setErrorMsg(msg) {
-        errorDiv.innerText = msg || "";
-        if (msg) {
-            setTimeout(() => {
-                if (errorDiv.innerText === msg) errorDiv.innerText = "";
-            }, 5000);
-        }
+// 🚀 AUTO LOGIN CHECK
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        // Already logged in → go dashboard
+        window.location.href = "dashboard.html";
     }
-
-    // Helper: set loading state for buttons
-    function setButtonLoading(button, isLoading, originalText = null) {
-        if (isLoading) {
-            button._originalText = button.innerHTML;
-            button.disabled = true;
-            button.innerHTML = `<span class="spinner"></span><span> ${originalText || button.innerText.trim()}</span>`;
-        } else {
-            button.disabled = false;
-            if (button._originalText) {
-                button.innerHTML = button._originalText;
-                delete button._originalText;
-            } else {
-                button.innerHTML = originalText || (button.id === "loginBtn" ? "Sign in" : "Create account");
-            }
-        }
-    }
-
-    function setGlobalLoading(isLoading, activeBtn = null) {
-        [loginBtn, registerBtn].forEach(btn => {
-            if (btn !== activeBtn) btn.disabled = isLoading;
-        });
-    }
-
-    function getTrimmedValues() {
-        return {
-            email: emailInput.value.trim(),
-            password: passwordInput.value.trim(),
-            referral: referralInput.value.trim()
-        };
-    }
-
-    // Set persistence based on "Remember me" checkbox
-    async function applyPersistence() {
-        const persistence = rememberCheckbox.checked ? browserLocalPersistence : browserSessionPersistence;
-        await setPersistence(auth, persistence);
-    }
-
-    // Generate a unique 8-digit userId (with collision check)
-    async function generateUniqueUserId() {
-        let attempts = 0;
-        const maxAttempts = 5;
-        while (attempts < maxAttempts) {
-            const userId = Math.floor(10000000 + Math.random() * 90000000); // 8-digit number
-            const q = query(collection(db, "users"), where("userId", "==", userId));
-            const snapshot = await getDocs(q);
-            if (snapshot.empty) {
-                return userId;
-            }
-            attempts++;
-        }
-        throw new Error("Failed to generate unique user ID. Please try again.");
-    }
-
-    // Generate invite code: 2 random uppercase letters + last 4 digits of userId
-    function generateInviteCode(userId) {
-        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        const randomLetter = () => letters.charAt(Math.floor(Math.random() * letters.length));
-        const twoLetters = randomLetter() + randomLetter();
-        const userIdStr = userId.toString();
-        const lastFour = userIdStr.slice(-4); // take last 4 digits
-        return twoLetters + lastFour; // e.g., "AB1234"
-    }
-
-    // ---------- REGISTER with new userId and inviteCode ----------
-    async function handleRegister() {
-        setErrorMsg("");
-        const { email, password, referral } = getTrimmedValues();
-        
-        if (!email || !password) {
-            setErrorMsg("❌ Email and password are required");
-            return;
-        }
-        if (password.length < 6) {
-            setErrorMsg("🔒 Password must be at least 6 characters");
-            return;
-        }
-
-        setButtonLoading(registerBtn, true, "Creating account...");
-        setGlobalLoading(true, registerBtn);
-        
-        try {
-            await applyPersistence();
-
-            // 1. Create user in Firebase Auth
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
-
-            // 🔥 SIMPLE + FAST (NO FIRESTORE QUERY = NO DELAY)
-            const userId = Math.floor(10000000 + Math.random() * 90000000);
-            const inviteCode = Math.random().toString(36).substring(2,8).toUpperCase();
-            
-            // 4. Self-referral protection
-            if (referral && referral === inviteCode) {
-                throw new Error("You cannot use your own referral code");
-            }
-
-            // 5. Validate referral code if provided
-            let referredByUID = "";
-            if (referral) {
-                const q = query(collection(db, "users"), where("inviteCode", "==", referral));
-                const snapshot = await getDocs(q);
-                if (!snapshot.empty) {
-                    referredByUID = snapshot.docs[0].id;
-                } else {
-                    throw new Error("Invalid referral code");
-                }
-            }
-
-            // 6. Store user data in Firestore
-
-const userRef = doc(db, "users", user.uid);
-
-try {
-    // ✅ CREATE USER DATA
-    await setDoc(userRef, {
-    email: email,
-    coins: 500,
-    userId: userId,
-    inviteCode: inviteCode,
-    referredBy: referredByUID,
-    firstTopup: false,
-    username: "",
-    photoURL: "",
-    fullName: "",
-    bio: "",
-
-    createdAt: serverTimestamp()
 });
 
-    console.log("✅ FIRESTORE WRITE SUCCESS");
+// 🎯 BUTTONS CONTROL
+const buttons = document.querySelectorAll("button");
 
-    // 🔥 ADD THIS PART (TRANSACTION LOG)
-    await addDoc(collection(db, "transactions"), {
-        userId: user.uid,
-        type: "credit",
-        amount: 500,
-        reason: "signup_bonus",
-        username: "",
-        photoURL: "",
-        createdAt: serverTimestamp()
-    });
+// 0 → Quick Login
+buttons[0].onclick = () => {
+    window.location.href = "login.html";
+};
 
-    console.log("✅ TRANSACTION SAVED");
+// 1 → Google login (later)
+buttons[1].onclick = () => {
+    alert("Google login coming soon 🚀");
+};
 
-} catch (err) {
-    console.error("❌ FIRESTORE ERROR:", err);
-    throw err;
-}
+// 2 → Email login
+buttons[2].onclick = () => {
+    window.location.href = "login.html";
+};
 
-  localStorage.setItem("user", JSON.stringify({
-  uid: user.uid,   // ✅ MUST
-  username: user.username || "User",
-  userId: user.userId || null,
-  photoURL: user.photoURL || ""
-}));
-            
-// 🔥 VERIFY DATA SAVED (VERY IMPORTANT)
-let check = null;
-for (let i = 0; i < 5; i++) {
-    const snap = await getDoc(userRef);
-    if (snap.exists()) {
-        check = snap.data();
-        break;
-    }
-    await new Promise(r => setTimeout(r, 300));
-}
-
-if (!check) {
-    throw new Error("Failed to save user data properly");
-}
-
-console.log("✅ Data confirmed saved:", check);
-
-// 🚀 NOW SAFE TO REDIRECT
-setTimeout(() => {
-    window.location.href = "dashboard.html";
-}, 1200); // 🔥 IMPORTANT delay
-            
-        } catch (error) {
-            console.error("Registration error:", error);
-            let friendlyError = "Registration failed. ";
-            if (error.code === "auth/email-already-in-use") {
-                friendlyError = "📧 This email is already registered. Try logging in.";
-            } else if (error.code === "auth/weak-password") {
-                friendlyError = "🔐 Password should be at least 6 characters.";
-            } else if (error.code === "auth/invalid-email") {
-                friendlyError = "📧 Please enter a valid email address.";
-            } else if (error.message === "Invalid referral code") {
-                friendlyError = "🔑 Invalid referral code. Please check and try again.";
-            } else if (error.message === "You cannot use your own referral code") {
-                friendlyError = "⚠️ You cannot refer yourself. Please use someone else's code or leave blank.";
-            } else if (error.message.includes("unique user ID")) {
-                friendlyError = "⚠️ " + error.message;
-            } else {
-                friendlyError += error.message;
-            }
-            setErrorMsg(friendlyError);
-        } finally {
-            setButtonLoading(registerBtn, false);
-            setGlobalLoading(false);
-        }
-    }
-
-    // ---------- LOGIN ----------
-    async function handleLogin() {
-        setErrorMsg("");
-        const { email, password } = getTrimmedValues();
-        
-        if (!email || !password) {
-            setErrorMsg("❌ Email and password required");
-            return;
-        }
-        
-        setButtonLoading(loginBtn, true, "Signing in...");
-        setGlobalLoading(true, loginBtn);
-        
-        try {
-            await applyPersistence();
-            await signInWithEmailAndPassword(auth, email, password);
-            window.location.href = "dashboard.html";
-        } catch (error) {
-            console.error("Login error:", error);
-            let friendlyError = "Login failed. ";
-            if (error.code === "auth/user-not-found") {
-                friendlyError = "🔍 No account found with this email. Please register first.";
-            } else if (error.code === "auth/wrong-password") {
-                friendlyError = "🔑 Incorrect password. Please try again.";
-            } else if (error.code === "auth/invalid-email") {
-                friendlyError = "📧 Invalid email format.";
-            } else if (error.code === "auth/too-many-requests") {
-                friendlyError = "⏳ Too many failed attempts. Try again later.";
-            } else {
-                friendlyError += error.message;
-            }
-            setErrorMsg(friendlyError);
-        } finally {
-            setButtonLoading(loginBtn, false);
-            setGlobalLoading(false);
-        }
-    }
-
-    // ---------- Forgot Password ----------
-    async function handleForgotPassword() {
-        const email = emailInput.value.trim();
-        if (!email) {
-            setErrorMsg("📧 Please enter your email address first.");
-            return;
-        }
-        try {
-            await sendPasswordResetEmail(auth, email);
-            setErrorMsg("📨 Reset email sent! Check your inbox.");
-            setTimeout(() => {
-                if (errorDiv.innerText === "📨 Reset email sent! Check your inbox.") errorDiv.innerText = "";
-            }, 4000);
-        } catch (error) {
-            console.error("Reset error:", error);
-            let msg = "Failed to send reset email. ";
-            if (error.code === "auth/user-not-found") msg += "No account with this email.";
-            else msg += error.message;
-            setErrorMsg(msg);
-        }
-    }
-
-    // ---------- Event Listeners ----------
-    loginBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        if (loginBtn.disabled) return;
-        handleLogin();
-    });
-    
-    registerBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        if (registerBtn.disabled) return;
-        handleRegister();
-    });
-    
-    forgotLink.addEventListener("click", (e) => {
-        e.preventDefault();
-        handleForgotPassword();
-    });
-    
-    // Enter key submission
-    const inputs = [emailInput, passwordInput, referralInput];
-    inputs.forEach(input => {
-        input.addEventListener("keypress", (e) => {
-            if (e.key === "Enter") {
-                e.preventDefault();
-                if (!loginBtn.disabled && emailInput.value.trim() && passwordInput.value.trim()) {
-                    handleLogin();
-                } else if (!registerBtn.disabled && emailInput.value.trim() && passwordInput.value.trim()) {
-                    handleRegister();
-                }
-            }
-        });
-    });
-    
-    // 🔥 AUTO FILL REFERRAL FROM LINK
-const params = new URLSearchParams(window.location.search);
-const refCodeFromURL = params.get("ref");
-
-if (refCodeFromURL) {
-    document.getElementById("referral").value = refCodeFromURL;
-}
-    // Clear error on focus
-    inputs.forEach(inp => {
-        inp.addEventListener("focus", () => setErrorMsg(""));
-    });
+// ❓ Help button
+document.querySelector("header button").onclick = () => {
+    window.location.href = "feedback.html";
+};
 </script>
-</body>
-</html>
