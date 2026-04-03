@@ -214,7 +214,7 @@ Submit Withdraw
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } 
 from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, collection, query, where, getDocs } 
+import { getFirestore, doc, getDoc, updateDoc, collection, query, where, getDocs } 
 from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 const app = initializeApp({
@@ -222,230 +222,80 @@ const app = initializeApp({
   authDomain: "galmet-app.firebaseapp.com",
   projectId: "galmet-app"
 });
-    
+
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-import { updateDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-
-const user = JSON.parse(localStorage.getItem("user"));
-
-async function setOnline() {
-  if (user?.uid) {
-    await updateDoc(doc(db, "users", user.uid), {
-      online: true
-    });
-  }
+// ✅ ONLINE STATUS
+async function setOnline(uid){
+  await updateDoc(doc(db,"users",uid),{ online:true });
 }
 
-setOnline();
-
-window.addEventListener("beforeunload", () => {
-  if (user?.uid) {
-    updateDoc(doc(db, "users", user.uid), {
-      online: false
-    });
+window.addEventListener("beforeunload", ()=>{
+  const u = auth.currentUser;
+  if(u){
+    updateDoc(doc(db,"users",u.uid),{ online:false });
   }
 });
-    
-// FETCH USER
-async function fetchUserData(){
-    const user = auth.currentUser;
-    if(!user) return null;
-    const snap = await getDoc(doc(db,"users",user.uid));
-    return snap.data();
-}
 
-// LOAD USER
+// ✅ AUTH CHECK
 onAuthStateChanged(auth, async (user)=>{
-    if(!user){ 
-        window.location="index.html"; 
-        return; 
+
+  if(!user){
+    setTimeout(()=>{
+      if(!auth.currentUser){
+        window.location="index.html";
+      }
+    },1000);
+    return;
+  }
+
+  console.log("✅ Logged:", user.uid);
+
+  await setOnline(user.uid);
+
+  let data = null;
+
+  // 🔁 RETRY FETCH
+  for(let i=0;i<5;i++){
+    const snap = await getDoc(doc(db,"users",user.uid));
+    if(snap.exists()){
+      data = snap.data();
+      break;
     }
+    await new Promise(r=>setTimeout(r,300));
+  }
 
-    console.log("✅ Logged in:", user.uid);
+  if(!data){
+    alert("Failed to load user");
+    return;
+  }
 
-    // ✅ ADD THIS (LOCAL STORAGE FIX)
-    localStorage.setItem("user", JSON.stringify({
-    uid: user.uid,   // ✅ MUST
-    username: user.username || "User",
-    userId: user.userId || null,
-    photoURL: user.photoURL || ""
-}));
+  // 🚨 IF PROFILE NOT COMPLETE
+  if(!data.photoURL || data.photoURL === ""){
+    window.location = "setup.html";
+    return;
+  }
 
-    let data = null;
+  // ✅ UI
+  document.getElementById("email").innerText = data.email || "";
+  document.getElementById("coins").innerText = data.coins ?? 0;
+  document.getElementById("inviteCode").innerText = data.inviteCode || "---";
+  document.getElementById("userId").innerText = data.userId || "---";
 
-    // 🔥 RETRY SYSTEM
-    for (let i = 0; i < 5; i++) {
-        data = await fetchUserData();
-        if (data) break;
-        await new Promise(r => setTimeout(r, 300));
-    }
+  document.getElementById("profilePic").src =
+    data.photoURL || "https://ui-avatars.com/api/?name=" + encodeURIComponent(data.email);
 
-    if (!data) {
-        alert("Failed to load user");
-        return;
-    }
-
-    if (!data.username || data.username.trim() === "") {
-        window.location = "setup.html";
-        return;
-    }
-
-    // ✅ UPDATE localStorage with REAL DATA (VERY IMPORTANT)
-    localStorage.setItem("user", JSON.stringify({
-    uid: user.uid,
-    username: user.displayName || user.email.split("@")[0] || "User",
-    photoURL: user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.email)}`
-}));
-    
-    
-    
-
-
-    // ✅ UI LOAD
-    document.getElementById("email").innerText = data.email;
-    document.getElementById("coins").innerText = data.coins ?? 0;
-    document.getElementById("inviteCode").innerText = data.inviteCode;
-    document.getElementById("userId").innerText = data.userId;
-    document.getElementById("profilePic").src = data.photoURL || "https://via.placeholder.com/35";
-
-    loadReferralStats(user);
 });
 
-// OPEN BOX
-window.openWithdraw = ()=> document.getElementById("withdrawBox").style.display="block";
-
-// ✅ FIXED SUBMIT
-window.submitWithdraw = async function(){
-
-    const amount = Number(document.getElementById("withdrawAmount").value);
-    const wallet = document.getElementById("withdrawWallet").value;
-
-    if(!amount || !wallet){
-        alert("Enter all fields");
-        return;
-    }
-
-    if(amount < 65000){
-        alert("Minimum withdraw is 65,000 coins");
-        return;
-    }
-
-    const userData = await fetchUserData();
-
-    if(userData.coins < amount){
-        alert("Not enough balance");
-        return;
-    }
-
-    const res = await fetch("https://createwithdraw-k3vzdssfra-uc.a.run.app",{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({
-            userId:userData.userId,
-            amount,
-            wallet
-        })
-    });
-
-    const data = await res.json();
-
-    if(data.success){
-        alert("Withdraw request sent ✅");
-        document.getElementById("withdrawBox").style.display="none";
-    }else{
-        alert("Error");
-    }
-};
-
-// ✅ FIXED (NOW OUTSIDE)
-window.loadWithdrawHistory = async function(){
-
-    const userData = await fetchUserData();
-
-    const res = await fetch("https://us-central1-galmet-app.cloudfunctions.net/getWithdrawals?admin=1");
-    const data = await res.json();
-
-    let html="";
-
-    data
-    .filter(w=>w.userId===userData.userId)
-    .forEach(w=>{
-        html+=`
-        <div style="background:#222;padding:10px;margin:5px;border-radius:8px;">
-        ${w.amount} coins → ${w.wallet}<br>
-        Status: <b>${w.status}</b>
-        </div>`;
-    });
-
-    document.getElementById("withdrawHistory").innerHTML = html || "No history";
-};
-    async function loadReferralStats(user) {
-    try {
-        const q = query(
-            collection(db, "users"),
-            where("referredBy", "==", user.uid)
-        );
-
-        const snapshot = await getDocs(q);
-
-        let totalInvites = snapshot.size;
-        let completedTopups = 0;
-
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            if (data.firstTopup === true) {
-                completedTopups++;
-            }
-        });
-
-        let totalEarned = completedTopups * 1000;
-
-        document.getElementById("totalInvites").innerText = totalInvites;
-        document.getElementById("totalEarned").innerText = totalEarned;
-
-    } catch (err) {
-        console.error("Referral stats error:", err);
-    }
-}
-    
-// OTHER
+// LOGOUT
 window.logout = ()=> signOut(auth).then(()=>location="index.html");
-window.copyCode = async () => {
-    try {
-        const inviteCode = document.getElementById("inviteCode").innerText;
 
-        const inviteLink = `${window.location.origin}${window.location.pathname.replace('dashboard.html','')}index.html?ref=${inviteCode}`;
-
-        await navigator.clipboard.writeText(inviteLink);
-
-        alert("✅ Invite link copied!");
-    } catch (err) {
-        alert("❌ Copy failed. Please copy manually.");
-        console.error(err);
-    }
+// COPY
+window.copyCode = async ()=>{
+  const code = document.getElementById("inviteCode").innerText;
+  await navigator.clipboard.writeText(code);
+  alert("Copied!");
 };
-    window.openProfile = ()=>{
-    location="profile.html";
-}
-    window.goSearch = () => {
-    window.location = "search.html";
-};
-
-window.goChats = () => {
-    window.location = "chats.html";
-};
-    window.openSettings = () => {
-  location.href = "settings.html";
-};
-  function openParty(){
-  window.location.href = "party.html";
-};
-    
-window.goGame = (p)=> location=p;
 
 </script>
-
-</body>
-</html>
