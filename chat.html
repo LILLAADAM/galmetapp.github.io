@@ -35,14 +35,14 @@ const otherUid = new URLSearchParams(location.search).get("id");
 const chatId = [myUid, otherUid].sort().join("_");
 
 /* ================= LOAD USER ================= */
-async function loadOtherUser() {
-  const snap = await getDoc(doc(db, "users", otherUid));
-  if (!snap.exists()) return;
-
   if (!otherUid) {
   alert("Invalid chat");
   location.href = "chats.html";
 }
+  async function loadOtherUser() {
+  const snap = await getDoc(doc(db, "users", otherUid));
+  if (!snap.exists()) return;
+
   const data = snap.data();
 
   document.getElementById("name").innerText =
@@ -219,8 +219,6 @@ window.onload = async () => {
   await resetUnread();
 };
 /* ================= MENU + BLOCK SYSTEM ================= */
-
-const menuBox = document.getElementById("menuBox");
 
 /* TOAST */
 function showToast(msg){
