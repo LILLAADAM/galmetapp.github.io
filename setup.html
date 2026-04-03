@@ -200,7 +200,7 @@ import { getFirestore, doc, updateDoc } from "https://www.gstatic.com/firebasejs
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
 
 const app = initializeApp({
-  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+  apiKey: "YOUR_API_KEY",
   authDomain: "galmet-app.firebaseapp.com",
   projectId: "galmet-app",
   storageBucket: "galmet-app.firebasestorage.app"
@@ -212,10 +212,14 @@ const storage = getStorage(app);
 
 let currentUser = null;
 
-// ✅ AUTH CHECK
+// ✅ AUTH CHECK (FIXED DELAY)
 onAuthStateChanged(auth, (user)=>{
   if(!user){
-    window.location = "index.html";
+    setTimeout(()=>{
+      if(!auth.currentUser){
+        window.location = "index.html";
+      }
+    },1500);
   } else {
     currentUser = user;
   }
@@ -231,7 +235,6 @@ window.addEventListener("DOMContentLoaded", () => {
     const file = e.target.files[0];
     if(!file) return;
 
-    // SHOW IMAGE IN UI
     const reader = new FileReader();
     reader.onload = (ev)=>{
       preview.src = ev.target.result;
@@ -241,8 +244,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
 });
 
-
-// ✅ IMAGE COMPRESS FUNCTION (HIGH QUALITY)
+// ✅ IMAGE COMPRESS
 async function compressImage(file) {
   return new Promise((resolve) => {
 
@@ -256,7 +258,6 @@ async function compressImage(file) {
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
 
-      // 🔥 MAX SIZE (BEST FOR APPS)
       const maxSize = 512;
 
       let width = img.width;
@@ -279,7 +280,6 @@ async function compressImage(file) {
 
       ctx.drawImage(img, 0, 0, width, height);
 
-      // 🔥 QUALITY 0.8 (BEST BALANCE)
       canvas.toBlob((blob) => {
         resolve(blob);
       }, "image/jpeg", 0.8);
@@ -289,7 +289,6 @@ async function compressImage(file) {
     reader.readAsDataURL(file);
   });
 }
-
 
 // ✅ COMPLETE SETUP
 window.completeSetup = async function(){
@@ -308,25 +307,23 @@ window.completeSetup = async function(){
 
   try {
 
-    // 🔥 COMPRESS IMAGE
     const compressed = await compressImage(file);
 
     const storageRef = ref(storage, "profiles/" + currentUser.uid);
 
-    // 🔥 UPLOAD COMPRESSED FILE
     await uploadBytes(storageRef, compressed);
 
     const photoURL = await getDownloadURL(storageRef);
 
-    // 🔥 SAVE TO FIRESTORE
     await updateDoc(doc(db, "users", currentUser.uid), {
       photoURL: photoURL,
       profileCompleted: true
     });
 
-    // SAVE LOCAL
+    // ✅ SAVE LOCAL
     localStorage.setItem("user", JSON.stringify({
       uid: currentUser.uid,
+      email: currentUser.email,
       photoURL: photoURL
     }));
 
