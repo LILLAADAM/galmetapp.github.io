@@ -33,6 +33,10 @@ async function loadOtherUser() {
   const snap = await getDoc(doc(db, "users", otherUid));
   if (!snap.exists()) return;
 
+  if (!otherUid) {
+  alert("Invalid chat");
+  location.href = "chats.html";
+}
   const data = snap.data();
 
   document.getElementById("name").innerText =
@@ -165,24 +169,6 @@ window.sendImage = async () => {
 window.closePreview = () => {
   document.getElementById("previewModal").style.display = "none";
   selectedFile = null;
-};
-
-/* ================= SEND TEXT (NO DELAY) ================= */
-window.sendMessage = async () => {
-  const input = document.getElementById("msg");
-  const text = input.value.trim();
-  if (!text) return;
-
-  input.value = ""; // ⚡ instant feel
-
-  await addDoc(collection(db, "chats", chatId, "messages"), {
-    text,
-    senderId: myUid,
-    receiverId: otherUid,
-    createdAt: serverTimestamp()
-  });
-
-  await updateChatList(text);
 };
 
 /* ================= UPDATE CHAT LIST (REAL UNREAD) ================= */
@@ -334,13 +320,14 @@ window.toggleBlock = async () => {
   
 window.sendMessage = async () => {
 
-const a = await getDoc(doc(db,"blocked",otherUid,"list",myUid));
-const b = await getDoc(doc(db,"blocked",myUid,"list",otherUid));
+  const a = await getDoc(doc(db,"blocked",otherUid,"list",myUid));
+  const b = await getDoc(doc(db,"blocked",myUid,"list",otherUid));
 
-if(a.exists() || b.exists()){
-  showToast("Blocked user");
-  return;
-}
+  if(a.exists() || b.exists()){
+    showToast("Blocked user");
+    return;
+  }
+
   const input = document.getElementById("msg");
   const text = input.value.trim();
   if (!text) return;
