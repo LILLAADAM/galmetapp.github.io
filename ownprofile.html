@@ -103,150 +103,229 @@
 <body class="text-on-surface min-h-screen">
 <!-- Top App Bar -->
 </header>
-<main class="px-4 pb-28 space-y-4">
-<!-- User Identity Section (Dynamic Identity Header) -->
-<section class="relative group cursor-pointer active:scale-[0.97] transition-transform duration-200">
-<div class="flex items-center gap-4 p-2">
+<main class="px-4 pb-20 space-y-3">
+<!-- User Identity Section (Scaled down) -->
+<section class="relative group cursor-pointer active:scale-[0.98] transition-transform duration-200">
+<div class="flex items-center gap-3 p-1">
 <div class="relative">
-<div class="w-20 h-20 rounded-full border-2 border-white overflow-hidden shadow-lg shadow-primary/5">
-<img alt="User Profile" class="w-full h-full object-cover" data-alt="close-up portrait of a stylish young man with a confident look, modern haircut, clean studio lighting with soft azure highlights" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBcIkHPnfI-KvDQ1ARsxSjNAnMlEwyRnAEBmscd6z9B1lV1b31P-EaP6qZNlq53YIhAO0tS_gbgqqO_-IeggcVwyxfF6mTFLxFIjKaCa0Ad9N9aqSoeO_yixeV50rtR-3HNPqvqRb5t7bb-FqMy6NviCszy4oiqEa4jBtaJqKLM1hbARC_uTwrQcH1WBXtfitxNp2ZubNAYw2FjCDX9wqLTLWB_v-M8IJ4saQZl9TKqijj2d-yepG-ZWsNvWFPf2O4LdVnyx3c9pPwx"/>
+<div class="w-16 h-16 rounded-full border-2 border-white overflow-hidden shadow-md shadow-primary/5">
+<img id="profileImg" class="w-full h-full object-cover">
 </div>
-<div class="absolute bottom-0 right-0 bg-white p-0.5 rounded-full shadow-sm ring-2 ring-background">
-<img alt="AE Flag" class="w-5 h-4 object-cover rounded-[2px]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSfc7AxShCvtblOoy3tGTMqIPOx3BAmntRoQJn7ZAMzV-aXa2qtWBb6cKKgTfuxHTh_KQjrCoSgiFUXBfSj7eZLKG2W33TgdIA3uVjDIFznxqogvQPOBGBTtCOcySauvb3i8T3IHSY97WCTNImt7iKz3qupCjR7rrDilbuHNcm4PSzsf6EWGSHKJnnb-GgfloQevfUmMmbqSepmL8gvOLxZjamASKTYLhsd4804nDT272zeuRSl4Zb3Zs9xb8HbhZRhkA_-opNcAAp"/>
+<div class="absolute bottom-0 right-0 bg-white p-0.5 rounded-full shadow-sm ring-1 ring-background">
+<img alt="AE Flag" class="w-4 h-3 object-cover rounded-[1px]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSfc7AxShCvtblOoy3tGTMqIPOx3BAmntRoQJn7ZAMzV-aXa2qtWBb6cKKgTfuxHTh_KQjrCoSgiFUXBfSj7eZLKG2W33TgdIA3uVjDIFznxqogvQPOBGBTtCOcySauvb3i8T3IHSY97WCTNImt7iKz3qupCjR7rrDilbuHNcm4PSzsf6EWGSHKJnnb-GgfloQevfUmMmbqSepmL8gvOLxZjamASKTYLhsd4804nDT272zeuRSl4Zb3Zs9xb8HbhZRhkA_-opNcAAp"/>
 </div>
 </div>
 <div class="flex-1">
-<h2 class="font-headline font-extrabold text-2xl tracking-tight text-on-surface leading-tight">ADAM-TOP-UP</h2>
-<p class="text-on-surface-variant font-medium text-sm opacity-80">ID: 200845886</p>
+<h2 id="username" class="font-headline font-extrabold text-2xl"></h2>
+<p id="userIdText" class="text-sm"></p>
 </div>
-<span class="material-symbols-outlined text-outline-variant" data-icon="chevron_right">chevron_right</span>
+<span onclick="goProfile()" class="material-symbols-outlined cursor-pointer">
+chevron_right
+</span>
 </div>
 </section>
-<!-- Stats Bar -->
-<section class="bg-white rounded-lg p-5 flex justify-around items-center shadow-sm">
-<button class="flex flex-col items-center gap-0.5 group">
-<span class="font-headline font-bold text-xl text-on-surface group-hover:text-primary transition-colors">0</span>
-<span class="text-on-surface-variant text-[10px] font-bold uppercase tracking-widest opacity-70">Friends</span>
+<!-- Stats Bar (Tightened) -->
+<section class="bg-white rounded-lg py-3 px-2 flex justify-around items-center shadow-sm">
+<button class="flex flex-col items-center group">
+<span id="friendsCount" class="font-headline font-bold text-xl text-on-surface group-hover:text-primary transition-colors">0</span>
+<span class="text-on-surface-variant text-[9px] font-bold uppercase tracking-wider opacity-70">Friends</span>
 </button>
-<div class="w-px h-6 bg-surface-variant/50"></div>
-<button class="flex flex-col items-center gap-0.5 group">
-<span class="font-headline font-bold text-xl text-on-surface group-hover:text-primary transition-colors">5</span>
-<span class="text-on-surface-variant text-[10px] font-bold uppercase tracking-widest opacity-70">Following</span>
+<div class="w-px h-5 bg-surface-variant/50"></div>
+<button class="flex flex-col items-center group">
+<span id="followingCount" class="font-headline font-bold text-xl text-on-surface group-hover:text-primary transition-colors">0</span>
+<span class="text-on-surface-variant text-[9px] font-bold uppercase tracking-wider opacity-70">Following</span>
 </button>
-<div class="w-px h-6 bg-surface-variant/50"></div>
-<button class="flex flex-col items-center gap-0.5 group">
-<span class="font-headline font-bold text-xl text-on-surface group-hover:text-primary transition-colors">42</span>
-<span class="text-on-surface-variant text-[10px] font-bold uppercase tracking-widest opacity-70">Followers</span>
+<div class="w-px h-5 bg-surface-variant/50"></div>
+<button class="flex flex-col items-center group">
+<span id="followersCount" class="font-headline font-bold text-xl text-on-surface group-hover:text-primary transition-colors">0</span>
+<span class="text-on-surface-variant text-[9px] font-bold uppercase tracking-wider opacity-70">Followers</span>
 </button>
 </section>
-<!-- Level Card (Global Rank) -->
-<section class="bg-primary p-4 rounded-lg shadow-lg relative overflow-hidden flex items-center justify-between cursor-pointer active:scale-[0.99] transition-transform">
-<!-- Abstract decorative element -->
-<div class="absolute -top-4 -right-4 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
-<div class="relative z-10 flex items-center gap-4">
-<div class="bg-primary-container/30 backdrop-blur-md p-2.5 rounded-full flex items-center justify-center">
-<span class="material-symbols-outlined text-white text-2xl" data-icon="military_tech">military_tech</span>
+<!-- Level Card (Reduced height) -->
+<section class="bg-primary p-3 rounded-lg shadow-md relative overflow-hidden flex items-center justify-between cursor-pointer active:scale-[0.99] transition-transform">
+<div class="absolute -top-6 -right-6 w-20 h-20 bg-white/10 rounded-full blur-xl"></div>
+<div class="relative z-10 flex items-center gap-3">
+<div class="bg-primary-container/30 backdrop-blur-md p-2 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-xl" data-icon="military_tech">military_tech</span>
 </div>
 <div>
-<p class="text-white/60 text-[10px] font-bold uppercase tracking-widest leading-none mb-1">Global Rank</p>
-<h3 class="font-headline text-2xl font-black text-white leading-none">Lv.3</h3>
+<p class="text-white/70 text-[9px] font-bold uppercase tracking-widest leading-none mb-1">Global Rank</p>
+<h3 class="font-headline text-xl font-black text-white leading-none">Lv.3</h3>
 </div>
 </div>
-<div class="bg-white/20 p-1.5 rounded-full text-white">
-<span class="material-symbols-outlined text-lg" data-icon="chevron_right">chevron_right</span>
-</div>
-</section>
-<!-- Branded Currencies Row -->
-<section class="grid grid-cols-2 gap-3">
-<div class="bg-secondary-container/20 p-3 rounded-lg flex items-center gap-3 border border-secondary/10 cursor-pointer active:scale-95 transition-transform">
-<div class="bg-secondary-container w-10 h-10 rounded-full flex items-center justify-center shadow-sm">
-<span class="material-symbols-outlined text-on-secondary-fixed text-xl" data-icon="monetization_on" style="font-variation-settings: 'FILL' 1;">monetization_on</span>
-</div>
-<div>
-<p class="text-[10px] font-bold text-on-secondary-fixed-variant uppercase tracking-tighter">My coins</p>
-<p class="font-headline font-extrabold text-lg text-on-secondary-fixed leading-none">70</p>
-</div>
-</div>
-<div class="bg-tertiary-container/20 p-3 rounded-lg flex items-center gap-3 border border-tertiary/10 cursor-pointer active:scale-95 transition-transform">
-<div class="bg-tertiary-container w-10 h-10 rounded-full flex items-center justify-center shadow-sm">
-<span class="material-symbols-outlined text-on-tertiary-container text-xl" data-icon="diamond" style="font-variation-settings: 'FILL' 1;">diamond</span>
-</div>
-<div>
-<p class="text-[10px] font-bold text-on-tertiary-fixed-variant uppercase tracking-tighter">My gems</p>
-<p class="font-headline font-extrabold text-lg text-on-tertiary-container leading-none">444</p>
-</div>
+<div class="bg-white/20 p-1 rounded-full text-white">
+<span class="material-symbols-outlined text-base" data-icon="chevron_right">chevron_right</span>
 </div>
 </section>
-<!-- Action Grid (Polished) -->
-<section class="bg-surface-container-low/40 p-5 rounded-xl">
-<div class="grid grid-cols-4 gap-2">
-<button class="flex flex-col items-center gap-2 group">
-<div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm group-hover:bg-primary group-hover:text-white transition-all">
-<span class="material-symbols-outlined text-primary group-hover:text-white text-2xl" data-icon="storefront">storefront</span>
+<!-- Branded Currencies Row (Scaled down) -->
+<section class="grid grid-cols-2 gap-2">
+<div class="bg-secondary-container/20 p-2.5 rounded-lg flex items-center gap-2.5 border border-secondary/10 cursor-pointer active:scale-95 transition-transform">
+<div class="bg-secondary-container w-9 h-9 rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
+<span class="material-symbols-outlined text-on-secondary-fixed text-lg" data-icon="monetization_on" style="font-variation-settings: 'FILL' 1;">monetization_on</span>
 </div>
-<span class="text-xs font-bold text-on-surface-variant">Store</span>
+<div>
+<p class="text-[9px] font-bold text-on-secondary-fixed-variant uppercase tracking-tighter">My coins</p>
+<p id="coins">0</p>
+</div>
+</div>
+<div class="bg-tertiary-container/20 p-2.5 rounded-lg flex items-center gap-2.5 border border-tertiary/10 cursor-pointer active:scale-95 transition-transform">
+<div class="bg-tertiary-container w-9 h-9 rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
+<span class="material-symbols-outlined text-on-tertiary-container text-lg" data-icon="diamond" style="font-variation-settings: 'FILL' 1;">diamond</span>
+</div>
+<div>
+<p class="text-[9px] font-bold text-on-tertiary-fixed-variant uppercase tracking-tighter">My gems</p>
+<p class="font-headline font-extrabold text-base text-on-tertiary-container leading-none">444</p>
+</div>
+</div>
+</section>
+<!-- Action Grid (Scaled down) -->
+<section class="bg-surface-container-low/40 p-4 rounded-xl">
+<div class="grid grid-cols-4 gap-1">
+<button class="flex flex-col items-center gap-1.5 group">
+<div class="w-11 h-11 bg-white rounded-xl flex items-center justify-center shadow-sm group-hover:bg-primary group-hover:text-white transition-all">
+<span class="material-symbols-outlined text-primary group-hover:text-white text-xl" data-icon="storefront">storefront</span>
+</div>
+<span class="text-[10px] font-bold text-on-surface-variant">Store</span>
 </button>
-<button class="flex flex-col items-center gap-2 group">
-<div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm group-hover:bg-secondary group-hover:text-white transition-all">
-<span class="material-symbols-outlined text-secondary group-hover:text-white text-2xl" data-icon="person_add">person_add</span>
+<button class="flex flex-col items-center gap-1.5 group">
+<div class="w-11 h-11 bg-white rounded-xl flex items-center justify-center shadow-sm group-hover:bg-secondary group-hover:text-white transition-all">
+<span class="material-symbols-outlined text-secondary group-hover:text-white text-xl" data-icon="person_add">person_add</span>
 </div>
-<span class="text-xs font-bold text-on-surface-variant">Invite</span>
+<span class="text-[10px] font-bold text-on-surface-variant">Invite</span>
 </button>
-<button class="flex flex-col items-center gap-2 group">
-<div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm group-hover:bg-tertiary group-hover:text-white transition-all">
-<span class="material-symbols-outlined text-tertiary group-hover:text-white text-2xl" data-icon="task_alt">task_alt</span>
+<button class="flex flex-col items-center gap-1.5 group">
+<div class="w-11 h-11 bg-white rounded-xl flex items-center justify-center shadow-sm group-hover:bg-tertiary group-hover:text-white transition-all">
+<span class="material-symbols-outlined text-tertiary group-hover:text-white text-xl" data-icon="task_alt">task_alt</span>
 </div>
-<span class="text-xs font-bold text-on-surface-variant">Tasks</span>
+<span class="text-[10px] font-bold text-on-surface-variant">Tasks</span>
 </button>
-<button class="flex flex-col items-center gap-2 group">
-<div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm group-hover:bg-primary-dim group-hover:text-white transition-all">
-<span class="material-symbols-outlined text-on-primary-fixed-variant group-hover:text-white text-2xl" data-icon="support_agent">support_agent</span>
+<button class="flex flex-col items-center gap-1.5 group">
+<div class="w-11 h-11 bg-white rounded-xl flex items-center justify-center shadow-sm group-hover:bg-primary-dim group-hover:text-white transition-all">
+<span class="material-symbols-outlined text-on-primary-fixed-variant group-hover:text-white text-xl" data-icon="support_agent">support_agent</span>
 </div>
-<span class="text-xs font-bold text-on-surface-variant">Agent</span>
+<span class="text-[10px] font-bold text-on-surface-variant">Agent</span>
 </button>
 </div>
 </section>
 <!-- System List (Clean Navigation) -->
 <section class="bg-white rounded-lg shadow-sm overflow-hidden">
-<button class="w-full flex items-center gap-4 px-5 py-4 hover:bg-surface-container-low transition-colors text-left group border-b border-surface-container-high/50">
-<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors text-[22px]" data-icon="translate">translate</span>
-<span class="flex-1 font-bold text-on-surface text-[15px]">Language</span>
-<span class="material-symbols-outlined text-outline-variant text-lg" data-icon="chevron_right">chevron_right</span>
+<button class="w-full flex items-center gap-4 px-4 py-3 hover:bg-surface-container-low transition-colors text-left group border-b border-surface-container-high/50">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors text-[20px]" data-icon="translate">translate</span>
+<span class="flex-1 font-bold text-on-surface text-[14px]">Language</span>
+<span class="material-symbols-outlined text-outline-variant text-base" data-icon="chevron_right">chevron_right</span>
 </button>
-<button class="w-full flex items-center gap-4 px-5 py-4 hover:bg-surface-container-low transition-colors text-left group border-b border-surface-container-high/50">
-<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors text-[22px]" data-icon="quiz">quiz</span>
-<span class="flex-1 font-bold text-on-surface text-[15px]">FAQ &amp; Feedback</span>
-<span class="material-symbols-outlined text-outline-variant text-lg" data-icon="chevron_right">chevron_right</span>
+<button class="w-full flex items-center gap-4 px-4 py-3 hover:bg-surface-container-low transition-colors text-left group border-b border-surface-container-high/50">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors text-[20px]" data-icon="quiz">quiz</span>
+<span class="flex-1 font-bold text-on-surface text-[14px]">FAQ &amp; Feedback</span>
+<span class="material-symbols-outlined text-outline-variant text-base" data-icon="chevron_right">chevron_right</span>
 </button>
-<button class="w-full flex items-center gap-4 px-5 py-4 hover:bg-surface-container-low transition-colors text-left group">
-<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors text-[22px]" data-icon="tune">tune</span>
-<span class="flex-1 font-bold text-on-surface text-[15px]">Settings</span>
-<span class="material-symbols-outlined text-outline-variant text-lg" data-icon="chevron_right">chevron_right</span>
-</button>
+<button class="w-full flex items-center gap-4 px-4 py-3 hover:bg-surface-container-low transition-colors text-left group">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors text-[20px]" data-icon="tune">tune</span>
+<span class="flex-1 font-bold text-on-surface text-[14px]">Settings</span>
+<span class="material-symbols-outlined text-outline-variant text-base" data-icon="chevron_right">chevron_right</span>
+<button onclick="goSettings()">
 </section>
 </main>
 <!-- Bottom Navigation Bar (Cohesive) -->
-<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-2 pt-2 ios-safe-bottom bg-white/90 backdrop-blur-xl border-t border-surface-variant/30 z-50 shadow-[0_-8px_30px_rgb(0,0,0,0.04)]">
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-2 pt-1 pb-1 ios-safe-bottom bg-white/95 backdrop-blur-xl border-t border-surface-variant/30 z-50 shadow-[0_-8px_30px_rgb(0,0,0,0.04)]">
 <!-- Movie/Video -->
-<button class="flex items-center justify-center text-on-surface-variant/60 w-12 h-12 hover:scale-110 active:scale-90 transition-all">
-<span class="material-symbols-outlined text-[26px]" data-icon="movie">movie</span>
+<button class="flex items-center justify-center text-on-surface-variant/60 w-11 h-11 hover:scale-110 active:scale-90 transition-all">
+<span class="material-symbols-outlined text-[24px]" data-icon="movie">movie</span>
 </button>
 <!-- Groups (Party) -->
-<button class="flex items-center justify-center text-on-surface-variant/60 w-12 h-12 hover:scale-110 active:scale-90 transition-all">
-<span class="material-symbols-outlined text-[26px]" data-icon="celebration">celebration</span>
+<button class="flex items-center justify-center text-on-surface-variant/60 w-11 h-11 hover:scale-110 active:scale-90 transition-all">
+<span class="material-symbols-outlined text-[24px]" data-icon="celebration">celebration</span>
 </button>
 <!-- Discover/Explore -->
-<button class="flex items-center justify-center text-on-surface-variant/60 w-12 h-12 hover:scale-110 active:scale-90 transition-all">
-<span class="material-symbols-outlined text-[26px]" data-icon="explore">explore</span>
+<button class="flex items-center justify-center text-on-surface-variant/60 w-11 h-11 hover:scale-110 active:scale-90 transition-all">
+<span class="material-symbols-outlined text-[24px]" data-icon="explore">explore</span>
 </button>
 <!-- Chat -->
-<button class="relative flex items-center justify-center text-on-surface-variant/60 w-12 h-12 hover:scale-110 active:scale-90 transition-all">
-<span class="material-symbols-outlined text-[26px]" data-icon="chat">chat</span>
-<span class="absolute top-1.5 right-1.5 bg-error-container text-on-error px-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full text-[9px] font-black border-2 border-white">99+</span>
+<button class="relative flex items-center justify-center text-on-surface-variant/60 w-11 h-11 hover:scale-110 active:scale-90 transition-all">
+<span class="material-symbols-outlined text-[24px]" data-icon="chat">chat</span>
+<span class="absolute top-1 right-1 bg-error-container text-on-error px-1 min-w-[16px] h-[16px] flex items-center justify-center rounded-full text-[8px] font-black border-[1.5px] border-white">99+</span>
 </button>
 <!-- Person (Active Profile) -->
-<button class="flex items-center justify-center bg-primary/10 text-primary rounded-full w-12 h-12 hover:scale-110 active:scale-95 transition-all">
-<span class="material-symbols-outlined text-[26px]" data-icon="person" style="font-variation-settings: 'FILL' 1;">person</span>
+<button class="flex items-center justify-center bg-primary/10 text-primary rounded-full w-11 h-11 hover:scale-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[24px]" data-icon="person" style="font-variation-settings: 'FILL' 1;">person</span>
 </button>
 </nav>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import {
+  getFirestore, doc, getDoc,
+  collection, onSnapshot
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+/* CONFIG */
+const app = initializeApp({
+  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+  authDomain: "galmet-app.firebaseapp.com",
+  projectId: "galmet-app"
+});
+
+const db = getFirestore(app);
+
+/* USER */
+const me = JSON.parse(localStorage.getItem("user"));
+
+if (!me?.uid) {
+  location.href = "index.html";
+}
+
+const myUid = me.uid;
+
+/* LOAD USER */
+async function loadUser(){
+
+  const snap = await getDoc(doc(db,"users",myUid));
+  if(!snap.exists()) return;
+
+  const u = snap.data();
+
+  document.getElementById("username").innerText =
+    u.username || "User";
+
+  document.getElementById("userIdText").innerText =
+    "ID: " + (u.userId || "");
+
+  document.getElementById("profileImg").src =
+    u.photoURL || "https://ui-avatars.com/api/?name=User";
+
+  document.getElementById("coins").innerText =
+    u.coins || 0;
+}
+
+/* REALTIME STATS */
+onSnapshot(collection(db,"followers",myUid,"list"), s=>{
+  document.getElementById("followersCount").innerText = s.size;
+});
+
+onSnapshot(collection(db,"following",myUid,"list"), s=>{
+  document.getElementById("followingCount").innerText = s.size;
+});
+
+onSnapshot(collection(db,"friends",myUid,"list"), s=>{
+  document.getElementById("friendsCount").innerText = s.size;
+});
+
+/* NAVIGATION */
+window.goView = () => {
+  location.href = "view.html?id=" + myUid;
+};
+
+window.goProfile = () => {
+  location.href = "profile.html";
+};
+
+window.goSettings = () => {
+  location.href = "settings.html";
+};
+
+/* START */
+loadUser();
+
+</script>
 
