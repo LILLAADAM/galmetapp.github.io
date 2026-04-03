@@ -1,84 +1,272 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Profile</title>
 
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700&display=swap" rel="stylesheet">
-
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Galmet Profile - Digital Sky Garden</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Be+Vietnam+Pro:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-low": "#ecf1f6",
+                    "background": "#f3f7fb",
+                    "outline-variant": "#a9aeb1",
+                    "primary-fixed-dim": "#00d4ec",
+                    "surface-container-high": "#dde3e8",
+                    "secondary": "#755700",
+                    "on-tertiary-fixed": "#380014",
+                    "on-error-container": "#570008",
+                    "on-primary-fixed": "#003840",
+                    "on-secondary-fixed": "#443100",
+                    "on-primary-container": "#004d57",
+                    "on-secondary-fixed-variant": "#674c00",
+                    "primary": "#006571",
+                    "on-surface-variant": "#575c60",
+                    "on-background": "#2a2f32",
+                    "error-container": "#fb5151",
+                    "primary-container": "#00e3fd",
+                    "on-tertiary-fixed-variant": "#770033",
+                    "secondary-container": "#ffca4d",
+                    "primary-dim": "#005863",
+                    "surface-variant": "#d7dee3",
+                    "secondary-fixed": "#ffca4d",
+                    "surface-container": "#e3e9ee",
+                    "tertiary-container": "#ff8fa9",
+                    "tertiary-fixed-dim": "#ff769b",
+                    "surface-bright": "#f3f7fb",
+                    "on-error": "#ffefee",
+                    "outline": "#73777b",
+                    "surface-dim": "#ced5db",
+                    "tertiary": "#b60051",
+                    "tertiary-fixed": "#ff8fa9",
+                    "inverse-primary": "#00e3fd",
+                    "on-tertiary-container": "#66002b",
+                    "surface-container-highest": "#d7dee3",
+                    "primary-fixed": "#00e3fd",
+                    "inverse-on-surface": "#999da1",
+                    "secondary-fixed-dim": "#f7ba00",
+                    "on-tertiary": "#ffeff0",
+                    "inverse-surface": "#0a0f12",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-tint": "#006571",
+                    "error": "#b31b25",
+                    "secondary-dim": "#664b00",
+                    "on-secondary-container": "#5c4400",
+                    "error-dim": "#9f0519",
+                    "surface": "#f3f7fb",
+                    "on-secondary": "#fff1db",
+                    "on-primary": "#d8f8ff",
+                    "tertiary-dim": "#a00047",
+                    "on-primary-fixed-variant": "#005762",
+                    "on-surface": "#2a2f32"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Be Vietnam Pro"],
+                    "label": ["Plus Jakarta Sans"]
+            }
+          },
+        },
+      }
+    </script>
 <style>
-body { font-family: 'Plus Jakarta Sans', sans-serif; background:#f3f7fb; }
-</style>
-</head>
-
-<body class="pb-24">
-
-<!-- HEADER -->
-<header class="text-center py-4 font-bold text-cyan-600 text-lg">
-  My Profile
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .tonal-transition {
+            background: linear-gradient(to bottom, #f3f7fb, #ffffff);
+        }
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: #f3f7fb;
+        }
+        h1, h2, h3, .font-headline {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-surface min-h-screen pb-32">
+<!-- Top App Bar -->
+<header class="w-full top-0 sticky flex items-center justify-center px-6 h-16 z-40">
+  <h1 class="font-headline font-semibold text-lg text-cyan-600">My Profile</h1>
 </header>
-
-<!-- PROFILE -->
-<div class="flex items-center gap-4 px-5 py-4 cursor-pointer" onclick="goProfile()">
-
-  <img id="photo" class="w-20 h-20 rounded-full object-cover border">
-
-  <div class="flex-1">
-    <h2 id="name" class="font-bold text-xl"></h2>
-    <p id="uidText" class="text-sm text-gray-500"></p>
-  </div>
-
-  ➜
+  
+</header>
+<main class="px-5 space-y-6">
+<!-- User Identity Section -->
+<section class="relative group cursor-pointer active:scale-[0.98] transition-transform">
+<div onclick="goView()" class="flex items-center gap-5 p-2 cursor-pointer">
+<div class="relative">
+<div class="w-24 h-24 rounded-full border-4 border-surface-container-lowest overflow-hidden shadow-xl shadow-primary/10">
+<img id="profileImg" class="w-full h-full object-cover">
 </div>
-
-<!-- STATS -->
-<div class="flex justify-around bg-white p-4 mx-4 rounded-xl shadow">
-
-  <div class="text-center">
-    <b id="friends">0</b>
-    <p class="text-xs">Friends</p>
-  </div>
-
-  <div class="text-center">
-    <b id="following">0</b>
-    <p class="text-xs">Following</p>
-  </div>
-
-  <div class="text-center">
-    <b id="followers">0</b>
-    <p class="text-xs">Followers</p>
-  </div>
-
+<div class="absolute -bottom-1 -right-1 bg-white p-1 rounded-full shadow-md">
+<span class="text-xl">🇦🇪</span>
 </div>
-
-<!-- COINS -->
-<div class="bg-white mx-4 mt-4 p-4 rounded-xl shadow flex justify-between">
-  <span>My Coins</span>
-  <b id="coins">0</b>
 </div>
-
-<!-- SETTINGS -->
-<div class="bg-white mx-4 mt-4 rounded-xl shadow">
-
-  <button onclick="goSettings()" class="w-full text-left p-4 border-b">
-    Settings ➜
-  </button>
-
+<div class="flex-1">
+<h2 id="username" class="font-headline font-extrabold text-2xl"></h2>
+<p id="userIdText" class="text-sm"></p>
 </div>
-
-<!-- NAVBAR -->
-<nav class="fixed bottom-0 left-0 w-full flex justify-around bg-white p-3 shadow">
-
-  <button onclick="goDashboard()">🏠</button>
-  <button onclick="goParty()">🎉</button>
-  <button>➕</button>
-  <button onclick="goChats()">💬</button>
-  <button class="text-cyan-600 font-bold">👤</button>
-
+<span onclick="goProfile()" class="material-symbols-outlined cursor-pointer">
+chevron_right
+</span>
+</div>
+</section>
+<!-- Stats Bar -->
+<section class="bg-surface-container-lowest rounded-lg p-6 flex justify-around items-center shadow-sm">
+<button class="flex flex-col items-center gap-1 group">
+<span id="friendsCount" class="font-headline font-bold text-xl text-on-surface group-hover:text-primary transition-colors">0</span>/span>
+<span class="text-on-surface-variant text-xs font-semibold uppercase tracking-wider">Friends</span>
+</button>
+<div class="w-px h-8 bg-surface-variant"></div>
+<button class="flex flex-col items-center gap-1 group">
+<span id="followingCount" class="font-headline font-bold text-xl text-on-surface group-hover:text-primary transition-colors">0</span>/span>
+<span class="text-on-surface-variant text-xs font-semibold uppercase tracking-wider">Following</span>
+</button>
+<div class="w-px h-8 bg-surface-variant"></div>
+<button class="flex flex-col items-center gap-1 group">
+<span id="followersCount" class="font-headline font-bold text-xl text-on-surface group-hover:text-primary transition-colors">0</span>/span>
+<span class="text-on-surface-variant text-xs font-semibold uppercase tracking-wider">Followers</span>
+</button>
+</section>
+<!-- Level Card (Asymmetric Bento Style) -->
+<section class="grid grid-cols-12 gap-4">
+<div class="col-span-12 bg-gradient-to-br from-primary to-primary-dim p-6 rounded-lg shadow-lg relative overflow-hidden flex items-center justify-between">
+<!-- Abstract glassmorphism circle -->
+<div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+<div class="relative z-10 flex items-center gap-4">
+<div class="bg-primary-container p-3 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container text-3xl" data-icon="military_tech">military_tech</span>
+</div>
+<div>
+<p class="text-on-primary/70 text-xs font-bold uppercase tracking-widest">Global Rank</p>
+<h3 class="font-headline text-2xl font-black text-on-primary">Lv.3</h3>
+</div>
+</div>
+<button class="relative z-10 bg-white/20 hover:bg-white/30 backdrop-blur-md p-2 rounded-full text-on-primary transition-all">
+<span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</section>
+<!-- Currency Row -->
+<section class="grid grid-cols-2 gap-4">
+<div class="bg-secondary-container/20 p-4 rounded-lg flex items-center gap-4 transition-transform active:scale-95 border border-secondary/10">
+<div class="bg-secondary-container w-10 h-10 rounded-full flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-on-secondary-fixed" data-icon="monetization_on">monetization_on</span>
+</div>
+<div>
+<p class="text-xs font-bold text-on-secondary-fixed-variant uppercase">My coins</p>
+<p id="coins" class="font-headline font-bold text-lg text-on-secondary-fixed">0</p>
+</div>
+</div>
+<div class="bg-tertiary-container/20 p-4 rounded-lg flex items-center gap-4 transition-transform active:scale-95 border border-tertiary/10">
+<div class="bg-tertiary-container w-10 h-10 rounded-full flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-on-tertiary-container" data-icon="diamond" style="font-variation-settings: 'FILL' 1;">diamond</span>
+</div>
+<div>
+<p class="text-xs font-bold text-on-tertiary-fixed-variant uppercase">My gems</p>
+<p class="font-headline font-bold text-lg text-on-tertiary-container">444</p>
+</div>
+</div>
+</section>
+<!-- Feature Grid (Action Icons) -->
+<section class="bg-surface-container-low/50 p-6 rounded-xl">
+<div class="grid grid-cols-4 gap-4">
+<button class="flex flex-col items-center gap-2 group">
+<div class="w-14 h-14 bg-surface-container-lowest rounded-2xl flex items-center justify-center shadow-sm group-hover:bg-primary group-hover:text-white transition-all duration-300">
+<span class="material-symbols-outlined text-primary group-hover:text-white" data-icon="storefront">storefront</span>
+</div>
+<span class="text-xs font-bold text-on-surface-variant">Store</span>
+</button>
+<button class="flex flex-col items-center gap-2 group">
+<div class="w-14 h-14 bg-surface-container-lowest rounded-2xl flex items-center justify-center shadow-sm group-hover:bg-secondary group-hover:text-white transition-all duration-300">
+<span class="material-symbols-outlined text-secondary group-hover:text-white" data-icon="person_add">person_add</span>
+</div>
+<span class="text-xs font-bold text-on-surface-variant">Invite</span>
+</button>
+<button class="flex flex-col items-center gap-2 group">
+<div class="w-14 h-14 bg-surface-container-lowest rounded-2xl flex items-center justify-center shadow-sm group-hover:bg-tertiary group-hover:text-white transition-all duration-300">
+<span class="material-symbols-outlined text-tertiary group-hover:text-white" data-icon="task_alt">task_alt</span>
+</div>
+<span class="text-xs font-bold text-on-surface-variant">Tasks</span>
+</button>
+<button class="flex flex-col items-center gap-2 group">
+<div class="w-14 h-14 bg-surface-container-lowest rounded-2xl flex items-center justify-center shadow-sm group-hover:bg-on-primary-fixed-variant group-hover:text-white transition-all duration-300">
+<span class="material-symbols-outlined text-on-primary-fixed-variant group-hover:text-white" data-icon="support_agent">support_agent</span>
+</div>
+<span class="text-xs font-bold text-on-surface-variant">Agent</span>
+</button>
+</div>
+</section>
+<!-- System List -->
+<section class="space-y-1">
+<div class="bg-surface-container-lowest rounded-lg overflow-hidden">
+<button class="w-full flex items-center gap-4 px-5 py-4 hover:bg-surface-container-low transition-colors text-left group">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors" data-icon="translate">translate</span>
+<span class="flex-1 font-semibold text-on-surface">Language</span>
+<span class="material-symbols-outlined text-outline-variant" data-icon="chevron_right">chevron_right</span>
+</button>
+<div class="mx-5 h-px bg-surface-container"></div>
+<button class="w-full flex items-center gap-4 px-5 py-4 hover:bg-surface-container-low transition-colors text-left group">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors" data-icon="quiz">quiz</span>
+<span class="flex-1 font-semibold text-on-surface">FAQ &amp; Feedback</span>
+<span class="material-symbols-outlined text-outline-variant" data-icon="chevron_right">chevron_right</span>
+</button>
+<div class="mx-5 h-px bg-surface-container"></div>
+<button class="w-full flex items-center gap-4 px-5 py-4 hover:bg-surface-container-low transition-colors text-left group">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors" data-icon="tune">tune</span>
+<span class="flex-1 font-semibold text-on-surface">Settings</span>
+<span class="material-symbols-outlined text-outline-variant" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pt-3 pb-8 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-t-[2rem] z-50 shadow-[0_-4px_24px_rgba(0,0,0,0.06)]">
+<!-- Video -->
+<button class="flex items-center justify-center text-slate-400 w-12 h-12 hover:scale-110 transition-transform active:scale-90">
+<span class="material-symbols-outlined text-2xl" data-icon="movie">movie</span>
+</button>
+<!-- Groups (Party) -->
+<button class="flex items-center justify-center text-slate-400 w-12 h-12 hover:scale-110 transition-transform active:scale-90">
+<span class="material-symbols-outlined text-2xl" data-icon="celebration">celebration</span>
+</button>
+<!-- Discover -->
+<button class="flex items-center justify-center text-slate-400 w-12 h-12 hover:scale-110 transition-transform active:scale-90">
+<span class="material-symbols-outlined text-2xl" data-icon="explore">explore</span>
+</button>
+<!-- Chat Bubble -->
+<button class="relative flex items-center justify-center text-slate-400 w-12 h-12 hover:scale-110 transition-transform active:scale-90">
+<span class="material-symbols-outlined text-2xl" data-icon="chat">chat</span>
+<span class="absolute -top-1 -right-1 bg-error-container text-on-error px-1.5 py-0.5 rounded-full text-[10px] font-bold">99+</span>
+</button>
+<!-- Person (Active) -->
+<button class="flex items-center justify-center bg-cyan-100 text-cyan-700 rounded-full w-12 h-12 hover:scale-110 transition-transform active:scale-90">
+<span class="material-symbols-outlined text-2xl" data-icon="person" style="font-variation-settings: 'FILL' 1;">person</span>
+</button>
 </nav>
 
-<!-- SCRIPT -->
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
@@ -87,7 +275,7 @@ import {
   collection, onSnapshot
 } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-/* FIREBASE */
+/* CONFIG */
 const app = initializeApp({
   apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
   authDomain: "galmet-app.firebaseapp.com",
@@ -109,37 +297,41 @@ const myUid = me.uid;
 async function loadUser(){
 
   const snap = await getDoc(doc(db,"users",myUid));
-
   if(!snap.exists()) return;
 
   const u = snap.data();
 
-  document.getElementById("name").innerText = u.username || "User";
+  document.getElementById("username").innerText =
+    u.username || "User";
 
-  document.getElementById("uidText").innerText =
+  document.getElementById("userIdText").innerText =
     "ID: " + (u.userId || "");
 
-  document.getElementById("photo").src =
+  document.getElementById("profileImg").src =
     u.photoURL || "https://ui-avatars.com/api/?name=User";
 
   document.getElementById("coins").innerText =
     u.coins || 0;
 }
 
-/* REALTIME COUNTS */
+/* REALTIME STATS */
 onSnapshot(collection(db,"followers",myUid,"list"), s=>{
-  document.getElementById("followers").innerText = s.size;
+  document.getElementById("followersCount").innerText = s.size;
 });
 
 onSnapshot(collection(db,"following",myUid,"list"), s=>{
-  document.getElementById("following").innerText = s.size;
+  document.getElementById("followingCount").innerText = s.size;
 });
 
 onSnapshot(collection(db,"friends",myUid,"list"), s=>{
-  document.getElementById("friends").innerText = s.size;
+  document.getElementById("friendsCount").innerText = s.size;
 });
 
 /* NAVIGATION */
+window.goView = () => {
+  location.href = "view.html?id=" + myUid;
+};
+
 window.goProfile = () => {
   location.href = "profile.html";
 };
@@ -148,22 +340,7 @@ window.goSettings = () => {
   location.href = "settings.html";
 };
 
-window.goChats = () => {
-  location.href = "chats.html";
-};
-
-window.goDashboard = () => {
-  location.href = "dashboard.html";
-};
-
-window.goParty = () => {
-  location.href = "party.html";
-};
-
 /* START */
 loadUser();
 
 </script>
-
-</body>
-</html>
