@@ -163,7 +163,8 @@
 <button class="active-scale w-full py-4 px-6 rounded-full bg-surface-container-lowest text-on-surface-variant font-label font-semibold flex items-center justify-center gap-3 transition-colors hover:bg-white shadow-sm">
 <span class="material-symbols-outlined text-primary" data-icon="mail" style="font-variation-settings: 'FILL' 1;">mail</span>
                         Log in with Email
-                    </button>
+                    <!-- Email -->
+<button id="emailLoginBtn" class="active-scale w-full ...">
 </div>
 <!-- Terms and Conditions -->
 <div class="pt-4 flex items-start gap-3 text-left">
@@ -193,7 +194,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 
-// 🔥 YOUR FIREBASE CONFIG (SAME)
 const firebaseConfig = {
     apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
     authDomain: "galmet-app.firebaseapp.com",
@@ -206,33 +206,27 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// 🚀 AUTO LOGIN CHECK
+// ✅ AUTO LOGIN
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        // Already logged in → go dashboard
         window.location.href = "dashboard.html";
     }
 });
 
-// 🎯 BUTTONS CONTROL
-const buttons = document.querySelectorAll("button");
-
-// 0 → Quick Login
-buttons[0].onclick = () => {
+// ✅ BUTTONS (SAFE)
+document.getElementById("quickLoginBtn").onclick = () => {
     window.location.href = "login.html";
 };
 
-// 1 → Google login (later)
-buttons[1].onclick = () => {
+document.getElementById("emailLoginBtn").onclick = () => {
+    window.location.href = "login.html";
+};
+
+document.getElementById("googleLoginBtn").onclick = () => {
     alert("Google login coming soon 🚀");
 };
 
-// 2 → Email login
-buttons[2].onclick = () => {
-    window.location.href = "login.html";
-};
-
-// ❓ Help button
+// ✅ HELP BUTTON
 document.querySelector("header button").onclick = () => {
     window.location.href = "feedback.html";
 };
