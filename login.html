@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Galmet Login</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+<div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md text-center">
+
+<h1 class="text-3xl font-bold mb-6">Login to Galmet</h1>
+
+<input id="email" type="email" placeholder="Enter your email"
+class="w-full p-3 border rounded-lg mb-4"/>
+
+<button onclick="sendOtp()" 
+class="w-full bg-blue-600 text-white p-3 rounded-lg mb-3">
+Send Login Link
+</button>
+
+<p id="status" class="text-sm text-gray-600"></p>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { 
+  getAuth, 
+  sendSignInLinkToEmail, 
+  isSignInWithEmailLink, 
+  signInWithEmailLink 
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+
+import { 
+  getFirestore, 
+  doc, 
+  setDoc, 
+  getDoc, 
+  serverTimestamp 
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+// 🔥 YOUR CONFIG
+const firebaseConfig = {
+  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+  authDomain: "galmet-app.firebaseapp.com",
+  projectId: "galmet-app",
+  storageBucket: "galmet-app.firebasestorage.app",
+  messagingSenderId: "900590512024",
+  appId: "1:900590512024:web:16a36a085809a728c92ded"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// ✅ SEND OTP (EMAIL LINK)
+window.sendOtp = async () => {
+  const email = document.getElementById("email").value;
+
+  if (!email) {
+    alert("Enter email");
+    return;
+  }
+
+  await sendSignInLinkToEmail(auth, email, {
+    url: window.location.href, // SAME PAGE
+    handleCodeInApp: true,
+  });
+
+  localStorage.setItem("emailForSignIn", email);
+
+  document.getElementById("status").innerText =
+    "✅ Login link sent! Check your email.";
+};
+
+// ✅ VERIFY LOGIN (AUTO WHEN RETURN FROM EMAIL)
+const email = localStorage.getItem("emailForSignIn");
+
+if (isSignInWithEmailLink(auth, window.location.href)) {
+
+  if (!email) {
+    alert("Email missing, try again");
+  } else {
+
+    const result = await signInWithEmailLink(auth, email, window.location.href);
+
+    const user = result.user;
+
+    // 🔥 CHECK IF USER EXISTS
+    const userRef = doc(db, "users", user.uid);
+    const snap = await getDoc(userRef);
+
+    if (!snap.exists()) {
+      // 🆕 NEW USER → CREATE DATA
+      await setDoc(userRef, {
+        email: user.email,
+        coins: 500,
+        createdAt: serverTimestamp(),
+        username: "",
+        photoURL: ""
+      });
+
+      // 👉 GO TO GENDER SETUP
+      window.location.href = "gender.html";
+
+    } else {
+      // 👤 EXISTING USER → DASHBOARD
+      window.location.href = "dashboard.html";
+    }
+  }
+}
+</script>
+
+</body>
+</html>
