@@ -119,13 +119,17 @@
 <div class="relative group">
 <div class="w-56 h-56 rounded-xl bg-surface-container-lowest flex items-center justify-center p-2 shadow-[0_20px_50px_rgba(0,101,113,0.05)] border border-white/50 relative overflow-hidden">
 <!-- Default Placeholder -->
-<img class="w-full h-full object-cover rounded-lg grayscale opacity-40 mix-blend-multiply" data-alt="Modern 3D character illustration of a smiling male avatar with soft studio lighting and a clean cyan background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqba_eHgXk9wqNss4SqIjBXuBclP80ok0HQlws9S3oFrpw5A6gucs1hzlHpNdaK8gqkOD-68-qOXz0fclQlFvKuoDVKxQwlLw5BzIimSKmx9yiostnuVefX12_aCWeyZnOH8J3iK9KZmdLgk1ZB_qvhwSJvpo02F77Pfd_dM5EiwFTGVphAcmdbpYoDY1TNuU710oUHFZPesivJWxlJybgylf31sqiO_OTp0dtlgmU2-Fy_f7k4a18U443pbXIo_FrA0CAii9_ZZo1"/>
+<img id="profilePreview" class="w-full h-full object-cover rounded-lg" src="https://ui-avatars.com/api/?name=User">
 <div class="absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent flex items-center justify-center">
 <span class="material-symbols-outlined text-primary-dim text-6xl opacity-20" data-icon="person">person</span>
 </div>
 </div>
 <!-- Floating Upload Action -->
-<input type="file" id="photoInput" hidden>
+<button onclick="document.getElementById('photoInput').click()" class="absolute -bottom-4 -right-4 bg-primary text-on-primary w-14 h-14 rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-all">
+<span class="material-symbols-outlined text-3xl">photo_camera</span>
+</button>
+
+<input type="file" id="photoInput" accept="image/*" hidden>
 
 <button onclick="document.getElementById('photoInput').click()" class="absolute -bottom-4 -right-4 bg-primary text-on-primary w-14 h-14 rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-all">
 <span class="material-symbols-outlined text-3xl" data-icon="photo_camera">photo_camera</span>
@@ -164,10 +168,10 @@
 </div>
 <!-- Sticky Footer Action -->
 <div class="mt-12 space-y-4">
-<button onclick="completeSetup()" class="w-full py-5 rounded-full bg-gradient-to-r from-primary to-primary-fixed-dim text-white font-headline font-bold text-lg shadow-[0_12px_24px_-8px_rgba(0,101,113,0.4)] hover:shadow-[0_16px_32px_-8px_rgba(0,101,113,0.5)] active:scale-[0.98] transition-all flex items-center justify-center gap-3">
+<button onclick="completeSetup()" class="w-full py-5 rounded-full bg-gradient-to-r from-primary to-primary-fixed-dim text-white font-headline font-bold text-lg" shadow-[0_12px_24px_-8px_rgba(0,101,113,0.4)] hover:shadow-[0_16px_32px_-8px_rgba(0,101,113,0.5)] active:scale-[0.98] transition-all flex items-center justify-center gap-3">
 <span class="material-symbols-outlined" data-icon="check_circle" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check_circle</span>
                 Complete Setup
-            </button>
+            <button>
 <div class="flex items-center justify-center gap-2 py-2">
 <div class="w-2 h-2 rounded-full bg-primary-fixed-dim animate-pulse"></div>
 <p class="text-xs font-label text-outline uppercase tracking-widest">Redirecting to Discover...</p>
@@ -188,64 +192,150 @@
 </div>
 </body></html>
 
-<script>
-const BASE_URL = "https://us-central1-galmet-app.cloudfunctions.net";
+<script type="module">
 
-let selectedFile = null;
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { getFirestore, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
 
-document.getElementById("photoInput").addEventListener("change", function(e){
-  selectedFile = e.target.files[0];
+const app = initializeApp({
+  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+  authDomain: "galmet-app.firebaseapp.com",
+  projectId: "galmet-app",
+  storageBucket: "galmet-app.firebasestorage.app"
 });
 
-// FINAL COMPLETE
-async function completeSetup() {
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
 
-  const user = JSON.parse(localStorage.getItem("user"));
+let currentUser = null;
 
-  if (!user) {
-    alert("User not found");
+// ✅ AUTH CHECK
+onAuthStateChanged(auth, (user)=>{
+  if(!user){
+    window.location = "index.html";
+  } else {
+    currentUser = user;
+  }
+});
+
+// ✅ IMAGE PREVIEW
+window.addEventListener("DOMContentLoaded", () => {
+
+  const input = document.getElementById("photoInput");
+  const preview = document.getElementById("profilePreview");
+
+  input.addEventListener("change", (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+
+    // SHOW IMAGE IN UI
+    const reader = new FileReader();
+    reader.onload = (ev)=>{
+      preview.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+});
+
+
+// ✅ IMAGE COMPRESS FUNCTION (HIGH QUALITY)
+async function compressImage(file) {
+  return new Promise((resolve) => {
+
+    const img = new Image();
+    const reader = new FileReader();
+
+    reader.onload = (e) => img.src = e.target.result;
+
+    img.onload = () => {
+
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      // 🔥 MAX SIZE (BEST FOR APPS)
+      const maxSize = 512;
+
+      let width = img.width;
+      let height = img.height;
+
+      if (width > height) {
+        if (width > maxSize) {
+          height *= maxSize / width;
+          width = maxSize;
+        }
+      } else {
+        if (height > maxSize) {
+          width *= maxSize / height;
+          height = maxSize;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+
+      ctx.drawImage(img, 0, 0, width, height);
+
+      // 🔥 QUALITY 0.8 (BEST BALANCE)
+      canvas.toBlob((blob) => {
+        resolve(blob);
+      }, "image/jpeg", 0.8);
+
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
+
+
+// ✅ COMPLETE SETUP
+window.completeSetup = async function(){
+
+  if(!currentUser){
+    alert("Please wait...");
     return;
   }
 
-  let photoURL = "";
+  const file = document.getElementById("photoInput").files[0];
 
-  // SIMPLE IMAGE → BASE64
-  if (selectedFile) {
-    const reader = new FileReader();
-
-    reader.onload = async function(e) {
-
-      photoURL = e.target.result;
-
-      await saveFinal(user.email, photoURL);
-    };
-
-    reader.readAsDataURL(selectedFile);
-
-  } else {
-    await saveFinal(user.email, "");
+  if(!file){
+    alert("Please select image");
+    return;
   }
-}
 
-async function saveFinal(email, photoURL) {
+  try {
 
-  const res = await fetch(BASE_URL + "/completeProfile", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      email,
-      photoURL
-    })
-  });
+    // 🔥 COMPRESS IMAGE
+    const compressed = await compressImage(file);
 
-  const data = await res.json();
+    const storageRef = ref(storage, "profiles/" + currentUser.uid);
 
-  if (data.success) {
-    window.location.href = "dashboard.html";
-  } else {
-    alert("Error saving profile");
+    // 🔥 UPLOAD COMPRESSED FILE
+    await uploadBytes(storageRef, compressed);
+
+    const photoURL = await getDownloadURL(storageRef);
+
+    // 🔥 SAVE TO FIRESTORE
+    await updateDoc(doc(db, "users", currentUser.uid), {
+      photoURL: photoURL,
+      profileCompleted: true
+    });
+
+    // SAVE LOCAL
+    localStorage.setItem("user", JSON.stringify({
+      uid: currentUser.uid,
+      photoURL: photoURL
+    }));
+
+    window.location = "dashboard.html";
+
+  } catch(err){
+    console.error(err);
+    alert("Upload failed ❌");
   }
-}
+};
+
 </script>
