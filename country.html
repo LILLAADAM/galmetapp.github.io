@@ -62,6 +62,9 @@ document.getElementById("search").oninput = (e)=>{
   render(countries.filter(c=>c.name.toLowerCase().includes(v)));
 };
 
+localStorage.removeItem("selectedCountry");
+localStorage.setItem("selectedCountry", JSON.stringify(c));
+
 </script>
 
 </body>
