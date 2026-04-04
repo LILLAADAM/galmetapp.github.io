@@ -287,10 +287,15 @@ async function verifyOtp() {
       // 🔥 NEW USER
       const newUser = {
         email: email,
-        userId: generateUserId(),
+        userId: userId,
         coins: 500,
         username: "",
-        photoURL: ""
+        photoURL: "",
+        inviteCode: "INV" + userId,
+        referredBy: null,
+        totalInvites: 0,
+        totalEarned: 0,
+        profileCompleted: false
       };
 
       const createRes = await fetch(BASE_URL + "/createUser", {
