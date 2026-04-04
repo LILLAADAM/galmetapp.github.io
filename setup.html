@@ -213,14 +213,28 @@ const storage = getStorage(app);
 let currentUser = null;
 
 // ✅ AUTH CHECK (FIXED DELAY)
+console.log("🔥 Script Loaded");
+
 onAuthStateChanged(auth, (user)=>{
+  console.log("👤 Auth State Changed:", user);
+
   if(!user){
+    console.log("❌ No user detected");
+
     setTimeout(()=>{
+      console.log("⏳ Checking again after delay:", auth.currentUser);
+
       if(!auth.currentUser){
+        console.log("🚨 Redirecting to index.html");
         window.location = "index.html";
+      } else {
+        console.log("✅ User recovered after delay");
       }
-    },1500);
+
+    },2000);
+
   } else {
+    console.log("✅ User logged in:", user.uid);
     currentUser = user;
   }
 });
@@ -293,44 +307,50 @@ async function compressImage(file) {
 // ✅ COMPLETE SETUP
 window.completeSetup = async function(){
 
+  console.log("🚀 Complete button clicked");
+
   if(!currentUser){
-    alert("Please wait...");
+    console.log("❌ currentUser is NULL");
+    alert("User not loaded yet");
     return;
   }
+
+  console.log("✅ currentUser:", currentUser);
 
   const file = document.getElementById("photoInput").files[0];
 
   if(!file){
+    console.log("❌ No file selected");
     alert("Please select image");
     return;
   }
 
+  console.log("📷 File selected:", file);
+
   try {
 
     const compressed = await compressImage(file);
+    console.log("🧠 Image compressed");
 
     const storageRef = ref(storage, "profiles/" + currentUser.uid);
 
     await uploadBytes(storageRef, compressed);
+    console.log("☁️ Uploaded to storage");
 
     const photoURL = await getDownloadURL(storageRef);
+    console.log("🔗 URL:", photoURL);
 
     await updateDoc(doc(db, "users", currentUser.uid), {
       photoURL: photoURL,
       profileCompleted: true
     });
 
-    // ✅ SAVE LOCAL
-    localStorage.setItem("user", JSON.stringify({
-      uid: currentUser.uid,
-      email: currentUser.email,
-      photoURL: photoURL
-    }));
+    console.log("🔥 Firestore updated");
 
     window.location = "dashboard.html";
 
   } catch(err){
-    console.error(err);
+    console.error("❌ ERROR:", err);
     alert("Upload failed ❌");
   }
 };
