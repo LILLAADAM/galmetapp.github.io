@@ -1,439 +1,628 @@
 <!DOCTYPE html>
-
-<html lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Galmet - Registration Step 2</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Be+Vietnam+Pro:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            "colors": {
-                    "on-secondary-fixed": "#443100",
-                    "surface-variant": "#d7dee3",
-                    "primary-dim": "#005863",
-                    "secondary-container": "#ffca4d",
-                    "on-primary-fixed-variant": "#005762",
-                    "on-error-container": "#570008",
-                    "surface-container-low": "#ecf1f6",
-                    "outline": "#73777b",
-                    "inverse-primary": "#00e3fd",
-                    "on-background": "#2a2f32",
-                    "background": "#f3f7fb",
-                    "on-surface": "#2a2f32",
-                    "secondary-fixed-dim": "#f7ba00",
-                    "on-primary-container": "#004d57",
-                    "surface-bright": "#f3f7fb",
-                    "primary-container": "#00e3fd",
-                    "error": "#b31b25",
-                    "surface-container-high": "#dde3e8",
-                    "on-tertiary-fixed-variant": "#770033",
-                    "tertiary": "#b60051",
-                    "on-tertiary-fixed": "#380014",
-                    "tertiary-fixed-dim": "#ff769b",
-                    "primary-fixed-dim": "#00d4ec",
-                    "on-primary": "#d8f8ff",
-                    "surface-container-lowest": "#ffffff",
-                    "on-secondary-fixed-variant": "#674c00",
-                    "outline-variant": "#a9aeb1",
-                    "surface-container": "#e3e9ee",
-                    "on-tertiary": "#ffeff0",
-                    "surface-container-highest": "#d7dee3",
-                    "surface": "#f3f7fb",
-                    "on-tertiary-container": "#66002b",
-                    "on-surface-variant": "#575c60",
-                    "tertiary-container": "#ff8fa9",
-                    "on-secondary-container": "#5c4400",
-                    "secondary": "#755700",
-                    "surface-dim": "#ced5db",
-                    "tertiary-dim": "#a00047",
-                    "error-dim": "#9f0519",
-                    "primary-fixed": "#00e3fd",
-                    "primary": "#006571",
-                    "error-container": "#fb5151",
-                    "secondary-fixed": "#ffca4d",
-                    "surface-tint": "#006571",
-                    "on-error": "#ffefee",
-                    "on-secondary": "#fff1db",
-                    "inverse-surface": "#0a0f12",
-                    "tertiary-fixed": "#ff8fa9",
-                    "secondary-dim": "#664b00",
-                    "on-primary-fixed": "#003840",
-                    "inverse-on-surface": "#999da1"
-            .wheel{
-  height:100%;
-  overflow-y:auto;
-  scroll-snap-type:y mandatory;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-}
-
-.wheel::-webkit-scrollbar{
-  display:none;
-}
-
-.item{
-  height:40px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  scroll-snap-align:center;
-  font-weight:600;
-  color:#2a2f32;
-}
-
-.spacer{
-  height:80px; /* 🔥 FIX */
-}
-            
-            },
-            "borderRadius": {
-                    "DEFAULT": "1rem",
-                    "lg": "2rem",
-                    "xl": "3rem",
-                    "full": "9999px"
-            },
-            "fontFamily": {
-                    "headline": ["Plus Jakarta Sans"],
-                    "body": ["Be Vietnam Pro"],
-                    "label": ["Plus Jakarta Sans"]
-                   } 
-                },
-             },
-           }
-    </script>
-<style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Galmet — Create Profile</title>
+  <!-- Tailwind + Fonts -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-secondary-fixed": "#443100",
+            "surface-variant": "#d7dee3",
+            "primary-dim": "#005863",
+            "secondary-container": "#ffca4d",
+            "on-primary-fixed-variant": "#005762",
+            "on-error-container": "#570008",
+            "surface-container-low": "#ecf1f6",
+            "outline": "#73777b",
+            "inverse-primary": "#00e3fd",
+            "on-background": "#2a2f32",
+            "background": "#f3f7fb",
+            "on-surface": "#2a2f32",
+            "secondary-fixed-dim": "#f7ba00",
+            "on-primary-container": "#004d57",
+            "surface-bright": "#f3f7fb",
+            "primary-container": "#00e3fd",
+            "error": "#b31b25",
+            "surface-container-high": "#dde3e8",
+            "on-tertiary-fixed-variant": "#770033",
+            "tertiary": "#b60051",
+            "on-tertiary-fixed": "#380014",
+            "tertiary-fixed-dim": "#ff769b",
+            "primary-fixed-dim": "#00d4ec",
+            "on-primary": "#d8f8ff",
+            "surface-container-lowest": "#ffffff",
+            "on-secondary-fixed-variant": "#674c00",
+            "outline-variant": "#a9aeb1",
+            "surface-container": "#e3e9ee",
+            "on-tertiary": "#ffeff0",
+            "surface-container-highest": "#d7dee3",
+            "surface": "#f3f7fb",
+            "on-tertiary-container": "#66002b",
+            "on-surface-variant": "#575c60",
+            "tertiary-container": "#ff8fa9",
+            "on-secondary-container": "#5c4400",
+            "secondary": "#755700",
+            "surface-dim": "#ced5db",
+            "tertiary-dim": "#a00047",
+            "error-dim": "#9f0519",
+            "primary-fixed": "#00e3fd",
+            "primary": "#006571",
+            "error-container": "#fb5151",
+            "secondary-fixed": "#ffca4d",
+            "surface-tint": "#006571",
+            "on-error": "#ffefee",
+            "on-secondary": "#fff1db",
+            "inverse-surface": "#0a0f12",
+            "tertiary-fixed": "#ff8fa9",
+            "secondary-dim": "#664b00",
+            "on-primary-fixed": "#003840",
+            "inverse-on-surface": "#999da1"
+          },
+          borderRadius: {
+            DEFAULT: "1rem",
+            lg: "2rem",
+            xl: "3rem",
+            full: "9999px"
+          },
+          fontFamily: {
+            headline: ["Plus Jakarta Sans"],
+            body: ["Be Vietnam Pro"],
+            label: ["Plus Jakarta Sans"]
+          }
         }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        .wheel-picker-gradient {
-            background: linear-gradient(to bottom, 
-                rgba(255,255,255,1) 0%, 
-                rgba(255,255,255,0) 25%, 
-                rgba(255,255,255,0) 75%, 
-                rgba(255,255,255,1) 100%);
-        }
-    </style>
+      }
+    }
+  </script>
+  <style>
+    /* custom wheel snap + smooth behavior */
+    .wheel {
+      height: 100%;
+      overflow-y: auto;
+      scroll-snap-type: y mandatory;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      scroll-behavior: smooth;
+    }
+    .wheel::-webkit-scrollbar {
+      display: none;
+    }
+    .item {
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      scroll-snap-align: center;
+      font-weight: 600;
+      color: #1e262c;
+      font-size: 1rem;
+      transition: all 0.1s ease;
+      width: 100%;
+      text-align: center;
+      font-family: 'Be Vietnam Pro', sans-serif;
+    }
+    .item.selected {
+      color: #006571;
+      font-weight: 800;
+      font-size: 1.2rem;
+      background: rgba(0, 227, 253, 0.15);
+      border-radius: 2rem;
+      transform: scale(1.02);
+    }
+    .spacer {
+      height: 80px;
+      flex-shrink: 0;
+    }
+    .wheel-picker-gradient {
+      background: linear-gradient(to bottom, 
+        rgba(243,247,251,1) 0%, 
+        rgba(243,247,251,0) 20%, 
+        rgba(243,247,251,0) 80%, 
+        rgba(243,247,251,1) 100%);
+      pointer-events: none;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
 </head>
 <body class="bg-background font-body text-on-background min-h-screen flex flex-col items-center overflow-x-hidden">
-<!-- Top App Bar -->
-<header class="w-full top-0 flex items-center justify-between px-6 h-14 w-full max-w-md mx-auto shrink-0">
-<button class="text-cyan-600 dark:text-cyan-400 hover:opacity-80 transition-opacity active:scale-95 duration-150">
-<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
-</button>
-<h1 class="font-['Plus_Jakarta_Sans'] font-semibold tracking-tight text-xl font-bold bg-gradient-to-r from-cyan-600 to-cyan-400 bg-clip-text text-transparent">Galmet</h1>
-<div class="w-6"></div>
-</header>
-<main class="flex-1 w-full max-w-md px-6 py-2 flex flex-col gap-4 overflow-y-auto no-scrollbar">
-<!-- Progress Header -->
-<div class="flex flex-col gap-1.5">
-<div class="flex justify-between items-end">
-<h2 class="font-headline text-xl text-primary font-bold">Create Profile</h2>
-<span class="font-label text-xs text-outline font-medium">Step 2 of 3</span>
-</div>
-<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
-<div class="h-full w-2/3 bg-primary-fixed-dim rounded-full"></div>
-</div>
-</div>
-<!-- Nickname Input -->
-<section class="flex flex-col gap-1.5">
-<label class="font-label text-xs text-on-surface-variant px-1 font-semibold uppercase tracking-wider">Choose a unique nickname</label>
-<div class="relative group">
-<input id="nickname"
-class="w-full bg-surface-container-lowest border-none ring-1 ring-outline-variant/15 focus:ring-2 focus:ring-primary rounded-lg px-4 py-3 font-body text-on-surface transition-all placeholder:text-outline/50"
-placeholder="e.g. SkyWalker"
-type="text"/>
-<div class="absolute right-4 top-1/2 -translate-y-1/2 text-primary-fixed-dim">
-<span class="material-symbols-outlined text-xl" data-icon="account_circle">account_circle</span>
-</div>
-</div>
-</section>
-<!-- Region Selection -->
-<button onclick="openCountryPage()" 
-class="flex items-center justify-between w-full bg-surface-container-lowest ring-1 ring-outline-variant/15 rounded-lg px-4 py-3 active:scale-[0.98] transition-all">
 
-<div class="flex items-center gap-3">
+  <!-- Top App Bar -->
+  <header class="w-full top-0 flex items-center justify-between px-6 h-14 max-w-md mx-auto shrink-0">
+    <button onclick="history.back()" class="text-cyan-700 hover:opacity-80 active:scale-95 transition-all duration-150">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h1 class="font-headline font-bold text-xl bg-gradient-to-r from-primary to-primary-dim bg-clip-text text-transparent tracking-tight">Galmet</h1>
+    <div class="w-6"></div>
+  </header>
 
-<div id="countryFlag" class="w-7 h-7 rounded-full bg-surface-container flex items-center justify-center">
-🌍
-</div>
+  <main class="flex-1 w-full max-w-md px-6 py-2 flex flex-col gap-5 overflow-y-auto no-scrollbar pb-8">
+    <!-- Progress Header -->
+    <div class="flex flex-col gap-1.5">
+      <div class="flex justify-between items-end">
+        <h2 class="font-headline text-xl text-primary font-bold tracking-tight">Create Profile</h2>
+        <span class="font-label text-xs text-outline font-semibold">Step 2 of 3</span>
+      </div>
+      <div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+        <div class="h-full w-2/3 bg-primary-fixed-dim rounded-full"></div>
+      </div>
+    </div>
 
-<span id="countryName" class="text-outline text-sm">
-Please select region
-</span>
+    <!-- Nickname -->
+    <section class="flex flex-col gap-1.5">
+      <label class="font-label text-xs text-on-surface-variant px-1 font-bold uppercase tracking-wider">Choose a unique nickname</label>
+      <div class="relative group">
+        <input id="nickname" type="text" 
+          class="w-full bg-surface-container-lowest border-none ring-1 ring-outline-variant/20 focus:ring-2 focus:ring-primary rounded-xl px-4 py-3.5 font-body text-on-surface transition-all placeholder:text-outline/50"
+          placeholder="e.g. SkyWalker">
+        <div class="absolute right-4 top-1/2 -translate-y-1/2 text-primary-fixed-dim">
+          <span class="material-symbols-outlined text-xl">account_circle</span>
+        </div>
+      </div>
+    </section>
 
-</div>
+    <!-- Region Selection (Country) -->
+    <section class="flex flex-col gap-1.5">
+      <label class="font-label text-xs text-on-surface-variant px-1 font-bold uppercase tracking-wider">Your region</label>
+      <button onclick="openCountryPage()" 
+        class="flex items-center justify-between w-full bg-surface-container-lowest ring-1 ring-outline-variant/20 rounded-xl px-4 py-3.5 active:scale-[0.98] transition-all">
+        <div class="flex items-center gap-3">
+          <div id="countryFlag" class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-xl">🌍</div>
+          <span id="countryName" class="text-on-surface font-medium text-sm">Select country</span>
+        </div>
+        <span class="material-symbols-outlined text-outline">expand_more</span>
+      </button>
+    </section>
 
-<span class="material-symbols-outlined">expand_more</span>
+    <!-- Scrolling Date Picker (Day / Month / Year) -->
+    <section class="flex flex-col gap-2">
+      <label class="font-label text-xs text-on-surface-variant px-1 font-bold uppercase tracking-wider">Birth date</label>
+      <div class="relative bg-surface-container-low rounded-2xl flex justify-between items-center h-56 overflow-hidden ring-1 ring-outline-variant/20 shadow-sm">
+        
+        <!-- Center selection bar (visual) -->
+        <div class="absolute left-3 right-3 top-1/2 -translate-y-1/2 h-11 bg-primary-container/25 rounded-xl z-10 backdrop-blur-[2px] border border-white/20"></div>
 
-</button>
-<!-- Scrolling Date Picker -->
-<section class="flex flex-col gap-2">
-<label class="font-label text-xs text-on-surface-variant px-1 font-semibold uppercase tracking-wider">
-Birth Date
-</label>
+        <!-- DAY WHEEL -->
+        <div id="dayWheel" class="wheel w-1/4"></div>
+        <!-- MONTH WHEEL -->
+        <div id="monthWheel" class="wheel w-2/5"></div>
+        <!-- YEAR WHEEL -->
+        <div id="yearWheel" class="wheel w-1/4"></div>
 
-<div class="relative bg-surface-container-low rounded-xl flex justify-between items-center h-48 overflow-hidden ring-1 ring-outline-variant/20">
+        <!-- Gradient overlay for fade effect -->
+        <div class="absolute inset-0 pointer-events-none z-20 rounded-2xl" style="background: linear-gradient(to bottom, #f3f7fb 0%, rgba(243,247,251,0) 22%, rgba(243,247,251,0) 78%, #f3f7fb 100%);"></div>
+      </div>
+      <p class="text-[11px] text-outline/70 px-1">scroll to pick • must be 18+</p>
+    </section>
 
-<!-- CENTER BAR -->
-<div class="absolute left-3 right-3 top-1/2 -translate-y-1/2 h-10 bg-primary-container/20 rounded-lg z-10"></div>
+    <!-- Action Buttons -->
+    <div class="mt-3 pb-8 flex flex-col gap-3">
+      <button onclick="saveStep2()" 
+        class="w-full h-12 bg-gradient-to-r from-primary to-primary-dim text-on-primary rounded-full font-headline font-bold tracking-wide flex items-center justify-center gap-2 shadow-lg shadow-primary/25 active:scale-95 transition-transform group">
+        <span>Continue</span>
+        <span class="material-symbols-outlined text-xl group-hover:translate-x-1 transition-transform">chevron_right</span>
+      </button>
+      <p class="text-center text-[10px] text-outline font-bold uppercase tracking-[0.1em]">Step 2: Core identity</p>
+    </div>
+  </main>
 
-<!-- DAY -->
-<div id="dayWheel" class="wheel w-1/4"></div>
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" class="fixed inset-0 bg-background/90 backdrop-blur-md z-[100] flex flex-col items-center justify-center hidden transition-all">
+    <div class="relative flex items-center justify-center">
+      <div class="w-20 h-20 border-4 border-primary-container rounded-full animate-pulse"></div>
+      <div class="absolute w-14 h-14 border-4 border-t-primary border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
+      <div class="absolute">
+        <span class="material-symbols-outlined text-primary text-3xl">star</span>
+      </div>
+    </div>
+    <p class="mt-6 font-headline font-bold text-primary tracking-widest uppercase text-[11px] animate-pulse">Synchronizing</p>
+  </div>
 
-<!-- MONTH -->
-<div id="monthWheel" class="wheel w-2/5"></div>
+  <script>
+    // ======================== GLOBALS ========================
+    const BASE_URL = "https://us-central1-galmet-app.cloudfunctions.net";
+    let selectedCountry = null;   // { name, flag, code? }
 
-<!-- YEAR -->
-<div id="yearWheel" class="wheel w-1/4"></div>
+    // months data
+    const MONTHS_FULL = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+    const MONTH_MAP = {
+      January:1, February:2, March:3, April:4, May:5, June:6,
+      July:7, August:8, September:9, October:10, November:11, December:12
+    };
 
-<!-- GRADIENT FIX -->
-<div class="absolute inset-0 pointer-events-none z-20"
-style="background: linear-gradient(to bottom,
-#f3f7fb 0%,
-rgba(243,247,251,0) 25%,
-rgba(243,247,251,0) 75%,
-#f3f7fb 100%);
-">
-</div>
+    // state for dynamic day rebuild
+    let currentMonthIdx = 0;      // 0-index
+    let currentYearVal = 2000;
+    let currentDayVal = 15;
 
-</div>
+    // =============== HELPER: days in month ===============
+    function getDaysInMonth(monthIndex, year) {
+      // monthIndex: 0=Jan, 11=Dec
+      return new Date(year, monthIndex + 1, 0).getDate();
+    }
+
+    // =============== REBUILD DAY WHEEL based on month+year ===============
+    function rebuildDayWheel() {
+      const dayWheel = document.getElementById("dayWheel");
+      if (!dayWheel) return;
+      const maxDays = getDaysInMonth(currentMonthIdx, currentYearVal);
+      // preserve selected day but clamp
+      let newDay = currentDayVal;
+      if (newDay > maxDays) newDay = maxDays;
+      if (newDay < 1) newDay = 1;
+      currentDayVal = newDay;
       
-</section>
-<!-- CTA Section -->
-<div class="mt-4 pb-6 flex flex-col gap-3">
-<button onclick="saveStep2()"
-class="w-full h-12 bg-gradient-to-r from-primary to-primary-dim text-on-primary rounded-full font-headline font-bold tracking-wide flex items-center justify-center gap-2 shadow-lg shadow-primary/20 active:scale-95 transition-transform group">
-<span>Continue</span>
-<span class="material-symbols-outlined text-xl group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
-</button>
-<p class="text-center text-[10px] text-outline font-bold uppercase tracking-[0.1em]">
-                Step 2: Core Identity
-            </p>
-</div>
-</main>
-<!-- Branded Loading Overlay (Hidden) -->
-<div class="fixed inset-0 bg-background/90 backdrop-blur-md z-[100] flex flex-col items-center justify-center hidden">
-<div class="relative flex items-center justify-center">
-<div class="w-20 h-20 border-4 border-primary-container rounded-full animate-pulse"></div>
-<div class="absolute w-14 h-14 border-4 border-t-primary border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
-<div class="absolute">
-<span class="material-symbols-outlined text-primary text-3xl" data-icon="star">star</span>
-</div>
-</div>
-<p class="mt-6 font-headline font-bold text-primary tracking-widest uppercase text-[10px] animate-pulse">Synchronizing</p>
-</div>
-
-<script>
-
-const BASE_URL = "https://us-central1-galmet-app.cloudfunctions.net";
-
-let selectedCountry = null;
-
-// 🔥 AUTO SELECT CENTER ITEM
-function setupWheel(selector){
-  const container = document.querySelector(selector);
-
-  container.addEventListener("scroll", () => {
-
-    const items = container.querySelectorAll(".snap-center");
-
-    let closest = null;
-    let closestOffset = Infinity;
-
-    items.forEach(el=>{
-      const rect = el.getBoundingClientRect();
-      const offset = Math.abs(rect.top + rect.height/2 - window.innerHeight/2);
-
-      if(offset < closestOffset){
-        closestOffset = offset;
-        closest = el;
+      // rebuild HTML
+      let html = '<div class="spacer"></div>';
+      for (let d = 1; d <= maxDays; d++) {
+        html += `<div class="item day-item" data-day="${d}">${d}</div>`;
       }
-
-      el.classList.remove("selected");
-    });
-
-    if(closest){
-      closest.classList.add("selected");
+      html += '<div class="spacer"></div>';
+      dayWheel.innerHTML = html;
+      
+      // scroll to currentDayVal
+      scrollToItem(dayWheel, currentDayVal, 'day');
     }
 
-  });
-
-
-// 🎂 AGE CHECK
-function calculateAge(day, month, year){
-  const today = new Date();
-  let age = today.getFullYear() - year;
-
-  if(
-    today.getMonth()+1 < month ||
-    (today.getMonth()+1 === month && today.getDate() < day)
-  ){
-    age--;
-  }
-
-  return age;
-}
-
-
-// 🚀 SAVE STEP
-async function saveStep2(){
-
-  const nickname = document.getElementById("nickname").value;
-
-  if(!nickname || nickname.length < 3){
-    alert("Enter valid nickname");
-    return;
-  }
-
-  if(!selectedCountry){
-    alert("Select country");
-    return;
-  }
-
-  const dob = getDOB();
-
-  if(!dob.day || !dob.month || !dob.year){
-    alert("Select date");
-    return;
-  }
-
-  const age = calculateAge(dob.day, dob.month, dob.year);
-
-  if(age < 18){
-    alert("You must be 18+");
-    return;
-  }
-
-  const user = JSON.parse(localStorage.getItem("user"));
-
-  try{
-
-    const res = await fetch(BASE_URL + "/updateUserStep2",{
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({
-        email: user.email,
-        username: nickname,
-        country: selectedCountry,
-        dob,
-        age
-      })
-    });
-
-    const data = await res.json();
-
-    if(data.success){
-
-      user.username = nickname;
-      user.country = selectedCountry;
-
-      localStorage.setItem("user", JSON.stringify(user));
-
-      window.location = "setup.html";
-
-    }else{
-      alert(data.message || "Username already taken");
+    // =============== SCROLL TO SPECIFIC VALUE ===============
+    function scrollToItem(wheelElement, targetValue, type) {
+      const items = wheelElement.querySelectorAll('.item');
+      for (let i = 0; i < items.length; i++) {
+        let itemValue = items[i].innerText;
+        if (type === 'month') {
+          if (itemValue === targetValue) {
+            items[i].scrollIntoView({ block: 'center', behavior: 'auto' });
+            return;
+          }
+        } else {
+          if (parseInt(itemValue) === targetValue) {
+            items[i].scrollIntoView({ block: 'center', behavior: 'auto' });
+            return;
+          }
+        }
+      }
+      // fallback: scroll to middle
+      if (items.length > 3) items[Math.floor(items.length/2)].scrollIntoView({ block: 'center' });
     }
 
-  }catch(e){
-    alert("Error saving");
-  }
-}
-
-
-// 🌍 COUNTRY PAGE
-function openCountryPage(){
-  window.location = "country.html";
-}
-
-
-// 🔄 RETURN COUNTRY
-document.addEventListener("DOMContentLoaded", () => {
-  const country = JSON.parse(localStorage.getItem("selectedCountry"));
-
-  if(country){
-    selectedCountry = country;
-    document.getElementById("countryName").innerText = country.name;
-    document.getElementById("countryFlag").innerText = country.flag;
-  }
-});
-
-window.onpageshow = function(){
-  const country = JSON.parse(localStorage.getItem("selectedCountry"));
-
-  if(country){
-    selectedCountry = country;
-    document.getElementById("countryName").innerText = country.name;
-    document.getElementById("countryFlag").innerText = country.flag;
-  }
-};
-
-
-// GENERATE PICKER DATA
-function initPicker(){
-
-  const dayWheel = document.getElementById("dayWheel");
-  const monthWheel = document.getElementById("monthWheel");
-  const yearWheel = document.getElementById("yearWheel");
-
-  // DAY
-  dayWheel.innerHTML = '<div class="spacer"></div>';
-  for(let i=1;i<=31;i++){
-    dayWheel.innerHTML += `<div class="item day">${i}</div>`;
-  }
-  dayWheel.innerHTML += '<div class="spacer"></div>';
-
-  // MONTH
-  const months = [
-    "January","February","March","April","May","June",
-    "July","August","September","October","November","December"
-  ];
-
-  monthWheel.innerHTML = '<div class="spacer"></div>';
-  months.forEach(m=>{
-    monthWheel.innerHTML += `<div class="item month">${m}</div>`;
-  });
-  monthWheel.innerHTML += '<div class="spacer"></div>';
-
-  // YEAR
-  yearWheel.innerHTML = '<div class="spacer"></div>';
-  for(let y=1980;y<=2025;y++){
-    yearWheel.innerHTML += `<div class="item year">${y}</div>`;
-  }
-  yearWheel.innerHTML += '<div class="spacer"></div>';
-}
-
-initPicker();
+    // =============== GET CURRENT CENTERED VALUE FROM WHEEL ===============
+    function getCenterValue(wheelElement, type) {
+      const containerRect = wheelElement.getBoundingClientRect();
+      const containerCenterY = containerRect.top + containerRect.height / 2;
+      let closestItem = null;
+      let minDistance = Infinity;
       
-// FIXED DOB FUNCTION
-function getDOB(){
+      const items = wheelElement.querySelectorAll('.item');
+      for (let item of items) {
+        const rect = item.getBoundingClientRect();
+        const itemCenter = rect.top + rect.height / 2;
+        const distance = Math.abs(itemCenter - containerCenterY);
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestItem = item;
+        }
+      }
+      if (!closestItem) return null;
+      const rawValue = closestItem.innerText.trim();
+      if (type === 'day') return parseInt(rawValue);
+      if (type === 'month') return rawValue;   // full month name
+      if (type === 'year') return parseInt(rawValue);
+      return rawValue;
+    }
 
-  const day = parseInt(getCenterValue(document.getElementById("dayWheel"), "day"));
-  const monthText = getCenterValue(document.getElementById("monthWheel"), "month");
-  const year = parseInt(getCenterValue(document.getElementById("yearWheel"), "year"));
-
-  const monthsMap = {
-    January:1, February:2, March:3, April:4, May:5, June:6,
-    July:7, August:8, September:9, October:10, November:11, December:12
-  };
-
-  return {
-    day,
-    month: monthsMap[monthText],
-    year
-  };
-}
+    // update global states from wheels (sync after scroll)
+    function syncWheelValues() {
+      const dayWheel = document.getElementById("dayWheel");
+      const monthWheel = document.getElementById("monthWheel");
+      const yearWheel = document.getElementById("yearWheel");
       
-</script>
+      const dayVal = getCenterValue(dayWheel, 'day');
+      const monthName = getCenterValue(monthWheel, 'month');
+      const yearVal = getCenterValue(yearWheel, 'year');
+      
+      if (dayVal && !isNaN(dayVal)) currentDayVal = dayVal;
+      if (monthName && MONTH_MAP[monthName]) {
+        const newIdx = MONTH_MAP[monthName] - 1;
+        if (newIdx !== currentMonthIdx) {
+          currentMonthIdx = newIdx;
+          rebuildDayWheel();   // month changed -> update days count
+          // re-sync day after rebuild
+          setTimeout(() => {
+            const newDayWheel = document.getElementById("dayWheel");
+            if (newDayWheel && currentDayVal) scrollToItem(newDayWheel, currentDayVal, 'day');
+          }, 10);
+        }
+      }
+      if (yearVal && !isNaN(yearVal) && yearVal !== currentYearVal) {
+        currentYearVal = yearVal;
+        rebuildDayWheel();
+        setTimeout(() => {
+          const newDayWheel = document.getElementById("dayWheel");
+          if (newDayWheel && currentDayVal) scrollToItem(newDayWheel, currentDayVal, 'day');
+        }, 10);
+      }
+      
+      // highlight selected items
+      highlightSelected(dayWheel, 'day');
+      highlightSelected(monthWheel, 'month');
+      highlightSelected(yearWheel, 'year');
+    }
+    
+    function highlightSelected(wheel, type) {
+      const items = wheel.querySelectorAll('.item');
+      let centerValue = getCenterValue(wheel, type);
+      items.forEach(item => {
+        let itemVal = item.innerText;
+        if (type === 'day') itemVal = parseInt(itemVal);
+        if (type === 'year') itemVal = parseInt(itemVal);
+        if (itemVal === centerValue) item.classList.add('selected');
+        else item.classList.remove('selected');
+      });
+    }
+    
+    // Attach scroll listeners to wheels + debounced sync
+    function attachWheelEvents() {
+      const wheels = ['dayWheel', 'monthWheel', 'yearWheel'];
+      let scrollTimeout;
+      wheels.forEach(id => {
+        const wheel = document.getElementById(id);
+        if (!wheel) return;
+        wheel.addEventListener('scroll', () => {
+          if (scrollTimeout) clearTimeout(scrollTimeout);
+          scrollTimeout = setTimeout(() => {
+            syncWheelValues();
+          }, 12);
+        });
+      });
+    }
 
+    // =============== INIT PICKER (Build wheels) ===============
+    function initPicker() {
+      const dayWheel = document.getElementById("dayWheel");
+      const monthWheel = document.getElementById("monthWheel");
+      const yearWheel = document.getElementById("yearWheel");
+      
+      // Build MONTH wheel
+      let monthHtml = '<div class="spacer"></div>';
+      MONTHS_FULL.forEach(month => {
+        monthHtml += `<div class="item month-item">${month}</div>`;
+      });
+      monthHtml += '<div class="spacer"></div>';
+      monthWheel.innerHTML = monthHtml;
+      
+      // Build YEAR wheel (1900 to current year+5)
+      const startYear = 1930;
+      const endYear = new Date().getFullYear();
+      let yearHtml = '<div class="spacer"></div>';
+      for (let y = startYear; y <= endYear; y++) {
+        yearHtml += `<div class="item year-item">${y}</div>`;
+      }
+      yearHtml += '<div class="spacer"></div>';
+      yearWheel.innerHTML = yearHtml;
+      
+      // default: currentMonthIdx = 0 (January), currentYearVal = 2000, currentDayVal = 15
+      currentMonthIdx = 5;   // June for nicer default (index 5 = June)
+      currentYearVal = 1998;
+      currentDayVal = 15;
+      
+      rebuildDayWheel();  // builds day based on currentMonthIdx/currentYearVal
+      
+      // scroll month wheel to June
+      setTimeout(() => {
+        const monthWheelEl = document.getElementById("monthWheel");
+        if (monthWheelEl) scrollToItem(monthWheelEl, MONTHS_FULL[currentMonthIdx], 'month');
+        const yearWheelEl = document.getElementById("yearWheel");
+        if (yearWheelEl) scrollToItem(yearWheelEl, currentYearVal, 'year');
+        const dayWheelEl = document.getElementById("dayWheel");
+        if (dayWheelEl) scrollToItem(dayWheelEl, currentDayVal, 'day');
+        
+        // force sync & highlight
+        syncWheelValues();
+      }, 30);
+      
+      attachWheelEvents();
+      // initial highlight after a frame
+      setTimeout(() => {
+        syncWheelValues();
+      }, 100);
+    }
+    
+    // get DOB object from wheels
+    function getDOB() {
+      const dayWheel = document.getElementById("dayWheel");
+      const monthWheel = document.getElementById("monthWheel");
+      const yearWheel = document.getElementById("yearWheel");
+      
+      let day = getCenterValue(dayWheel, 'day');
+      let monthName = getCenterValue(monthWheel, 'month');
+      let year = getCenterValue(yearWheel, 'year');
+      
+      if (!day || !monthName || !year) {
+        return null;
+      }
+      const monthNum = MONTH_MAP[monthName];
+      if (!monthNum) return null;
+      // final validation for day bound
+      const maxDays = getDaysInMonth(monthNum-1, year);
+      if (day > maxDays) day = maxDays;
+      return { day: parseInt(day), month: monthNum, year: parseInt(year) };
+    }
+    
+    // Age calculator
+    function calculateAge(birth) {
+      if (!birth) return 0;
+      const today = new Date();
+      let age = today.getFullYear() - birth.year;
+      const m = today.getMonth() + 1;
+      const d = today.getDate();
+      if (m < birth.month || (m === birth.month && d < birth.day)) {
+        age--;
+      }
+      return age;
+    }
+    
+    // =============== SAVE STEP 2 (API CALL) ===============
+    async function saveStep2() {
+      const nickname = document.getElementById("nickname").value.trim();
+      if (!nickname || nickname.length < 3) {
+        alert("✧ Nickname must be at least 3 characters");
+        return;
+      }
+      if (!selectedCountry || !selectedCountry.name) {
+        alert("✧ Please select your region / country");
+        return;
+      }
+      const dob = getDOB();
+      if (!dob || !dob.day || !dob.month || !dob.year) {
+        alert("✧ Please select a valid birth date");
+        return;
+      }
+      const age = calculateAge(dob);
+      if (age < 18) {
+        alert("✧ You must be at least 18 years old to continue");
+        return;
+      }
+      
+      // get user from localStorage (email stored from step1)
+      let userData = localStorage.getItem("user");
+      if (!userData) {
+        alert("Session expired. Please start over.");
+        window.location = "index.html";
+        return;
+      }
+      const user = JSON.parse(userData);
+      if (!user.email) {
+        alert("Missing user info. Re-login needed.");
+        window.location = "index.html";
+        return;
+      }
+      
+      const loadingOverlay = document.getElementById("loadingOverlay");
+      loadingOverlay.classList.remove("hidden");
+      
+      try {
+        const payload = {
+          email: user.email,
+          username: nickname,
+          country: selectedCountry.name,
+          countryCode: selectedCountry.code || "",
+          flag: selectedCountry.flag,
+          dob: { day: dob.day, month: dob.month, year: dob.year },
+          age: age
+        };
+        
+        const response = await fetch(`${BASE_URL}/updateUserStep2`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+          // update local storage
+          user.username = nickname;
+          user.country = selectedCountry.name;
+          user.dob = payload.dob;
+          user.age = age;
+          localStorage.setItem("user", JSON.stringify(user));
+          // redirect to step3 (setup.html)
+          window.location.href = "setup.html";
+        } else {
+          alert(data.message || "Username already taken or server error");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Network error. Please check your connection.");
+      } finally {
+        loadingOverlay.classList.add("hidden");
+      }
+    }
+    
+    // =============== COUNTRY SELECTION HANDLERS ===============
+    function openCountryPage() {
+      // store current step context, redirect to country picker
+      localStorage.setItem("returnToStep2", "true");
+      window.location.href = "country.html";
+    }
+    
+    function loadSelectedCountry() {
+      const storedCountry = localStorage.getItem("selectedCountry");
+      if (storedCountry) {
+        try {
+          const countryObj = JSON.parse(storedCountry);
+          if (countryObj && countryObj.name) {
+            selectedCountry = countryObj;
+            document.getElementById("countryName").innerText = countryObj.name;
+            document.getElementById("countryFlag").innerHTML = countryObj.flag || "🌍";
+          }
+        } catch(e) {}
+      }
+      // clean temp flag if needed
+      localStorage.removeItem("selectedCountry"); // prevent double reading but keep one-shot? Actually we keep to display. But we can re-read on every pageshow
+    }
+    
+    // watch for pageshow (back from country.html)
+    window.addEventListener("pageshow", (event) => {
+      const freshCountry = localStorage.getItem("selectedCountry");
+      if (freshCountry) {
+        try {
+          const country = JSON.parse(freshCountry);
+          if (country && country.name) {
+            selectedCountry = country;
+            document.getElementById("countryName").innerText = country.name;
+            document.getElementById("countryFlag").innerHTML = country.flag || "🌍";
+          }
+        } catch(e) {}
+        // after consuming, remove to avoid stale but keep for next reload? we keep because also load on dom load
+        // but we keep to persist until new selection, but we don't remove permanently because if user refreshes we want to keep.
+        // keep it
+      }
+    });
+    
+    // check also on DOMContentLoaded
+    document.addEventListener("DOMContentLoaded", () => {
+      loadSelectedCountry();
+      initPicker();
+      // add extra sync on window resize
+      window.addEventListener("resize", () => {
+        syncWheelValues();
+      });
+      // check if user object exists else redirect
+      const userCheck = localStorage.getItem("user");
+      if (!userCheck) {
+        // alert("Please complete step 1 first");
+        // optional: redirect to step1 if needed but allow demo
+        console.log("No user found, but step2 can work if email exists later");
+      }
+    });
+    
+    // expose globally for buttons
+    window.saveStep2 = saveStep2;
+    window.openCountryPage = openCountryPage;
+    
+    // Manual sync helper after scroll ends
+    setInterval(() => {
+      // gentle sync every 400ms to keep highlighted perfectly
+      const dayW = document.getElementById("dayWheel");
+      const monthW = document.getElementById("monthWheel");
+      const yearW = document.getElementById("yearWheel");
+      if (dayW && monthW && yearW) {
+        highlightSelected(dayW, 'day');
+        highlightSelected(monthW, 'month');
+        highlightSelected(yearW, 'year');
+      }
+    }, 300);
+  </script>
 </body>
 </html>
