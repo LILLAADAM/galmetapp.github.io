@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Select Country</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body { font-family:sans-serif; background:#f5f5f5; }
+.item {
+  padding:15px;
+  border-bottom:1px solid #ddd;
+  display:flex;
+  gap:10px;
+  cursor:pointer;
+}
+.item:hover { background:#eee; }
+</style>
+</head>
+
+<body>
+
+<input id="search" placeholder="Search country..." 
+style="width:100%;padding:10px;margin-bottom:10px;">
+
+<div id="list"></div>
+
+<script>
+
+const countries = [
+  {name:"Pakistan", flag:"🇵🇰"},
+  {name:"India", flag:"🇮🇳"},
+  {name:"United Kingdom", flag:"🇬🇧"},
+  {name:"United States", flag:"🇺🇸"},
+  {name:"Philippines", flag:"🇵🇭"},
+  {name:"Afghanistan", flag:"🇦🇫"},
+  {name:"UAE", flag:"🇦🇪"}
+  // 👉 you can paste full list here (your big list)
+];
+
+// RENDER
+function render(list){
+  const div = document.getElementById("list");
+  div.innerHTML = "";
+
+  list.forEach(c=>{
+    const el = document.createElement("div");
+    el.className = "item";
+    el.innerHTML = `<span>${c.flag}</span> ${c.name}`;
+    el.onclick = ()=>{
+      localStorage.setItem("selectedCountry", JSON.stringify(c));
+      window.history.back(); // 🔥 auto back
+    };
+    div.appendChild(el);
+  });
+}
+
+render(countries);
+
+// SEARCH
+document.getElementById("search").oninput = (e)=>{
+  const v = e.target.value.toLowerCase();
+  render(countries.filter(c=>c.name.toLowerCase().includes(v)));
+};
+
+</script>
+
+</body>
+</html>
