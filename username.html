@@ -149,50 +149,74 @@ Please select region
 
 </button>
 <!-- Scrolling Date Picker -->
-<section class="flex flex-col gap-1.5">
-<label class="font-label text-xs text-on-surface-variant px-1 font-semibold uppercase tracking-wider">Birth Date</label>
-<div class="relative bg-surface-container-low rounded-lg p-2 flex justify-around items-center h-44 overflow-hidden ring-1 ring-outline-variant/15">
-<!-- Center Indicator -->
-<div class="absolute left-2 right-2 top-1/2 -translate-y-1/2 h-8 bg-primary-container/20 rounded-md pointer-events-none"></div>
-<!-- Day Wheel -->
-<div class="w-1/4 h-full overflow-y-scroll no-scrollbar snap-y snap-mandatory relative z-10 flex flex-col items-center">
-<div class="h-12 shrink-0"></div>
-<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">14</div>
-<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">15</div>
-<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">16</div>
-<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">17</div>
-<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">18</div>
-<div class="h-12 shrink-0"></div>
+<section class="flex flex-col gap-2">
+<label class="font-label text-xs text-on-surface-variant px-1 font-semibold uppercase tracking-wider">
+Birth Date
+</label>
+
+<div class="relative bg-surface-container-low rounded-xl p-3 flex justify-between items-center h-44 overflow-hidden ring-1 ring-outline-variant/20">
+
+<!-- Center Highlight -->
+<div class="absolute left-3 right-3 top-1/2 -translate-y-1/2 h-10 bg-primary-container/20 rounded-lg pointer-events-none z-10"></div>
+
+<!-- DAY -->
+<div id="dayWheel" class="w-1/4 h-full overflow-y-scroll no-scrollbar snap-y snap-mandatory flex flex-col items-center text-base">
+
+<div class="h-14"></div>
+
+<script>
+for(let i=1;i<=31;i++){
+  document.write(`<div class="snap-center h-10 flex items-center justify-center day">${i}</div>`);
+}
+</script>
+
+<div class="h-14"></div>
 </div>
-<!-- Month Wheel -->
-<div class="w-2/5 h-full overflow-y-scroll no-scrollbar snap-y snap-mandatory relative z-10 flex flex-col items-center">
-<div class="h-12 shrink-0"></div>
-<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">August</div>
-<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">September</div>
-<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">October</div>
-<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">November</div>
-<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">December</div>
-<div class="h-12 shrink-0"></div>
+
+<!-- MONTH -->
+<div id="monthWheel" class="w-2/5 h-full overflow-y-scroll no-scrollbar snap-y snap-mandatory flex flex-col items-center text-base">
+
+<div class="h-14"></div>
+
+<script>
+const months = [
+"January","February","March","April","May","June",
+"July","August","September","October","November","December"
+];
+
+months.forEach(m=>{
+  document.write(`<div class="snap-center h-10 flex items-center justify-center month">${m}</div>`);
+});
+</script>
+
+<div class="h-14"></div>
 </div>
-<!-- Year Wheel -->
-<div class="w-1/4 h-full overflow-y-scroll no-scrollbar snap-y snap-mandatory relative z-10 flex flex-col items-center">
-<div class="h-12 shrink-0"></div>
-<!-- Dynamically render range from 1980 to 2026 -->
-<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">1980</div>
-<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">1981</div>
-<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">...</div>
-<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">1998</div>
-<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">1999</div>
-<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">2000</div>
-<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">2001</div>
-<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">...</div>
-<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">2025</div>
-<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">2026</div>
-<div class="h-12 shrink-0"></div>
+
+<!-- YEAR -->
+<div id="yearWheel" class="w-1/4 h-full overflow-y-scroll no-scrollbar snap-y snap-mandatory flex flex-col items-center text-base">
+
+<div class="h-14"></div>
+
+<script>
+for(let y=1980;y<=2025;y++){
+  document.write(`<div class="snap-center h-10 flex items-center justify-center year">${y}</div>`);
+}
+</script>
+
+<div class="h-14"></div>
 </div>
-<!-- Overlay Fades -->
-<div class="absolute inset-0 wheel-picker-gradient pointer-events-none z-20"></div>
+
+<!-- FADE EFFECT -->
+<div class="absolute inset-0 pointer-events-none z-20"
+style="background: linear-gradient(to bottom, 
+rgba(243,247,251,1) 0%, 
+rgba(243,247,251,0) 30%, 
+rgba(243,247,251,0) 70%, 
+rgba(243,247,251,1) 100%);">
 </div>
+
+</div>
+</section>
 </section>
 <!-- CTA Section -->
 <div class="mt-4 pb-6 flex flex-col gap-3">
@@ -392,6 +416,45 @@ window.onpageshow = function(){
     document.getElementById("countryFlag").innerText = country.flag;
   }
 };
+
+function getCenterValue(container, className){
+  const items = container.querySelectorAll("." + className);
+  let closest = null;
+  let closestOffset = Infinity;
+
+  const center = container.getBoundingClientRect().top + container.offsetHeight/2;
+
+  items.forEach(el=>{
+    const rect = el.getBoundingClientRect();
+    const offset = Math.abs(center - (rect.top + rect.height/2));
+
+    if(offset < closestOffset){
+      closestOffset = offset;
+      closest = el;
+    }
+  });
+
+  return closest?.innerText;
+}
+
+// FIXED DOB FUNCTION
+function getDOB(){
+
+  const day = parseInt(getCenterValue(document.getElementById("dayWheel"), "day"));
+  const monthText = getCenterValue(document.getElementById("monthWheel"), "month");
+  const year = parseInt(getCenterValue(document.getElementById("yearWheel"), "year"));
+
+  const monthsMap = {
+    January:1, February:2, March:3, April:4, May:5, June:6,
+    July:7, August:8, September:9, October:10, November:11, December:12
+  };
+
+  return {
+    day,
+    month: monthsMap[monthText],
+    year
+  };
+}
       
 </script>
 
