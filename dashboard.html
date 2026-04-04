@@ -212,90 +212,127 @@ Submit Withdraw
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } 
-from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, updateDoc, collection, query, where, getDocs } 
+import { getFirestore, doc, getDoc, updateDoc } 
 from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
+console.log("🔥 Dashboard Loaded");
+
+// ✅ FIREBASE INIT
 const app = initializeApp({
   apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
   authDomain: "galmet-app.firebaseapp.com",
   projectId: "galmet-app"
 });
 
-const auth = getAuth(app);
 const db = getFirestore(app);
 
-// ✅ ONLINE STATUS
-async function setOnline(uid){
-  await updateDoc(doc(db,"users",uid),{ online:true });
+// ==============================
+// ✅ GET USER FROM LOCAL STORAGE
+// ==============================
+const user = JSON.parse(localStorage.getItem("user"));
+
+console.log("👤 Local User:", user);
+
+if (!user) {
+  alert("❌ Not logged in");
+  window.location = "index.html";
 }
 
-window.addEventListener("beforeunload", ()=>{
-  const u = auth.currentUser;
-  if(u){
-    updateDoc(doc(db,"users",u.uid),{ online:false });
-  }
-});
+// ==============================
+// ✅ LOAD USER DATA FROM FIRESTORE
+// ==============================
+async function loadUser(){
 
-// ✅ AUTH CHECK
-onAuthStateChanged(auth, async (user)=>{
+  try {
 
-  if(!user){
-    setTimeout(()=>{
-      if(!auth.currentUser){
-        window.location="index.html";
-      }
-    },1000);
-    return;
-  }
+    console.log("📡 Fetching user from Firestore...");
 
-  console.log("✅ Logged:", user.uid);
+    const ref = doc(db, "users", user.userId.toString());
+    const snap = await getDoc(ref);
 
-  await setOnline(user.uid);
-
-  let data = null;
-
-  // 🔁 RETRY FETCH
-  for(let i=0;i<5;i++){
-    const snap = await getDoc(doc(db,"users",user.uid));
-    if(snap.exists()){
-      data = snap.data();
-      break;
+    if (!snap.exists()) {
+      console.error("❌ User not found in DB");
+      alert("User not found");
+      return;
     }
-    await new Promise(r=>setTimeout(r,300));
+
+    const data = snap.data();
+
+    console.log("✅ Firestore Data:", data);
+
+    // 🚨 PROFILE CHECK
+    if (!data.photoURL || data.photoURL === "") {
+      console.warn("⚠️ Profile incomplete → redirect setup");
+      window.location = "setup.html";
+      return;
+    }
+
+    // ==============================
+    // ✅ UI UPDATE
+    // ==============================
+    document.getElementById("email").innerText = data.email || "";
+    document.getElementById("coins").innerText = data.coins ?? 0;
+    document.getElementById("inviteCode").innerText = data.inviteCode || "---";
+    document.getElementById("userId").innerText = data.userId || "---";
+
+    document.getElementById("profilePic").src =
+      data.photoURL || "https://ui-avatars.com/api/?name=" + encodeURIComponent(data.email);
+
+    // ==============================
+    // ✅ ONLINE STATUS
+    // ==============================
+    await updateDoc(ref, { online: true });
+
+    window.addEventListener("beforeunload", ()=>{
+      updateDoc(ref, { online: false });
+    });
+
+  } catch (err) {
+    console.error("❌ ERROR:", err);
+    alert("Error loading dashboard");
   }
+}
 
-  if(!data){
-    alert("Failed to load user");
-    return;
-  }
+// RUN
+loadUser();
 
-  // 🚨 IF PROFILE NOT COMPLETE
-  if(!data.photoURL || data.photoURL === ""){
-    window.location = "setup.html";
-    return;
-  }
 
-  // ✅ UI
-  document.getElementById("email").innerText = data.email || "";
-  document.getElementById("coins").innerText = data.coins ?? 0;
-  document.getElementById("inviteCode").innerText = data.inviteCode || "---";
-  document.getElementById("userId").innerText = data.userId || "---";
+// ==============================
+// ✅ LOGOUT (CUSTOM SYSTEM)
+// ==============================
+window.logout = () => {
+  localStorage.removeItem("user");
+  window.location = "index.html";
+};
 
-  document.getElementById("profilePic").src =
-    data.photoURL || "https://ui-avatars.com/api/?name=" + encodeURIComponent(data.email);
 
-});
-
-// LOGOUT
-window.logout = ()=> signOut(auth).then(()=>location="index.html");
-
-// COPY
+// ==============================
+// ✅ COPY INVITE
+// ==============================
 window.copyCode = async ()=>{
   const code = document.getElementById("inviteCode").innerText;
-  await navigator.clipboard.writeText(code);
-  alert("Copied!");
+
+  try {
+    await navigator.clipboard.writeText(code);
+    alert("✅ Copied!");
+  } catch {
+    alert("Copy failed");
+  }
+};
+
+
+// ==============================
+// ✅ NAVIGATION (SAFE)
+// ==============================
+window.goGame = (page)=> location.href = page;
+window.goSearch = ()=> location.href = "search.html";
+window.goChats = ()=> location.href = "chat.html";
+window.openSettings = ()=> location.href = "settings.html";
+window.openProfile = ()=> location.href = "profile.html";
+window.openParty = ()=> location.href = "party.html";
+window.openWithdraw = ()=> {
+  const box = document.getElementById("withdrawBox");
+  box.style.display = box.style.display === "none" ? "block" : "none";
 };
 
 </script>
