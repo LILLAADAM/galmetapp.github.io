@@ -120,7 +120,10 @@
 <section class="flex flex-col gap-1.5">
 <label class="font-label text-xs text-on-surface-variant px-1 font-semibold uppercase tracking-wider">Choose a unique nickname</label>
 <div class="relative group">
-<input class="w-full bg-surface-container-lowest border-none ring-1 ring-outline-variant/15 focus:ring-2 focus:ring-primary rounded-lg px-4 py-3 font-body text-on-surface transition-all placeholder:text-outline/50" placeholder="e.g. SkyWalker" type="text"/>
+<input id="nickname"
+class="w-full bg-surface-container-lowest border-none ring-1 ring-outline-variant/15 focus:ring-2 focus:ring-primary rounded-lg px-4 py-3 font-body text-on-surface transition-all placeholder:text-outline/50"
+placeholder="e.g. SkyWalker"
+type="text"/>
 <div class="absolute right-4 top-1/2 -translate-y-1/2 text-primary-fixed-dim">
 <span class="material-symbols-outlined text-xl" data-icon="account_circle">account_circle</span>
 </div>
@@ -128,7 +131,7 @@
 </section>
 <!-- Region Selection -->
 <button onclick="openCountryPage()" 
-class="flex items-center justify-between w-full bg-surface-container-lowest ring-1 ring-outline-variant/15 rounded-lg px-4 py-3">
+class="flex items-center justify-between w-full bg-surface-container-lowest ring-1 ring-outline-variant/15 rounded-lg px-4 py-3 active:scale-[0.98] transition-all">
 
 <div class="flex items-center gap-3">
 
@@ -145,14 +148,56 @@ Please select region
 <span class="material-symbols-outlined">expand_more</span>
 
 </button>
-
+<!-- Scrolling Date Picker -->
+<section class="flex flex-col gap-1.5">
+<label class="font-label text-xs text-on-surface-variant px-1 font-semibold uppercase tracking-wider">Birth Date</label>
+<div class="relative bg-surface-container-low rounded-lg p-2 flex justify-around items-center h-32 overflow-hidden ring-1 ring-outline-variant/15">
+<!-- Center Indicator -->
+<div class="absolute left-2 right-2 top-1/2 -translate-y-1/2 h-8 bg-primary-container/20 rounded-md pointer-events-none"></div>
+<!-- Day Wheel -->
+<div class="w-1/4 h-full overflow-y-scroll no-scrollbar snap-y snap-mandatory relative z-10 flex flex-col items-center">
+<div class="h-12 shrink-0"></div>
+<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">14</div>
+<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">15</div>
+<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">16</div>
+<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">17</div>
+<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">18</div>
+<div class="h-12 shrink-0"></div>
+</div>
+<!-- Month Wheel -->
+<div class="w-2/5 h-full overflow-y-scroll no-scrollbar snap-y snap-mandatory relative z-10 flex flex-col items-center">
+<div class="h-12 shrink-0"></div>
+<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">August</div>
+<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">September</div>
+<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">October</div>
+<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">November</div>
+<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">December</div>
+<div class="h-12 shrink-0"></div>
+</div>
+<!-- Year Wheel -->
+<div class="w-1/4 h-full overflow-y-scroll no-scrollbar snap-y snap-mandatory relative z-10 flex flex-col items-center">
+<div class="h-12 shrink-0"></div>
+<!-- Dynamically render range from 1980 to 2026 -->
+<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">1980</div>
+<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">1981</div>
+<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">...</div>
+<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">1998</div>
+<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">1999</div>
+<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">2000</div>
+<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">2001</div>
+<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">...</div>
+<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">2025</div>
+<div class="snap-center h-8 flex items-center justify-center font-headline font-bold text-on-surface text-sm">2026</div>
+<div class="h-12 shrink-0"></div>
+</div>
 <!-- Overlay Fades -->
 <div class="absolute inset-0 wheel-picker-gradient pointer-events-none z-20"></div>
 </div>
 </section>
 <!-- CTA Section -->
 <div class="mt-auto py-4 flex flex-col gap-3 shrink-0">
-<button class="w-full h-12 bg-gradient-to-r from-primary to-primary-dim text-on-primary rounded-full font-headline font-bold tracking-wide flex items-center justify-center gap-2 shadow-lg shadow-primary/20 active:scale-95 transition-transform group">
+<button onclick="saveStep2()"
+class="w-full h-12 bg-gradient-to-r from-primary to-primary-dim text-on-primary rounded-full font-headline font-bold tracking-wide flex items-center justify-center gap-2 shadow-lg shadow-primary/20 active:scale-95 transition-transform group">
 <span>Continue</span>
 <span class="material-symbols-outlined text-xl group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
 </button>
@@ -179,25 +224,52 @@ const BASE_URL = "https://us-central1-galmet-app.cloudfunctions.net";
 
 let selectedCountry = null;
 
-// ✅ GET AGE FROM DOB
-function calculateAge(day, month, year){
-  const today = new Date();
-  let age = today.getFullYear() - year;
-  const m = today.getMonth() + 1 - month;
+// 🔥 AUTO SELECT CENTER ITEM
+function setupWheel(selector){
+  const container = document.querySelector(selector);
 
-  if(m < 0 || (m === 0 && today.getDate() < day)){
-    age--;
-  }
+  container.addEventListener("scroll", () => {
 
-  return age;
+    const items = container.querySelectorAll(".snap-center");
+
+    let closest = null;
+    let closestOffset = Infinity;
+
+    items.forEach(el=>{
+      const rect = el.getBoundingClientRect();
+      const offset = Math.abs(rect.top + rect.height/2 - window.innerHeight/2);
+
+      if(offset < closestOffset){
+        closestOffset = offset;
+        closest = el;
+      }
+
+      el.classList.remove("selected");
+    });
+
+    if(closest){
+      closest.classList.add("selected");
+    }
+
+  });
 }
 
-// ✅ GET SELECTED DOB FROM WHEEL
+// INIT WHEELS
+window.onload = () => {
+
+  setupWheel(".w-1\\/4");   // day
+  setupWheel(".w-2\\/5");   // month
+  setupWheel(".w-1\\/4:last-child"); // year
+
+};
+
+
+// 📅 GET DOB
 function getDOB(){
 
-  const day = parseInt(document.querySelector(".day.selected")?.innerText);
-  const monthText = document.querySelector(".month.selected")?.innerText;
-  const year = parseInt(document.querySelector(".year.selected")?.innerText);
+  const day = parseInt(document.querySelector(".w-1\\/4 .selected")?.innerText);
+  const monthText = document.querySelector(".w-2\\/5 .selected")?.innerText;
+  const year = parseInt(document.querySelector(".w-1\\/4:last-child .selected")?.innerText);
 
   const months = {
     January:1, February:2, March:3, April:4, May:5, June:6,
@@ -211,7 +283,24 @@ function getDOB(){
   };
 }
 
-// SAVE STEP
+
+// 🎂 AGE CHECK
+function calculateAge(day, month, year){
+  const today = new Date();
+  let age = today.getFullYear() - year;
+
+  if(
+    today.getMonth()+1 < month ||
+    (today.getMonth()+1 === month && today.getDate() < day)
+  ){
+    age--;
+  }
+
+  return age;
+}
+
+
+// 🚀 SAVE STEP
 async function saveStep2(){
 
   const nickname = document.getElementById("nickname").value;
@@ -229,7 +318,7 @@ async function saveStep2(){
   const dob = getDOB();
 
   if(!dob.day || !dob.month || !dob.year){
-    alert("Select full date");
+    alert("Select date");
     return;
   }
 
@@ -251,8 +340,8 @@ async function saveStep2(){
         email: user.email,
         username: nickname,
         country: selectedCountry,
-        dob: dob,
-        age: age
+        dob,
+        age
       })
     });
 
@@ -272,15 +361,18 @@ async function saveStep2(){
     }
 
   }catch(e){
-    console.error(e);
     alert("Error saving");
   }
 }
-  function openCountryPage(){
+
+
+// 🌍 COUNTRY PAGE
+function openCountryPage(){
   window.location = "country.html";
 }
 
-// RETURN DATA AFTER SELECT
+
+// 🔄 RETURN COUNTRY
 window.addEventListener("focus", ()=>{
   const country = JSON.parse(localStorage.getItem("selectedCountry"));
 
@@ -291,5 +383,8 @@ window.addEventListener("focus", ()=>{
     document.getElementById("countryFlag").innerText = country.flag;
   }
 });
-      
+
 </script>
+
+</body>
+</html>
