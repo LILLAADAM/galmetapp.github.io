@@ -207,19 +207,35 @@
 <script>
 const BASE_URL = "https://us-central1-galmet-app.cloudfunctions.net";
 
+let sendCooldown = 0;
+let timerInterval = null;
+
+// 🔙 BACK BUTTON
+document.querySelector("header button").onclick = () => {
+  window.location.href = "index.html";
+};
+
 // 🔢 GENERATE USER ID
 function generateUserId() {
   return Math.floor(10000000 + Math.random() * 90000000);
 }
 
-// 📧 SEND OTP
+// 📧 SEND OTP WITH TIMER
 async function sendOtp() {
   const email = document.getElementById("email").value;
+  const btn = event.target;
 
   if (!email) {
     alert("Enter email");
     return;
   }
+
+  if (sendCooldown > 0) {
+    alert("Wait " + sendCooldown + " sec");
+    return;
+  }
+
+  console.log("📧 Sending OTP...");
 
   try {
     const res = await fetch(BASE_URL + "/sendOtpEmail", {
@@ -233,13 +249,30 @@ async function sendOtp() {
     const data = await res.json();
 
     if (data.success) {
-      alert("✅ OTP sent to your email");
+      alert("✅ OTP sent");
+
+      // ⏱ START TIMER
+      sendCooldown = 60;
+      btn.disabled = true;
+
+      timerInterval = setInterval(() => {
+        sendCooldown--;
+        btn.innerText = sendCooldown + "s";
+
+        if (sendCooldown <= 0) {
+          clearInterval(timerInterval);
+          btn.disabled = false;
+          btn.innerText = "Send";
+        }
+      }, 1000);
+
     } else {
       alert("❌ " + (data.error || "Failed"));
     }
 
   } catch (err) {
-    alert("❌ Network error");
+    console.error("❌ OTP ERROR:", err);
+    alert("Network error");
   }
 }
 
@@ -253,8 +286,10 @@ async function verifyOtp() {
     return;
   }
 
+  console.log("🔐 Verifying OTP...");
+
   try {
-    // ✅ STEP 1: VERIFY OTP
+    // ✅ VERIFY OTP
     const res = await fetch(BASE_URL + "/verifyOtp", {
       method: "POST",
       headers: {
@@ -265,26 +300,32 @@ async function verifyOtp() {
 
     const data = await res.json();
 
+    console.log("OTP Response:", data);
+
     if (!data.success) {
       alert("❌ " + data.message);
       return;
     }
 
-    // ✅ STEP 2: CHECK USER
+    // ✅ CHECK USER
     const checkRes = await fetch(BASE_URL + "/getUserByEmail?email=" + encodeURIComponent(email));
     const checkData = await checkRes.json();
+
+    console.log("User Check:", checkData);
 
     if (checkData.exists) {
 
       // 🔥 OLD USER
       localStorage.setItem("user", JSON.stringify(checkData.user));
 
-      alert("✅ Welcome back!");
+      console.log("✅ Old user login");
       window.location.href = "dashboard.html";
 
     } else {
 
-      // 🔥 NEW USER
+      // 🔥 FIXED USER CREATION
+      const userId = generateUserId();
+
       const newUser = {
         email: email,
         userId: userId,
@@ -298,6 +339,8 @@ async function verifyOtp() {
         profileCompleted: false
       };
 
+      console.log("🆕 Creating user:", newUser);
+
       const createRes = await fetch(BASE_URL + "/createUser", {
         method: "POST",
         headers: {
@@ -308,11 +351,13 @@ async function verifyOtp() {
 
       const createData = await createRes.json();
 
+      console.log("Create Response:", createData);
+
       if (createData.success) {
 
         localStorage.setItem("user", JSON.stringify(newUser));
 
-        alert("🎉 Account created!");
+        console.log("🎉 User created");
         window.location.href = "gender.html";
 
       } else {
@@ -321,7 +366,8 @@ async function verifyOtp() {
     }
 
   } catch (err) {
-    alert("❌ Something went wrong");
+    console.error("❌ VERIFY ERROR:", err);
+    alert("Something went wrong");
   }
 }
 </script>
