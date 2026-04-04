@@ -75,7 +75,32 @@
                     "headline": ["Plus Jakarta Sans"],
                     "body": ["Be Vietnam Pro"],
                     "label": ["Plus Jakarta Sans"]
+            .wheel{
+             height:100%;
+             overflow-y:auto;
+             scroll-snap-type:y mandatory;
+             display:flex;
+             flex-direction:column;
+             align-items:center;
             }
+
+           .wheel::-webkit-scrollbar{
+            display:none;
+            }
+
+           .item{
+            height:40px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            scroll-snap-align:center;
+            font-weight:600;
+            color:#2a2f32;
+           }
+
+          .spacer{
+            height:80px; /* 🔥 FIX */
+           } 
           },
         },
       }
@@ -154,69 +179,32 @@ Please select region
 Birth Date
 </label>
 
-<div class="relative bg-surface-container-low rounded-xl p-3 flex justify-between items-center h-44 overflow-hidden ring-1 ring-outline-variant/20">
+<div class="relative bg-surface-container-low rounded-xl flex justify-between items-center h-48 overflow-hidden ring-1 ring-outline-variant/20">
 
-<!-- Center Highlight -->
-<div class="absolute left-3 right-3 top-1/2 -translate-y-1/2 h-10 bg-primary-container/20 rounded-lg pointer-events-none z-10"></div>
+<!-- CENTER BAR -->
+<div class="absolute left-3 right-3 top-1/2 -translate-y-1/2 h-10 bg-primary-container/20 rounded-lg z-10"></div>
 
 <!-- DAY -->
-<div id="dayWheel" class="w-1/4 h-full overflow-y-scroll no-scrollbar snap-y snap-mandatory flex flex-col items-center text-base">
-
-<div class="h-14"></div>
-
-<script>
-for(let i=1;i<=31;i++){
-  document.write(`<div class="snap-center h-10 flex items-center justify-center day">${i}</div>`);
-}
-</script>
-
-<div class="h-14"></div>
-</div>
+<div id="dayWheel" class="wheel w-1/4"></div>
 
 <!-- MONTH -->
-<div id="monthWheel" class="w-2/5 h-full overflow-y-scroll no-scrollbar snap-y snap-mandatory flex flex-col items-center text-base">
-
-<div class="h-14"></div>
-
-<script>
-const months = [
-"January","February","March","April","May","June",
-"July","August","September","October","November","December"
-];
-
-months.forEach(m=>{
-  document.write(`<div class="snap-center h-10 flex items-center justify-center month">${m}</div>`);
-});
-</script>
-
-<div class="h-14"></div>
-</div>
+<div id="monthWheel" class="wheel w-2/5"></div>
 
 <!-- YEAR -->
-<div id="yearWheel" class="w-1/4 h-full overflow-y-scroll no-scrollbar snap-y snap-mandatory flex flex-col items-center text-base">
+<div id="yearWheel" class="wheel w-1/4"></div>
 
-<div class="h-14"></div>
-
-<script>
-for(let y=1980;y<=2025;y++){
-  document.write(`<div class="snap-center h-10 flex items-center justify-center year">${y}</div>`);
-}
-</script>
-
-<div class="h-14"></div>
-</div>
-
-<!-- FADE EFFECT -->
+<!-- GRADIENT FIX -->
 <div class="absolute inset-0 pointer-events-none z-20"
-style="background: linear-gradient(to bottom, 
-rgba(243,247,251,1) 0%, 
-rgba(243,247,251,0) 30%, 
-rgba(243,247,251,0) 70%, 
-rgba(243,247,251,1) 100%);">
+style="background: linear-gradient(to bottom,
+#f3f7fb 0%,
+rgba(243,247,251,0) 25%,
+rgba(243,247,251,0) 75%,
+#f3f7fb 100%);
+">
 </div>
 
 </div>
-</section>
+      
 </section>
 <!-- CTA Section -->
 <div class="mt-4 pb-6 flex flex-col gap-3">
@@ -276,36 +264,6 @@ function setupWheel(selector){
     }
 
   });
-}
-
-// INIT WHEELS
-window.onload = () => {
-
-  setupWheel(".w-1\\/4");   // day
-  setupWheel(".w-2\\/5");   // month
-  setupWheel(".w-1\\/4:last-child"); // year
-
-};
-
-
-// 📅 GET DOB
-function getDOB(){
-
-  const day = parseInt(document.querySelector(".w-1\\/4 .selected")?.innerText);
-  const monthText = document.querySelector(".w-2\\/5 .selected")?.innerText;
-  const year = parseInt(document.querySelector(".w-1\\/4:last-child .selected")?.innerText);
-
-  const months = {
-    January:1, February:2, March:3, April:4, May:5, June:6,
-    July:7, August:8, September:9, October:10, November:11, December:12
-  };
-
-  return {
-    day,
-    month: months[monthText],
-    year
-  };
-}
 
 
 // 🎂 AGE CHECK
@@ -417,26 +375,43 @@ window.onpageshow = function(){
   }
 };
 
-function getCenterValue(container, className){
-  const items = container.querySelectorAll("." + className);
-  let closest = null;
-  let closestOffset = Infinity;
 
-  const center = container.getBoundingClientRect().top + container.offsetHeight/2;
+// GENERATE PICKER DATA
+function initPicker(){
 
-  items.forEach(el=>{
-    const rect = el.getBoundingClientRect();
-    const offset = Math.abs(center - (rect.top + rect.height/2));
+  const dayWheel = document.getElementById("dayWheel");
+  const monthWheel = document.getElementById("monthWheel");
+  const yearWheel = document.getElementById("yearWheel");
 
-    if(offset < closestOffset){
-      closestOffset = offset;
-      closest = el;
-    }
+  // DAY
+  dayWheel.innerHTML = '<div class="spacer"></div>';
+  for(let i=1;i<=31;i++){
+    dayWheel.innerHTML += `<div class="item day">${i}</div>`;
+  }
+  dayWheel.innerHTML += '<div class="spacer"></div>';
+
+  // MONTH
+  const months = [
+    "January","February","March","April","May","June",
+    "July","August","September","October","November","December"
+  ];
+
+  monthWheel.innerHTML = '<div class="spacer"></div>';
+  months.forEach(m=>{
+    monthWheel.innerHTML += `<div class="item month">${m}</div>`;
   });
+  monthWheel.innerHTML += '<div class="spacer"></div>';
 
-  return closest?.innerText;
+  // YEAR
+  yearWheel.innerHTML = '<div class="spacer"></div>';
+  for(let y=1980;y<=2025;y++){
+    yearWheel.innerHTML += `<div class="item year">${y}</div>`;
+  }
+  yearWheel.innerHTML += '<div class="spacer"></div>';
 }
 
+initPicker();
+      
 // FIXED DOB FUNCTION
 function getDOB(){
 
