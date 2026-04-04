@@ -64,6 +64,33 @@
                     "secondary-dim": "#664b00",
                     "on-primary-fixed": "#003840",
                     "inverse-on-surface": "#999da1"
+            .wheel{
+  height:100%;
+  overflow-y:auto;
+  scroll-snap-type:y mandatory;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.wheel::-webkit-scrollbar{
+  display:none;
+}
+
+.item{
+  height:40px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  scroll-snap-align:center;
+  font-weight:600;
+  color:#2a2f32;
+}
+
+.spacer{
+  height:80px; /* 🔥 FIX */
+}
+            
             },
             "borderRadius": {
                     "DEFAULT": "1rem",
@@ -75,35 +102,10 @@
                     "headline": ["Plus Jakarta Sans"],
                     "body": ["Be Vietnam Pro"],
                     "label": ["Plus Jakarta Sans"]
-            .wheel{
-             height:100%;
-             overflow-y:auto;
-             scroll-snap-type:y mandatory;
-             display:flex;
-             flex-direction:column;
-             align-items:center;
-            }
-
-           .wheel::-webkit-scrollbar{
-            display:none;
-            }
-
-           .item{
-            height:40px;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            scroll-snap-align:center;
-            font-weight:600;
-            color:#2a2f32;
+                   } 
+                },
+             },
            }
-
-          .spacer{
-            height:80px; /* 🔥 FIX */
-           } 
-          },
-        },
-      }
     </script>
 <style>
         .material-symbols-outlined {
