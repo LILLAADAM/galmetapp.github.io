@@ -117,42 +117,46 @@
 <!-- Asymmetric Bento-style Selection Cards -->
 <div class="w-full grid grid-cols-1 gap-6">
 <!-- Option: Male -->
-<button onclick="selectGender('male')" class="group relative overflow-hidden rounded-lg bg-surface-container-lowest transition-all duration-300 ring-4 ring-transparent hover:ring-primary-container focus:ring-primary h-56 flex flex-col">
-<!-- Background Imagery (Asymmetric) -->
-<div class="absolute inset-0 z-0 opacity-40 group-hover:opacity-60 transition-opacity">
-<img alt="portrait of a confident man" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="Close-up portrait of a confident man with a warm smile, natural outdoor lighting with soft green foliage background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDAePCxotRM9_4bEdps-SDPaKcKPoZaN7lztXmsRJjQqXHMMckWvzDkzfI6Y-1nkRqNRF6UQ9pD-FrL9sIThB72MYrgFIvAWAq3bubLPFdF3tSQf7MAlAjfCkdA24aRYuYaD55LO-EgsLEOaYnRtGMtoYVmP211pOCn8x2vKj9zXYSWEvN_Za2fcST8vj-5GtMQSAHJma30zJJc3qLgdqX5ZtW3Mn0t4KzR0bd_FEENRlg7rgx3eADrrAcAqDpuhjOONHzwE7xZDCrK"/>
+v<button onclick="selectGender('male')" 
+id="card-male"
+class="gender-card group relative overflow-hidden rounded-xl bg-surface-container-lowest border-2 border-transparent h-40 md:h-48 flex flex-col transition-all">
+
+<div class="absolute inset-0 z-0">
+<img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDAePCxotRM9_4bEdps-SDPaKcKPoZaN7lztXmsRJjQqXHMMckWvzDkzfI6Y-1nkRqNRF6UQ9pD-FrL9sIThB72MYrgFIvAWAq3bubLPFdF3tSQf7MAlAjfCkdA24aRYuYaD55LO-EgsLEOaYnRtGMtoYVmP211pOCn8x2vKj9zXYSWEvN_Za2fcST8vj-5GtMQSAHJma30zJJc3qLgdqX5ZtW3Mn0t4KzR0bd_FEENRlg7rgx3eADrrAcAqDpuhjOONHzwE7xZDCrK"
+class="w-full h-full object-cover object-center scale-105">
 </div>
-<!-- Gradient Overlay -->
-<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-transparent to-transparent z-10"></div>
-<!-- Content -->
-<div class="relative z-20 mt-auto p-6 flex items-center justify-between w-full">
-<div class="flex flex-col items-start">
-<span class="material-symbols-outlined text-primary text-3xl mb-1" data-icon="male">male</span>
-<span class="font-headline font-extrabold text-xl tracking-wide uppercase text-on-surface">Male</span>
-</div>
-<div class="w-8 h-8 rounded-full border-2 border-primary-container flex items-center justify-center group-focus:bg-primary transition-colors">
-<span class="material-symbols-outlined text-white text-lg group-focus:opacity-100 opacity-0" data-icon="check" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check</span>
+
+<div class="absolute inset-0 bg-black/20"></div>
+
+<div class="relative z-20 mt-auto p-4 flex justify-between items-center">
+<span class="font-bold text-white text-lg">MALE</span>
+
+<div id="check-male" class="hidden w-8 h-8 bg-cyan-500 rounded-full flex items-center justify-center text-white">
+✔
 </div>
 </div>
+
 </button>
 <!-- Option: Female -->
-<button onclick="selectGender('female')" class="group relative overflow-hidden rounded-lg bg-surface-container-lowest transition-all duration-300 ring-4 ring-transparent hover:ring-primary-container focus:ring-primary h-56 flex flex-col">
-<!-- Background Imagery -->
-<div class="absolute inset-0 z-0 opacity-40 group-hover:opacity-60 transition-opacity">
-<img alt="portrait of a joyful woman" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="Close-up portrait of a joyful woman with vibrant energy, bright morning sunlight in a modern urban garden setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBc_C4Y1GfEQGGcewmRmTnczv-4LEg4iEkcM0LioCAVFFANGDGEpiP_FIB-FZmipsrrv5qhu0vtKpMo9jWsy7ecegKROMYM5AfyEKLBIvp_6Rq_xqFJ8r9pPUUg1872zBqqP5ZSrx9RV1kU4hjuLrLr0AfND1vd9c3WaeoX0jVsDKhfFuD62hYJ9iX-jdi5vmHCoIVji0XwDl5G-z9bW6EAv2sesZJQ5R7r7iweY1Xj1L6nxOZBcqOi0fJfG0uoWNDZ1c-0ZjZiNVgv"/>
+<button onclick="selectGender('female')" 
+id="card-female"
+class="gender-card group relative overflow-hidden rounded-xl bg-surface-container-lowest border-2 border-transparent h-40 md:h-48 flex flex-col transition-all">
+
+<div class="absolute inset-0 z-0">
+<img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBc_C4Y1GfEQGGcewmRmTnczv-4LEg4iEkcM0LioCAVFFANGDGEpiP_FIB-FZmipsrrv5qhu0vtKpMo9jWsy7ecegKROMYM5AfyEKLBIvp_6Rq_xqFJ8r9pPUUg1872zBqqP5ZSrx9RV1kU4hjuLrLr0AfND1vd9c3WaeoX0jVsDKhfFuD62hYJ9iX-jdi5vmHCoIVji0XwDl5G-z9bW6EAv2sesZJQ5R7r7iweY1Xj1L6nxOZBcqOi0fJfG0uoWNDZ1c-0ZjZiNVgv"
+class="w-full h-full object-cover object-center scale-105">
 </div>
-<!-- Gradient Overlay -->
-<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-transparent to-transparent z-10"></div>
-<!-- Content -->
-<div class="relative z-20 mt-auto p-6 flex items-center justify-between w-full">
-<div class="flex flex-col items-start">
-<span class="material-symbols-outlined text-tertiary text-3xl mb-1" data-icon="female">female</span>
-<span class="font-headline font-extrabold text-xl tracking-wide uppercase text-on-surface">Female</span>
-</div>
-<div class="w-8 h-8 rounded-full border-2 border-primary-container flex items-center justify-center group-focus:bg-primary transition-colors">
-<span class="material-symbols-outlined text-white text-lg group-focus:opacity-100 opacity-0" data-icon="check" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check</span>
+
+<div class="absolute inset-0 bg-black/20"></div>
+
+<div class="relative z-20 mt-auto p-4 flex justify-between items-center">
+<span class="font-bold text-white text-lg">FEMALE</span>
+
+<div id="check-female" class="hidden w-8 h-8 bg-cyan-500 rounded-full flex items-center justify-center text-white">
+✔
 </div>
 </div>
+
 </button>
 </div>
 </main>
@@ -169,42 +173,59 @@
       </p>
 </div>
 </div>
-<!-- Decorative Background Elements (Digital Sky Garden) -->
+<!-- Decorative Background Elements (Galmet) -->
 <div class="fixed top-[20%] right-[-5%] w-64 h-64 bg-primary-container/10 rounded-full blur-[80px] pointer-events-none -z-10"></div>
 <div class="fixed bottom-[10%] left-[-10%] w-80 h-80 bg-tertiary-container/10 rounded-full blur-[100px] pointer-events-none -z-10"></div>
 
 <script>
+
 const BASE_URL = "https://us-central1-galmet-app.cloudfunctions.net";
 
 let selectedGender = "";
 
 // SELECT GENDER
-function selectGender(gender) {
+function selectGender(gender){
+
   selectedGender = gender;
-  alert("Selected: " + gender);
+
+  // RESET ALL
+  document.querySelectorAll(".gender-card").forEach(card=>{
+    card.classList.remove("border-cyan-500");
+  });
+
+  document.querySelectorAll("[id^='check-']").forEach(c=>{
+    c.classList.add("hidden");
+  });
+
+  // APPLY SELECTED
+  document.getElementById("card-" + gender)
+    .classList.add("border-cyan-500");
+
+  document.getElementById("check-" + gender)
+    .classList.remove("hidden");
+
 }
 
 // SAVE GENDER
-async function saveGender() {
+async function saveGender(){
 
-  if (!selectedGender) {
+  if(!selectedGender){
     alert("Please select gender");
     return;
   }
 
   const user = JSON.parse(localStorage.getItem("user"));
 
-  if (!user) {
+  if(!user){
     alert("User not found. Login again.");
+    window.location = "index.html";
     return;
   }
 
-  try {
-    const res = await fetch(BASE_URL + "/updateUser", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+  try{
+    const res = await fetch(BASE_URL + "/updateUser",{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
       body: JSON.stringify({
         email: user.email,
         gender: selectedGender
@@ -213,19 +234,19 @@ async function saveGender() {
 
     const data = await res.json();
 
-    if (data.success) {
-
+    if(data.success){
       user.gender = selectedGender;
       localStorage.setItem("user", JSON.stringify(user));
 
       window.location.href = "username.html";
-
     } else {
-      alert("❌ Failed to save");
+      alert("Failed to save gender");
     }
 
-  } catch (e) {
-    alert("❌ Error saving");
+  } catch(e){
+    console.error(e);
+    alert("Error saving gender");
   }
 }
+
 </script>
