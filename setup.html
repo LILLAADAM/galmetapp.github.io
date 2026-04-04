@@ -200,12 +200,12 @@ Complete Setup
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-import { getFirestore, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
 
 console.log("🔥 Setup Page Loaded");
 
+// ✅ FIREBASE INIT
 const app = initializeApp({
   apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
   authDomain: "galmet-app.firebaseapp.com",
@@ -213,50 +213,65 @@ const app = initializeApp({
   storageBucket: "galmet-app.firebasestorage.app"
 });
 
-const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-let currentUser = null;
+// ✅ GET USER FROM LOCAL STORAGE
+const user = JSON.parse(localStorage.getItem("user"));
 
-// AUTH CHECK
-onAuthStateChanged(auth, (user)=>{
-  console.log("👤 Auth:", user);
+console.log("👤 Local User:", user);
 
-  if(!user){
-    setTimeout(()=>{
-      if(!auth.currentUser){
-        console.log("🚨 Redirect to index");
-        window.location = "index.html";
-      }
-    },2000);
-  } else {
-    currentUser = user;
-    console.log("✅ User ready:", user.uid);
-  }
-});
+if (!user) {
+  alert("❌ No user found. Please login again.");
+  window.location = "index.html";
+}
 
-// IMAGE PREVIEW
+// ✅ SET CURRENT USER
+let currentUser = user;
+
+
+// ==============================
+// ✅ IMAGE PREVIEW
+// ==============================
 window.addEventListener("DOMContentLoaded", () => {
+  console.log("📸 Image preview ready");
+
   const input = document.getElementById("photoInput");
   const preview = document.getElementById("profilePreview");
 
-  if(input){
-    input.addEventListener("change", (e)=>{
-      const file = e.target.files[0];
-      if(!file) return;
-
-      const reader = new FileReader();
-      reader.onload = (ev)=>{
-        preview.src = ev.target.result;
-      };
-      reader.readAsDataURL(file);
-    });
+  if (!input || !preview) {
+    console.error("❌ Input or Preview not found");
+    return;
   }
+
+  input.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+
+    if (!file) {
+      console.warn("⚠️ No file selected");
+      return;
+    }
+
+    console.log("📁 File selected:", file.name);
+
+    const reader = new FileReader();
+
+    reader.onload = (ev) => {
+      preview.src = ev.target.result;
+      console.log("✅ Preview updated");
+    };
+
+    reader.readAsDataURL(file);
+  });
 });
 
-// COMPRESS IMAGE
+
+// ==============================
+// ✅ IMAGE COMPRESS
+// ==============================
 async function compressImage(file) {
+  console.log("🧠 Compressing image...");
+
   return new Promise((resolve) => {
     const img = new Image();
     const reader = new FileReader();
@@ -268,6 +283,7 @@ async function compressImage(file) {
       const ctx = canvas.getContext("2d");
 
       const maxSize = 512;
+
       let width = img.width;
       let height = img.height;
 
@@ -289,6 +305,7 @@ async function compressImage(file) {
       ctx.drawImage(img, 0, 0, width, height);
 
       canvas.toBlob((blob) => {
+        console.log("✅ Image compressed");
         resolve(blob);
       }, "image/jpeg", 0.8);
     };
@@ -297,53 +314,63 @@ async function compressImage(file) {
   });
 }
 
-// COMPLETE SETUP
-window.completeSetup = async function(){
+
+// ==============================
+// ✅ COMPLETE SETUP FUNCTION
+// ==============================
+window.completeSetup = async function () {
 
   console.log("🚀 Upload started");
 
-  if(!currentUser){
-    alert("User not ready");
+  if (!currentUser) {
+    alert("❌ User not ready");
     return;
   }
 
-  const file = document.getElementById("photoInput").files[0];
+  const input = document.getElementById("photoInput");
 
-  if(!file){
-    alert("Select image");
+  if (!input || !input.files[0]) {
+    alert("⚠️ Please select an image");
     return;
   }
 
   try {
 
-    const compressed = await compressImage(file);
+    // 🔹 STEP 1: COMPRESS
+    const compressed = await compressImage(input.files[0]);
 
-    const storageRef = ref(storage, "profiles/" + currentUser.uid);
+    // 🔹 STEP 2: UPLOAD TO STORAGE
+    const storageRef = ref(storage, "profiles/" + currentUser.userId);
 
     await uploadBytes(storageRef, compressed);
-    console.log("☁️ Uploaded");
+    console.log("☁️ Uploaded to Firebase Storage");
 
+    // 🔹 STEP 3: GET URL
     const photoURL = await getDownloadURL(storageRef);
 
-    await updateDoc(doc(db, "users", currentUser.uid), {
+    console.log("🌍 Image URL:", photoURL);
+
+    // 🔹 STEP 4: SAVE TO FIRESTORE
+    await setDoc(doc(db, "users", currentUser.userId.toString()), {
+      ...currentUser,
       photoURL: photoURL,
       profileCompleted: true
-    });
+    }, { merge: true });
 
-    console.log("🔥 Saved to Firestore");
+    console.log("🔥 Firestore updated");
 
-    // SAVE LOCAL (IMPORTANT)
-    localStorage.setItem("user", JSON.stringify({
-      uid: currentUser.uid,
-      email: currentUser.email,
-      photoURL: photoURL
-    }));
+    // 🔹 STEP 5: UPDATE LOCAL
+    currentUser.photoURL = photoURL;
+    localStorage.setItem("user", JSON.stringify(currentUser));
 
+    console.log("💾 Local updated");
+
+    // 🔹 STEP 6: REDIRECT
     window.location = "dashboard.html";
 
-  } catch(err){
+  } catch (err) {
     console.error("❌ ERROR:", err);
-    alert("Upload failed");
+    alert("Upload failed: " + err.message);
   }
 };
 
