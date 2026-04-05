@@ -301,28 +301,39 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-/* ================= USER ================= */
+/* ================= ✅ AUTH FIX ================= */
 
+// 🔐 Get user from your NEW login system
 const currentUser = JSON.parse(localStorage.getItem("user"));
 
-if (!currentUser || !currentUser.userid) {
-  window.location.replace("index.html");
-  throw new Error("Not logged in"); // ⛔ STOP script execution
+// ❌ Not logged in
+if (!currentUser) {
+  window.location.href = "index.html";
+  throw new Error("User not logged in");
 }
 
-const myUid = currentUser.userId.toString();
+// ✅ AUTO FIX UID (NO LOGIN CHANGE NEEDED)
+const myUid = (currentUser.uid || currentUser.userId || "").toString();
 
-/* ================= PROFILE IMAGE ================= */
+// ❌ Safety check
+if (!myUid) {
+  window.location.href = "index.html";
+  throw new Error("User ID missing");
+}
+
+console.log("✅ Chats Auth OK:", myUid);
+
+/* ================= 👤 PROFILE IMAGE ================= */
 
 document.querySelector("header img").src =
   currentUser.photoURL ||
   "https://ui-avatars.com/api/?name=" + (currentUser.username || "User");
 
-/* ================= CACHE ================= */
+/* ================= ⚡ CACHE ================= */
 
 let usersCache = {};
 
-/* ================= CHAT LIST ================= */
+/* ================= 💬 CHAT LIST ================= */
 
 const q = query(
   collection(db, "userChats", myUid, "list"),
@@ -334,6 +345,15 @@ onSnapshot(q, async (snapshot) => {
   const list = document.getElementById("chatList");
   list.innerHTML = "";
 
+  if (snapshot.empty) {
+    list.innerHTML = `
+      <div class="text-center text-sm text-gray-400 py-10">
+        No chats yet 🚀
+      </div>
+    `;
+    return;
+  }
+
   for (const d of snapshot.docs) {
 
     const chat = d.data();
@@ -341,7 +361,7 @@ onSnapshot(q, async (snapshot) => {
 
     if (!otherId) continue;
 
-    // 🔥 GET USER DATA (CACHE)
+    // 🔥 LOAD USER (WITH CACHE)
     if (!usersCache[otherId]) {
       const userSnap = await getDoc(doc(db, "users", otherId));
       if (!userSnap.exists()) continue;
@@ -399,7 +419,7 @@ onSnapshot(q, async (snapshot) => {
 
 });
 
-/* ================= PLATFORM ================= */
+/* ================= 🌐 PLATFORM ================= */
 
 window.openPlatform = async () => {
   await setDoc(doc(db, "platformReads", myUid), {
@@ -409,7 +429,7 @@ window.openPlatform = async () => {
   location.href = "platform.html";
 };
 
-/* ================= NAVIGATION ================= */
+/* ================= 🚀 NAVIGATION ================= */
 
 window.openChat = (id) => {
   location.href = "chat.html?id=" + id;
