@@ -233,12 +233,19 @@ function startRealtimeDashboard() {
     console.log("👤 Live data:", d);
 
     // ✅ UI UPDATE
-    document.getElementById("email").innerText = d.email || "";
-    document.getElementById("coins").innerText = d.coins ?? 0;
-    document.getElementById("inviteCode").innerText = d.inviteCode || "---";
-    document.getElementById("userId").innerText = d.userId || "---";
-    document.getElementById("totalInvites").innerText = d.totalInvites ?? 0;
-    document.getElementById("totalEarned").innerText = d.totalEarned ?? 0;
+document.getElementById("email").innerText = d.email || "";
+document.getElementById("coins").innerText = d.coins ?? 0;
+document.getElementById("inviteCode").innerText = d.inviteCode || "---";
+document.getElementById("userId").innerText = d.userId || "---";
+document.getElementById("totalInvites").innerText = d.totalInvites ?? 0;
+document.getElementById("totalEarned").innerText = d.totalEarned ?? 0;
+
+// 💰 ADD THIS HERE (INSIDE SNAPSHOT)
+const coins = d.coins ?? 0;
+const usdt = coins / 1000;
+
+document.getElementById("coinValue").innerText =
+  "≈ " + usdt.toFixed(2) + " USDT";
 
     const profileImg = document.getElementById("profilePic");
 
@@ -250,16 +257,6 @@ function startRealtimeDashboard() {
 
   });
 }
-
-  document.getElementById("coins").innerText = d.coins ?? 0;
-
-  const coins = d.coins ?? 0;
-
-  // 💰 Convert coins → USDT
-  const usdt = coins / 1000;
-
-// format (2 decimal places)
-  document.getElementById("coinValue").innerText = "≈ " + usdt.toFixed(2) + " USDT";
   
 // 🔴 OFFLINE WHEN LEAVE
 window.addEventListener("beforeunload", () => {
