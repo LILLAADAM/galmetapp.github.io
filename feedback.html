@@ -102,7 +102,7 @@
 <!-- TopAppBar -->
 <header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-transparent backdrop-blur-xl dark:bg-slate-950/80">
 <div class="flex items-center gap-4">
-<button class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-cyan-50 dark:hover:bg-cyan-900/20 transition-colors Active: scale-95 duration-200">
+<button onclick="goBack()" class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-cyan-50 transition">
 <span class="material-symbols-outlined text-cyan-600 dark:text-cyan-400">arrow_back</span>
 </button>
 <h1 class="font-headline font-semibold text-lg text-cyan-700 dark:text-cyan-300">Feedback</h1>
@@ -204,9 +204,7 @@
 </div>
 <h2 class="headline-md font-headline font-bold text-on-surface mb-2">Successfully submitted</h2>
 <p class="body-md text-on-surface-variant mb-8">Thank you for your report! Our team will review your case and get back to you via email.</p>
-<button class="w-full h-12 bg-surface-container-highest text-primary font-bold rounded-full hover:bg-surface-container-high transition-colors">
-                    Back to Settings
-                </button>
+
 </div>
 </div>
 </main>
@@ -280,7 +278,21 @@ document.querySelector("form").addEventListener("submit", function(e){
   }, 500);
 
 });
-</script>
+      
+// 🎯 CLOSE POPUP ON CLICK ANYWHERE
+const popup = document.getElementById("success-confirmation");
 
+popup.addEventListener("click", (e) => {
+  // close popup
+  popup.classList.add("hidden");
+});
+
+// ❗ prevent closing when clicking inside box (optional)
+document.querySelector("#success-confirmation > div:last-child").addEventListener("click", (e) => {
+  e.stopPropagation();
+});
+
+</script>
+      
 </body>
 </html>
