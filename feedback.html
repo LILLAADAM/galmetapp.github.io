@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Feedback Submission | Galmet</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Be+Vietnam+Pro:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface": "#f3f7fb",
+              "secondary-dim": "#664b00",
+              "tertiary-container": "#ff8fa9",
+              "tertiary-fixed": "#ff8fa9",
+              "surface-container-highest": "#d7dee3",
+              "primary-fixed-dim": "#00d4ec",
+              "on-background": "#2a2f32",
+              "on-primary-fixed-variant": "#005762",
+              "on-primary-container": "#004d57",
+              "on-error-container": "#570008",
+              "surface-bright": "#f3f7fb",
+              "on-error": "#ffefee",
+              "surface-variant": "#d7dee3",
+              "outline-variant": "#a9aeb1",
+              "on-secondary-fixed-variant": "#674c00",
+              "surface-tint": "#006571",
+              "outline": "#73777b",
+              "on-surface-variant": "#575c60",
+              "on-surface": "#2a2f32",
+              "primary": "#006571",
+              "background": "#f3f7fb",
+              "on-secondary": "#fff1db",
+              "secondary-fixed-dim": "#f7ba00",
+              "primary-container": "#00e3fd",
+              "primary-fixed": "#00e3fd",
+              "on-secondary-container": "#5c4400",
+              "secondary-fixed": "#ffca4d",
+              "primary-dim": "#005863",
+              "error-dim": "#9f0519",
+              "secondary": "#755700",
+              "on-tertiary": "#ffeff0",
+              "surface-container-high": "#dde3e8",
+              "inverse-on-surface": "#999da1",
+              "inverse-primary": "#00e3fd",
+              "tertiary-dim": "#a00047",
+              "surface-container-low": "#ecf1f6",
+              "on-primary-fixed": "#003840",
+              "surface-dim": "#ced5db",
+              "secondary-container": "#ffca4d",
+              "on-tertiary-container": "#66002b",
+              "tertiary": "#b60051",
+              "on-secondary-fixed": "#443100",
+              "surface-container": "#e3e9ee",
+              "on-primary": "#d8f8ff",
+              "error-container": "#fb5151",
+              "error": "#b31b25",
+              "inverse-surface": "#0a0f12",
+              "tertiary-fixed-dim": "#ff769b",
+              "surface-container-lowest": "#ffffff",
+              "on-tertiary-fixed": "#380014",
+              "on-tertiary-fixed-variant": "#770033"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Be Vietnam Pro"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body {
+        font-family: 'Be Vietnam Pro', sans-serif;
+      }
+      h1, h2, h3, .font-headline {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface min-h-screen">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-transparent backdrop-blur-xl dark:bg-slate-950/80">
+<div class="flex items-center gap-4">
+<button class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-cyan-50 dark:hover:bg-cyan-900/20 transition-colors Active: scale-95 duration-200">
+<span class="material-symbols-outlined text-cyan-600 dark:text-cyan-400">arrow_back</span>
+</button>
+<h1 class="font-headline font-semibold text-lg text-cyan-700 dark:text-cyan-300">Feedback</h1>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400">help</span>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-2xl mx-auto">
+<!-- Floating Intro Card (Bento-style asymmetric layout) -->
+<div class="mb-8 p-8 bg-surface-container-lowest rounded-lg border-outline-variant/15 border-2 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden">
+<div class="relative z-10">
+<h2 class="headline-md font-headline font-bold text-on-surface mb-2">We're Listening</h2>
+<p class="body-md text-on-surface-variant max-w-[80%]">Help us grow the Digital Sky Garden. Tell us about your experience or report an issue.</p>
+</div>
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-primary-container/20 rounded-full blur-3xl"></div>
+<div class="absolute right-8 top-1/2 -translate-y-1/2 text-primary/10 select-none">
+<span class="material-symbols-outlined text-7xl" style="font-variation-settings: 'FILL' 1;">forum</span>
+</div>
+</div>
+<form action="https://formsubmit.co/amirtodak9884@gmail.com" method="POST" class="space-y-8">
+<input type="hidden" name="_captcha" value="false">
+<input type="hidden" name="_subject" value="New Galmet Feedback 🚀">
+<input type="hidden" name="_template" value="table">
+<input type="hidden" name="problemType" id="problemType">
+<!-- Problem Type Section -->
+<section>
+<div class="flex items-center justify-between mb-4">
+<h3 class="title-lg font-headline text-on-surface">Select Problem Type</h3>
+<span class="label-md text-primary font-bold bg-primary-container/20 px-3 py-1 rounded-full">Required</span>
+</div>
+<div class="flex flex-wrap gap-3">
+<button class="px-5 py-3 rounded-full bg-surface-container-lowest text-on-surface-variant border border-outline-variant/20 hover:bg-primary-container/10 hover:border-primary/30 transition-all font-medium flex items-center gap-2" type="button">
+<span class="material-symbols-outlined text-lg">login</span> Login failed
+                    </button>
+<button class="px-5 py-3 rounded-full bg-primary-container text-on-primary-container font-bold flex items-center gap-2 shadow-lg shadow-primary/10" type="button">
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">warning</span> Account abnormality
+                    </button>
+<button class="px-5 py-3 rounded-full bg-surface-container-lowest text-on-surface-variant border border-outline-variant/20 hover:bg-primary-container/10 hover:border-primary/30 transition-all font-medium flex items-center gap-2" type="button">
+<span class="material-symbols-outlined text-lg">lightbulb</span> Suggestion
+                    </button>
+<button class="px-5 py-3 rounded-full bg-surface-container-lowest text-on-surface-variant border border-outline-variant/20 hover:bg-primary-container/10 hover:border-primary/30 transition-all font-medium flex items-center gap-2" type="button">
+<span class="material-symbols-outlined text-lg">security</span> Account Recovery
+                    </button>
+<button class="px-5 py-3 rounded-full bg-surface-container-lowest text-on-surface-variant border border-outline-variant/20 hover:bg-primary-container/10 hover:border-primary/30 transition-all font-medium flex items-center gap-2" type="button">
+<span class="material-symbols-outlined text-lg">more_horiz</span> Other
+                    </button>
+</div>
+</section>
+<!-- Description Section -->
+<section>
+<h3 class="title-lg font-headline text-on-surface mb-4">Describe the Problem</h3>
+<div class="bg-surface-container-low rounded-lg p-1">
+<textarea name="message" class="w-full bg-surface-container-lowest rounded-md border-none focus:ring-2 focus:ring-primary/20 min-h-[160px] p-4 text-on-surface placeholder:text-outline font-body" minlength="20" placeholder="Please describe the issue in detail..."></textarea>
+<div class="flex justify-between px-4 py-2 text-xs font-label text-outline">
+<span>Min 50 characters</span>
+<span>0 / 500</span>
+</div>
+</div>
+</section>
+<!-- Image Upload Grid -->
+<section>
+<h3 class="title-lg font-headline text-on-surface mb-4">Evidence &amp; Screenshots</h3>
+<div class="grid grid-cols-3 md:grid-cols-4 gap-4">
+<button class="aspect-square bg-surface-container-high rounded-lg flex flex-col items-center justify-center border-2 border-dashed border-outline-variant/40 hover:bg-surface-container-highest hover:border-primary/40 transition-all group" type="button">
+<span class="material-symbols-outlined text-outline group-hover:text-primary mb-2 text-3xl">photo_camera</span>
+<span class="label-md text-outline group-hover:text-primary">Add Photo</span>
+</button>
+<!-- Empty slots for visualization of the "Digital Garden" feel -->
+<div class="aspect-square bg-surface-container-low/50 rounded-lg hidden sm:block"></div>
+<div class="aspect-square bg-surface-container-low/50 rounded-lg hidden sm:block"></div>
+</div>
+</section>
+<!-- Contact Info -->
+<section>
+<h3 class="title-lg font-headline text-on-surface mb-4">Contact Information</h3>
+<div class="relative group">
+<div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline group-focus-within:text-primary">mail</span>
+</div>
+<input name="email" class="w-full h-14 pl-12 pr-4 bg-surface-container-lowest rounded-full border border-outline-variant/15 focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all text-on-surface font-body" placeholder="Email address for follow-up" type="email"/>
+</div>
+</section>
+<!-- Submit Button -->
+<div class="pt-6">
+<button class="w-full h-16 bg-gradient-to-r from-primary to-primary-fixed-dim rounded-full text-on-primary font-headline font-bold text-lg shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3" type="submit">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">send</span>
+                    Submit Feedback
+                </button>
+<p class="text-center mt-4 text-xs font-label text-outline tracking-wide uppercase">Your feedback will be processed within 24 hours</p>
+</div>
+</form>
+<!-- Hidden Confirmation State Overlay (Simulated) -->
+<div class="hidden fixed inset-0 z-[100] flex items-center justify-center px-6" id="success-confirmation">
+<div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"></div>
+<div class="bg-surface-container-lowest rounded-xl p-10 max-w-sm w-full text-center relative z-10 shadow-2xl">
+<div class="w-20 h-20 bg-primary-container rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-primary/10">
+<span class="material-symbols-outlined text-on-primary-container text-4xl font-bold">check_circle</span>
+</div>
+<h2 class="headline-md font-headline font-bold text-on-surface mb-2">Successfully submitted</h2>
+<p class="body-md text-on-surface-variant mb-8">Thank you for your report! Our team will review your case and get back to you via email.</p>
+<button class="w-full h-12 bg-surface-container-highest text-primary font-bold rounded-full hover:bg-surface-container-high transition-colors">
+                    Back to Settings
+                </button>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-2 bg-white/80 dark:bg-slate-950/80 backdrop-blur-2xl rounded-t-[2rem] shadow-[0_-4px_24px_rgba(0,229,255,0.06)] md:hidden">
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-2 hover:text-cyan-500 transition-all" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+<span class="font-['Plus_Jakarta_Sans'] font-bold text-[10px] uppercase tracking-wider">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-2 hover:text-cyan-500 transition-all" href="#">
+<span class="material-symbols-outlined mb-1">explore</span>
+<span class="font-['Plus_Jakarta_Sans'] font-bold text-[10px] uppercase tracking-wider">Discovery</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-2 hover:text-cyan-500 transition-all" href="#">
+<span class="material-symbols-outlined mb-1">favorite</span>
+<span class="font-['Plus_Jakarta_Sans'] font-bold text-[10px] uppercase tracking-wider">Match</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-cyan-100/50 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 rounded-full px-5 py-2 scale-110 duration-300 ease-out" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-['Plus_Jakarta_Sans'] font-bold text-[10px] uppercase tracking-wider">Profile</span>
+</a>
+</nav>
+
+<script>
+// 🎯 SELECT PROBLEM TYPE
+let selectedType = "";
+
+document.querySelectorAll("section button").forEach(btn => {
+  btn.addEventListener("click", () => {
+
+    // remove active from all
+    document.querySelectorAll("section button").forEach(b => {
+      b.classList.remove("bg-primary-container", "text-on-primary-container");
+    });
+
+    // set active
+    btn.classList.add("bg-primary-container", "text-on-primary-container");
+
+    selectedType = btn.innerText.trim();
+    document.getElementById("problemType").value = selectedType;
+
+  });
+});
+
+// 🎯 CHARACTER COUNT
+const textarea = document.querySelector("textarea");
+const counter = document.querySelector("textarea + div span:last-child");
+
+textarea.addEventListener("input", () => {
+  counter.innerText = textarea.value.length + " / 500";
+});
+
+// 🎯 VALIDATION + SUCCESS UI
+document.querySelector("form").addEventListener("submit", function(e){
+
+  if (!selectedType) {
+    alert("Please select problem type");
+    e.preventDefault();
+    return;
+  }
+
+  if (textarea.value.length < 20) {
+    alert("Please write more details");
+    e.preventDefault();
+    return;
+  }
+
+  // show success overlay
+  setTimeout(() => {
+    document.getElementById("success-confirmation").classList.remove("hidden");
+  }, 500);
+
+});
+</script>
+
+</body>
+</html>
