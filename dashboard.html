@@ -105,7 +105,7 @@
         <span class="material-symbols-outlined text-2xl">currency_bitcoin</span>
       </div>
       <div class="text-4xl font-black mt-2" id="coins">0</div>
-      <div class="text-xs opacity-80 mt-1">≈ 1,000 coins = 1 USDT</div>
+      <div id="coinValue" class="text-xs opacity-80 mt-1">≈ 0 USDT</div>
     </div>
 
     <!-- Invite & Earn Card -->
@@ -251,6 +251,16 @@ function startRealtimeDashboard() {
   });
 }
 
+  document.getElementById("coins").innerText = d.coins ?? 0;
+
+const coins = d.coins ?? 0;
+
+// 💰 Convert coins → USDT
+const usdt = coins / 1000;
+
+// format (2 decimal places)
+document.getElementById("coinValue").innerText = "≈ " + usdt.toFixed(2) + " USDT";
+  
 // 🔴 OFFLINE WHEN LEAVE
 window.addEventListener("beforeunload", () => {
   if (unsubscribeSnapshot) unsubscribeSnapshot();
