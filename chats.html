@@ -305,12 +305,12 @@ import {
 
 const currentUser = JSON.parse(localStorage.getItem("user"));
 
-if (!currentUser || !currentUser.uid) {
+if (!currentUser || !currentUser.userid) {
   window.location.replace("index.html");
   throw new Error("Not logged in"); // ⛔ STOP script execution
 }
 
-const myUid = currentUser.uid;
+const myUid = currentUser.userId.toString();
 
 /* ================= PROFILE IMAGE ================= */
 
