@@ -253,13 +253,13 @@ function startRealtimeDashboard() {
 
   document.getElementById("coins").innerText = d.coins ?? 0;
 
-const coins = d.coins ?? 0;
+  const coins = d.coins ?? 0;
 
-// 💰 Convert coins → USDT
-const usdt = coins / 1000;
+  // 💰 Convert coins → USDT
+  const usdt = coins / 1000;
 
 // format (2 decimal places)
-document.getElementById("coinValue").innerText = "≈ " + usdt.toFixed(2) + " USDT";
+  document.getElementById("coinValue").innerText = "≈ " + usdt.toFixed(2) + " USDT";
   
 // 🔴 OFFLINE WHEN LEAVE
 window.addEventListener("beforeunload", () => {
