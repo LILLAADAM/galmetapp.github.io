@@ -340,8 +340,15 @@ async function verifyOtp() {
     return;
   }
 
-  if (!user.username || !user.country || !user.dob || !user.age) {
-    window.location.href = "step2.html"; // your nickname + dob page
+  if (
+  !user.username ||
+  !user.country ||
+  (typeof user.country === "object" && !user.country.name) ||
+  (typeof user.country === "string" && user.country.trim() === "") ||
+  !user.dob ||
+  !user.age
+)
+    window.location.href = "username.html"; // your nickname + dob page
     return;
   }
 
