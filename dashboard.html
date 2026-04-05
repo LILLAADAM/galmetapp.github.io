@@ -1,508 +1,321 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Galmet Dashboard</title>
-
-<style>
-body {
-    margin:0;
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg,#0f1b5c,#1f2f9c);
-    color:white;
-}
-
-.header {
-    display:flex;
-    justify-content:space-between;
-    padding:15px;
-    background:rgba(0,0,0,0.3);
-    font-size:18px;
-    font-weight:bold;
-}
-
-.logout {
-    background:red;
-    border:none;
-    padding:6px 12px;
-    border-radius:8px;
-    color:white;
-}
-
-.container {
-    padding:15px;
-}
-
-.card {
-    background: rgba(255,255,255,0.08);
-    padding:15px;
-    border-radius:15px;
-    margin-bottom:15px;
-}
-
-.user-id { color:#00ffcc; font-size:18px; font-weight:bold; }
-.email { font-size:16px; font-weight:600; }
-.coins { font-size:32px; font-weight:bold; color:#00ffcc; }
-
-.invite-box {
-    display:flex;
-    justify-content:space-between;
-    background:#111;
-    padding:10px;
-    border-radius:10px;
-}
-
-.copy-btn {
-    background:#f39c12;
-    border:none;
-    padding:6px 10px;
-    border-radius:6px;
-    color:white;
-}
-
-.games {
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:12px;
-}
-
-.game {
-    background:#1a1a1a;
-    padding:15px;
-    border-radius:12px;
-    text-align:center;
-    font-weight:bold;
-    cursor:pointer;
-}
-
-.game:hover { background:#333; }
-.coming { opacity:0.5; }
-.title { font-size:18px; margin-bottom:10px; font-weight:bold; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Galmet - Dashboard</title>
+  <!-- Tailwind + Fonts + Material Icons (same as other pages) -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Be+Vietnam+Pro:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface": "#f3f7fb",
+            "on-surface": "#2a2f32",
+            "surface-variant": "#d7dee3",
+            "on-surface-variant": "#575c60",
+            "primary": "#006571",
+            "primary-container": "#00e3fd",
+            "primary-fixed-dim": "#00d4ec",
+            "on-primary": "#d8f8ff",
+            "secondary": "#755700",
+            "secondary-container": "#ffca4d",
+            "outline": "#73777b",
+            "outline-variant": "#a9aeb1",
+            "error": "#b31b25",
+            "error-container": "#fb5151"
+          },
+          fontFamily: {
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Be Vietnam Pro"],
+            "label": ["Plus Jakarta Sans"]
+          },
+          borderRadius: {
+            "DEFAULT": "1rem",
+            "lg": "2rem",
+            "xl": "3rem",
+            "full": "9999px"
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body {
+      min-height: 100dvh;
+      background: #f3f7fb;
+    }
+    /* Hide scrollbar for cleaner look */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
 </head>
+<body class="bg-surface text-on-surface font-body antialiased">
 
-<body>
-
-<div style="display:flex; align-items:center; gap:10px;">
-    Galmet Dashboard
-    <img id="profilePic" src="" style="width:35px;height:35px;border-radius:50%;cursor:pointer;" onclick="openProfile()">
-</div>
-    
-<div style="position:absolute; top:15px; right:15px; display:flex; gap:10px;">
-    
-    <button onclick="goSearch()">🔍</button>
-    <button onclick="goChats()">💬</button>
-    <button onclick="openSettings()" style="margin-left:10px;">⚙️</button>
-</div>
-    <div onclick="openParty()" style="cursor:pointer;">
-    <span class="material-symbols-outlined">sports_esports</span>
-</div>
-    
-<div class="container">
-
-<div class="card">
-    <div class="title">Welcome Back 👋</div>
-    <div class="email" id="email"></div>
-    <div class="user-id">User ID: <span id="userId">Loading...</span></div>
-</div>
-
-<div class="card">
-    <div class="title">Your Balance 💰</div>
-    <div class="coins" id="coins">0</div>
-</div>
-
-<div class="card">
-    <div class="title">Invite & Earn 🎁</div>
-    <div class="invite-box">
-        <span id="inviteCode">---</span>
-        <button class="copy-btn" onclick="copyCode()">Copy</button>
+  <!-- ========== HEADER (Galmet style) ========== -->
+  <header class="fixed top-0 left-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/20">
+    <div class="flex items-center justify-between px-6 h-16 max-w-md mx-auto">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl font-black bg-gradient-to-r from-cyan-600 to-cyan-400 bg-clip-text text-transparent font-headline">Galmet</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <button onclick="goSearch()" class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high transition">
+          <span class="material-symbols-outlined">search</span>
+        </button>
+        <button onclick="goChats()" class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high transition">
+          <span class="material-symbols-outlined">chat</span>
+        </button>
+        <button onclick="openParty()" class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high transition">
+          <span class="material-symbols-outlined">sports_esports</span>
+        </button>
+        <button onclick="openSettings()" class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high transition">
+          <span class="material-symbols-outlined">settings</span>
+        </button>
+        <img id="profilePic" onclick="openProfile()" class="w-9 h-9 rounded-full object-cover border-2 border-primary cursor-pointer" src="https://ui-avatars.com/api/?name=User">
+      </div>
     </div>
+  </header>
 
-    <div style="margin-top:8px; font-size:13px; color:#cbd5f5; line-height:1.4;">
-    🚀 Invite friends and earn rewards <br>
-    💰 Get <b>1,000 Coins</b> when they complete their first top-up
-    </div>
-</div>
-
-<div class="card">
-    <div class="title">Referral Stats 📊</div>
-
-    <div style="display:flex; justify-content:space-between; margin-top:10px;">
+  <main class="pt-24 pb-32 px-6 max-w-md mx-auto flex flex-col gap-6 no-scrollbar">
+    <!-- Welcome Card -->
+    <div class="bg-surface-container-lowest rounded-2xl p-5 shadow-sm border border-white/50">
+      <div class="flex items-center justify-between">
         <div>
-            <div style="font-size:12px; color:#94a3b8;">Total Invites</div>
-            <div id="totalInvites" style="font-size:20px; font-weight:700;">0</div>
+          <h2 class="font-headline text-xl font-bold text-on-surface">Welcome back 👋</h2>
+          <p id="email" class="text-on-surface-variant text-sm mt-1">loading...</p>
+          <p class="text-xs text-outline mt-1">User ID: <span id="userId">---</span></p>
         </div>
+        <button onclick="logout()" class="bg-error/10 text-error text-sm font-bold px-4 py-2 rounded-full hover:bg-error/20 transition">
+          Logout
+        </button>
+      </div>
+    </div>
 
+    <!-- Coins Card -->
+    <div class="bg-gradient-to-br from-primary to-primary-dim rounded-2xl p-5 text-white shadow-lg">
+      <div class="flex justify-between items-center">
+        <span class="font-label text-xs uppercase tracking-wider opacity-80">Your Balance</span>
+        <span class="material-symbols-outlined text-2xl">currency_bitcoin</span>
+      </div>
+      <div class="text-4xl font-black mt-2" id="coins">0</div>
+      <div class="text-xs opacity-80 mt-1">≈ 1,000 coins = 1 USDT</div>
+    </div>
+
+    <!-- Invite & Earn Card -->
+    <div class="bg-surface-container-low rounded-2xl p-5 border border-outline-variant/30">
+      <h3 class="font-headline font-bold text-on-surface flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary">groups</span> Invite & Earn
+      </h3>
+      <div class="flex items-center justify-between bg-surface-container-high rounded-xl p-3 mt-3">
+        <code id="inviteCode" class="text-sm font-mono text-on-surface">------</code>
+        <button onclick="copyCode()" class="bg-primary text-on-primary text-sm font-bold px-4 py-1.5 rounded-full shadow-md active:scale-95 transition">
+          Copy Link
+        </button>
+      </div>
+      <p class="text-xs text-on-surface-variant mt-3 leading-relaxed">
+        🚀 Invite friends – earn <span class="font-bold text-primary">1,000 coins</span> when they make their first top-up!
+      </p>
+    </div>
+
+    <!-- Referral Stats -->
+    <div class="bg-surface-container-low rounded-2xl p-5 border border-outline-variant/30">
+      <h3 class="font-headline font-bold text-on-surface">Referral Stats 📊</h3>
+      <div class="flex justify-between mt-4">
         <div>
-            <div style="font-size:12px; color:#94a3b8;">Total Earned</div>
-            <div id="totalEarned" style="font-size:20px; font-weight:700;">0</div>
+          <div class="text-xs text-on-surface-variant uppercase tracking-wide">Total Invites</div>
+          <div id="totalInvites" class="text-2xl font-bold text-on-surface">0</div>
         </div>
+        <div>
+          <div class="text-xs text-on-surface-variant uppercase tracking-wide">Total Earned</div>
+          <div id="totalEarned" class="text-2xl font-bold text-primary">0</div>
+        </div>
+      </div>
     </div>
-</div>
-    
-<div class="card">
-    <div class="title">Play Games 🎮</div>
-    <div class="games">
-        <div class="game" onclick="goGame('spin.html')">🎯 Spin Wheel</div>
-        <div class="game" onclick="goGame('lucky.html')">🍀 Lucky Game</div>
-        <div class="game coming">🏁 Race<br>Coming Soon</div>
-        <div class="game coming">🎮 More<br>Coming Soon</div>
+
+    <!-- Games Grid -->
+    <div>
+      <h3 class="font-headline font-bold text-on-surface mb-3">Play Games 🎮</h3>
+      <div class="grid grid-cols-2 gap-3">
+        <button onclick="goGame('spin.html')" class="bg-surface-container-high rounded-xl p-4 text-center font-bold hover:bg-primary-container/30 transition active:scale-95">
+          🎯 Spin Wheel
+        </button>
+        <button onclick="goGame('lucky.html')" class="bg-surface-container-high rounded-xl p-4 text-center font-bold hover:bg-primary-container/30 transition active:scale-95">
+          🍀 Lucky Game
+        </button>
+        <div class="bg-surface-container-high/50 rounded-xl p-4 text-center text-outline font-bold opacity-70">
+          🏁 Race <span class="block text-[10px]">Coming Soon</span>
+        </div>
+        <div class="bg-surface-container-high/50 rounded-xl p-4 text-center text-outline font-bold opacity-70">
+          🎮 More <span class="block text-[10px]">Coming Soon</span>
+        </div>
+      </div>
     </div>
-</div>
-
-<button onclick="window.location.href='topup.html'">💳 Top Up</button>
-
-<button onclick="openWithdraw()" style="
-  background:#ff3b30;
-  padding:12px;
-  border:none;
-  border-radius:8px;
-  color:white;
-  font-weight:bold;
-  width:100%;
-  margin-top:10px;
-">
-💸 Withdraw Coins
-</button>
-
-<div id="withdrawBox" style="
-  display:none;
-  background:#111;
-  padding:20px;
-  border-radius:10px;
-  margin-top:15px;
-">
-
-<button onclick="loadWithdrawHistory()" style="
-  background:#007aff;
-  padding:10px;
-  border:none;
-  border-radius:8px;
-  color:white;
-  width:100%;
-  margin-top:10px;
-">
-📜 View Withdraw History
-</button>
-
-<div id="withdrawHistory" style="margin-top:10px;"></div>
-
-<h3>Withdraw</h3>
-
-<input id="withdrawAmount" placeholder="Amount Minimum 65000 (coins)= 10 USDT" style="width:100%;padding:10px;margin-bottom:10px;">
-<input id="withdrawWallet" placeholder="Your TRC20 USDT Wallet Address" style="width:100%;padding:10px;margin-bottom:10px;">
-
-<button onclick="submitWithdraw()" style="
-  background:#4cd964;
-  padding:12px;
-  border:none;
-  border-radius:8px;
-  color:white;
-  font-weight:bold;
-  width:100%;
-">
-Submit Withdraw
-</button>
-
-</div>
-</div>
-
-<script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getFirestore, doc, getDoc, onSnapshot, updateDoc } 
-from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-
-const app = initializeApp({
-  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
-  authDomain: "galmet-app.firebaseapp.com",
-  projectId: "galmet-app"
-});
-
-const db = getFirestore(app);
-
-// ==============================
-// ✅ LOGIN CHECK
-// ==============================
-const localUser = JSON.parse(localStorage.getItem("user"));
-
-if (!localUser || !localUser.userId) {
-  window.location = "login.html";
-}
-
-// ==============================
-// ✅ USER REF
-// ==============================
-const userRef = doc(db, "users", localUser.userId.toString());
-
-// ==============================
-// 🚨 FLOW CHECK (NO LOOP FIX)
-// ==============================
-let flowChecked = false;
-
-async function checkUserFlow(){
-
-  if(flowChecked) return;
-  flowChecked = true;
-
-  const snap = await getDoc(userRef);
-
-  if (!snap.exists()) return;
-
-  const data = snap.data();
-  const currentPage = window.location.pathname;
-
-  if (!data.gender && !currentPage.includes("gender.html")) {
-    window.location = "gender.html";
-    return;
-  }
-
-  if ((!data.username || !data.country || !data.dob || !data.age) 
-      && !currentPage.includes("username.html")) {
-    window.location = "username.html";
-    return;
-  }
-
-  if ((!data.photoURL || !data.profileCompleted) 
-      && !currentPage.includes("setup.html")) {
-    window.location = "setup.html";
-    return;
-  }
-
-  startDashboard();
-}
-
-// ==============================
-// 🚀 REALTIME DASHBOARD
-// ==============================
-function startDashboard(){
-
-  // ✅ SET ONLINE ONCE
-  updateDoc(userRef, { online: true }).catch(()=>{});
-
-  onSnapshot(userRef, (snap) => {
-
-    if (!snap.exists()) return;
-
-    const data = snap.data();
-
-    // ✅ UI UPDATE ONLY
-    document.getElementById("email").innerText = data.email || "";
-    document.getElementById("coins").innerText = data.coins ?? 0;
-    document.getElementById("inviteCode").innerText = data.inviteCode || "---";
-    document.getElementById("userId").innerText = data.userId || "---";
-
-    document.getElementById("profilePic").src =
-      data.photoURL || "https://ui-avatars.com/api/?name=" + encodeURIComponent(data.email);
-
-    document.getElementById("totalInvites").innerText = data.totalInvites ?? 0;
-    document.getElementById("totalEarned").innerText = data.totalEarned ?? 0;
-
-  });
-}
-
-// ==============================
-// ❌ OFFLINE
-// ==============================
-window.addEventListener("beforeunload", () => {
-  updateDoc(userRef, { online: false }).catch(()=>{});
-});
-
-// ==============================
-// ✅ LOGOUT
-// ==============================
-window.logout = () => {
-  localStorage.removeItem("user");
-  window.location = "login.html";
-};
-
-// ==============================
-// ✅ COPY FULL INVITE LINK
-// ==============================
-window.copyCode = async ()=>{
-
-  const code = document.getElementById("inviteCode").innerText;
-
-  // 🔥 CHANGE THIS DOMAIN IF NEEDED
-  const link = `https://lillaadam.github.io/galmetapp.github.io/?ref=${code}`;
-
-  try {
-    await navigator.clipboard.writeText(link);
-    alert("✅ Invite link copied:\n" + link);
-  } catch {
-    alert("Copy failed");
-  }
-};
-
-// ==============================
-// ✅ NAVIGATION
-// ==============================
-window.goGame = (p)=> location.href = p;
-window.goSearch = ()=> location.href = "search.html";
-window.goChats = ()=> location.href = "chat.html";
-window.openSettings = ()=> location.href = "settings.html";
-window.openProfile = ()=> location.href = "profile.html";
-window.openParty = ()=> location.href = "party.html";
-
-window.openWithdraw = ()=> {
-  const box = document.getElementById("withdrawBox");
-  box.style.display = box.style.display === "none" ? "block" : "none";
-};
 
-// ==============================
-// 🚀 START
-// ==============================
-checkUserFlow();
-
-</script><script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getFirestore, doc, getDoc, onSnapshot, updateDoc } 
-from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-
-const app = initializeApp({
-  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
-  authDomain: "galmet-app.firebaseapp.com",
-  projectId: "galmet-app"
-});
-
-const db = getFirestore(app);
-
-// ==============================
-// ✅ LOGIN CHECK
-// ==============================
-const localUser = JSON.parse(localStorage.getItem("user"));
-
-if (!localUser || !localUser.userId) {
-  window.location = "login.html";
-}
-
-// ==============================
-// ✅ USER REF
-// ==============================
-const userRef = doc(db, "users", localUser.userId.toString());
-
-// ==============================
-// 🚨 FLOW CHECK (NO LOOP FIX)
-// ==============================
-let flowChecked = false;
-
-async function checkUserFlow(){
-
-  if(flowChecked) return;
-  flowChecked = true;
-
-  const snap = await getDoc(userRef);
-
-  if (!snap.exists()) return;
-
-  const data = snap.data();
-  const currentPage = window.location.pathname;
-
-  if (!data.gender && !currentPage.includes("gender.html")) {
-    window.location = "gender.html";
-    return;
-  }
-
-  if ((!data.username || !data.country || !data.dob || !data.age) 
-      && !currentPage.includes("username.html")) {
-    window.location = "username.html";
-    return;
-  }
-
-  if ((!data.photoURL || !data.profileCompleted) 
-      && !currentPage.includes("setup.html")) {
-    window.location = "setup.html";
-    return;
-  }
-
-  startDashboard();
-}
-
-// ==============================
-// 🚀 REALTIME DASHBOARD
-// ==============================
-function startDashboard(){
-
-  // ✅ SET ONLINE ONCE
-  updateDoc(userRef, { online: true }).catch(()=>{});
-
-  onSnapshot(userRef, (snap) => {
-
-    if (!snap.exists()) return;
-
-    const data = snap.data();
-
-    // ✅ UI UPDATE ONLY
-    document.getElementById("email").innerText = data.email || "";
-    document.getElementById("coins").innerText = data.coins ?? 0;
-    document.getElementById("inviteCode").innerText = data.inviteCode || "---";
-    document.getElementById("userId").innerText = data.userId || "---";
-
-    document.getElementById("profilePic").src =
-      data.photoURL || "https://ui-avatars.com/api/?name=" + encodeURIComponent(data.email);
-
-    document.getElementById("totalInvites").innerText = data.totalInvites ?? 0;
-    document.getElementById("totalEarned").innerText = data.totalEarned ?? 0;
-
-  });
-}
-
-// ==============================
-// ❌ OFFLINE
-// ==============================
-window.addEventListener("beforeunload", () => {
-  updateDoc(userRef, { online: false }).catch(()=>{});
-});
-
-// ==============================
-// ✅ LOGOUT
-// ==============================
-window.logout = () => {
-  localStorage.removeItem("user");
-  window.location = "login.html";
-};
-
-// ==============================
-// ✅ COPY FULL INVITE LINK
-// ==============================
-window.copyCode = async ()=>{
-
-  const code = document.getElementById("inviteCode").innerText;
-
-  // 🔥 CHANGE THIS DOMAIN IF NEEDED
-  const link = `https://lillaadam.github.io/galmetapp.github.io/?ref=${code}`;
-
-  try {
-    await navigator.clipboard.writeText(link);
-    alert("✅ Invite link copied:\n" + link);
-  } catch {
-    alert("Copy failed");
-  }
-};
-
-// ==============================
-// ✅ NAVIGATION
-// ==============================
-window.goGame = (p)=> location.href = p;
-window.goSearch = ()=> location.href = "search.html";
-window.goChats = ()=> location.href = "chat.html";
-window.openSettings = ()=> location.href = "settings.html";
-window.openProfile = ()=> location.href = "profile.html";
-window.openParty = ()=> location.href = "party.html";
-
-window.openWithdraw = ()=> {
-  const box = document.getElementById("withdrawBox");
-  box.style.display = box.style.display === "none" ? "block" : "none";
-};
-
-// ==============================
-// 🚀 START
-// ==============================
-checkUserFlow();
-
-</script>
-
+    <!-- Top Up & Withdraw -->
+    <div class="flex gap-3">
+      <button onclick="window.location.href='topup.html'" class="flex-1 bg-primary text-on-primary font-bold py-3 rounded-full shadow-md active:scale-95 transition">
+        💳 Top Up
+      </button>
+      <button onclick="toggleWithdraw()" class="flex-1 bg-error text-white font-bold py-3 rounded-full shadow-md active:scale-95 transition">
+        💸 Withdraw
+      </button>
+    </div>
+
+    <!-- Withdraw Panel (hidden by default) -->
+    <div id="withdrawPanel" class="hidden bg-surface-container-lowest rounded-2xl p-5 border border-outline-variant/30 mt-2">
+      <h3 class="font-headline font-bold text-on-surface">Withdraw Coins</h3>
+      <p class="text-xs text-on-surface-variant mt-1">Minimum 65,000 coins (10 USDT) • TRC20 only</p>
+      <input id="withdrawAmount" type="number" placeholder="Amount (coins)" class="w-full mt-3 bg-surface-container-high rounded-xl px-4 py-3 text-on-surface border-none focus:ring-2 focus:ring-primary">
+      <input id="withdrawWallet" placeholder="TRC20 USDT Wallet Address" class="w-full mt-3 bg-surface-container-high rounded-xl px-4 py-3 text-on-surface border-none focus:ring-2 focus:ring-primary">
+      <button onclick="submitWithdraw()" class="w-full bg-primary text-on-primary font-bold py-3 rounded-full mt-4 active:scale-95 transition">
+        Submit Withdraw
+      </button>
+      <button onclick="loadWithdrawHistory()" class="w-full text-primary font-bold text-sm mt-3 underline">
+        View Withdraw History
+      </button>
+      <div id="withdrawHistory" class="mt-3 text-sm text-on-surface-variant"></div>
+    </div>
+  </main>
+
+  <script type="module">
+    // SINGLE MODULE – NO DUPLICATES
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+    const app = initializeApp({
+      apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+      authDomain: "galmet-app.firebaseapp.com",
+      projectId: "galmet-app"
+    });
+    const db = getFirestore(app);
+
+    // ----- Helper: get user from localStorage -----
+    const localUser = JSON.parse(localStorage.getItem("user"));
+    if (!localUser || !localUser.userId) {
+      window.location.replace("login.html");
+    }
+    const userIdStr = localUser.userId.toString();
+    const userRef = doc(db, "users", userIdStr);
+
+    let flowCheckDone = false;
+    let unsubscribeSnapshot = null;
+
+    // ----- Redirect if profile incomplete (runs only once) -----
+    async function ensureProfileComplete() {
+      if (flowCheckDone) return;
+      flowCheckDone = true;
+
+      const snap = await getDoc(userRef);
+      if (!snap.exists()) return;
+
+      const data = snap.data();
+      const currentPath = window.location.pathname;
+
+      // Gender missing → gender.html
+      if (!data.gender && !currentPath.includes("gender.html")) {
+        window.location.replace("gender.html");
+        return;
+      }
+      // Username / country / dob missing → username.html
+      if ((!data.username || !data.country || !data.dob || !data.age) && !currentPath.includes("username.html")) {
+        window.location.replace("username.html");
+        return;
+      }
+      // Photo or profileCompleted missing → setup.html
+      if ((!data.photoURL || !data.profileCompleted) && !currentPath.includes("setup.html")) {
+        window.location.replace("setup.html");
+        return;
+      }
+
+      // All good – start realtime dashboard
+      startRealtimeDashboard();
+    }
+
+    function startRealtimeDashboard() {
+      // Set online status once
+      updateDoc(userRef, { online: true }).catch(() => {});
+
+      // Listen to Firestore updates
+      unsubscribeSnapshot = onSnapshot(userRef, (snap) => {
+        if (!snap.exists()) return;
+        const d = snap.data();
+        document.getElementById("email").innerText = d.email || "";
+        document.getElementById("coins").innerText = d.coins ?? 0;
+        document.getElementById("inviteCode").innerText = d.inviteCode || "---";
+        document.getElementById("userId").innerText = d.userId || "---";
+        document.getElementById("totalInvites").innerText = d.totalInvites ?? 0;
+        document.getElementById("totalEarned").innerText = d.totalEarned ?? 0;
+        const profileImg = document.getElementById("profilePic");
+        if (d.photoURL) profileImg.src = d.photoURL;
+        else profileImg.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(d.email || "User")}`;
+      });
+    }
+
+    // Set offline on page unload
+    window.addEventListener("beforeunload", () => {
+      if (unsubscribeSnapshot) unsubscribeSnapshot();
+      updateDoc(userRef, { online: false }).catch(() => {});
+    });
+
+    // ----- Global functions (attached to window) -----
+    window.logout = () => {
+      if (unsubscribeSnapshot) unsubscribeSnapshot();
+      localStorage.removeItem("user");
+      window.location.replace("login.html");
+    };
+
+    window.copyCode = async () => {
+      const code = document.getElementById("inviteCode").innerText;
+      const link = `https://lillaadam.github.io/galmetapp.github.io/?ref=${code}`;
+      try {
+        await navigator.clipboard.writeText(link);
+        alert("✅ Invite link copied:\n" + link);
+      } catch {
+        alert("❌ Copy failed – please copy manually");
+      }
+    };
+
+    window.goGame = (page) => { window.location.href = page; };
+    window.goSearch = () => { window.location.href = "search.html"; };
+    window.goChats = () => { window.location.href = "chat.html"; };
+    window.openSettings = () => { window.location.href = "settings.html"; };
+    window.openProfile = () => { window.location.href = "profile.html"; };
+    window.openParty = () => { window.location.href = "party.html"; };
+
+    window.toggleWithdraw = () => {
+      const panel = document.getElementById("withdrawPanel");
+      panel.classList.toggle("hidden");
+    };
+
+    window.submitWithdraw = async () => {
+      const amount = document.getElementById("withdrawAmount").value;
+      const wallet = document.getElementById("withdrawWallet").value;
+      if (!amount || amount < 65000) {
+        alert("Minimum withdraw is 65,000 coins");
+        return;
+      }
+      if (!wallet.startsWith("T") || wallet.length < 30) {
+        alert("Enter a valid TRC20 USDT wallet address");
+        return;
+      }
+      // You can implement your withdraw API call here
+      alert(`Withdraw request for ${amount} coins sent to ${wallet}`);
+    };
+
+    window.loadWithdrawHistory = async () => {
+      // Optional: fetch from your backend
+      document.getElementById("withdrawHistory").innerHTML = "📜 History will appear here (API integration needed)";
+    };
+
+    // Start the flow
+    ensureProfileComplete();
+  </script>
 </body>
 </html>
