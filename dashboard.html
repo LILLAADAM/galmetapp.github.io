@@ -248,35 +248,49 @@ if (!localUser || !localUser.userId) {
 // ==============================
 const userRef = doc(db, "users", localUser.userId.toString());
 
-onSnapshot(userRef, async (snap) => {
+// ✅ SET ONLINE ONCE (FIX LOOP)
+updateDoc(userRef, { online: true }).catch(()=>{});
 
-  if (!snap.exists()) {
-    alert("User not found");
-    return;
-  }
+// ✅ REALTIME LISTENER
+onSnapshot(userRef, (snap) => {
+
+  if (!snap.exists()) return;
 
   const data = snap.data();
 
-  console.log("🔥 Live Data:", data);
+  const currentPage = window.location.pathname;
 
-  // ==============================
-  // 🚨 PROFILE FLOW CONTROL (FIXED)
-  // ==============================
-  if (!data.gender) {
+  // ✅ SAFE FLOW (NO LOOP)
+  if (!data.gender && !currentPage.includes("gender.html")) {
     window.location = "gender.html";
     return;
   }
 
-  if (!data.username || !data.country || !data.dob || !data.age) {
+  if ((!data.username || !data.country || !data.dob || !data.age) 
+      && !currentPage.includes("step2.html")) {
     window.location = "step2.html";
     return;
   }
 
-  if (!data.photoURL || !data.profileCompleted) {
+  if ((!data.photoURL || !data.profileCompleted) 
+      && !currentPage.includes("setup.html")) {
     window.location = "setup.html";
     return;
   }
 
+  // ✅ UI UPDATE
+  document.getElementById("email").innerText = data.email || "";
+  document.getElementById("coins").innerText = data.coins ?? 0;
+  document.getElementById("inviteCode").innerText = data.inviteCode || "---";
+  document.getElementById("userId").innerText = data.userId || "---";
+
+  document.getElementById("profilePic").src =
+    data.photoURL || "https://ui-avatars.com/api/?name=" + encodeURIComponent(data.email);
+
+  document.getElementById("totalInvites").innerText = data.totalInvites ?? 0;
+  document.getElementById("totalEarned").innerText = data.totalEarned ?? 0;
+
+});
   // ==============================
   // ✅ UI UPDATE (REALTIME)
   // ==============================
@@ -293,15 +307,6 @@ onSnapshot(userRef, async (snap) => {
   // ==============================
   document.getElementById("totalInvites").innerText = data.totalInvites ?? 0;
   document.getElementById("totalEarned").innerText = data.totalEarned ?? 0;
-
-  // ==============================
-  // ✅ ONLINE STATUS
-  // ==============================
-  try {
-    await updateDoc(userRef, { online: true });
-  } catch(e) {}
-
-});
 
 // ==============================
 // ❌ OFFLINE ON EXIT
