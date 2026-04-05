@@ -1,255 +1,319 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Select Country</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Galmet — Select Region</title>
+  <!-- Tailwind + Google Fonts + Material Icons -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  
+  <!-- Exact same tailwind config + color system as main registration page -->
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-secondary-fixed": "#443100",
+            "surface-variant": "#d7dee3",
+            "primary-dim": "#005863",
+            "secondary-container": "#ffca4d",
+            "on-primary-fixed-variant": "#005762",
+            "on-error-container": "#570008",
+            "surface-container-low": "#ecf1f6",
+            "outline": "#73777b",
+            "inverse-primary": "#00e3fd",
+            "on-background": "#2a2f32",
+            "background": "#f3f7fb",
+            "on-surface": "#2a2f32",
+            "secondary-fixed-dim": "#f7ba00",
+            "on-primary-container": "#004d57",
+            "surface-bright": "#f3f7fb",
+            "primary-container": "#00e3fd",
+            "error": "#b31b25",
+            "surface-container-high": "#dde3e8",
+            "on-tertiary-fixed-variant": "#770033",
+            "tertiary": "#b60051",
+            "on-tertiary-fixed": "#380014",
+            "tertiary-fixed-dim": "#ff769b",
+            "primary-fixed-dim": "#00d4ec",
+            "on-primary": "#d8f8ff",
+            "surface-container-lowest": "#ffffff",
+            "on-secondary-fixed-variant": "#674c00",
+            "outline-variant": "#a9aeb1",
+            "surface-container": "#e3e9ee",
+            "on-tertiary": "#ffeff0",
+            "surface-container-highest": "#d7dee3",
+            "surface": "#f3f7fb",
+            "on-tertiary-container": "#66002b",
+            "on-surface-variant": "#575c60",
+            "tertiary-container": "#ff8fa9",
+            "on-secondary-container": "#5c4400",
+            "secondary": "#755700",
+            "surface-dim": "#ced5db",
+            "tertiary-dim": "#a00047",
+            "error-dim": "#9f0519",
+            "primary-fixed": "#00e3fd",
+            "primary": "#006571",
+            "error-container": "#fb5151",
+            "secondary-fixed": "#ffca4d",
+            "surface-tint": "#006571",
+            "on-error": "#ffefee",
+            "on-secondary": "#fff1db",
+            "inverse-surface": "#0a0f12",
+            "tertiary-fixed": "#ff8fa9",
+            "secondary-dim": "#664b00",
+            "on-primary-fixed": "#003840",
+            "inverse-on-surface": "#999da1"
+          },
+          borderRadius: {
+            DEFAULT: "1rem",
+            lg: "2rem",
+            xl: "3rem",
+            full: "9999px"
+          },
+          fontFamily: {
+            headline: ["Plus Jakarta Sans"],
+            body: ["Be Vietnam Pro"],
+            label: ["Plus Jakarta Sans"]
+          }
+        }
+      }
+    }
+  </script>
 
-<style>
-body { font-family:sans-serif; background:#f5f5f5; }
-.item {
-  padding:15px;
-  border-bottom:1px solid #ddd;
-  display:flex;
-  gap:10px;
-  cursor:pointer;
-}
-.item:hover { background:#eee; }
-</style>
+  <style>
+    /* custom scroll & utility (match main registration style) */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    /* smooth hover & selection */
+    .country-item {
+      transition: all 0.15s ease;
+    }
+    .country-item:active {
+      transform: scale(0.98);
+    }
+  </style>
 </head>
+<body class="bg-background font-body text-on-background min-h-screen flex flex-col items-center overflow-x-hidden">
 
-<body>
+  <!-- main container: same width & padding as registration page -->
+  <div class="w-full max-w-md mx-auto flex flex-col min-h-screen bg-background">
+    
+    <!-- Header: NO BACK ARROW (explicitly removed), only clean region title + brand identity -->
+    <div class="w-full px-6 pt-5 pb-2 flex items-center justify-between shrink-0">
+      <!-- left spacer: empty to keep balance but no arrow -->
+      <div class="w-6"></div>
+      <!-- centered / primary title: Select Region (matches "Create Profile" style) -->
+      <h1 class="font-headline text-xl font-bold bg-gradient-to-r from-primary to-primary-dim bg-clip-text text-transparent tracking-tight">
+        Select region
+      </h1>
+      <!-- right spacer for symmetry -->
+      <div class="w-6"></div>
+    </div>
 
-<input id="search" placeholder="Search country..." 
-style="width:100%;padding:10px;margin-bottom:10px;">
+    <!-- main content: search + country list (no extra help texts, no location request, no descriptions) -->
+    <main class="flex-1 w-full px-6 py-4 flex flex-col gap-5 overflow-hidden">
+      
+      <!-- Search field - matches nickname input style exactly -->
+      <div class="relative group w-full">
+        <div class="absolute left-4 top-1/2 -translate-y-1/2 text-outline/60">
+          <span class="material-symbols-outlined text-xl">search</span>
+        </div>
+        <input type="text" id="searchCountry" 
+               class="w-full bg-surface-container-lowest border-none ring-1 ring-outline-variant/15 focus:ring-2 focus:ring-primary rounded-xl pl-11 pr-4 py-3 font-body text-on-surface placeholder:text-outline/50 transition-all"
+               placeholder="Search country or region" autocomplete="off">
+      </div>
 
-<div id="list"></div>
+      <!-- country list container: scrollable, clean, no extra footers -->
+      <div class="flex-1 overflow-y-auto no-scrollbar rounded-2xl" style="max-height: calc(100vh - 180px);">
+        <div id="countryListContainer" class="flex flex-col gap-1 pb-6">
+          <!-- dynamic list injected via JS -->
+          <div class="flex justify-center items-center py-10 text-outline">
+            <span class="material-symbols-outlined animate-pulse mr-2">globe</span> Loading countries...
+          </div>
+        </div>
+      </div>
+      
+      <!-- subtle hint: tap on any country to select and return (no extra descriptive terms, minimal) -->
+      <p class="text-center text-[10px] text-outline/40 font-medium tracking-wide py-1">
+        tap country to continue
+      </p>
+    </main>
+  </div>
 
-<script>
+  <script>
+    // --------------------------------------------------------------
+    // FULL COUNTRIES LIST (same comprehensive dataset from old selection)
+    // includes flag + official name, perfect for localStorage
+    // --------------------------------------------------------------
+    const COUNTRIES = [
+      { name: "Afghanistan", flag: "🇦🇫" }, { name: "Albania", flag: "🇦🇱" }, { name: "Algeria", flag: "🇩🇿" },
+      { name: "Andorra", flag: "🇦🇩" }, { name: "Angola", flag: "🇦🇴" }, { name: "Antigua and Barbuda", flag: "🇦🇬" },
+      { name: "Argentina", flag: "🇦🇷" }, { name: "Armenia", flag: "🇦🇲" }, { name: "Australia", flag: "🇦🇺" },
+      { name: "Austria", flag: "🇦🇹" }, { name: "Azerbaijan", flag: "🇦🇿" }, { name: "Bahamas", flag: "🇧🇸" },
+      { name: "Bahrain", flag: "🇧🇭" }, { name: "Bangladesh", flag: "🇧🇩" }, { name: "Barbados", flag: "🇧🇧" },
+      { name: "Belarus", flag: "🇧🇾" }, { name: "Belgium", flag: "🇧🇪" }, { name: "Belize", flag: "🇧🇿" },
+      { name: "Benin", flag: "🇧🇯" }, { name: "Bhutan", flag: "🇧🇹" }, { name: "Bolivia", flag: "🇧🇴" },
+      { name: "Bosnia and Herzegovina", flag: "🇧🇦" }, { name: "Botswana", flag: "🇧🇼" }, { name: "Brazil", flag: "🇧🇷" },
+      { name: "Brunei", flag: "🇧🇳" }, { name: "Bulgaria", flag: "🇧🇬" }, { name: "Burkina Faso", flag: "🇧🇫" },
+      { name: "Burundi", flag: "🇧🇮" }, { name: "Cambodia", flag: "🇰🇭" }, { name: "Cameroon", flag: "🇨🇲" },
+      { name: "Canada", flag: "🇨🇦" }, { name: "Cape Verde", flag: "🇨🇻" }, { name: "Central African Republic", flag: "🇨🇫" },
+      { name: "Chad", flag: "🇹🇩" }, { name: "Chile", flag: "🇨🇱" }, { name: "China", flag: "🇨🇳" },
+      { name: "Colombia", flag: "🇨🇴" }, { name: "Comoros", flag: "🇰🇲" }, { name: "Congo", flag: "🇨🇬" },
+      { name: "Costa Rica", flag: "🇨🇷" }, { name: "Croatia", flag: "🇭🇷" }, { name: "Cuba", flag: "🇨🇺" },
+      { name: "Cyprus", flag: "🇨🇾" }, { name: "Czechia", flag: "🇨🇿" }, { name: "Denmark", flag: "🇩🇰" },
+      { name: "Djibouti", flag: "🇩🇯" }, { name: "Dominica", flag: "🇩🇲" }, { name: "Dominican Republic", flag: "🇩🇴" },
+      { name: "Ecuador", flag: "🇪🇨" }, { name: "Egypt", flag: "🇪🇬" }, { name: "El Salvador", flag: "🇸🇻" },
+      { name: "Equatorial Guinea", flag: "🇬🇶" }, { name: "Eritrea", flag: "🇪🇷" }, { name: "Estonia", flag: "🇪🇪" },
+      { name: "Eswatini", flag: "🇸🇿" }, { name: "Ethiopia", flag: "🇪🇹" }, { name: "Fiji", flag: "🇫🇯" },
+      { name: "Finland", flag: "🇫🇮" }, { name: "France", flag: "🇫🇷" }, { name: "Gabon", flag: "🇬🇦" },
+      { name: "Gambia", flag: "🇬🇲" }, { name: "Georgia", flag: "🇬🇪" }, { name: "Germany", flag: "🇩🇪" },
+      { name: "Ghana", flag: "🇬🇭" }, { name: "Greece", flag: "🇬🇷" }, { name: "Grenada", flag: "🇬🇩" },
+      { name: "Guatemala", flag: "🇬🇹" }, { name: "Guinea", flag: "🇬🇳" }, { name: "Guinea-Bissau", flag: "🇬🇼" },
+      { name: "Guyana", flag: "🇬🇾" }, { name: "Haiti", flag: "🇭🇹" }, { name: "Honduras", flag: "🇭🇳" },
+      { name: "Hungary", flag: "🇭🇺" }, { name: "Iceland", flag: "🇮🇸" }, { name: "India", flag: "🇮🇳" },
+      { name: "Indonesia", flag: "🇮🇩" }, { name: "Iran", flag: "🇮🇷" }, { name: "Iraq", flag: "🇮🇶" },
+      { name: "Ireland", flag: "🇮🇪" }, { name: "Israel", flag: "🇮🇱" }, { name: "Italy", flag: "🇮🇹" },
+      { name: "Jamaica", flag: "🇯🇲" }, { name: "Japan", flag: "🇯🇵" }, { name: "Jordan", flag: "🇯🇴" },
+      { name: "Kazakhstan", flag: "🇰🇿" }, { name: "Kenya", flag: "🇰🇪" }, { name: "Kiribati", flag: "🇰🇮" },
+      { name: "Kuwait", flag: "🇰🇼" }, { name: "Kyrgyzstan", flag: "🇰🇬" }, { name: "Laos", flag: "🇱🇦" },
+      { name: "Latvia", flag: "🇱🇻" }, { name: "Lebanon", flag: "🇱🇧" }, { name: "Lesotho", flag: "🇱🇸" },
+      { name: "Liberia", flag: "🇱🇷" }, { name: "Libya", flag: "🇱🇾" }, { name: "Liechtenstein", flag: "🇱🇮" },
+      { name: "Lithuania", flag: "🇱🇹" }, { name: "Luxembourg", flag: "🇱🇺" }, { name: "Madagascar", flag: "🇲🇬" },
+      { name: "Malawi", flag: "🇲🇼" }, { name: "Malaysia", flag: "🇲🇾" }, { name: "Maldives", flag: "🇲🇻" },
+      { name: "Mali", flag: "🇲🇱" }, { name: "Malta", flag: "🇲🇹" }, { name: "Marshall Islands", flag: "🇲🇭" },
+      { name: "Mauritania", flag: "🇲🇷" }, { name: "Mauritius", flag: "🇲🇺" }, { name: "Mexico", flag: "🇲🇽" },
+      { name: "Micronesia", flag: "🇫🇲" }, { name: "Moldova", flag: "🇲🇩" }, { name: "Monaco", flag: "🇲🇨" },
+      { name: "Mongolia", flag: "🇲🇳" }, { name: "Montenegro", flag: "🇲🇪" }, { name: "Morocco", flag: "🇲🇦" },
+      { name: "Mozambique", flag: "🇲🇿" }, { name: "Myanmar", flag: "🇲🇲" }, { name: "Namibia", flag: "🇳🇦" },
+      { name: "Nauru", flag: "🇳🇷" }, { name: "Nepal", flag: "🇳🇵" }, { name: "Netherlands", flag: "🇳🇱" },
+      { name: "New Zealand", flag: "🇳🇿" }, { name: "Nicaragua", flag: "🇳🇮" }, { name: "Niger", flag: "🇳🇪" },
+      { name: "Nigeria", flag: "🇳🇬" }, { name: "North Korea", flag: "🇰🇵" }, { name: "North Macedonia", flag: "🇲🇰" },
+      { name: "Norway", flag: "🇳🇴" }, { name: "Oman", flag: "🇴🇲" }, { name: "Pakistan", flag: "🇵🇰" },
+      { name: "Palau", flag: "🇵🇼" }, { name: "Palestine", flag: "🇵🇸" }, { name: "Panama", flag: "🇵🇦" },
+      { name: "Papua New Guinea", flag: "🇵🇬" }, { name: "Paraguay", flag: "🇵🇾" }, { name: "Peru", flag: "🇵🇪" },
+      { name: "Philippines", flag: "🇵🇭" }, { name: "Poland", flag: "🇵🇱" }, { name: "Portugal", flag: "🇵🇹" },
+      { name: "Qatar", flag: "🇶🇦" }, { name: "Romania", flag: "🇷🇴" }, { name: "Russia", flag: "🇷🇺" },
+      { name: "Rwanda", flag: "🇷🇼" }, { name: "Saint Kitts and Nevis", flag: "🇰🇳" }, { name: "Saint Lucia", flag: "🇱🇨" },
+      { name: "Samoa", flag: "🇼🇸" }, { name: "San Marino", flag: "🇸🇲" }, { name: "Saudi Arabia", flag: "🇸🇦" },
+      { name: "Senegal", flag: "🇸🇳" }, { name: "Serbia", flag: "🇷🇸" }, { name: "Seychelles", flag: "🇸🇨" },
+      { name: "Sierra Leone", flag: "🇸🇱" }, { name: "Singapore", flag: "🇸🇬" }, { name: "Slovakia", flag: "🇸🇰" },
+      { name: "Slovenia", flag: "🇸🇮" }, { name: "Solomon Islands", flag: "🇸🇧" }, { name: "Somalia", flag: "🇸🇴" },
+      { name: "South Africa", flag: "🇿🇦" }, { name: "South Korea", flag: "🇰🇷" }, { name: "South Sudan", flag: "🇸🇸" },
+      { name: "Spain", flag: "🇪🇸" }, { name: "Sri Lanka", flag: "🇱🇰" }, { name: "Sudan", flag: "🇸🇩" },
+      { name: "Suriname", flag: "🇸🇷" }, { name: "Sweden", flag: "🇸🇪" }, { name: "Switzerland", flag: "🇨🇭" },
+      { name: "Syria", flag: "🇸🇾" }, { name: "Taiwan", flag: "🇹🇼" }, { name: "Tajikistan", flag: "🇹🇯" },
+      { name: "Tanzania", flag: "🇹🇿" }, { name: "Thailand", flag: "🇹🇭" }, { name: "Timor-Leste", flag: "🇹🇱" },
+      { name: "Togo", flag: "🇹🇬" }, { name: "Tonga", flag: "🇹🇴" }, { name: "Trinidad and Tobago", flag: "🇹🇹" },
+      { name: "Tunisia", flag: "🇹🇳" }, { name: "Turkey", flag: "🇹🇷" }, { name: "Turkmenistan", flag: "🇹🇲" },
+      { name: "Tuvalu", flag: "🇹🇻" }, { name: "Uganda", flag: "🇺🇬" }, { name: "Ukraine", flag: "🇺🇦" },
+      { name: "UAE", flag: "🇦🇪" }, { name: "United Kingdom", flag: "🇬🇧" }, { name: "United States", flag: "🇺🇸" },
+      { name: "Uruguay", flag: "🇺🇾" }, { name: "Uzbekistan", flag: "🇺🇿" }, { name: "Vanuatu", flag: "🇻🇺" },
+      { name: "Vatican City", flag: "🇻🇦" }, { name: "Venezuela", flag: "🇻🇪" }, { name: "Vietnam", flag: "🇻🇳" },
+      { name: "Yemen", flag: "🇾🇪" }, { name: "Zambia", flag: "🇿🇲" }, { name: "Zimbabwe", flag: "🇿🇼" }
+    ];
 
-const countries = [
-  { name: "Afghanistan", flag: "🇦🇫" },
-  { name: "Albania", flag: "🇦🇱" },
-  { name: "Algeria", flag: "🇩🇿" },
-  { name: "Andorra", flag: "🇦🇩" },
-  { name: "Angola", flag: "🇦🇴" },
-  { name: "Antigua and Barbuda", flag: "🇦🇬" },
-  { name: "Argentina", flag: "🇦🇷" },
-  { name: "Armenia", flag: "🇦🇲" },
-  { name: "Australia", flag: "🇦🇺" },
-  { name: "Austria", flag: "🇦🇹" },
-  { name: "Azerbaijan", flag: "🇦🇿" },
-  { name: "Bahamas", flag: "🇧🇸" },
-  { name: "Bahrain", flag: "🇧🇭" },
-  { name: "Bangladesh", flag: "🇧🇩" },
-  { name: "Barbados", flag: "🇧🇧" },
-  { name: "Belarus", flag: "🇧🇾" },
-  { name: "Belgium", flag: "🇧🇪" },
-  { name: "Belize", flag: "🇧🇿" },
-  { name: "Benin", flag: "🇧🇯" },
-  { name: "Bhutan", flag: "🇧🇹" },
-  { name: "Bolivia", flag: "🇧🇴" },
-  { name: "Bosnia and Herzegovina", flag: "🇧🇦" },
-  { name: "Botswana", flag: "🇧🇼" },
-  { name: "Brazil", flag: "🇧🇷" },
-  { name: "Brunei", flag: "🇧🇳" },
-  { name: "Bulgaria", flag: "🇧🇬" },
-  { name: "Burkina Faso", flag: "🇧🇫" },
-  { name: "Burundi", flag: "🇧🇮" },
-  { name: "Cambodia", flag: "🇰🇭" },
-  { name: "Cameroon", flag: "🇨🇲" },
-  { name: "Canada", flag: "🇨🇦" },
-  { name: "Cape Verde", flag: "🇨🇻" },
-  { name: "Central African Republic", flag: "🇨🇫" },
-  { name: "Chad", flag: "🇹🇩" },
-  { name: "Chile", flag: "🇨🇱" },
-  { name: "China", flag: "🇨🇳" },
-  { name: "Colombia", flag: "🇨🇴" },
-  { name: "Comoros", flag: "🇰🇲" },
-  { name: "Congo", flag: "🇨🇬" },
-  { name: "Costa Rica", flag: "🇨🇷" },
-  { name: "Croatia", flag: "🇭🇷" },
-  { name: "Cuba", flag: "🇨🇺" },
-  { name: "Cyprus", flag: "🇨🇾" },
-  { name: "Czechia", flag: "🇨🇿" },
-  { name: "Denmark", flag: "🇩🇰" },
-  { name: "Djibouti", flag: "🇩🇯" },
-  { name: "Dominica", flag: "🇩🇲" },
-  { name: "Dominican Republic", flag: "🇩🇴" },
-  { name: "Ecuador", flag: "🇪🇨" },
-  { name: "Egypt", flag: "🇪🇬" },
-  { name: "El Salvador", flag: "🇸🇻" },
-  { name: "Equatorial Guinea", flag: "🇬🇶" },
-  { name: "Eritrea", flag: "🇪🇷" },
-  { name: "Estonia", flag: "🇪🇪" },
-  { name: "Eswatini", flag: "🇸🇿" },
-  { name: "Ethiopia", flag: "🇪🇹" },
-  { name: "Fiji", flag: "🇫🇯" },
-  { name: "Finland", flag: "🇫🇮" },
-  { name: "France", flag: "🇫🇷" },
-  { name: "Gabon", flag: "🇬🇦" },
-  { name: "Gambia", flag: "🇬🇲" },
-  { name: "Georgia", flag: "🇬🇪" },
-  { name: "Germany", flag: "🇩🇪" },
-  { name: "Ghana", flag: "🇬🇭" },
-  { name: "Greece", flag: "🇬🇷" },
-  { name: "Grenada", flag: "🇬🇩" },
-  { name: "Guatemala", flag: "🇬🇹" },
-  { name: "Guinea", flag: "🇬🇳" },
-  { name: "Guinea-Bissau", flag: "🇬🇼" },
-  { name: "Guyana", flag: "🇬🇾" },
-  { name: "Haiti", flag: "🇭🇹" },
-  { name: "Honduras", flag: "🇭🇳" },
-  { name: "Hungary", flag: "🇭🇺" },
-  { name: "Iceland", flag: "🇮🇸" },
-  { name: "India", flag: "🇮🇳" },
-  { name: "Indonesia", flag: "🇮🇩" },
-  { name: "Iran", flag: "🇮🇷" },
-  { name: "Iraq", flag: "🇮🇶" },
-  { name: "Ireland", flag: "🇮🇪" },
-  { name: "Israel", flag: "🇮🇱" },
-  { name: "Italy", flag: "🇮🇹" },
-  { name: "Jamaica", flag: "🇯🇲" },
-  { name: "Japan", flag: "🇯🇵" },
-  { name: "Jordan", flag: "🇯🇴" },
-  { name: "Kazakhstan", flag: "🇰🇿" },
-  { name: "Kenya", flag: "🇰🇪" },
-  { name: "Kiribati", flag: "🇰🇮" },
-  { name: "Kuwait", flag: "🇰🇼" },
-  { name: "Kyrgyzstan", flag: "🇰🇬" },
-  { name: "Laos", flag: "🇱🇦" },
-  { name: "Latvia", flag: "🇱🇻" },
-  { name: "Lebanon", flag: "🇱🇧" },
-  { name: "Lesotho", flag: "🇱🇸" },
-  { name: "Liberia", flag: "🇱🇷" },
-  { name: "Libya", flag: "🇱🇾" },
-  { name: "Liechtenstein", flag: "🇱🇮" },
-  { name: "Lithuania", flag: "🇱🇹" },
-  { name: "Luxembourg", flag: "🇱🇺" },
-  { name: "Madagascar", flag: "🇲🇬" },
-  { name: "Malawi", flag: "🇲🇼" },
-  { name: "Malaysia", flag: "🇲🇾" },
-  { name: "Maldives", flag: "🇲🇻" },
-  { name: "Mali", flag: "🇲🇱" },
-  { name: "Malta", flag: "🇲🇹" },
-  { name: "Marshall Islands", flag: "🇲🇭" },
-  { name: "Mauritania", flag: "🇲🇷" },
-  { name: "Mauritius", flag: "🇲🇺" },
-  { name: "Mexico", flag: "🇲🇽" },
-  { name: "Micronesia", flag: "🇫🇲" },
-  { name: "Moldova", flag: "🇲🇩" },
-  { name: "Monaco", flag: "🇲🇨" },
-  { name: "Mongolia", flag: "🇲🇳" },
-  { name: "Montenegro", flag: "🇲🇪" },
-  { name: "Morocco", flag: "🇲🇦" },
-  { name: "Mozambique", flag: "🇲🇿" },
-  { name: "Myanmar", flag: "🇲🇲" },
-  { name: "Namibia", flag: "🇳🇦" },
-  { name: "Nauru", flag: "🇳🇷" },
-  { name: "Nepal", flag: "🇳🇵" },
-  { name: "Netherlands", flag: "🇳🇱" },
-  { name: "New Zealand", flag: "🇳🇿" },
-  { name: "Nicaragua", flag: "🇳🇮" },
-  { name: "Niger", flag: "🇳🇪" },
-  { name: "Nigeria", flag: "🇳🇬" },
-  { name: "North Korea", flag: "🇰🇵" },
-  { name: "North Macedonia", flag: "🇲🇰" },
-  { name: "Norway", flag: "🇳🇴" },
-  { name: "Oman", flag: "🇴🇲" },
-  { name: "Pakistan", flag: "🇵🇰" },
-  { name: "Palau", flag: "🇵🇼" },
-  { name: "Palestine", flag: "🇵🇸" },
-  { name: "Panama", flag: "🇵🇦" },
-  { name: "Papua New Guinea", flag: "🇵🇬" },
-  { name: "Paraguay", flag: "🇵🇾" },
-  { name: "Peru", flag: "🇵🇪" },
-  { name: "Philippines", flag: "🇵🇭" },
-  { name: "Poland", flag: "🇵🇱" },
-  { name: "Portugal", flag: "🇵🇹" },
-  { name: "Qatar", flag: "🇶🇦" },
-  { name: "Romania", flag: "🇷🇴" },
-  { name: "Russia", flag: "🇷🇺" },
-  { name: "Rwanda", flag: "🇷🇼" },
-  { name: "Saint Kitts and Nevis", flag: "🇰🇳" },
-  { name: "Saint Lucia", flag: "🇱🇨" },
-  { name: "Samoa", flag: "🇼🇸" },
-  { name: "San Marino", flag: "🇸🇲" },
-  { name: "Saudi Arabia", flag: "🇸🇦" },
-  { name: "Senegal", flag: "🇸🇳" },
-  { name: "Serbia", flag: "🇷🇸" },
-  { name: "Seychelles", flag: "🇸🇨" },
-  { name: "Sierra Leone", flag: "🇸🇱" },
-  { name: "Singapore", flag: "🇸🇬" },
-  { name: "Slovakia", flag: "🇸🇰" },
-  { name: "Slovenia", flag: "🇸🇮" },
-  { name: "Solomon Islands", flag: "🇸🇧" },
-  { name: "Somalia", flag: "🇸🇴" },
-  { name: "South Africa", flag: "🇿🇦" },
-  { name: "South Korea", flag: "🇰🇷" },
-  { name: "South Sudan", flag: "🇸🇸" },
-  { name: "Spain", flag: "🇪🇸" },
-  { name: "Sri Lanka", flag: "🇱🇰" },
-  { name: "Sudan", flag: "🇸🇩" },
-  { name: "Suriname", flag: "🇸🇷" },
-  { name: "Sweden", flag: "🇸🇪" },
-  { name: "Switzerland", flag: "🇨🇭" },
-  { name: "Syria", flag: "🇸🇾" },
-  { name: "Taiwan", flag: "🇹🇼" },
-  { name: "Tajikistan", flag: "🇹🇯" },
-  { name: "Tanzania", flag: "🇹🇿" },
-  { name: "Thailand", flag: "🇹🇭" },
-  { name: "Timor-Leste", flag: "🇹🇱" },
-  { name: "Togo", flag: "🇹🇬" },
-  { name: "Tonga", flag: "🇹🇴" },
-  { name: "Trinidad and Tobago", flag: "🇹🇹" },
-  { name: "Tunisia", flag: "🇹🇳" },
-  { name: "Turkey", flag: "🇹🇷" },
-  { name: "Turkmenistan", flag: "🇹🇲" },
-  { name: "Tuvalu", flag: "🇹🇻" },
-  { name: "Uganda", flag: "🇺🇬" },
-  { name: "Ukraine", flag: "🇺🇦" },
-  { name: "UAE", flag: "🇦🇪" },
-  { name: "United Kingdom", flag: "🇬🇧" },
-  { name: "United States", flag: "🇺🇸" },
-  { name: "Uruguay", flag: "🇺🇾" },
-  { name: "Uzbekistan", flag: "🇺🇿" },
-  { name: "Vanuatu", flag: "🇻🇺" },
-  { name: "Vatican City", flag: "🇻🇦" },
-  { name: "Venezuela", flag: "🇻🇪" },
-  { name: "Vietnam", flag: "🇻🇳" },
-  { name: "Yemen", flag: "🇾🇪" },
-  { name: "Zambia", flag: "🇿🇲" },
-  { name: "Zimbabwe", flag: "🇿🇼" }
-];
+    // DOM elements
+    const searchInput = document.getElementById('searchCountry');
+    const containerDiv = document.getElementById('countryListContainer');
 
-// RENDER
-function render(list){
-  const div = document.getElementById("list");
-  div.innerHTML = "";
-
-  list.forEach(c=>{
-    const el = document.createElement("div");
-    el.className = "item";
-    el.innerHTML = `<span>${c.flag}</span> ${c.name}`;
-    el.onclick = ()=>{
-      localStorage.setItem("selectedCountry", JSON.stringify(c));
-      window.history.back(); // 🔥 auto back
-    };
-    div.appendChild(el);
-  });
-}
-
-render(countries);
-
-// SEARCH
-document.getElementById("search").oninput = (e)=>{
-  const v = e.target.value.toLowerCase();
-  render(countries.filter(c=>c.name.toLowerCase().includes(v)));
-};
-
-localStorage.removeItem("selectedCountry");
-localStorage.setItem("selectedCountry", JSON.stringify(c));
-
-</script>
-
+    // Render country list based on search query
+    function renderCountryList(filterText = '') {
+      const lowerFilter = filterText.toLowerCase().trim();
+      let filtered = COUNTRIES;
+      
+      if (lowerFilter !== '') {
+        filtered = COUNTRIES.filter(c => c.name.toLowerCase().includes(lowerFilter));
+      }
+      
+      if (!containerDiv) return;
+      
+      if (filtered.length === 0) {
+        containerDiv.innerHTML = `
+          <div class="flex flex-col items-center justify-center py-12 text-outline/70 gap-2">
+            <span class="material-symbols-outlined text-4xl">travel_explore</span>
+            <p class="text-sm font-medium">No matching region</p>
+            <p class="text-xs">Try another search</p>
+          </div>
+        `;
+        return;
+      }
+      
+      // Build list items with exact same visual style as material design
+      const itemsHtml = filtered.map(country => `
+        <div class="country-item flex items-center gap-4 w-full bg-surface-container-lowest rounded-xl px-4 py-3 ring-1 ring-outline-variant/10 hover:ring-primary/30 hover:bg-surface-container-low active:scale-[0.98] transition-all cursor-pointer" data-name="${country.name.replace(/[^a-zA-Z0-9]/g, '_')}" data-flag="${country.flag}" data-fullname="${country.name.replace(/['"]/g, '&quot;')}">
+          <div class="text-3xl drop-shadow-sm">${country.flag}</div>
+          <span class="font-body font-medium text-on-surface text-base tracking-tight">${country.name}</span>
+        </div>
+      `).join('');
+      
+      containerDiv.innerHTML = itemsHtml;
+      
+      // Attach click handlers to each country item
+      const countryElements = document.querySelectorAll('.country-item');
+      countryElements.forEach(el => {
+        el.addEventListener('click', (e) => {
+          // extract flag and name from data attributes or from inner elements
+          const flagEl = el.querySelector('div:first-child');
+          const nameSpan = el.querySelector('span');
+          const flag = flagEl ? flagEl.innerText : '🌍';
+          const countryName = nameSpan ? nameSpan.innerText : '';
+          
+          // fallback: get from dataset if needed
+          const finalCountry = { name: countryName, flag: flag };
+          
+          // Save to localStorage exactly as main registration expects (object with name and flag)
+          localStorage.setItem('selectedCountry', JSON.stringify(finalCountry));
+          
+          // OPTIONAL: subtle haptic feedback? just go back to previous page
+          // return to registration step 2 (country selection page auto-closes)
+          if (document.referrer && document.referrer.includes('step2')) {
+            window.history.back();
+          } else {
+            // safe fallback: go back in history (works from registration page)
+            window.history.back();
+          }
+        });
+      });
+    }
+    
+    // Debounce helper for smooth search
+    let debounceTimer;
+    function onSearchInput(e) {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        renderCountryList(e.target.value);
+      }, 150);
+    }
+    
+    // initial load + search event
+    document.addEventListener('DOMContentLoaded', () => {
+      // render full list initially
+      renderCountryList('');
+      
+      if (searchInput) {
+        searchInput.addEventListener('input', onSearchInput);
+        // optional: clear on focus?
+      }
+      
+      // ensure that if any leftover selectedCountry in localStorage doesn't interfere, but it's fine
+      // also no extra "request location" or help terms
+    });
+    
+    // handle pageshow for back/forward cache consistency
+    window.addEventListener('pageshow', () => {
+      if (searchInput) renderCountryList(searchInput.value);
+      else renderCountryList('');
+    });
+    
+    // remove any stray "selectedCountry" test that could break? but keep as expected
+    // Note: we DO NOT remove selectedCountry before user picks one, it's up to user choice
+  </script>
 </body>
 </html>
