@@ -69,42 +69,22 @@
 
 <!-- Main Content -->
 <main class="pt-20 pb-28 px-4 max-w-2xl mx-auto min-h-screen">
-  <!-- PINNED: Galmet Official (no chevron, like a normal chat) -->
-  <div onclick="openOfficial()" class="bg-surface-container-lowest hover:bg-surface-container-high transition cursor-pointer p-4 mb-3 flex items-center gap-4 rounded-xl border border-outline-variant/20">
+  <!-- PINNED: Galmet Official (always on top) -->
+  <div onclick="openOfficial()" class="bg-surface-container-lowest hover:bg-surface-container-high transition cursor-pointer p-4 mb-4 flex items-center gap-4 rounded-xl border border-outline-variant/20">
     <div class="w-14 h-14 bg-primary rounded-full flex items-center justify-center text-white shadow-md">
       <span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL'1">forum</span>
     </div>
     <div class="flex-1">
       <div class="flex justify-between items-center">
         <h3 class="font-headline font-bold text-on-surface">Galmet Official</h3>
-        <span class="text-[11px] text-outline" id="officialTime">Now</span>
+        <span class="text-[11px] text-outline">Now</span>
       </div>
-      <p class="text-sm text-primary font-medium truncate" id="officialLastMsg">Welcome to Galmet! 🌟</p>
+      <p class="text-sm text-primary font-medium truncate">Welcome to Galmet! 🌟</p>
     </div>
-    <!-- No chevron icon -->
   </div>
 
-  <!-- PINNED: Stranger Chats (opens strangers.html) -->
-  <div onclick="openStrangers()" class="bg-surface-container-lowest hover:bg-surface-container-high transition cursor-pointer p-4 mb-6 flex items-center gap-4 rounded-xl border border-outline-variant/20">
-    <div class="relative w-14 h-14 bg-secondary rounded-full flex items-center justify-center text-white">
-      <span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL'1">people</span>
-      <div id="strangerBadge" class="absolute -top-1 -right-1 bg-tertiary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full hidden">0</div>
-    </div>
-    <div class="flex-1">
-      <div class="flex justify-between items-center">
-        <h3 class="font-headline font-bold text-on-surface">Stranger Chats</h3>
-        <span class="text-[11px] text-outline">New connections</span>
-      </div>
-      <p class="text-sm text-on-surface-variant truncate">Meet new people near you</p>
-    </div>
-    <!-- No chevron icon -->
-  </div>
-
-  <!-- Friends List (real‑time from Firestore) -->
-  <div>
-    <h3 class="font-label font-bold text-xs uppercase tracking-wider text-outline mb-3 px-1">Your Friends</h3>
-    <div id="friendsList" class="space-y-2"></div>
-  </div>
+  <!-- Dynamic Chat List (all conversations, real‑time) -->
+  <div id="chatList" class="space-y-2"></div>
 </main>
 
 <!-- Bottom Navigation -->
@@ -151,94 +131,70 @@
 
   window.openProfile = () => location.href = "profile.html";
   window.openOfficial = () => location.href = "official.html";  // create this page for group chat
-  window.openStrangers = () => location.href = "strangers.html";
 
-  // Load friends (mutual follows)
-  const friendsRef = collection(db, "friends", myUserId, "list");
-  onSnapshot(friendsRef, async (snapshot) => {
-    const friendsListDiv = document.getElementById("friendsList");
-    friendsListDiv.innerHTML = "";
+  // ==================== LOAD ALL CONVERSATIONS (userChats) ====================
+  const chatsRef = collection(db, "userChats", myUserId, "list");
+  const q = query(chatsRef, orderBy("updatedAt", "desc"));
+
+  onSnapshot(q, async (snapshot) => {
+    const chatListDiv = document.getElementById("chatList");
+    chatListDiv.innerHTML = "";
+
     if (snapshot.empty) {
-      friendsListDiv.innerHTML = `<div class="text-center py-8 text-outline">No friends yet. Start following people!</div>`;
+      chatListDiv.innerHTML = `<div class="text-center py-8 text-outline">No conversations yet. Start a chat from the Party tab!</div>`;
       return;
     }
-    const friendIds = snapshot.docs.map(d => d.data().uid);
+
+    // Build array with user data and message info
     const items = [];
-    for (const fid of friendIds) {
-      const userSnap = await getDoc(doc(db, "users", fid));
+    for (const docSnap of snapshot.docs) {
+      const chat = docSnap.data();
+      const otherId = chat.uid;
+      if (!otherId) continue;
+
+      // Fetch other user's data
+      const userSnap = await getDoc(doc(db, "users", otherId));
       if (!userSnap.exists()) continue;
       const user = userSnap.data();
-      const chatMeta = await getDoc(doc(db, "userChats", myUserId, "list", fid));
-      let lastMsg = "Tap to start chatting";
-      let updatedAt = null;
-      let unread = 0;
-      if (chatMeta.exists()) {
-        lastMsg = chatMeta.data().lastMessage || lastMsg;
-        updatedAt = chatMeta.data().updatedAt;
-        unread = chatMeta.data().unread || 0;
-      }
+
       items.push({
-        id: fid,
+        id: otherId,
         name: user.username || user.email || "User",
         photo: user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username || "User")}&background=006571&color=fff`,
-        lastMsg,
-        updatedAt,
-        unread
+        lastMessage: chat.lastMessage || "Tap to start chatting",
+        updatedAt: chat.updatedAt,
+        unread: chat.unread || 0
       });
     }
-    items.sort((a,b) => (b.updatedAt?.seconds || 0) - (a.updatedAt?.seconds || 0));
-    for (const f of items) {
-      const time = f.updatedAt ? new Date(f.updatedAt.seconds * 1000).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }) : "";
+
+    // Sort by updatedAt (already sorted by query, but keep for safety)
+    items.sort((a, b) => (b.updatedAt?.seconds || 0) - (a.updatedAt?.seconds || 0));
+
+    // Render each conversation
+    for (const item of items) {
+      const time = item.updatedAt ? new Date(item.updatedAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "";
       const div = document.createElement("div");
       div.className = "bg-surface-container-lowest hover:bg-surface-container-high transition cursor-pointer p-4 flex items-center gap-4 rounded-xl border border-outline-variant/20";
-      div.onclick = () => location.href = `chat.html?id=${f.id}`;
+      div.onclick = () => location.href = `chat.html?id=${item.id}`;
+
       div.innerHTML = `
-        <div class="shrink-0" onclick="event.stopPropagation(); location.href='view.html?id=${f.id}'">
-          <img class="w-14 h-14 rounded-full object-cover" src="${f.photo}">
+        <div class="shrink-0" onclick="event.stopPropagation(); location.href='view.html?id=${item.id}'">
+          <img class="w-14 h-14 rounded-full object-cover" src="${item.photo}">
         </div>
         <div class="flex-1 min-w-0">
           <div class="flex justify-between items-center">
-            <h3 class="font-headline font-bold text-on-surface truncate">${escapeHtml(f.name)}</h3>
+            <h3 class="font-headline font-bold text-on-surface truncate">${escapeHtml(item.name)}</h3>
             <span class="text-[11px] text-outline">${time}</span>
           </div>
           <div class="flex justify-between items-center mt-0.5">
-            <p class="text-sm text-on-surface-variant truncate">${escapeHtml(f.lastMsg)}</p>
-            ${f.unread > 0 ? `<div class="bg-tertiary text-white text-[10px] font-bold px-2 py-0.5 rounded-full">${f.unread}</div>` : ''}
+            <p class="text-sm text-on-surface-variant truncate">${escapeHtml(item.lastMessage)}</p>
+            ${item.unread > 0 ? `<div class="bg-tertiary text-white text-[10px] font-bold px-2 py-0.5 rounded-full">${item.unread}</div>` : ''}
           </div>
         </div>
       `;
-      friendsListDiv.appendChild(div);
+      chatListDiv.appendChild(div);
     }
   });
-
-  // Optional: update stranger badge count (number of strangers available)
-  async function updateStrangerBadge() {
-    // We'll just show a badge if there are any strangers (non-friends, non-blocked)
-    // For simplicity, count users where not friend and not blocked.
-    const allUsers = await getDocs(collection(db, "users"));
-    let count = 0;
-    const friendIds = new Set();
-    const friendsSnap = await getDocs(friendsRef);
-    friendsSnap.forEach(d => friendIds.add(d.data().uid));
-    const blockedMe = await getDocs(collection(db, "blocked", myUserId, "list"));
-    const blockedSet = new Set();
-    blockedMe.forEach(d => blockedSet.add(d.id));
-    for (const userDoc of allUsers.docs) {
-      const uid = userDoc.id;
-      if (uid === myUserId) continue;
-      if (friendIds.has(uid)) continue;
-      if (blockedSet.has(uid)) continue;
-      count++;
-    }
-    const badge = document.getElementById("strangerBadge");
-    if (count > 0) {
-      badge.innerText = count > 99 ? "99+" : count;
-      badge.classList.remove("hidden");
-    } else {
-      badge.classList.add("hidden");
-    }
-  }
-  updateStrangerBadge();
 
   function escapeHtml(str) {
     if (!str) return "";
