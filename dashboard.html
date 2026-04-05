@@ -212,7 +212,7 @@ Submit Withdraw
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getFirestore, doc, onSnapshot, updateDoc } 
+import { getFirestore, doc, getDoc, onSnapshot, updateDoc } 
 from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 const app = initializeApp({
@@ -238,63 +238,63 @@ if (!localUser || !localUser.userId) {
 const userRef = doc(db, "users", localUser.userId.toString());
 
 // ==============================
-// ✅ PREVENT LOOP FLAG
+// 🚨 STEP 1: CHECK ONCE (IMPORTANT FIX)
 // ==============================
-let hasRedirected = false;
+async function checkUserFlow(){
 
-// ==============================
-// ✅ SET ONLINE ONCE
-// ==============================
-updateDoc(userRef, { online: true }).catch(()=>{});
-
-// ==============================
-// ✅ REALTIME LISTENER
-// ==============================
-onSnapshot(userRef, (snap) => {
+  const snap = await getDoc(userRef);
 
   if (!snap.exists()) return;
 
   const data = snap.data();
 
-  // ==============================
-  // 🚨 SAFE REDIRECT (ONLY ONCE)
-  // ==============================
-  if (!hasRedirected) {
-
-    if (!data.gender) {
-      hasRedirected = true;
-      window.location = "gender.html";
-      return;
-    }
-
-    if (!data.username || !data.country || !data.dob || !data.age) {
-      hasRedirected = true;
-      window.location = "step2.html";
-      return;
-    }
-
-    if (!data.photoURL || !data.profileCompleted) {
-      hasRedirected = true;
-      window.location = "setup.html";
-      return;
-    }
+  if (!data.gender) {
+    window.location = "gender.html";
+    return;
   }
 
-  // ==============================
-  // ✅ UI UPDATE (SAFE)
-  // ==============================
-  document.getElementById("email").innerText = data.email || "";
-  document.getElementById("coins").innerText = data.coins ?? 0;
-  document.getElementById("inviteCode").innerText = data.inviteCode || "---";
-  document.getElementById("userId").innerText = data.userId || "---";
+  if (!data.username || !data.country || !data.dob || !data.age) {
+    window.location = "step2.html";
+    return;
+  }
 
-  document.getElementById("profilePic").src =
-    data.photoURL || "https://ui-avatars.com/api/?name=" + encodeURIComponent(data.email);
+  if (!data.photoURL || !data.profileCompleted) {
+    window.location = "setup.html";
+    return;
+  }
 
-  document.getElementById("totalInvites").innerText = data.totalInvites ?? 0;
-  document.getElementById("totalEarned").innerText = data.totalEarned ?? 0;
+  // ✅ IF PASSED → START DASHBOARD
+  startDashboard();
+}
 
-});
+// ==============================
+// 🚀 STEP 2: REALTIME DASHBOARD
+// ==============================
+function startDashboard(){
+
+  // ✅ SET ONLINE ONCE
+  updateDoc(userRef, { online: true }).catch(()=>{});
+
+  onSnapshot(userRef, (snap) => {
+
+    if (!snap.exists()) return;
+
+    const data = snap.data();
+
+    // ✅ ONLY UI UPDATE (NO REDIRECT HERE ❌)
+    document.getElementById("email").innerText = data.email || "";
+    document.getElementById("coins").innerText = data.coins ?? 0;
+    document.getElementById("inviteCode").innerText = data.inviteCode || "---";
+    document.getElementById("userId").innerText = data.userId || "---";
+
+    document.getElementById("profilePic").src =
+      data.photoURL || "https://ui-avatars.com/api/?name=" + encodeURIComponent(data.email);
+
+    document.getElementById("totalInvites").innerText = data.totalInvites ?? 0;
+    document.getElementById("totalEarned").innerText = data.totalEarned ?? 0;
+
+  });
+}
 
 // ==============================
 // ❌ OFFLINE
@@ -334,6 +334,11 @@ window.openWithdraw = ()=> {
   const box = document.getElementById("withdrawBox");
   box.style.display = box.style.display === "none" ? "block" : "none";
 };
+
+// ==============================
+// 🚀 START FLOW
+// ==============================
+checkUserFlow();
 
 </script>
 
