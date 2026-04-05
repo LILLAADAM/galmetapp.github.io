@@ -286,7 +286,6 @@
 </button>
 </nav>
 
-
 <script type="module">
 
 import { db } from "./firebase.js";
@@ -301,27 +300,15 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-/* ================= ✅ AUTH FIX ================= */
+/* ================= 🔐 AUTH ================= */
 
-// 🔐 Get user from your NEW login system
-const currentUser = JSON.parse(localStorage.getItem("user"));
+const currentUser = window.requireAuth();
 
-// ❌ Not logged in
 if (!currentUser) {
-  window.location.href = "index.html";
-  throw new Error("User not logged in");
+  throw new Error("Auth failed");
 }
 
-// ✅ AUTO FIX UID (NO LOGIN CHANGE NEEDED)
-const myUid = (currentUser.uid || currentUser.userId || "").toString();
-
-// ❌ Safety check
-if (!myUid) {
-  window.location.href = "index.html";
-  throw new Error("User ID missing");
-}
-
-console.log("✅ Chats Auth OK:", myUid);
+const myUid = currentUser.uid;
 
 /* ================= 👤 PROFILE IMAGE ================= */
 
@@ -361,7 +348,7 @@ onSnapshot(q, async (snapshot) => {
 
     if (!otherId) continue;
 
-    // 🔥 LOAD USER (WITH CACHE)
+    // ✅ LOAD USER WITH CACHE
     if (!usersCache[otherId]) {
       const userSnap = await getDoc(doc(db, "users", otherId));
       if (!userSnap.exists()) continue;
