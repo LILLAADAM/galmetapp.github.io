@@ -185,151 +185,207 @@
   </main>
 
   <script type="module">
-    // SINGLE MODULE – NO DUPLICATES
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getFirestore, doc, getDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-    const app = initializeApp({
-      apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
-      authDomain: "galmet-app.firebaseapp.com",
-      projectId: "galmet-app"
-    });
-    const db = getFirestore(app);
-    
-    // ----- Helper: get user from localStorage -----
-    const localUser = JSON.parse(localStorage.getItem("user"));
-    if (!localUser || !localUser.userId) {
-      window.location.replace("login.html");
-    }
-    const userIdStr = localUser.userId.toString();
-    const userRef = doc(db, "users", userIdStr);
+// 🔥 FIREBASE INIT
+const app = initializeApp({
+  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+  authDomain: "galmet-app.firebaseapp.com",
+  projectId: "galmet-app"
+});
 
-    let flowCheckDone = false;
-    let unsubscribeSnapshot = null;
+const db = getFirestore(app);
 
-    // ----- Redirect if profile incomplete (runs only once) -----
-    async function ensureProfileComplete() {
-      if (flowCheckDone) return;
-      flowCheckDone = true;
+// 🔐 GET USER
+const localUser = JSON.parse(localStorage.getItem("user"));
 
-      const snap = await getDoc(userRef);
-      if (!snap.exists()) return;
-
-      const data = snap.data();
-      const currentPath = window.location.href;
-      
-      // Gender missing → gender.html
-      if (!data.gender && !currentPath.includes("gender.html")) {
-  window.location.replace("gender.html");
-  return;
+if (!localUser || !localUser.userId) {
+  console.error("❌ No user found → redirect login");
+  window.location.replace("login.html");
 }
 
-if (
-  (!data.username ||
-   !data.country ||
-   (typeof data.country === "object" && !data.country.name) ||
-   (typeof data.country === "string" && data.country.trim() === "") ||
-   !data.dob ||
-   !data.dob.day ||
-   !data.dob.month ||
-   !data.dob.year ||
-   !data.age)
-  && !currentPath.includes("username.html")
-) {
-  window.location.replace("username.html");
-  return;
-}
+const userIdStr = localUser.userId.toString();
+const userRef = doc(db, "users", userIdStr);
 
-if (
-  (!data.photoURL || !data.profileCompleted)
-  && !currentPath.includes("setup.html")
-) {
-  window.location.replace("setup.html");
-  return;
-}
+let flowCheckDone = false;
+let unsubscribeSnapshot = null;
 
-      // All good – start realtime dashboard
-      startRealtimeDashboard();
+// 🚀 START WITH DELAY (IMPORTANT)
+console.log("🚀 Starting profile check...");
+
+setTimeout(() => {
+  ensureProfileComplete();
+}, 800);
+
+// 🔍 MAIN CHECK FUNCTION
+async function ensureProfileComplete() {
+
+  if (flowCheckDone) return;
+  flowCheckDone = true;
+
+  console.log("🔍 Checking user profile...");
+
+  try {
+
+    const snap = await getDoc(userRef);
+    console.log("📦 Firestore snapshot:", snap);
+
+    if (!snap.exists()) {
+      console.error("❌ User not found in Firestore");
+      return;
     }
 
-    function startRealtimeDashboard() {
-      // Set online status once
-      updateDoc(userRef, { online: true }).catch(() => {});
+    const data = snap.data();
+    console.log("👤 User data:", data);
 
-      // Listen to Firestore updates
-      unsubscribeSnapshot = onSnapshot(userRef, (snap) => {
-        if (!snap.exists()) return;
-        const d = snap.data();
-        document.getElementById("email").innerText = d.email || "";
-        document.getElementById("coins").innerText = d.coins ?? 0;
-        document.getElementById("inviteCode").innerText = d.inviteCode || "---";
-        document.getElementById("userId").innerText = d.userId || "---";
-        document.getElementById("totalInvites").innerText = d.totalInvites ?? 0;
-        document.getElementById("totalEarned").innerText = d.totalEarned ?? 0;
-        const profileImg = document.getElementById("profilePic");
-        if (d.photoURL) profileImg.src = d.photoURL;
-        else profileImg.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(d.email || "User")}`;
-      });
+    // ⛔ WAIT if data not ready
+    if (!data || Object.keys(data).length === 0) {
+      console.warn("⏳ Data not ready, retrying...");
+
+      setTimeout(() => {
+        flowCheckDone = false;
+        ensureProfileComplete();
+      }, 1000);
+
+      return;
     }
 
-    // Set offline on page unload
-    window.addEventListener("beforeunload", () => {
-      if (unsubscribeSnapshot) unsubscribeSnapshot();
-      updateDoc(userRef, { online: false }).catch(() => {});
-    });
+    const currentPath = window.location.href;
 
-    // ----- Global functions (attached to window) -----
-    window.logout = () => {
-      if (unsubscribeSnapshot) unsubscribeSnapshot();
-      localStorage.removeItem("user");
-      window.location.replace("login.html");
-    };
+    // 🔴 STEP 1: GENDER
+    if (!data.gender && !currentPath.includes("gender.html")) {
+      console.log("➡️ Redirect → gender");
+      window.location.replace("gender.html");
+      return;
+    }
 
-    window.copyCode = async () => {
-      const code = document.getElementById("inviteCode").innerText;
-      const link = `https://lillaadam.github.io/galmetapp.github.io/?ref=${code}`;
-      try {
-        await navigator.clipboard.writeText(link);
-        alert("✅ Invite link copied:\n" + link);
-      } catch {
-        alert("❌ Copy failed – please copy manually");
-      }
-    };
+    // 🔴 STEP 2: USERNAME + DOB
+    if (
+      (!data.username ||
+       !data.country ||
+       (typeof data.country === "object" && !data.country.name) ||
+       (typeof data.country === "string" && data.country.trim() === "") ||
+       !data.dob ||
+       !data.dob.day ||
+       !data.dob.month ||
+       !data.dob.year ||
+       !data.age)
+    ) {
+      console.log("➡️ Redirect → username");
+      window.location.replace("username.html");
+      return;
+    }
 
-    window.goGame = (page) => { window.location.href = page; };
-    window.goSearch = () => { window.location.href = "search.html"; };
-    window.goChats = () => { window.location.href = "chat.html"; };
-    window.openSettings = () => { window.location.href = "settings.html"; };
-    window.openProfile = () => { window.location.href = "profile.html"; };
-    window.openParty = () => { window.location.href = "party.html"; };
+    // 🔴 STEP 3: PHOTO
+    if (!data.photoURL || !data.profileCompleted) {
+      console.log("➡️ Redirect → setup");
+      window.location.replace("setup.html");
+      return;
+    }
 
-    window.toggleWithdraw = () => {
-      const panel = document.getElementById("withdrawPanel");
-      panel.classList.toggle("hidden");
-    };
+    // ✅ ALL COMPLETE
+    console.log("✅ Profile complete → dashboard");
 
-    window.submitWithdraw = async () => {
-      const amount = document.getElementById("withdrawAmount").value;
-      const wallet = document.getElementById("withdrawWallet").value;
-      if (!amount || amount < 65000) {
-        alert("Minimum withdraw is 65,000 coins");
-        return;
-      }
-      if (!wallet.startsWith("T") || wallet.length < 30) {
-        alert("Enter a valid TRC20 USDT wallet address");
-        return;
-      }
-      // You can implement your withdraw API call here
-      alert(`Withdraw request for ${amount} coins sent to ${wallet}`);
-    };
+    startRealtimeDashboard();
 
-    window.loadWithdrawHistory = async () => {
-      // Optional: fetch from your backend
-      document.getElementById("withdrawHistory").innerHTML = "📜 History will appear here (API integration needed)";
-    };
+  } catch (err) {
+    console.error("❌ Error checking profile:", err);
 
-    // Start the flow
-    ensureProfileComplete();
-  </script>
-</body>
-</html>
+    setTimeout(() => {
+      flowCheckDone = false;
+      ensureProfileComplete();
+    }, 1500);
+  }
+}
+
+// 📡 REALTIME DASHBOARD
+function startRealtimeDashboard() {
+
+  updateDoc(userRef, { online: true }).catch(() => {});
+
+  unsubscribeSnapshot = onSnapshot(userRef, (snap) => {
+
+    if (!snap.exists()) return;
+
+    const d = snap.data();
+
+    document.getElementById("email").innerText = d.email || "";
+    document.getElementById("coins").innerText = d.coins ?? 0;
+    document.getElementById("inviteCode").innerText = d.inviteCode || "---";
+    document.getElementById("userId").innerText = d.userId || "---";
+    document.getElementById("totalInvites").innerText = d.totalInvites ?? 0;
+    document.getElementById("totalEarned").innerText = d.totalEarned ?? 0;
+
+    const profileImg = document.getElementById("profilePic");
+
+    if (d.photoURL) {
+      profileImg.src = d.photoURL;
+    } else {
+      profileImg.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(d.email || "User")}`;
+    }
+
+  });
+}
+
+// 🔴 OFFLINE ON EXIT
+window.addEventListener("beforeunload", () => {
+  if (unsubscribeSnapshot) unsubscribeSnapshot();
+  updateDoc(userRef, { online: false }).catch(() => {});
+});
+
+// 🔓 LOGOUT
+window.logout = () => {
+  if (unsubscribeSnapshot) unsubscribeSnapshot();
+  localStorage.removeItem("user");
+  window.location.replace("login.html");
+};
+
+// 📋 COPY REFERRAL
+window.copyCode = async () => {
+  const code = document.getElementById("inviteCode").innerText;
+  const link = `https://lillaadam.github.io/galmetapp.github.io/?ref=${code}`;
+
+  try {
+    await navigator.clipboard.writeText(link);
+    alert("✅ Invite link copied:\n" + link);
+  } catch {
+    alert("❌ Copy failed");
+  }
+};
+
+// 🎮 NAVIGATION
+window.goGame = (page) => window.location.href = page;
+window.goSearch = () => window.location.href = "search.html";
+window.goChats = () => window.location.href = "chat.html";
+window.openSettings = () => window.location.href = "settings.html";
+window.openProfile = () => window.location.href = "profile.html";
+window.openParty = () => window.location.href = "party.html";
+
+// 💸 WITHDRAW UI
+window.toggleWithdraw = () => {
+  document.getElementById("withdrawPanel").classList.toggle("hidden");
+};
+
+window.submitWithdraw = () => {
+  const amount = document.getElementById("withdrawAmount").value;
+  const wallet = document.getElementById("withdrawWallet").value;
+
+  if (!amount || amount < 65000) {
+    alert("Minimum withdraw is 65,000 coins");
+    return;
+  }
+
+  if (!wallet.startsWith("T") || wallet.length < 30) {
+    alert("Invalid TRC20 wallet");
+    return;
+  }
+
+  alert(`Withdraw request for ${amount} coins sent`);
+};
+
+window.loadWithdrawHistory = () => {
+  document.getElementById("withdrawHistory").innerHTML = "📜 Coming soon...";
+};
+</script>
+
