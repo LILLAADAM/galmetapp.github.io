@@ -214,10 +214,46 @@ let unsubscribeSnapshot = null;
 // 🚀 START WITH DELAY (IMPORTANT)
 console.log("🚀 Starting profile check...");
 
-setTimeout(() => {
-  ensureProfileComplete();
-}, 800);
+waitForUserData();
 
+async function waitForUserData() {
+  console.log("⏳ Waiting for user data...");
+
+  let attempts = 0;
+
+  const interval = setInterval(async () => {
+
+    attempts++;
+    console.log("🔄 Checking attempt:", attempts);
+
+    const snap = await getDoc(userRef);
+
+    if (!snap.exists()) return;
+
+    const data = snap.data();
+
+    console.log("👤 Data check:", data);
+
+    // ✅ DATA READY CONDITION
+    if (
+      data &&
+      data.email // minimum check
+    ) {
+      clearInterval(interval);
+      console.log("✅ Data ready → continue");
+
+      ensureProfileComplete();
+    }
+
+    // ❌ STOP AFTER 10 SECONDS (safety)
+    if (attempts > 10) {
+      clearInterval(interval);
+      console.warn("⚠️ Timeout → forcing check");
+      ensureProfileComplete();
+    }
+
+  }, 700); // 🔥 checks every 700ms
+}
 // 🔍 MAIN CHECK FUNCTION
 async function ensureProfileComplete() {
 
