@@ -238,37 +238,44 @@ if (!localUser || !localUser.userId) {
 const userRef = doc(db, "users", localUser.userId.toString());
 
 // ==============================
-// 🚨 STEP 1: CHECK ONCE (IMPORTANT FIX)
+// 🚨 FLOW CHECK (NO LOOP FIX)
 // ==============================
+let flowChecked = false;
+
 async function checkUserFlow(){
+
+  if(flowChecked) return;
+  flowChecked = true;
 
   const snap = await getDoc(userRef);
 
   if (!snap.exists()) return;
 
   const data = snap.data();
+  const currentPage = window.location.pathname;
 
-  if (!data.gender) {
+  if (!data.gender && !currentPage.includes("gender.html")) {
     window.location = "gender.html";
     return;
   }
 
-  if (!data.username || !data.country || !data.dob || !data.age) {
+  if ((!data.username || !data.country || !data.dob || !data.age) 
+      && !currentPage.includes("username.html")) {
     window.location = "username.html";
     return;
   }
 
-  if (!data.photoURL || !data.profileCompleted) {
+  if ((!data.photoURL || !data.profileCompleted) 
+      && !currentPage.includes("setup.html")) {
     window.location = "setup.html";
     return;
   }
 
-  // ✅ IF PASSED → START DASHBOARD
   startDashboard();
 }
 
 // ==============================
-// 🚀 STEP 2: REALTIME DASHBOARD
+// 🚀 REALTIME DASHBOARD
 // ==============================
 function startDashboard(){
 
@@ -281,7 +288,7 @@ function startDashboard(){
 
     const data = snap.data();
 
-    // ✅ ONLY UI UPDATE (NO REDIRECT HERE ❌)
+    // ✅ UI UPDATE ONLY
     document.getElementById("email").innerText = data.email || "";
     document.getElementById("coins").innerText = data.coins ?? 0;
     document.getElementById("inviteCode").innerText = data.inviteCode || "---";
@@ -312,12 +319,21 @@ window.logout = () => {
 };
 
 // ==============================
-// ✅ COPY
+// ✅ COPY FULL INVITE LINK
 // ==============================
 window.copyCode = async ()=>{
+
   const code = document.getElementById("inviteCode").innerText;
-  await navigator.clipboard.writeText(code);
-  alert("Copied!");
+
+  // 🔥 CHANGE THIS DOMAIN IF NEEDED
+  const link = `https://lillaadam.github.io/galmetapp.github.io/?ref=${code}`;
+
+  try {
+    await navigator.clipboard.writeText(link);
+    alert("✅ Invite link copied:\n" + link);
+  } catch {
+    alert("Copy failed");
+  }
 };
 
 // ==============================
@@ -336,7 +352,154 @@ window.openWithdraw = ()=> {
 };
 
 // ==============================
-// 🚀 START FLOW
+// 🚀 START
+// ==============================
+checkUserFlow();
+
+</script><script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getFirestore, doc, getDoc, onSnapshot, updateDoc } 
+from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+  authDomain: "galmet-app.firebaseapp.com",
+  projectId: "galmet-app"
+});
+
+const db = getFirestore(app);
+
+// ==============================
+// ✅ LOGIN CHECK
+// ==============================
+const localUser = JSON.parse(localStorage.getItem("user"));
+
+if (!localUser || !localUser.userId) {
+  window.location = "login.html";
+}
+
+// ==============================
+// ✅ USER REF
+// ==============================
+const userRef = doc(db, "users", localUser.userId.toString());
+
+// ==============================
+// 🚨 FLOW CHECK (NO LOOP FIX)
+// ==============================
+let flowChecked = false;
+
+async function checkUserFlow(){
+
+  if(flowChecked) return;
+  flowChecked = true;
+
+  const snap = await getDoc(userRef);
+
+  if (!snap.exists()) return;
+
+  const data = snap.data();
+  const currentPage = window.location.pathname;
+
+  if (!data.gender && !currentPage.includes("gender.html")) {
+    window.location = "gender.html";
+    return;
+  }
+
+  if ((!data.username || !data.country || !data.dob || !data.age) 
+      && !currentPage.includes("username.html")) {
+    window.location = "username.html";
+    return;
+  }
+
+  if ((!data.photoURL || !data.profileCompleted) 
+      && !currentPage.includes("setup.html")) {
+    window.location = "setup.html";
+    return;
+  }
+
+  startDashboard();
+}
+
+// ==============================
+// 🚀 REALTIME DASHBOARD
+// ==============================
+function startDashboard(){
+
+  // ✅ SET ONLINE ONCE
+  updateDoc(userRef, { online: true }).catch(()=>{});
+
+  onSnapshot(userRef, (snap) => {
+
+    if (!snap.exists()) return;
+
+    const data = snap.data();
+
+    // ✅ UI UPDATE ONLY
+    document.getElementById("email").innerText = data.email || "";
+    document.getElementById("coins").innerText = data.coins ?? 0;
+    document.getElementById("inviteCode").innerText = data.inviteCode || "---";
+    document.getElementById("userId").innerText = data.userId || "---";
+
+    document.getElementById("profilePic").src =
+      data.photoURL || "https://ui-avatars.com/api/?name=" + encodeURIComponent(data.email);
+
+    document.getElementById("totalInvites").innerText = data.totalInvites ?? 0;
+    document.getElementById("totalEarned").innerText = data.totalEarned ?? 0;
+
+  });
+}
+
+// ==============================
+// ❌ OFFLINE
+// ==============================
+window.addEventListener("beforeunload", () => {
+  updateDoc(userRef, { online: false }).catch(()=>{});
+});
+
+// ==============================
+// ✅ LOGOUT
+// ==============================
+window.logout = () => {
+  localStorage.removeItem("user");
+  window.location = "login.html";
+};
+
+// ==============================
+// ✅ COPY FULL INVITE LINK
+// ==============================
+window.copyCode = async ()=>{
+
+  const code = document.getElementById("inviteCode").innerText;
+
+  // 🔥 CHANGE THIS DOMAIN IF NEEDED
+  const link = `https://lillaadam.github.io/galmetapp.github.io/?ref=${code}`;
+
+  try {
+    await navigator.clipboard.writeText(link);
+    alert("✅ Invite link copied:\n" + link);
+  } catch {
+    alert("Copy failed");
+  }
+};
+
+// ==============================
+// ✅ NAVIGATION
+// ==============================
+window.goGame = (p)=> location.href = p;
+window.goSearch = ()=> location.href = "search.html";
+window.goChats = ()=> location.href = "chat.html";
+window.openSettings = ()=> location.href = "settings.html";
+window.openProfile = ()=> location.href = "profile.html";
+window.openParty = ()=> location.href = "party.html";
+
+window.openWithdraw = ()=> {
+  const box = document.getElementById("withdrawBox");
+  box.style.display = box.style.display === "none" ? "block" : "none";
+};
+
+// ==============================
+// 🚀 START
 // ==============================
 checkUserFlow();
 
