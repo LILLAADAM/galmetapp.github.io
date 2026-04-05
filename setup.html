@@ -307,6 +307,14 @@ window.completeSetup = async function(){
     // 🔥 SAVE TO FIRESTORE
     await setDoc(doc(db, "users", user.userId.toString()), safeData, { merge: true });
 
+    await fetch(BASE_URL + "/completeProfile", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    email: currentUser.email,
+    photoURL: photoURL
+  })
+});
     // 🔥 UPDATE LOCAL STORAGE (CRITICAL FIX)
     user = { ...user, ...safeData };
     localStorage.setItem("user", JSON.stringify(user));
