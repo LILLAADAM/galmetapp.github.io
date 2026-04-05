@@ -213,18 +213,9 @@ Submit Withdraw
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { 
-  getFirestore, 
-  doc, 
-  onSnapshot, 
-  updateDoc 
-} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import { getFirestore, doc, onSnapshot, updateDoc } 
+from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-console.log("🔥 Dashboard Loaded");
-
-// ==============================
-// ✅ FIREBASE INIT
-// ==============================
 const app = initializeApp({
   apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
   authDomain: "galmet-app.firebaseapp.com",
@@ -233,22 +224,17 @@ const app = initializeApp({
 
 const db = getFirestore(app);
 
-// ==============================
-// ✅ LOGIN CHECK (FIXED)
-// ==============================
+// ✅ LOGIN CHECK
 const localUser = JSON.parse(localStorage.getItem("user"));
 
 if (!localUser || !localUser.userId) {
-  alert("❌ Please login");
   window.location = "login.html";
 }
 
-// ==============================
-// ✅ REALTIME USER LISTENER
-// ==============================
+// ✅ USER REF
 const userRef = doc(db, "users", localUser.userId.toString());
 
-// ✅ SET ONLINE ONCE (FIX LOOP)
+// ✅ SET ONLINE ONCE
 updateDoc(userRef, { online: true }).catch(()=>{});
 
 // ✅ REALTIME LISTENER
@@ -257,7 +243,6 @@ onSnapshot(userRef, (snap) => {
   if (!snap.exists()) return;
 
   const data = snap.data();
-
   const currentPage = window.location.pathname;
 
   // ✅ SAFE FLOW (NO LOOP)
@@ -291,58 +276,26 @@ onSnapshot(userRef, (snap) => {
   document.getElementById("totalEarned").innerText = data.totalEarned ?? 0;
 
 });
-  // ==============================
-  // ✅ UI UPDATE (REALTIME)
-  // ==============================
-  document.getElementById("email").innerText = data.email || "";
-  document.getElementById("coins").innerText = data.coins ?? 0;
-  document.getElementById("inviteCode").innerText = data.inviteCode || "---";
-  document.getElementById("userId").innerText = data.userId || "---";
 
-  document.getElementById("profilePic").src =
-    data.photoURL || "https://ui-avatars.com/api/?name=" + encodeURIComponent(data.email);
-
-  // ==============================
-  // ✅ REFERRAL STATS (REALTIME 🔥)
-  // ==============================
-  document.getElementById("totalInvites").innerText = data.totalInvites ?? 0;
-  document.getElementById("totalEarned").innerText = data.totalEarned ?? 0;
-
-// ==============================
-// ❌ OFFLINE ON EXIT
-// ==============================
-window.addEventListener("beforeunload", async () => {
-  try {
-    await updateDoc(userRef, { online: false });
-  } catch(e) {}
+// ✅ OFFLINE
+window.addEventListener("beforeunload", () => {
+  updateDoc(userRef, { online: false }).catch(()=>{});
 });
 
-// ==============================
-// ✅ LOGOUT (FIXED)
-// ==============================
+// ✅ LOGOUT
 window.logout = () => {
   localStorage.removeItem("user");
   window.location = "login.html";
 };
 
-// ==============================
-// ✅ COPY INVITE
-// ==============================
+// ✅ COPY
 window.copyCode = async ()=>{
   const code = document.getElementById("inviteCode").innerText;
-
-  try {
-    await navigator.clipboard.writeText(code);
-    alert("✅ Copied!");
-  } catch {
-    alert("Copy failed");
-  }
+  await navigator.clipboard.writeText(code);
+  alert("Copied!");
 };
 
-// ==============================
-// ✅ NAVIGATION
-// ==============================
-window.goGame = (page)=> location.href = page;
+window.goGame = (p)=> location.href = p;
 window.goSearch = ()=> location.href = "search.html";
 window.goChats = ()=> location.href = "chat.html";
 window.openSettings = ()=> location.href = "settings.html";
