@@ -315,30 +315,56 @@ async function verifyOtp() {
 
     if (checkData.exists) {
 
-      // 🔥 OLD USER
-      localStorage.setItem("user", JSON.stringify(checkData.user));
+  const user = checkData.user;
 
-      console.log("✅ Old user login");
-      window.location.href = "dashboard.html";
+  localStorage.setItem("user", JSON.stringify(user));
 
+  console.log("✅ Old user login:", user);
+
+  // 🔥 STEP CHECK SYSTEM
+
+  if (!user.gender) {
+    window.location.href = "gender.html";
+    return;
+  }
+
+  if (!user.username || !user.country || !user.dob || !user.age) {
+    window.location.href = "step2.html"; // your nickname + dob page
+    return;
+  }
+
+  if (!user.photoURL || !user.profileCompleted) {
+    window.location.href = "setup.html";
+    return;
+  }
+
+  // ✅ ALL COMPLETE
+  window.location.href = "dashboard.html";
+  }
     } else {
 
       // 🔥 FIXED USER CREATION
       const userId = generateUserId();
 
       const newUser = {
-        email: email,
-        userId: userId,
-        coins: 500,
-        username: "",
-        photoURL: "",
-        inviteCode: "INV" + userId,
-        referredBy: null,
-        totalInvites: 0,
-        totalEarned: 0,
-        profileCompleted: false
-      };
+  email: email,
+  userId: userId,
+  coins: 500,
 
+  username: "",
+  gender: "",
+  country: null,
+  dob: null,
+  age: null,
+
+  photoURL: "",
+  profileCompleted: false,
+
+  inviteCode: "INV" + userId,
+  referredBy: null,
+  totalInvites: 0,
+  totalEarned: 0
+};
       console.log("🆕 Creating user:", newUser);
 
       const createRes = await fetch(BASE_URL + "/createUser", {
