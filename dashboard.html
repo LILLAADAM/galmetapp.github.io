@@ -227,7 +227,7 @@
 if (
   (!data.username ||
   !data.country ||
-  !data.country.name ||
+  (typeof data.country === "object" && !data.country.name) ||
   !data.dob ||
   !data.dob.day ||
   !data.dob.month ||
