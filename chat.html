@@ -1,576 +1,514 @@
 <!DOCTYPE html>
-<html>
+<html class="light" lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chat</title>
-
-<script type="module">
-import { db } from "./firebase.js";
-import {
-  collection, addDoc, query, orderBy,
-  onSnapshot, serverTimestamp, doc, getDoc, setDoc, deleteDoc
-} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-
-import {
-  getStorage, ref, uploadBytes, getDownloadURL
-} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
-
-const storage = getStorage(undefined, "gs://galmet-app.firebasestorage.app");
-
-let menuBox;
-
-window.addEventListener("DOMContentLoaded", () => {
-  menuBox = document.getElementById("menuBox");
-});
-  
-/* ================= USER ================= */
-const currentUser = JSON.parse(localStorage.getItem("user"));
-if (!currentUser?.uid) {
-  alert("Login required");
-  location.href = "index.html";
-}
-
-const myUid = currentUser.uid;
-const otherUid = new URLSearchParams(location.search).get("id");
-const chatId = [myUid, otherUid].sort().join("_");
-
-/* ================= LOAD USER ================= */
-  if (!otherUid) {
-  alert("Invalid chat");
-  location.href = "chats.html";
-}
-  async function loadOtherUser() {
-  const snap = await getDoc(doc(db, "users", otherUid));
-  if (!snap.exists()) return;
-
-  const data = snap.data();
-
-  document.getElementById("name").innerText =
-    data.fullName || data.username || "User";
-
-  document.getElementById("profileImg").src =
-    data.photoURL ||
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(data.username)}`;
-}
-
-/* ================= REALTIME MESSAGES (NO DELAY) ================= */
-function loadMessages() {
-  const q = query(
-    collection(db, "chats", chatId, "messages"),
-    orderBy("createdAt")
-  );
-
-  onSnapshot(q, (snapshot) => {
-    const box = document.getElementById("messages");
-    box.innerHTML = "";
-
-    snapshot.forEach(docSnap => {
-      const m = docSnap.data();
-
-      const div = document.createElement("div");
-      div.className = m.senderId === myUid ? "me" : "other";
-
-      if (m.text) div.innerText = m.text;
-
-      if (m.image) {
-        const img = document.createElement("img");
-        img.src = m.image;
-        img.className = "chat-img";
-        img.onclick = () => openViewer(m.image);
-        div.appendChild(img);
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Galmet Chat</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface": "#f3f7fb",
+            "surface-container-low": "#ecf1f6",
+            "surface-container-lowest": "#ffffff",
+            "on-surface": "#2a2f32",
+            "on-surface-variant": "#575c60",
+            "primary": "#006571",
+            "primary-container": "#00e3fd",
+            "primary-dim": "#005863",
+            "on-primary": "#d8f8ff",
+            "secondary": "#755700",
+            "secondary-container": "#ffca4d",
+            "tertiary": "#b60051",
+            "outline": "#73777b",
+            "outline-variant": "#a9aeb1",
+            "error": "#b31b25"
+          },
+          fontFamily: {
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Be Vietnam Pro"],
+            "label": ["Plus Jakarta Sans"]
+          },
+          borderRadius: { DEFAULT: "1rem", lg: "2rem", xl: "3rem", full: "9999px" }
+        }
       }
-
-      box.appendChild(div);
-    });
-
-    box.scrollTop = box.scrollHeight;
-  });
-}
-
-/* ================= IMAGE VIEW ================= */
-window.openViewer = (url) => {
-  document.getElementById("viewerImg").src = url;
-  document.getElementById("downloadBtn").href = url;
-  document.getElementById("viewer").style.display = "flex";
-};
-
-window.closeViewer = () => {
-  document.getElementById("viewer").style.display = "none";
-};
-
-/* ================= IMAGE PICK ================= */
-window.pickImage = () => {
-  document.getElementById("imageInput").click();
-};
-
-let selectedFile = null;
-
-document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("imageInput").addEventListener("change", e => {
-    selectedFile = e.target.files[0];
-    if (!selectedFile) return;
-
-    document.getElementById("previewModal").style.display = "flex";
-    document.getElementById("previewImage").src =
-      URL.createObjectURL(selectedFile);
-  });
-});
-
-/* ================= COMPRESS ================= */
-function compressImage(file) {
-  return new Promise(resolve => {
-    const img = new Image();
-    const reader = new FileReader();
-
-    reader.onload = e => img.src = e.target.result;
-
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      const maxWidth = 800;
-
-      let scale = maxWidth / img.width;
-      canvas.width = maxWidth;
-      canvas.height = img.height * scale;
-
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-      canvas.toBlob(blob => resolve(blob), "image/jpeg", 0.7);
-    };
-
-    reader.readAsDataURL(file);
-  });
-}
-
-/* ================= SEND IMAGE (INSTANT + UNREAD) ================= */
-window.sendImage = async () => {
-
-  const a = await getDoc(doc(db,"blocked",otherUid,"list",myUid));
-  const b = await getDoc(doc(db,"blocked",myUid,"list",otherUid));
-
-  if(a.exists() || b.exists()){
-    showToast("Blocked user");
-    return;
-  }
-
-  if (!selectedFile) return;
-  const compressed = await compressImage(selectedFile);
-
-  const fileRef = ref(storage, "chatImages/" + Date.now());
-  await uploadBytes(fileRef, compressed);
-  const url = await getDownloadURL(fileRef);
-
-  await addDoc(collection(db, "chats", chatId, "messages"), {
-    image: url,
-    senderId: myUid,
-    receiverId: otherUid,
-    createdAt: serverTimestamp()
-  });
-
-  await updateChatList("📷 Image");
-
-  closePreview();
-};
-
-window.closePreview = () => {
-  document.getElementById("previewModal").style.display = "none";
-  selectedFile = null;
-};
-
-/* ================= UPDATE CHAT LIST (REAL UNREAD) ================= */
-async function updateChatList(lastMsg) {
-
-  // MY SIDE (reset unread)
-  await setDoc(doc(db, "userChats", myUid, "list", otherUid), {
-    uid: otherUid,
-    lastMessage: lastMsg,
-    updatedAt: serverTimestamp(),
-    unread: 0
-  }, { merge: true });
-
-  // OTHER SIDE (increase unread)
-  const otherRef = doc(db, "userChats", otherUid, "list", myUid);
-  const snap = await getDoc(otherRef);
-
-  let unreadCount = 1;
-  if (snap.exists()) {
-    unreadCount = (snap.data().unread || 0) + 1;
-  }
-
-  await setDoc(otherRef, {
-    uid: myUid,
-    lastMessage: lastMsg,
-    updatedAt: serverTimestamp(),
-    unread: unreadCount
-  }, { merge: true });
-}
-
-/* ================= RESET UNREAD WHEN OPEN ================= */
-async function resetUnread() {
-  await setDoc(doc(db, "userChats", myUid, "list", otherUid), {
-    unread: 0
-  }, { merge: true });
-}
-
-/* ================= LOAD ================= */
-window.onload = async () => {
-  loadMessages();
-  loadOtherUser();
-  await resetUnread();
-};
-/* ================= MENU + BLOCK SYSTEM ================= */
-
-/* TOAST */
-function showToast(msg){
-  const t = document.getElementById("toast");
-  t.innerText = msg;
-  t.style.display="block";
-  setTimeout(()=> t.style.display="none",2000);
-}
-
-/* REALTIME STATE */
-onSnapshot(doc(db,"followers",otherUid,"list",myUid), updateMenu);
-onSnapshot(doc(db,"followers",myUid,"list",otherUid), updateMenu);
-onSnapshot(doc(db,"blocked",otherUid,"list",myUid), updateMenu);
-onSnapshot(doc(db,"blocked",myUid,"list",otherUid), updateMenu);
-  
-/* CHECK STATE */
-async function updateMenu(){
-
-  const f1 = await getDoc(doc(db,"followers",otherUid,"list",myUid));
-  const blockA = await getDoc(doc(db,"blocked",otherUid,"list",myUid));
-  const blockB = await getDoc(doc(db,"blocked",myUid,"list",otherUid));
-
-  const isBlocked = blockA.exists() || blockB.exists();
-
-  const items = menuBox.querySelectorAll("div");
-
-  if(isBlocked){
-    items[0].innerText = "Follow";
-    items[1].innerText = "Unblock";
-
-    document.getElementById("msg").disabled = true;
-
-  } else {
-
-    document.getElementById("msg").disabled = false;
-
-    if(f1.exists()){
-      items[0].innerText = "Unfollow";
-    } else {
-      items[0].innerText = "Follow";
     }
-
-    items[1].innerText = "Block";
-  }
-}
-  
-window.toggleFollow = async () => {
-
-  const a = doc(db,"followers",otherUid,"list",myUid);
-  const b = doc(db,"following",myUid,"list",otherUid);
-
-  const snap = await getDoc(a);
-
-  if(snap.exists()){
-    await deleteDoc(a);
-    await deleteDoc(b);
-
-    await deleteDoc(doc(db,"friends",otherUid,"list",myUid));
-    await deleteDoc(doc(db,"friends",myUid,"list",otherUid));
-
-    showToast("Unfollowed");
-  }
-  else{
-    await setDoc(a,{uid:myUid});
-    await setDoc(b,{uid:otherUid});
-
-    const other = await getDoc(doc(db,"followers",myUid,"list",otherUid));
-
-    if(other.exists()){
-      await setDoc(doc(db,"friends",otherUid,"list",myUid),{uid:myUid});
-      await setDoc(doc(db,"friends",myUid,"list",otherUid),{uid:otherUid});
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
     }
-
-    showToast("Followed");
-  }
-
-  closeMenu();
-};
-
-window.toggleBlock = async () => {
-
-  const ref = doc(db,"blocked",otherUid,"list",myUid);
-  const snap = await getDoc(ref);
-
-  if(snap.exists()){
-    await deleteDoc(ref);
-    showToast("Unblocked");
-  } else {
-
-    await setDoc(ref,{uid:myUid});
-
-    // REMOVE ALL RELATIONS
-    await deleteDoc(doc(db,"followers",otherUid,"list",myUid));
-    await deleteDoc(doc(db,"following",myUid,"list",otherUid));
-    await deleteDoc(doc(db,"friends",otherUid,"list",myUid));
-    await deleteDoc(doc(db,"friends",myUid,"list",otherUid));
-
-    showToast("Blocked");
-  }
-
-  closeMenu();
-};
-  
-window.sendMessage = async () => {
-
-  const a = await getDoc(doc(db,"blocked",otherUid,"list",myUid));
-  const b = await getDoc(doc(db,"blocked",myUid,"list",otherUid));
-
-  if(a.exists() || b.exists()){
-    showToast("Blocked user");
-    return;
-  }
-
-  const input = document.getElementById("msg");
-  const text = input.value.trim();
-  if (!text) return;
-
-  input.value = "";
-
-  await addDoc(collection(db, "chats", chatId, "messages"), {
-    text,
-    senderId: myUid,
-    receiverId: otherUid,
-    createdAt: serverTimestamp()
-  });
-
-  await updateChatList(text);
-};
-
-window.openMenu = () => {
-  menuBox.style.display="block";
-};
-
-function closeMenu(){
-  menuBox.style.display="none";
-}
-
-/* CLICK OUTSIDE */
-window.addEventListener("click",(e)=>{
-  if(!menuBox.contains(e.target) && e.target.innerText !== "⋯"){
-    closeMenu();
-  }
-});
-
-window.openProfile = () => {
-  location.href = "view.html?id=" + otherUid;
-};
-  
-</script>
-
-<style>
-body { margin:0; font-family:sans-serif; background:#f5f5f5; }
-
-/* HEADER */
-header {
-  background:#4CAF50;
-  color:white;
-  padding:12px;
-  display:flex;
-  align-items:center;
-}
-
-header img {
-  width:40px;
-  height:40px;
-  border-radius:50%;
-  margin-right:10px;
-}
-.popup {
-  position:fixed;
-  bottom:0;
-  width:100%;
-  background:white;
-  border-radius:15px 15px 0 0;
-  display:none;
-}
-
-.popup div {
-  padding:15px;
-  text-align:center;
-  border-bottom:1px solid #eee;
-}
-
-.toast {
-  position:fixed;
-  bottom:80px;
-  left:50%;
-  transform:translateX(-50%);
-  background:black;
-  color:white;
-  padding:10px 20px;
-  border-radius:20px;
-  display:none;
-}
-/* CHAT */
-#messages {
-  position:fixed;
-  top:60px;
-  bottom:70px;
-  left:0;
-  right:0;
-  overflow:auto;
-  padding:10px;
-}
-
-/* BUBBLES */
-.me, .other {
-  width:fit-content;
-  max-width:75%;
-  padding:10px;
-  margin:6px;
-  border-radius:16px;
-}
-
-.me { background:#4CAF50; color:white; margin-left:auto; }
-.other { background:#e4e6eb; }
-
-/* IMAGE */
-.chat-img {
-  max-width:160px;
-  border-radius:12px;
-  cursor:pointer;
-}
-
-/* INPUT FIX (BIG + MOBILE) */
-.bottom {
-  position:fixed;
-  bottom:0;
-  width:100%;
-  display:flex;
-  padding:10px;
-  background:white;
-  gap:6px;
-}
-
-.plus {
-  width:42px;
-  height:42px;
-  border-radius:50%;
-  background:#4CAF50;
-  color:white;
-  border:none;
-  font-size:20px;
-}
-
-input {
-  flex:1;
-  padding:12px;
-  border-radius:25px;
-  border:1px solid #ccc;
-  font-size:15px;
-}
-
-button {
-  background:#4CAF50;
-  color:white;
-  border:none;
-  padding:10px 14px;
-  border-radius:20px;
-}
-
-/* PREVIEW */
-#previewModal {
-  display:none;
-  position:fixed;
-  inset:0;
-  background:black;
-  justify-content:center;
-  align-items:center;
-  flex-direction:column;
-}
-
-#previewModal img {
-  max-width:90%;
-  max-height:70vh;
-}
-
-.preview-actions {
-  position:absolute;
-  bottom:40px;
-  display:flex;
-  gap:20px;
-}
-
-/* FULL VIEW */
-#viewer {
-  display:none;
-  position:fixed;
-  inset:0;
-  background:black;
-  justify-content:center;
-  align-items:center;
-  flex-direction:column;
-}
-
-#viewer img {
-  max-width:100%;
-}
-
-.save-btn {
-  position:absolute;
-  bottom:30px;
-  right:20px;
-  background:#4CAF50;
-  padding:10px 15px;
-  border-radius:20px;
-  color:white;
-  text-decoration:none;
-}
-</style>
+    .chat-bubble-left {
+      border-bottom-left-radius: 4px;
+    }
+    .chat-bubble-right {
+      border-bottom-right-radius: 4px;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+    .animate-bounce-custom {
+      animation: bounce 0.6s infinite;
+    }
+  </style>
 </head>
+<body class="bg-surface font-body text-on-surface flex flex-col min-h-screen">
 
-<body>
-
-<header>
-  <img id="profileImg" onclick="openProfile()">
-  <span id="name" onclick="openProfile()"></span>
-
-  <div onclick="openMenu()" style="margin-left:auto; cursor:pointer;">⋯</div>
+<!-- ================= TOP APP BAR ================= -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl flex items-center justify-between px-4 h-16 shadow-sm">
+  <div class="flex items-center gap-3">
+    <button onclick="window.location.href='chats.html'" class="p-2 hover:bg-primary-container/30 transition-colors rounded-full text-primary">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <div class="flex items-center gap-2">
+      <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container">
+        <img id="chatAvatar" class="w-full h-full object-cover" src="https://ui-avatars.com/api/?name=User">
+      </div>
+      <h1 id="chatName" class="font-headline font-semibold text-lg text-primary">Loading...</h1>
+    </div>
+  </div>
+  <div class="flex items-center">
+    <button onclick="openMenu()" class="p-2 hover:bg-primary-container/30 transition-colors rounded-full text-primary">
+      <span class="material-symbols-outlined">more_vert</span>
+    </button>
+  </div>
 </header>
-<!-- MENU -->
-<div class="popup" id="menuBox">
-  <div onclick="toggleFollow()">Follow</div>
-  <div onclick="toggleBlock()">Block</div>
-</div>
 
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
-  
-<div id="messages"></div>
-
-<div class="bottom">
-  <button class="plus" onclick="pickImage()">+</button>
-  <input id="msg" placeholder="Type message...">
-  <button onclick="sendMessage()">Send</button>
-  <input type="file" id="imageInput" accept="image/*" hidden>
-</div>
-
-<!-- PREVIEW -->
-<div id="previewModal">
-  <img id="previewImage">
-  <div class="preview-actions">
-    <button onclick="closePreview()">Cancel</button>
-    <button onclick="sendImage()">Send</button>
+<!-- ================= SUB-HEADER (user details) ================= -->
+<div id="subHeader" class="fixed top-16 w-full z-40 bg-white/40 backdrop-blur-md px-6 py-3 flex flex-col gap-1 border-b border-outline-variant/20">
+  <div class="flex items-center gap-4 text-xs font-medium text-on-surface-variant">
+    <div id="userCountry" class="flex items-center gap-1 bg-surface-container-lowest px-2 py-1 rounded-full shadow-sm">🇵🇰 Pakistan</div>
+    <div id="userGenderAge" class="flex items-center gap-1 bg-surface-container-lowest px-2 py-1 rounded-full shadow-sm text-primary">♂ 23</div>
+    <div id="userLanguage" class="flex items-center gap-1 bg-surface-container-lowest px-2 py-1 rounded-full shadow-sm">🌐 English</div>
+  </div>
+  <div id="userLocation" class="flex items-center gap-1 text-[10px] text-outline px-1">
+    <span class="material-symbols-outlined text-[12px]">location_on</span>
+    <span>Location unknown</span>
   </div>
 </div>
 
-<!-- FULL IMAGE VIEW -->
-<div id="viewer" onclick="closeViewer()">
-  <img id="viewerImg">
-  <a id="downloadBtn" class="save-btn" download>Save</a>
+<!-- ================= CHAT MESSAGES AREA ================= -->
+<main id="messagesContainer" class="flex-1 mt-36 mb-44 px-4 overflow-y-auto space-y-6 pt-4"></main>
+
+<!-- ================= BOTTOM BAR (input + actions) ================= -->
+<div class="fixed bottom-0 left-0 w-full z-50 bg-white/90 backdrop-blur-lg rounded-t-2xl shadow-[0_-8px_30px_rgb(0,0,0,0.04)]">
+  <!-- Quick Replies -->
+  <div class="flex gap-2 px-6 overflow-x-auto py-3 no-scrollbar">
+    <button onclick="sendQuickReply('Down for a game?')" class="shrink-0 bg-surface-container-low text-primary-dim px-4 py-2 rounded-full text-xs font-medium hover:bg-primary-container/20">Down for a game?</button>
+    <button onclick="sendQuickReply('So proud of you')" class="shrink-0 bg-surface-container-low text-primary-dim px-4 py-2 rounded-full text-xs font-medium hover:bg-primary-container/20">So proud of you</button>
+    <button onclick="sendQuickReply('Hello! 👋')" class="shrink-0 bg-surface-container-low text-primary-dim px-4 py-2 rounded-full text-xs font-medium hover:bg-primary-container/20">Hello! 👋</button>
+    <button onclick="sendQuickReply('Tell me more')" class="shrink-0 bg-surface-container-low text-primary-dim px-4 py-2 rounded-full text-xs font-medium hover:bg-primary-container/20">Tell me more</button>
+  </div>
+  <!-- Input Row -->
+  <div class="px-6 pt-1 pb-4 flex items-center gap-3">
+    <div class="flex-1 bg-surface-container-low rounded-full px-4 py-3 flex items-center gap-2">
+      <input id="messageInput" type="text" class="bg-transparent border-none focus:ring-0 text-sm w-full font-body placeholder:text-outline-variant" placeholder="Say something...">
+      <button onclick="pickImage()" class="text-primary hover:scale-110 transition">
+        <span class="material-symbols-outlined">mood</span>
+      </button>
+    </div>
+    <button onclick="sendMessage()" class="w-12 h-12 bg-primary-container rounded-full flex items-center justify-center text-on-primary-container shadow-md active:scale-90 transition">
+      <span class="material-symbols-outlined">send</span>
+    </button>
+  </div>
+  <!-- Action Buttons (image, camera, video call, gift) -->
+  <div class="flex justify-around items-center px-6 pb-6 pt-2">
+    <button onclick="pickImage()" class="text-slate-400 p-3 hover:scale-110 transition">
+      <span class="material-symbols-outlined">image</span>
+    </button>
+    <button onclick="pickImage()" class="text-slate-400 p-3 hover:scale-110 transition">
+      <span class="material-symbols-outlined">photo_camera</span>
+    </button>
+    <button onclick="startVideoCall()" class="relative text-slate-400 p-3 hover:scale-110 transition">
+      <span class="material-symbols-outlined">videocam</span>
+      <div class="absolute top-1 -right-2 bg-secondary-container text-on-secondary-fixed text-[8px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-0.5 shadow-sm">
+        <span class="material-symbols-outlined text-[10px]" style="font-variation-settings:'FILL'1">monetization_on</span>
+        <span>75</span>
+      </div>
+    </button>
+    <button onclick="sendGift()" class="text-slate-400 p-3 hover:scale-110 transition">
+      <span class="material-symbols-outlined">redeem</span>
+    </button>
+  </div>
 </div>
 
+<!-- ================= MODAL: MENU (Follow/Block/Profile) ================= -->
+<div id="menuModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] hidden items-end justify-center" onclick="closeMenu()">
+  <div class="bg-surface-container-lowest w-full rounded-t-2xl p-6 max-w-md mx-auto" onclick="event.stopPropagation()">
+    <div class="flex flex-col gap-4">
+      <button id="followBtn" onclick="toggleFollow()" class="w-full text-left py-3 px-4 rounded-xl bg-surface-container-low font-medium">Follow</button>
+      <button id="blockBtn" onclick="toggleBlock()" class="w-full text-left py-3 px-4 rounded-xl bg-surface-container-low font-medium">Block</button>
+      <button onclick="viewProfile()" class="w-full text-left py-3 px-4 rounded-xl bg-surface-container-low font-medium">View Profile</button>
+      <button onclick="closeMenu()" class="w-full text-left py-3 px-4 rounded-xl text-error font-medium">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= IMAGE PREVIEW MODAL ================= -->
+<div id="previewModal" class="fixed inset-0 bg-black/90 z-[70] hidden flex-col items-center justify-center gap-6" onclick="closePreview()">
+  <img id="previewImage" class="max-w-[90%] max-h-[70vh] rounded-xl">
+  <div class="flex gap-4" onclick="event.stopPropagation()">
+    <button onclick="closePreview()" class="px-6 py-2 bg-surface rounded-full">Cancel</button>
+    <button onclick="sendImageMessage()" class="px-6 py-2 bg-primary text-white rounded-full">Send</button>
+  </div>
+</div>
+
+<!-- ================= FULLSCREEN IMAGE VIEWER ================= -->
+<div id="viewerModal" class="fixed inset-0 bg-black/95 z-[80] hidden flex-col items-center justify-center" onclick="closeViewer()">
+  <img id="viewerImage" class="max-w-[90%] max-h-[80vh] rounded-lg">
+  <a id="downloadLink" class="absolute bottom-10 right-6 bg-primary text-white px-4 py-2 rounded-full text-sm" download>Save Image</a>
+</div>
+
+<!-- ================= TOAST NOTIFICATION ================= -->
+<div id="toast" class="fixed bottom-28 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-full text-sm z-[90] hidden"></div>
+
+<script type="module">
+  // ==================== FIREBASE INIT ====================
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, getDoc, setDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
+
+  const app = initializeApp({
+    apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+    authDomain: "galmet-app.firebaseapp.com",
+    projectId: "galmet-app",
+    storageBucket: "galmet-app.firebasestorage.app"
+  });
+  const db = getFirestore(app);
+  const storage = getStorage(app);
+
+  // ==================== CHECK LOGIN (FIX) ====================
+  const currentUser = JSON.parse(localStorage.getItem("user"));
+  if (!currentUser || !currentUser.userId) {
+    alert("Please login first");
+    window.location.replace("login.html");
+    throw new Error("Not logged in");
+  }
+  const myUserId = currentUser.userId.toString();
+  const otherUserId = new URLSearchParams(window.location.search).get("id");
+  if (!otherUserId) {
+    alert("Invalid chat");
+    window.location.href = "chats.html";
+  }
+  const chatId = [myUserId, otherUserId].sort().join("_");
+
+  // ==================== DOM ELEMENTS ====================
+  const messagesDiv = document.getElementById("messagesContainer");
+  const messageInput = document.getElementById("messageInput");
+  const chatNameSpan = document.getElementById("chatName");
+  const chatAvatarImg = document.getElementById("chatAvatar");
+  const subHeader = document.getElementById("subHeader");
+  const followBtn = document.getElementById("followBtn");
+  const blockBtn = document.getElementById("blockBtn");
+  const toast = document.getElementById("toast");
+
+  let selectedImageFile = null;
+
+  function showToast(msg) {
+    toast.innerText = msg;
+    toast.classList.remove("hidden");
+    setTimeout(() => toast.classList.add("hidden"), 2000);
+  }
+
+  // ==================== LOAD OTHER USER'S INFO ====================
+  async function loadOtherUser() {
+    const userDoc = await getDoc(doc(db, "users", otherUserId));
+    if (!userDoc.exists()) return;
+    const data = userDoc.data();
+    chatNameSpan.innerText = data.username || data.email || "User";
+    chatAvatarImg.src = data.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.username || "User")}&background=006571&color=fff`;
+    // update subheader
+    const countryEl = document.getElementById("userCountry");
+    if (data.country) {
+      const countryName = typeof data.country === "object" ? data.country.name : data.country;
+      countryEl.innerHTML = `🌍 ${countryName}`;
+    }
+    const genderAgeEl = document.getElementById("userGenderAge");
+    if (data.gender || data.age) {
+      genderAgeEl.innerHTML = `${data.gender === 'male' ? '♂' : '♀'} ${data.age || '?'}`;
+    }
+    // optional language/location mock
+    document.getElementById("userLanguage").innerHTML = `🌐 English`;
+    document.getElementById("userLocation").innerHTML = `<span class="material-symbols-outlined text-[12px]">location_on</span> <span>${data.country ? 'From ' + (typeof data.country === 'object' ? data.country.name : data.country) : 'Unknown'}</span>`;
+  }
+
+  // ==================== REAL-TIME MESSAGES ====================
+  function loadMessages() {
+    const q = query(collection(db, "chats", chatId, "messages"), orderBy("createdAt", "asc"));
+    onSnapshot(q, (snapshot) => {
+      messagesDiv.innerHTML = "";
+      let lastTimestamp = null;
+      snapshot.forEach(docSnap => {
+        const msg = docSnap.data();
+        const time = msg.createdAt ? new Date(msg.createdAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "";
+        if (lastTimestamp !== msg.createdAt?.seconds) {
+          const timeDiv = document.createElement("div");
+          timeDiv.className = "flex justify-center";
+          timeDiv.innerHTML = `<span class="text-[10px] font-bold font-headline text-outline uppercase tracking-widest bg-surface-container-low px-3 py-1 rounded-full">${time}</span>`;
+          messagesDiv.appendChild(timeDiv);
+          lastTimestamp = msg.createdAt?.seconds;
+        }
+        const isMe = msg.senderId === myUserId;
+        const bubbleDiv = document.createElement("div");
+        if (isMe) {
+          bubbleDiv.className = "flex flex-col items-end gap-2";
+          bubbleDiv.innerHTML = `
+            <div class="bg-primary-container text-on-surface p-4 rounded-lg chat-bubble-right max-w-[85%] shadow-sm">
+              ${msg.text ? `<p class="text-sm leading-relaxed">${escapeHtml(msg.text)}</p>` : ''}
+              ${msg.image ? `<div class="rounded-md overflow-hidden mt-2"><img src="${msg.image}" class="max-w-[200px] max-h-[200px] rounded-lg cursor-pointer" onclick="openImageViewer('${msg.image}')"></div>` : ''}
+            </div>
+            <span class="text-[10px] text-outline-variant mr-1">${msg.createdAt ? "Delivered" : "Sending..."}</span>
+          `;
+        } else {
+          bubbleDiv.className = "flex items-start gap-3 max-w-[85%]";
+          bubbleDiv.innerHTML = `
+            <div class="w-8 h-8 rounded-full overflow-hidden mt-1 shrink-0">
+              <img src="${chatAvatarImg.src}" class="w-full h-full object-cover">
+            </div>
+            <div class="bg-surface-container-lowest text-on-surface p-4 rounded-lg chat-bubble-left shadow-sm">
+              ${msg.text ? `<p class="text-sm leading-relaxed">${escapeHtml(msg.text)}</p>` : ''}
+              ${msg.image ? `<div class="rounded-md overflow-hidden mt-2"><img src="${msg.image}" class="max-w-[200px] max-h-[200px] rounded-lg cursor-pointer" onclick="openImageViewer('${msg.image}')"></div>` : ''}
+            </div>
+          `;
+        }
+        messagesDiv.appendChild(bubbleDiv);
+      });
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      resetUnread();
+    });
+  }
+
+  // ==================== RESET UNREAD COUNT ====================
+  async function resetUnread() {
+    await setDoc(doc(db, "userChats", myUserId, "list", otherUserId), { unread: 0 }, { merge: true });
+  }
+
+  // ==================== UPDATE CHAT LIST (unread for other) ====================
+  async function updateChatList(lastMsg) {
+    // my side (reset unread)
+    await setDoc(doc(db, "userChats", myUserId, "list", otherUserId), {
+      uid: otherUserId,
+      lastMessage: lastMsg,
+      updatedAt: serverTimestamp(),
+      unread: 0
+    }, { merge: true });
+    // other side (increase unread)
+    const otherRef = doc(db, "userChats", otherUserId, "list", myUserId);
+    const snap = await getDoc(otherRef);
+    let unreadCount = 1;
+    if (snap.exists()) unreadCount = (snap.data().unread || 0) + 1;
+    await setDoc(otherRef, {
+      uid: myUserId,
+      lastMessage: lastMsg,
+      updatedAt: serverTimestamp(),
+      unread: unreadCount
+    }, { merge: true });
+  }
+
+  // ==================== SEND TEXT MESSAGE ====================
+  window.sendMessage = async () => {
+    const text = messageInput.value.trim();
+    if (!text) return;
+    messageInput.value = "";
+    // check if blocked
+    const blockedByThem = await getDoc(doc(db, "blocked", otherUserId, "list", myUserId));
+    const blockedByMe = await getDoc(doc(db, "blocked", myUserId, "list", otherUserId));
+    if (blockedByThem.exists() || blockedByMe.exists()) {
+      showToast("You cannot message this user");
+      return;
+    }
+    await addDoc(collection(db, "chats", chatId, "messages"), {
+      text: text,
+      senderId: myUserId,
+      receiverId: otherUserId,
+      createdAt: serverTimestamp()
+    });
+    await updateChatList(text);
+  };
+
+  // ==================== SEND QUICK REPLY ====================
+  window.sendQuickReply = async (text) => {
+    messageInput.value = text;
+    await sendMessage();
+  };
+
+  // ==================== IMAGE PICK & SEND ====================
+  window.pickImage = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      selectedImageFile = file;
+      const previewImg = document.getElementById("previewImage");
+      previewImg.src = URL.createObjectURL(file);
+      document.getElementById("previewModal").classList.remove("hidden");
+    };
+    input.click();
+  };
+
+  async function compressImage(file) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      const reader = new FileReader();
+      reader.onload = (e) => img.src = e.target.result;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const maxWidth = 800;
+        let scale = maxWidth / img.width;
+        canvas.width = maxWidth;
+        canvas.height = img.height * scale;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(blob => resolve(blob), "image/jpeg", 0.7);
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  window.sendImageMessage = async () => {
+    if (!selectedImageFile) return;
+    const compressed = await compressImage(selectedImageFile);
+    const fileName = `chatImages/${Date.now()}_${Math.random()}.jpg`;
+    const storageRef = ref(storage, fileName);
+    await uploadBytes(storageRef, compressed);
+    const url = await getDownloadURL(storageRef);
+    await addDoc(collection(db, "chats", chatId, "messages"), {
+      image: url,
+      senderId: myUserId,
+      receiverId: otherUserId,
+      createdAt: serverTimestamp()
+    });
+    await updateChatList("📷 Image");
+    closePreview();
+  };
+
+  window.closePreview = () => {
+    document.getElementById("previewModal").classList.add("hidden");
+    selectedImageFile = null;
+  };
+
+  // ==================== IMAGE VIEWER ====================
+  window.openImageViewer = (url) => {
+    const viewer = document.getElementById("viewerModal");
+    const viewerImg = document.getElementById("viewerImage");
+    const downloadLink = document.getElementById("downloadLink");
+    viewerImg.src = url;
+    downloadLink.href = url;
+    viewer.classList.remove("hidden");
+  };
+  window.closeViewer = () => {
+    document.getElementById("viewerModal").classList.add("hidden");
+  };
+
+  // ==================== FOLLOW / UNFOLLOW ====================
+  async function updateMenuState() {
+    const followed = await getDoc(doc(db, "followers", otherUserId, "list", myUserId));
+    const blockedByMe = await getDoc(doc(db, "blocked", myUserId, "list", otherUserId));
+    const blockedByThem = await getDoc(doc(db, "blocked", otherUserId, "list", myUserId));
+    const isBlocked = blockedByMe.exists() || blockedByThem.exists();
+    if (isBlocked) {
+      followBtn.innerText = "Follow";
+      blockBtn.innerText = "Unblock";
+    } else {
+      followBtn.innerText = followed.exists() ? "Unfollow" : "Follow";
+      blockBtn.innerText = "Block";
+    }
+  }
+
+  window.toggleFollow = async () => {
+    const followRef = doc(db, "followers", otherUserId, "list", myUserId);
+    const followingRef = doc(db, "following", myUserId, "list", otherUserId);
+    const exists = (await getDoc(followRef)).exists();
+    if (exists) {
+      await deleteDoc(followRef);
+      await deleteDoc(followingRef);
+      // also remove from friends if mutual
+      await deleteDoc(doc(db, "friends", otherUserId, "list", myUserId));
+      await deleteDoc(doc(db, "friends", myUserId, "list", otherUserId));
+      showToast("Unfollowed");
+    } else {
+      await setDoc(followRef, { uid: myUserId });
+      await setDoc(followingRef, { uid: otherUserId });
+      // check if they follow me back -> become friends
+      const otherFollowsMe = await getDoc(doc(db, "followers", myUserId, "list", otherUserId));
+      if (otherFollowsMe.exists()) {
+        await setDoc(doc(db, "friends", otherUserId, "list", myUserId), { uid: myUserId });
+        await setDoc(doc(db, "friends", myUserId, "list", otherUserId), { uid: otherUserId });
+      }
+      showToast("Followed");
+    }
+    closeMenu();
+    updateMenuState();
+  };
+
+  window.toggleBlock = async () => {
+    const blockedRef = doc(db, "blocked", myUserId, "list", otherUserId);
+    const exists = (await getDoc(blockedRef)).exists();
+    if (exists) {
+      await deleteDoc(blockedRef);
+      showToast("Unblocked");
+    } else {
+      await setDoc(blockedRef, { uid: otherUserId });
+      // remove any follow/friend relations
+      await deleteDoc(doc(db, "followers", otherUserId, "list", myUserId));
+      await deleteDoc(doc(db, "following", myUserId, "list", otherUserId));
+      await deleteDoc(doc(db, "friends", otherUserId, "list", myUserId));
+      await deleteDoc(doc(db, "friends", myUserId, "list", otherUserId));
+      showToast("Blocked");
+    }
+    closeMenu();
+    updateMenuState();
+  };
+
+  // ==================== MENU ====================
+  window.openMenu = () => {
+    updateMenuState();
+    document.getElementById("menuModal").classList.remove("hidden");
+    document.getElementById("menuModal").classList.add("flex");
+  };
+  window.closeMenu = () => {
+    document.getElementById("menuModal").classList.add("hidden");
+    document.getElementById("menuModal").classList.remove("flex");
+  };
+  window.viewProfile = () => {
+    window.location.href = `view.html?id=${otherUserId}`;
+  };
+  window.startVideoCall = () => {
+    showToast("Video call coming soon (75 coins)");
+  };
+  window.sendGift = () => {
+    showToast("Gift shop opens soon");
+  };
+
+  // ==================== ESCAPE HTML ====================
+  function escapeHtml(str) {
+    if (!str) return "";
+    return str.replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    });
+  }
+
+  // ==================== INIT ====================
+  loadOtherUser();
+  loadMessages();
+  messageInput.addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
+  // click outside modals
+  document.getElementById("menuModal").addEventListener("click", (e) => { if (e.target === document.getElementById("menuModal")) closeMenu(); });
+  document.getElementById("previewModal").addEventListener("click", (e) => { if (e.target === document.getElementById("previewModal")) closePreview(); });
+  document.getElementById("viewerModal").addEventListener("click", (e) => { if (e.target === document.getElementById("viewerModal")) closeViewer(); });
+</script>
 </body>
 </html>
