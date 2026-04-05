@@ -51,16 +51,16 @@
     }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-4px); }
-    }
-    .animate-bounce-custom {
-      animation: bounce 0.6s infinite;
-    }
-    /* Prevent header overlap */
+    
+    /* Dynamic bottom padding for messages container */
     .messages-container {
       scroll-behavior: smooth;
+      padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 180px);
+    }
+    @media (min-width: 640px) {
+      .messages-container {
+        padding-bottom: 200px;
+      }
     }
   </style>
 </head>
@@ -69,7 +69,7 @@
 <!-- ================= TOP APP BAR ================= -->
 <header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl flex items-center justify-between px-4 h-16 shadow-sm">
   <div class="flex items-center gap-3">
-    <button onclick="window.location.href='chats.html'" class="p-2 hover:bg-primary-container/30 transition-colors rounded-full text-primary">
+    <button onclick="goBack()" class="p-2 hover:bg-primary-container/30 transition-colors rounded-full text-primary">
       <span class="material-symbols-outlined">arrow_back</span>
     </button>
     <div class="flex items-center gap-2 cursor-pointer" onclick="viewProfile()">
@@ -100,43 +100,43 @@
 </div>
 
 <!-- ================= CHAT MESSAGES AREA ================= -->
-<main id="messagesContainer" class="messages-container flex-1 mt-36 mb-44 px-4 overflow-y-auto space-y-6 pt-4"></main>
+<main id="messagesContainer" class="messages-container flex-1 mt-36 px-4 overflow-y-auto space-y-6 pt-4"></main>
 
-<!-- ================= BOTTOM BAR (input + actions) ================= -->
+<!-- ================= BOTTOM BAR (input + actions) - SMALLER ICONS & LESS PADDING ================= -->
 <div class="fixed bottom-0 left-0 w-full z-50 bg-white/90 backdrop-blur-lg rounded-t-2xl shadow-[0_-8px_30px_rgb(0,0,0,0.04)]">
-  <!-- Quick Replies -->
-  <div class="flex gap-2 px-6 overflow-x-auto py-3 no-scrollbar">
-    <button onclick="sendQuickReply('Down for a game?')" class="shrink-0 bg-surface-container-low text-primary-dim px-4 py-2 rounded-full text-xs font-medium hover:bg-primary-container/20">Down for a game?</button>
-    <button onclick="sendQuickReply('So proud of you')" class="shrink-0 bg-surface-container-low text-primary-dim px-4 py-2 rounded-full text-xs font-medium hover:bg-primary-container/20">So proud of you</button>
-    <button onclick="sendQuickReply('Hello! 👋')" class="shrink-0 bg-surface-container-low text-primary-dim px-4 py-2 rounded-full text-xs font-medium hover:bg-primary-container/20">Hello! 👋</button>
-    <button onclick="sendQuickReply('Tell me more')" class="shrink-0 bg-surface-container-low text-primary-dim px-4 py-2 rounded-full text-xs font-medium hover:bg-primary-container/20">Tell me more</button>
+  <!-- Quick Replies (smaller) -->
+  <div class="flex gap-2 px-4 overflow-x-auto py-2 no-scrollbar">
+    <button onclick="sendQuickReply('Down for a game?')" class="shrink-0 bg-surface-container-low text-primary-dim px-3 py-1.5 rounded-full text-[11px] font-medium hover:bg-primary-container/20">Down for a game?</button>
+    <button onclick="sendQuickReply('So proud of you')" class="shrink-0 bg-surface-container-low text-primary-dim px-3 py-1.5 rounded-full text-[11px] font-medium hover:bg-primary-container/20">So proud of you</button>
+    <button onclick="sendQuickReply('Hello! 👋')" class="shrink-0 bg-surface-container-low text-primary-dim px-3 py-1.5 rounded-full text-[11px] font-medium hover:bg-primary-container/20">Hello! 👋</button>
+    <button onclick="sendQuickReply('Tell me more')" class="shrink-0 bg-surface-container-low text-primary-dim px-3 py-1.5 rounded-full text-[11px] font-medium hover:bg-primary-container/20">Tell me more</button>
   </div>
-  <!-- Input Row (emoji button removed) -->
-  <div class="px-6 pt-1 pb-4 flex items-center gap-3">
-    <div class="flex-1 bg-surface-container-low rounded-full px-4 py-3 flex items-center gap-2">
+  <!-- Input Row (no emoji) -->
+  <div class="px-4 pt-1 pb-2 flex items-center gap-2">
+    <div class="flex-1 bg-surface-container-low rounded-full px-3 py-2 flex items-center gap-1">
       <input id="messageInput" type="text" class="bg-transparent border-none focus:ring-0 text-sm w-full font-body placeholder:text-outline-variant" placeholder="Say something...">
     </div>
-    <button onclick="sendMessage()" class="w-12 h-12 bg-primary-container rounded-full flex items-center justify-center text-on-primary-container shadow-md active:scale-90 transition">
-      <span class="material-symbols-outlined">send</span>
+    <button onclick="sendMessage()" class="w-10 h-10 bg-primary-container rounded-full flex items-center justify-center text-on-primary-container shadow-md active:scale-90 transition">
+      <span class="material-symbols-outlined text-xl">send</span>
     </button>
   </div>
-  <!-- Action Buttons (image, camera, video call, gift) -->
-  <div class="flex justify-around items-center px-6 pb-6 pt-2">
-    <button onclick="pickImage()" class="text-slate-400 p-3 hover:scale-110 transition">
-      <span class="material-symbols-outlined">image</span>
+  <!-- Action Buttons (smaller) -->
+  <div class="flex justify-around items-center px-4 pb-4 pt-1">
+    <button onclick="pickImage()" class="text-slate-400 p-2 hover:scale-110 transition">
+      <span class="material-symbols-outlined text-xl">image</span>
     </button>
-    <button onclick="openCamera()" class="text-slate-400 p-3 hover:scale-110 transition">
-      <span class="material-symbols-outlined">photo_camera</span>
+    <button onclick="openCamera()" class="text-slate-400 p-2 hover:scale-110 transition">
+      <span class="material-symbols-outlined text-xl">photo_camera</span>
     </button>
-    <button onclick="startVideoCall()" class="relative text-slate-400 p-3 hover:scale-110 transition">
-      <span class="material-symbols-outlined">videocam</span>
-      <div class="absolute top-1 -right-2 bg-secondary-container text-on-secondary-fixed text-[8px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-0.5 shadow-sm">
-        <span class="material-symbols-outlined text-[10px]" style="font-variation-settings:'FILL'1">monetization_on</span>
+    <button onclick="startVideoCall()" class="relative text-slate-400 p-2 hover:scale-110 transition">
+      <span class="material-symbols-outlined text-xl">videocam</span>
+      <div class="absolute top-0 -right-2 bg-secondary-container text-on-secondary-fixed text-[8px] font-bold px-1 py-0.5 rounded-full flex items-center gap-0.5 shadow-sm">
+        <span class="material-symbols-outlined text-[8px]" style="font-variation-settings:'FILL'1">monetization_on</span>
         <span>0.1</span>
       </div>
     </button>
-    <button onclick="sendGift()" class="text-slate-400 p-3 hover:scale-110 transition">
-      <span class="material-symbols-outlined">redeem</span>
+    <button onclick="sendGift()" class="text-slate-400 p-2 hover:scale-110 transition">
+      <span class="material-symbols-outlined text-xl">redeem</span>
     </button>
   </div>
 </div>
@@ -153,7 +153,7 @@
   </div>
 </div>
 
-<!-- ================= IMAGE PREVIEW MODAL (fixed layout) ================= -->
+<!-- ================= IMAGE PREVIEW MODAL ================= -->
 <div id="previewModal" class="fixed inset-0 bg-black/90 z-[70] hidden flex-col items-center justify-center gap-6" onclick="closePreview()">
   <img id="previewImage" class="max-w-[90%] max-h-[70vh] rounded-xl object-contain">
   <div class="flex gap-4" onclick="event.stopPropagation()">
@@ -211,7 +211,13 @@
   const toast = document.getElementById("toast");
 
   let selectedImageFile = null;
-  let autoScroll = true; // flag to control auto-scroll
+  let userScrolledUp = false;
+  
+  // Detect if user manually scrolls up
+  messagesDiv.addEventListener("scroll", () => {
+    const isNearBottom = messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight < 50;
+    userScrolledUp = !isNearBottom;
+  });
 
   function showToast(msg) {
     toast.innerText = msg;
@@ -227,7 +233,6 @@
     chatNameSpan.innerText = data.username || data.email || "User";
     chatAvatarImg.src = data.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.username || "User")}&background=006571&color=fff`;
     
-    // Country flag and name
     const countryEl = document.getElementById("userCountry");
     if (data.country) {
       const countryName = typeof data.country === "object" ? data.country.name : data.country;
@@ -238,14 +243,12 @@
       countryEl.innerHTML = "🌍 Unknown";
     }
     
-    // Gender & Age
     const genderAgeEl = document.getElementById("userGenderAge");
     if (data.gender || data.age) {
       const genderSymbol = data.gender === 'male' ? '♂' : (data.gender === 'female' ? '♀' : '');
       genderAgeEl.innerHTML = `${genderSymbol} ${data.age || '?'}`;
     }
     
-    // Location (from country)
     const locationEl = document.getElementById("userLocation");
     if (data.country) {
       const countryName = typeof data.country === "object" ? data.country.name : data.country;
@@ -259,11 +262,11 @@
     return String.fromCodePoint(...codePoints);
   }
 
-  // ==================== REAL-TIME MESSAGES WITH AUTO-SCROLL ====================
+  // ==================== REAL-TIME MESSAGES WITH SMART AUTO-SCROLL ====================
   function loadMessages() {
     const q = query(collection(db, "chats", chatId, "messages"), orderBy("createdAt", "asc"));
     onSnapshot(q, (snapshot) => {
-      const wasAtBottom = messagesDiv.scrollHeight - messagesDiv.scrollTop <= messagesDiv.clientHeight + 50;
+      const wasUserAtBottom = !userScrolledUp;
       messagesDiv.innerHTML = "";
       let lastTimestamp = null;
       snapshot.forEach(docSnap => {
@@ -301,9 +304,11 @@
         }
         messagesDiv.appendChild(bubbleDiv);
       });
-      // Auto-scroll if user was at bottom or new message is from me
-      if (wasAtBottom || snapshot.docs.length > 0 && snapshot.docs[snapshot.docs.length-1].data().senderId === myUserId) {
+      
+      // Auto-scroll only if user was at bottom before update OR the new message is from me
+      if (wasUserAtBottom || (snapshot.docs.length > 0 && snapshot.docs[snapshot.docs.length-1].data().senderId === myUserId)) {
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        userScrolledUp = false;
       }
       resetUnread();
     });
@@ -352,6 +357,8 @@
       createdAt: serverTimestamp()
     });
     await updateChatList(text);
+    // Force scroll to bottom after sending
+    setTimeout(() => { messagesDiv.scrollTop = messagesDiv.scrollHeight; userScrolledUp = false; }, 100);
   };
 
   window.sendQuickReply = async (text) => {
@@ -359,7 +366,7 @@
     await sendMessage();
   };
 
-  // ==================== IMAGE PICK & COMPRESS (quality preserved) ====================
+  // ==================== IMAGE PICK & COMPRESS ====================
   window.pickImage = () => {
     const input = document.createElement("input");
     input.type = "file";
@@ -382,8 +389,6 @@
       reader.onload = (e) => img.src = e.target.result;
       img.onload = () => {
         const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        // Keep aspect ratio, max width 1024px for good quality
         let width = img.width;
         let height = img.height;
         const maxDim = 1024;
@@ -398,6 +403,7 @@
         }
         canvas.width = width;
         canvas.height = height;
+        const ctx = canvas.getContext("2d");
         ctx.drawImage(img, 0, 0, width, height);
         canvas.toBlob(blob => resolve(blob), "image/jpeg", 0.85);
       };
@@ -420,6 +426,7 @@
     });
     await updateChatList("📷 Image");
     closePreview();
+    setTimeout(() => { messagesDiv.scrollTop = messagesDiv.scrollHeight; }, 100);
   };
 
   window.closePreview = () => {
@@ -431,11 +438,9 @@
   window.openCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      // Create a video element to capture frame
       const video = document.createElement("video");
       video.srcObject = stream;
       video.play();
-      // Create canvas to capture photo
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
       video.addEventListener("loadedmetadata", () => {
@@ -448,24 +453,21 @@
           const previewImg = document.getElementById("previewImage");
           previewImg.src = URL.createObjectURL(file);
           document.getElementById("previewModal").classList.remove("hidden");
-          // Stop all tracks
           stream.getTracks().forEach(track => track.stop());
           video.remove();
         }, "image/jpeg", 0.85);
       });
     } catch (err) {
-      console.error("Camera error:", err);
-      showToast("Camera permission denied or not available");
+      console.error(err);
+      showToast("Camera permission denied");
     }
   };
 
-  // ==================== FOLLOW / UNBLOCK / BLOCK (REAL-TIME) ====================
-  // Real-time listeners for follow/block status
+  // ==================== FOLLOW / BLOCK (REAL-TIME) ====================
   function initRealtimeStatus() {
     const followRef = doc(db, "followers", otherUserId, "list", myUserId);
     const blockByMeRef = doc(db, "blocked", myUserId, "list", otherUserId);
     const blockByThemRef = doc(db, "blocked", otherUserId, "list", myUserId);
-    
     onSnapshot(followRef, () => updateMenuState());
     onSnapshot(blockByMeRef, () => updateMenuState());
     onSnapshot(blockByThemRef, () => updateMenuState());
@@ -525,7 +527,13 @@
     closeMenu();
   };
 
-  // ==================== MENU & NAVIGATION ====================
+  // ==================== NAVIGATION ====================
+  window.goBack = () => {
+    window.history.back();
+  };
+  window.viewProfile = () => {
+    window.location.href = `view.html?id=${otherUserId}`;
+  };
   window.openMenu = () => {
     document.getElementById("menuModal").classList.remove("hidden");
     document.getElementById("menuModal").classList.add("flex");
@@ -534,17 +542,12 @@
     document.getElementById("menuModal").classList.add("hidden");
     document.getElementById("menuModal").classList.remove("flex");
   };
-  window.viewProfile = () => {
-    window.location.href = `view.html?id=${otherUserId}`;
-  };
   window.startVideoCall = () => {
     showToast("Video call costs 0.1 coins (coming soon)");
   };
   window.sendGift = () => {
     showToast("Gift shop opens soon");
   };
-
-  // ==================== IMAGE VIEWER ====================
   window.openImageViewer = (url) => {
     const viewer = document.getElementById("viewerModal");
     const viewerImg = document.getElementById("viewerImage");
