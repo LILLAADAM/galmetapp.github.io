@@ -336,26 +336,26 @@ async function verifyOtp() {
   // 🔥 STEP CHECK SYSTEM
 
   if (!user.gender) {
-    window.location.href = "gender.html";
-    return;
-  }
+  window.location.href = "gender.html";
+  return;
+}
 
-  if (
+if (
   !user.username ||
   !user.country ||
   (typeof user.country === "object" && !user.country.name) ||
   (typeof user.country === "string" && user.country.trim() === "") ||
   !user.dob ||
   !user.age
-)
-    window.location.href = "username.html"; // your nickname + dob page
-    return;
-  }
+) {
+  window.location.href = "username.html";
+  return;
+}
 
-  if (!user.photoURL || !user.profileCompleted) {
-    window.location.href = "setup.html";
-    return;
-  }
+if (!user.photoURL || !user.profileCompleted) {
+  window.location.href = "setup.html";
+  return;
+}
 
   // ✅ ALL COMPLETE
   window.location.href = "dashboard.html";
