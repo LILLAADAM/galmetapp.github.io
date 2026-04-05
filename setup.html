@@ -177,7 +177,7 @@ Complete Setup
 <p class="mt-8 font-headline font-bold text-2xl text-primary animate-bounce">Galmet</p>
 <p class="text-on-surface-variant font-medium">Redirecting to your Discovery...</p>
 </div>
-</body></html>
+
 
 <script type="module">
 
@@ -199,97 +199,64 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 
 // ==============================
-// ✅ USER LOAD + BLOCK BACK
+// ✅ LOAD USER
 // ==============================
-const user = JSON.parse(localStorage.getItem("user"));
+let user = JSON.parse(localStorage.getItem("user"));
 
-if (!user) {
+if (!user || !user.userId) {
   window.location = "index.html";
 }
 
-// 🔥 BLOCK BACK IF COMPLETED
-if (user.profileCompleted) {
+// 🔥 BLOCK BACK (SAFE)
+if (user.profileCompleted === true && user.photoURL) {
   window.location.replace("dashboard.html");
 }
 
-history.pushState(null, null, location.href);
-window.onpopstate = function () {
-  history.go(1);
-};
-
-let currentUser = user;
-
 // ==============================
-// ✅ LOAD COUNTRY
-// ==============================
-const selectedCountry = JSON.parse(localStorage.getItem("selectedCountry"));
-
-if (selectedCountry) {
-  currentUser.country = selectedCountry;
-}
-
-// ==============================
-// ✅ IMAGE PREVIEW + SIMPLE CROP
+// ✅ IMAGE SELECT
 // ==============================
 let selectedImage = null;
 
-window.addEventListener("DOMContentLoaded", () => {
+document.getElementById("photoInput").addEventListener("change", (e)=>{
+  const file = e.target.files[0];
+  if (!file) return;
 
-  const input = document.getElementById("photoInput");
-  const preview = document.getElementById("profilePreview");
+  selectedImage = file;
 
-  input.addEventListener("change", (e) => {
-
-    const file = e.target.files[0];
-    if (!file) return;
-
-    selectedImage = file;
-
-    const reader = new FileReader();
-
-    reader.onload = (ev) => {
-      preview.src = ev.target.result; // 🔥 instant preview
-    };
-
-    reader.readAsDataURL(file);
-  });
-
+  const reader = new FileReader();
+  reader.onload = (ev)=>{
+    document.getElementById("profilePreview").src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
 });
 
 // ==============================
 // ✅ IMAGE COMPRESS
 // ==============================
-async function compressImage(file) {
-
-  return new Promise((resolve) => {
-
+async function compressImage(file){
+  return new Promise((resolve)=>{
     const img = new Image();
     const reader = new FileReader();
 
-    reader.onload = (e) => img.src = e.target.result;
+    reader.onload = (e)=> img.src = e.target.result;
 
-    img.onload = () => {
-
+    img.onload = ()=>{
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
 
       const size = 512;
-
       canvas.width = size;
       canvas.height = size;
 
-      // 🔥 CENTER CROP (LIKE YOUR FIRST IMAGE)
       const min = Math.min(img.width, img.height);
-
       const sx = (img.width - min) / 2;
       const sy = (img.height - min) / 2;
 
       ctx.drawImage(img, sx, sy, min, min, 0, 0, size, size);
 
-      canvas.toBlob((blob) => {
+      canvas.toBlob((blob)=>{
         resolve(blob);
       }, "image/jpeg", 0.85);
-
     };
 
     reader.readAsDataURL(file);
@@ -297,49 +264,60 @@ async function compressImage(file) {
 }
 
 // ==============================
-// ✅ COMPLETE SETUP
+// ✅ COMPLETE SETUP (FIXED)
 // ==============================
-window.completeSetup = async function () {
+window.completeSetup = async function(){
 
-  if (!selectedImage) {
+  if (!selectedImage){
     alert("Select image");
     return;
   }
 
   try {
 
-    // 🔥 compress + crop
+    // 🔥 upload image
     const compressed = await compressImage(selectedImage);
-
-    const storageRef = ref(storage, "profiles/" + currentUser.userId);
+    const storageRef = ref(storage, "profiles/" + user.userId);
 
     await uploadBytes(storageRef, compressed);
-
     const photoURL = await getDownloadURL(storageRef);
 
-    // 🔥 SAVE FULL DATA
-    await setDoc(doc(db, "users", currentUser.userId.toString()), {
-      email: currentUser.email,
-      userId: currentUser.userId,
-      username: currentUser.username,
-      gender: currentUser.gender,
-      country: currentUser.country,
-      dob: currentUser.dob,
-      age: currentUser.age,
+    // 🔥 SAFE DATA (NO FIELD LOSS)
+    const safeData = {
+      email: user.email || "",
+      userId: user.userId,
+
+      username: user.username || "",
+      gender: user.gender || "",
+      country: user.country || null,
+      dob: user.dob || null,
+      age: user.age || null,
+
+      coins: user.coins ?? 500,
+      inviteCode: user.inviteCode || user.userId.toString(),
+      referredBy: user.referredBy || null,
+
+      totalInvites: user.totalInvites ?? 0,
+      totalEarned: user.totalEarned ?? 0,
+
       photoURL: photoURL,
       profileCompleted: true
-    }, { merge: true });
+    };
 
-    // 🔥 UPDATE LOCAL
-    currentUser.photoURL = photoURL;
-    currentUser.profileCompleted = true;
+    // 🔥 SAVE TO FIRESTORE
+    await setDoc(doc(db, "users", user.userId.toString()), safeData, { merge: true });
 
-    localStorage.setItem("user", JSON.stringify(currentUser));
+    // 🔥 UPDATE LOCAL STORAGE (CRITICAL FIX)
+    user = { ...user, ...safeData };
+    localStorage.setItem("user", JSON.stringify(user));
 
-    // 🔥 REDIRECT (NO BACK)
+    // 🔥 WAIT (VERY IMPORTANT FIX)
+    await new Promise(res => setTimeout(res, 500));
+
+    // 🔥 REDIRECT SAFE
     window.location.replace("dashboard.html");
 
-  } catch (err) {
+  } catch (err){
     alert("Upload failed: " + err.message);
   }
 };
