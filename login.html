@@ -307,6 +307,18 @@ async function verifyOtp() {
       return;
     }
 
+    function getReferral() {
+  const urlParams = new URLSearchParams(window.location.search);
+  let ref = urlParams.get("ref");
+
+  if (ref) {
+    localStorage.setItem("referral", ref);
+    return ref;
+  }
+
+  return localStorage.getItem("referral");
+}
+        
     // ✅ CHECK USER
     const checkRes = await fetch(BASE_URL + "/getUserByEmail?email=" + encodeURIComponent(email));
     const checkData = await checkRes.json();
@@ -345,26 +357,30 @@ async function verifyOtp() {
 
       // 🔥 FIXED USER CREATION
       const userId = generateUserId();
+      const referralCode = getReferral();
 
-      const newUser = {
-       email: email,
-       userId: userId,
-       coins: 500,
+const newUser = {
+  email: email,
+  userId: userId,
+  coins: 500,
 
-       username: "",
-       gender: "",
-       country: null,
-       dob: null,
-       age: null,
+  username: "",
+  gender: "",
+  country: null,
+  dob: null,
+  age: null,
 
-       photoURL: "",
-       profileCompleted: false,
+  photoURL: "",
+  profileCompleted: false,
 
-       inviteCode: "INV" + userId,
-       referredBy: null,
-       totalInvites: 0,
-       totalEarned: 0
-     };
+  inviteCode: userId.toString(), // ✅ FIX
+  referredBy: referralCode || null, // ✅ FIX
+
+  totalInvites: 0,
+  totalEarned: 0,
+  firstTopup: false
+};
+       
       console.log("🆕 Creating user:", newUser);
 
       const createRes = await fetch(BASE_URL + "/createUser", {
