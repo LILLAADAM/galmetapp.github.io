@@ -203,6 +203,7 @@ const storage = getStorage(app);
 // ==============================
 let user = JSON.parse(localStorage.getItem("user"));
 
+
 if (!user || !user.userId) {
   window.location = "index.html";
 }
