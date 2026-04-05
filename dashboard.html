@@ -209,7 +209,6 @@ Submit Withdraw
 
 </div>
 
-
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
@@ -224,46 +223,66 @@ const app = initializeApp({
 
 const db = getFirestore(app);
 
+// ==============================
 // ✅ LOGIN CHECK
+// ==============================
 const localUser = JSON.parse(localStorage.getItem("user"));
 
 if (!localUser || !localUser.userId) {
   window.location = "login.html";
 }
 
+// ==============================
 // ✅ USER REF
+// ==============================
 const userRef = doc(db, "users", localUser.userId.toString());
 
+// ==============================
+// ✅ PREVENT LOOP FLAG
+// ==============================
+let hasRedirected = false;
+
+// ==============================
 // ✅ SET ONLINE ONCE
+// ==============================
 updateDoc(userRef, { online: true }).catch(()=>{});
 
+// ==============================
 // ✅ REALTIME LISTENER
+// ==============================
 onSnapshot(userRef, (snap) => {
 
   if (!snap.exists()) return;
 
   const data = snap.data();
-  const currentPage = window.location.pathname;
 
-  // ✅ SAFE FLOW (NO LOOP)
-  if (!data.gender && !currentPage.includes("gender.html")) {
-    window.location = "gender.html";
-    return;
+  // ==============================
+  // 🚨 SAFE REDIRECT (ONLY ONCE)
+  // ==============================
+  if (!hasRedirected) {
+
+    if (!data.gender) {
+      hasRedirected = true;
+      window.location = "gender.html";
+      return;
+    }
+
+    if (!data.username || !data.country || !data.dob || !data.age) {
+      hasRedirected = true;
+      window.location = "step2.html";
+      return;
+    }
+
+    if (!data.photoURL || !data.profileCompleted) {
+      hasRedirected = true;
+      window.location = "setup.html";
+      return;
+    }
   }
 
-  if ((!data.username || !data.country || !data.dob || !data.age) 
-      && !currentPage.includes("step2.html")) {
-    window.location = "step2.html";
-    return;
-  }
-
-  if ((!data.photoURL || !data.profileCompleted) 
-      && !currentPage.includes("setup.html")) {
-    window.location = "setup.html";
-    return;
-  }
-
-  // ✅ UI UPDATE
+  // ==============================
+  // ✅ UI UPDATE (SAFE)
+  // ==============================
   document.getElementById("email").innerText = data.email || "";
   document.getElementById("coins").innerText = data.coins ?? 0;
   document.getElementById("inviteCode").innerText = data.inviteCode || "---";
@@ -277,24 +296,33 @@ onSnapshot(userRef, (snap) => {
 
 });
 
-// ✅ OFFLINE
+// ==============================
+// ❌ OFFLINE
+// ==============================
 window.addEventListener("beforeunload", () => {
   updateDoc(userRef, { online: false }).catch(()=>{});
 });
 
+// ==============================
 // ✅ LOGOUT
+// ==============================
 window.logout = () => {
   localStorage.removeItem("user");
   window.location = "login.html";
 };
 
+// ==============================
 // ✅ COPY
+// ==============================
 window.copyCode = async ()=>{
   const code = document.getElementById("inviteCode").innerText;
   await navigator.clipboard.writeText(code);
   alert("Copied!");
 };
 
+// ==============================
+// ✅ NAVIGATION
+// ==============================
 window.goGame = (p)=> location.href = p;
 window.goSearch = ()=> location.href = "search.html";
 window.goChats = ()=> location.href = "chat.html";
@@ -308,3 +336,6 @@ window.openWithdraw = ()=> {
 };
 
 </script>
+
+</body>
+</html>
