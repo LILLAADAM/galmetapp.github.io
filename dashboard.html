@@ -226,13 +226,14 @@
 
 if (
   (!data.username ||
-  !data.country ||
-  (typeof data.country === "object" && !data.country.name) ||
-  !data.dob ||
-  !data.dob.day ||
-  !data.dob.month ||
-  !data.dob.year ||
-  !data.age)
+   !data.country ||
+   (typeof data.country === "object" && !data.country.name) ||
+   (typeof data.country === "string" && data.country.trim() === "") ||
+   !data.dob ||
+   !data.dob.day ||
+   !data.dob.month ||
+   !data.dob.year ||
+   !data.age)
   && !currentPath.includes("username.html")
 ) {
   window.location.replace("username.html");
