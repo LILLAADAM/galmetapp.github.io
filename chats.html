@@ -1,431 +1,295 @@
 <!DOCTYPE html>
-
-<html class="light" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
-<title>Chats - Galmet</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Be+Vietnam+Pro:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            display: inline-block;
-            line-height: 1;
-            text-transform: none;
-            letter-spacing: normal;
-            word-wrap: normal;
-            white-space: nowrap;
-            direction: ltr;
-        }
-        /* Custom Loader for "Connecting..." */
-        @keyframes subtle-spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        .animate-subtle-spin {
-            animation: subtle-spin 2s linear infinite;
-        }
-        /* Hide scrollbar but keep functionality */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    </style>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "surface-container-low": "#ecf1f6",
-                        "surface-container": "#e3e9ee",
-                        "secondary-dim": "#664b00",
-                        "tertiary": "#b60051",
-                        "tertiary-dim": "#a00047",
-                        "on-primary": "#d8f8ff",
-                        "on-tertiary": "#ffeff0",
-                        "on-primary-fixed": "#003840",
-                        "on-primary-fixed-variant": "#005762",
-                        "primary": "#006571",
-                        "on-secondary-fixed-variant": "#674c00",
-                        "surface-dim": "#ced5db",
-                        "primary-fixed": "#00e3fd",
-                        "primary-container": "#00e3fd",
-                        "secondary-fixed-dim": "#f7ba00",
-                        "surface-container-high": "#dde3e8",
-                        "tertiary-fixed": "#ff8fa9",
-                        "surface-container-highest": "#d7dee3",
-                        "on-background": "#2a2f32",
-                        "on-secondary-container": "#5c4400",
-                        "secondary": "#755700",
-                        "surface-bright": "#f3f7fb",
-                        "outline": "#73777b",
-                        "error-container": "#fb5151",
-                        "outline-variant": "#a9aeb1",
-                        "inverse-surface": "#0a0f12",
-                        "error-dim": "#9f0519",
-                        "background": "#f3f7fb",
-                        "on-surface": "#2a2f32",
-                        "on-error-container": "#570008",
-                        "on-surface-variant": "#575c60",
-                        "inverse-primary": "#00e3fd",
-                        "primary-dim": "#005863",
-                        "surface-tint": "#006571",
-                        "on-tertiary-fixed": "#380014",
-                        "on-tertiary-fixed-variant": "#770033",
-                        "tertiary-container": "#ff8fa9",
-                        "on-secondary": "#fff1db",
-                        "on-tertiary-container": "#66002b",
-                        "on-error": "#ffefee",
-                        "surface-variant": "#d7dee3",
-                        "surface": "#f3f7fb",
-                        "primary-fixed-dim": "#00d4ec",
-                        "surface-container-lowest": "#ffffff",
-                        "secondary-fixed": "#ffca4d",
-                        "tertiary-fixed-dim": "#ff769b",
-                        "on-secondary-fixed": "#443100",
-                        "secondary-container": "#ffca4d",
-                        "error": "#b31b25",
-                        "on-primary-container": "#004d57",
-                        "inverse-on-surface": "#999da1"
-                    },
-                    fontFamily: {
-                        "headline": ["Plus Jakarta Sans"],
-                        "body": ["Be Vietnam Pro"],
-                        "label": ["Plus Jakarta Sans"]
-                    },
-                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
-                },
-            },
-        }
-    </script>
-<style>
-    body {
-      min-height: max(884px, 100dvh);
+<html class="light" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Chats - Galmet</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      line-height: 1;
     }
+    .animate-subtle-spin {
+      animation: subtle-spin 2s linear infinite;
+    }
+    @keyframes subtle-spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
-  </head>
-<body class="bg-background font-body text-on-surface selection:bg-primary-container">
-<!-- TopAppBar - Mapped from Shared Components JSON -->
-<header class="fixed top-0 w-full z-40 bg-[#f3f7fb] flex justify-between items-center px-6 py-4">
-<div class="flex items-center gap-3">
-<h1 class="font-headline text-2xl font-bold text-cyan-600">Chats</h1>
-<!-- Connecting State -->
-<div class="flex items-center gap-1.5 ml-1">
-<span class="material-symbols-outlined text-[14px] text-cyan-600/60 animate-subtle-spin">sync</span>
-<span class="text-[11px] font-label font-bold text-cyan-600/60 tracking-wider">connecting...</span>
-</div>
-</div>
-<div class="flex items-center gap-4">
-<button onclick="location.href='search.html'" class="flex items-center justify-center p-2 rounded-full hover:bg-cyan-50 transition-colors">
-<span class="material-symbols-outlined text-cyan-600">search</span>
-</button>
-<div class="w-8 h-8 rounded-full overflow-hidden border border-primary/10">
-<img alt="User Profile" class="w-full h-full object-cover" data-alt="professional headshot of a smiling young man in a teal polo shirt, neutral studio background, bright lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTJODsXj7nha9DSnv_n37DaQJzwN8lg_0Osr-GwhcgXiXkHaC4r92v80E-dEYoEWXRk6nnwCHQzloYVBKhIul8SERpp1TD-EqsvGd5oT4qUFubOqqKAucE6ppVbUp0u5-vzX_Vh1isZdrQ2zFQsH8mrfI4B2Ah9Zb_SADtZtx_hBdfc3bLPEbSw3HhrgBnqgrt5w89i04YL6-8CR0Ze6TOxs7RyRLhPbfdU8EORaKb2_ELDkKwaLSsr_Pl_FVwmZMTDR-JIxiI5Qtr"/>
-</div>
-</div>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-dim": "#ced5db",
+            "surface-bright": "#f3f7fb",
+            "surface": "#f3f7fb",
+            "surface-variant": "#d7dee3",
+            "surface-container-low": "#ecf1f6",
+            "surface-container": "#e3e9ee",
+            "surface-container-high": "#dde3e8",
+            "surface-container-highest": "#d7dee3",
+            "surface-container-lowest": "#ffffff",
+            "on-surface": "#2a2f32",
+            "on-surface-variant": "#575c60",
+            "primary": "#006571",
+            "primary-container": "#00e3fd",
+            "primary-fixed-dim": "#00d4ec",
+            "on-primary": "#d8f8ff",
+            "secondary": "#755700",
+            "secondary-container": "#ffca4d",
+            "tertiary": "#b60051",
+            "tertiary-container": "#ff8fa9",
+            "error": "#b31b25",
+            "outline": "#73777b",
+            "outline-variant": "#a9aeb1"
+          },
+          fontFamily: {
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Be Vietnam Pro"],
+            "label": ["Plus Jakarta Sans"]
+          },
+          borderRadius: { DEFAULT: "1rem", lg: "2rem", xl: "3rem", full: "9999px" }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-surface font-body text-on-surface">
+
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-40 bg-surface/80 backdrop-blur-xl flex justify-between items-center px-6 py-4 border-b border-outline-variant/20">
+  <div class="flex items-center gap-3">
+    <h1 class="font-headline text-2xl font-bold text-primary">Chats</h1>
+    <div class="flex items-center gap-1.5">
+      <span class="material-symbols-outlined text-[14px] text-primary/60 animate-subtle-spin">sync</span>
+      <span class="text-[11px] font-label font-bold text-primary/60 tracking-wider">live</span>
+    </div>
+  </div>
+  <div class="flex items-center gap-4">
+    <button onclick="location.href='search.html'" class="p-2 rounded-full hover:bg-primary-container/30 transition">
+      <span class="material-symbols-outlined text-primary">search</span>
+    </button>
+    <img id="profilePic" onclick="openProfile()" class="w-8 h-8 rounded-full object-cover border border-primary/30 cursor-pointer" src="https://ui-avatars.com/api/?name=User">
+  </div>
 </header>
-<!-- Content Canvas -->
+
+<!-- Main Content -->
 <main class="pt-20 pb-28 px-4 max-w-2xl mx-auto min-h-screen">
-<!-- Quick Navigation Bar -->
-<section class="flex justify-between items-center bg-white/40 backdrop-blur-md px-6 py-5 mb-8 rounded-[1.5rem]">
-<div onclick="openPlatform()" class="flex flex-col items-center gap-2 group cursor-pointer">
-<div class="w-14 h-14 bg-primary/10 rounded-[1.2rem] flex items-center justify-center text-primary group-active:scale-95 transition-transform">
-<span class="material-symbols-outlined text-3xl" data-icon="stars" style="font-variation-settings: 'FILL' 1;">stars</span>
-</div>
-<span class="text-[11px] font-label font-bold text-on-surface-variant uppercase tracking-tighter">Galmet Official</span>
-</div>
-<div onclick="openPlatform()" class="flex flex-col items-center gap-2 group cursor-pointer">
-<div class="w-14 h-14 bg-secondary-container/20 rounded-[1.2rem] flex items-center justify-center text-secondary group-active:scale-95 transition-transform">
-<span class="material-symbols-outlined text-3xl" data-icon="call_log">call_log</span>
-</div>
-<span class="text-[11px] font-label font-bold text-on-surface-variant uppercase tracking-tighter">Call List</span>
-</div>
-<div class="flex flex-col items-center gap-2 group cursor-pointer">
-<div class="w-14 h-14 bg-tertiary-container/20 rounded-[1.2rem] flex items-center justify-center text-tertiary group-active:scale-95 transition-transform">
-<span class="material-symbols-outlined text-3xl" data-icon="photo_library">photo_library</span>
-</div>
-<span class="text-[11px] font-label font-bold text-on-surface-variant uppercase tracking-tighter">Moments</span>
-</div>
-</section>
-<!-- Chat List Section -->
-<section id="chatList" class="space-y-px bg-surface-container-low"></section>
-<!-- System/Special Threads -->
-<div class="bg-white hover:bg-surface-container-low transition-colors cursor-pointer p-4 mb-1 flex items-center gap-4">
-<div class="w-14 h-14 bg-primary flex items-center justify-center text-white shrink-0">
-<span class="material-symbols-outlined text-2xl" data-icon="notifications" style="font-variation-settings: 'FILL' 1;">notifications</span>
-</div>
-<div class="flex-1 min-w-0">
-<div class="flex justify-between items-center mb-0.5">
-<h3 class="font-headline text-[15px] font-bold text-on-surface truncate">Galmet Official</h3>
-<span class="text-[11px] font-label text-outline-variant">10:45 AM</span>
-</div>
-<p class="text-sm text-primary font-medium truncate">Welcome to the sky garden! 🚀</p>
-</div>
-</div>
-<div class="bg-white hover:bg-surface-container-low transition-colors cursor-pointer p-4 mb-1 flex items-center gap-4">
-<div class="relative w-14 h-14 bg-secondary flex items-center justify-center text-white shrink-0">
-<span class="material-symbols-outlined text-2xl" data-icon="group" style="font-variation-settings: 'FILL' 1;">group</span>
-<div class="absolute -top-1 -right-1 w-5 h-5 bg-tertiary rounded-full border-2 border-white flex items-center justify-center">
-<span class="text-[10px] font-bold text-white">8</span>
-</div>
-</div>
-<div class="flex-1 min-w-0">
-<div class="flex justify-between items-center mb-0.5">
-<h3 class="font-headline text-[15px] font-bold text-on-surface truncate">Stranger Messages</h3>
-<span class="text-[11px] font-label text-outline-variant">Yesterday</span>
-</div>
-<p class="text-sm text-on-surface-variant truncate">8 new people want to chat with you</p>
-</div>
-</div>
-<!-- Agent Messages (Agent Only Mockup) -->
-<div class="bg-white hover:bg-surface-container-low transition-colors cursor-pointer p-4 mb-6 flex items-center gap-4">
-<div class="w-14 h-14 bg-on-background flex items-center justify-center text-white shrink-0">
-<span class="material-symbols-outlined text-2xl" data-icon="support_agent" style="font-variation-settings: 'FILL' 1;">support_agent</span>
-</div>
-<div class="flex-1 min-w-0">
-<div class="flex justify-between items-center mb-0.5">
-<h3 class="font-headline text-[15px] font-bold text-on-surface truncate">Agent Panel</h3>
-<span class="text-[11px] font-label text-outline-variant">2d ago</span>
-</div>
-<p class="text-sm text-on-surface-variant truncate">Your verification is almost complete.</p>
-</div>
-</div>
-<!-- Friend Chats -->
-<div class="space-y-px bg-surface-container-low">
-<!-- Chat Item 1 (Active/Unread) -->
-<div class="group relative bg-white hover:bg-surface-container-low transition-colors cursor-pointer p-4 flex items-center gap-4 overflow-hidden">
-<div class="relative shrink-0" onclick="event.stopPropagation();">
-<img class="w-14 h-14 object-cover" data-alt="close up profile photo of a young woman with pink hair and artistic makeup, vibrant studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvoPa0oCE12q2vI34to4mL99LMY1RBSoC61KMPr-PCTY27kdz3NGsuRkDGHnfYyboxxKe5HdyrXm5bs3oGRdM7YWhr-cGbTt_LwwBLP2NmKS0kesX1Vr-pGJGne5Y5N2Hc0E7oyvSol8YDap2NTUHbZ6pdDR9bNuaoSd9SNJyayphA7rf6oi7ypZtB6PbZ9twM_5EBiVsnRKakV1yBbfFd0VgqwSX7N8QtnwwCz6uZo35oIJZHCVRydONqPB1Ci9ufU6WZBqWibS_w"/>
-<div class="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
-</div>
-<div class="flex-1 min-w-0">
-<div class="flex justify-between items-center mb-0.5">
-<h3 class="font-headline text-[15px] font-bold text-on-surface truncate">Aria Silver</h3>
-<span class="text-[11px] font-label text-primary font-bold">Just now</span>
-</div>
-<div class="flex items-center justify-between">
-<p class="text-sm text-on-surface-variant truncate pr-4">Did you see the new moment I posted? ✨</p>
-<div class="bg-tertiary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">99+</div>
-</div>
-</div>
-<!-- Mock Long-press floating menu (hidden by default, shown here for visual context) -->
-<div class="absolute right-4 top-1/2 -translate-y-1/2 hidden group-active:flex gap-2 bg-white shadow-xl px-3 py-2 rounded-lg border border-surface-container z-10">
-<button class="text-[11px] font-bold text-primary px-2 py-1">Pin</button>
-<button class="text-[11px] font-bold text-error px-2 py-1">Delete</button>
-</div>
-</div>
-<!-- Chat Item 2 -->
-<div class="bg-white hover:bg-surface-container-low transition-colors cursor-pointer p-4 flex items-center gap-4">
-<div class="shrink-0">
-<img class="w-14 h-14 object-cover" data-alt="portrait of a handsome man with a short beard wearing a stylish grey hoodie, urban outdoor background soft focus" src="https://lh3.googleusercontent.com/aida-public/AB6AXuByHDIRdsopAIh9RXZOlsR2eiDqzijDAcQHQFUgoZj433dSt5syGnekuXwJQeUO2Ma9nEi2osMx11VQdWF7ZcGNb8cl9kvNOdGok3_9VzeDV8IDI15PcO7Z6ESyZUuWjv8aGbXWMpdHxxYxPvv8aVui5ycq855d_qAMlKlng5dtPlEP1IoDdD3M6pp8ATJdvxiBuR15jmMqe7G2jxeqMPPAyr-RC1ptepIWdPk52BMzS0BasDRpjYxjxdcujpAYcwHL7WtZymLSnXAf"/>
-</div>
-<div class="flex-1 min-w-0">
-<div class="flex justify-between items-center mb-0.5">
-<h3 class="font-headline text-[15px] font-bold text-on-surface truncate">Julian Chen</h3>
-<span class="text-[11px] font-label text-outline-variant">12:15 PM</span>
-</div>
-<div class="flex items-center justify-between">
-<p class="text-sm text-on-surface-variant truncate">Let's hop on a call later!</p>
-<div class="bg-tertiary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">1</div>
-</div>
-</div>
-</div>
-<!-- Chat Item 3 -->
-<div class="bg-white hover:bg-surface-container-low transition-colors cursor-pointer p-4 flex items-center gap-4">
-<div class="shrink-0">
-<img class="w-14 h-14 object-cover" data-alt="vibrant portrait of a girl with braided hair wearing a yellow sweatshirt, cheerful expression, pastel background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4S_unuOsbbGxehORu0Do1iIHXCysJKEz8GCsTYfTYXCMkzMbXkO3NTJ8xYqUcGFb5krfDE8ETz6PplECdtRA-oQEGjryawX1Y9NmhNDAJ3uU3ja8UF7FJdulZlC9t702ZcWhZUNl0Xr24AOK_j_kSXUIbvxAVtUP3Da5VD6j88cl3pU6_bGHX7Fza6d86f_xXdX0SyJhLEtuGESyQUD4OEV85DYiCtNBWBczZCVkoj5eMMcTjsDtvVJ2M7CrnBluuUlzvYkiP2c4N"/>
-</div>
-<div class="flex-1 min-w-0">
-<div class="flex justify-between items-center mb-0.5">
-<h3 class="font-headline text-[15px] font-bold text-on-surface truncate">Sasha M.</h3>
-<span class="text-[11px] font-label text-outline-variant">Yesterday</span>
-</div>
-<div class="flex items-center justify-between">
-<p class="text-sm text-on-surface-variant truncate font-medium">shared a voice message</p>
-<div class="bg-tertiary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">10</div>
-</div>
-</div>
-</div>
-<!-- Chat Item 4 -->
-<div class="bg-white hover:bg-surface-container-low transition-colors cursor-pointer p-4 flex items-center gap-4 opacity-80">
-<div class="shrink-0">
-<img class="w-14 h-14 object-cover" data-alt="artistic shot of a young man with glasses looking thoughtfully at the camera, neon blue lighting effects" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_QcXymw0bTUtZdWvllq8cRO8dEnA4E3ZlZ64CJsTvYP4HJ6oN4MzsSWouGkWkeZY2TYv4K6p0pzdYW1fQj52uZAhZSmUi0crbIczjE8teETFfDeo50Jg4OMsy1I2VgZnp4eYejfQOyuCgiABVYzh19_36xso728P-Dwga4e5XqmonwGBTFlLgJb7MQwNG7-RwiyxZhWBL46pXxWHXj_UdhjkwmDzm9UsHKrELxvaIX8fbnk1Hn6S5Wdsnjw22o0LQYhGJMXXVnBJ9"/>
-</div>
-<div class="flex-1 min-w-0">
-<div class="flex justify-between items-center mb-0.5">
-<h3 class="font-headline text-[15px] font-bold text-on-surface truncate">Leo V.</h3>
-<span class="text-[11px] font-label text-outline-variant">Aug 24</span>
-</div>
-<p class="text-sm text-on-surface-variant truncate">See you at the party then! 🥳</p>
-</div>
-</div>
-</div>
-</section>
+  <!-- Quick Navigation Row -->
+  <div class="flex justify-between items-center bg-white/40 backdrop-blur-md px-6 py-5 mb-8 rounded-2xl">
+    <div onclick="openOfficial()" class="flex flex-col items-center gap-2 cursor-pointer group">
+      <div class="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary group-active:scale-95 transition">
+        <span class="material-symbols-outlined text-3xl" style="font-variation-settings:'FILL'1">stars</span>
+      </div>
+      <span class="text-[11px] font-label font-bold text-on-surface-variant uppercase tracking-tighter">Gemgala Official</span>
+    </div>
+    <div onclick="openStrangerList()" class="flex flex-col items-center gap-2 cursor-pointer group">
+      <div class="w-14 h-14 bg-secondary-container/20 rounded-2xl flex items-center justify-center text-secondary group-active:scale-95 transition">
+        <span class="material-symbols-outlined text-3xl">group</span>
+      </div>
+      <span class="text-[11px] font-label font-bold text-on-surface-variant uppercase tracking-tighter">Strangers</span>
+    </div>
+    <div class="flex flex-col items-center gap-2 cursor-pointer group">
+      <div class="w-14 h-14 bg-tertiary-container/20 rounded-2xl flex items-center justify-center text-tertiary group-active:scale-95 transition">
+        <span class="material-symbols-outlined text-3xl">photo_library</span>
+      </div>
+      <span class="text-[11px] font-label font-bold text-on-surface-variant uppercase tracking-tighter">Moments</span>
+    </div>
+  </div>
+
+  <!-- PINNED CHAT: Gemgala Official (always top) -->
+  <div id="officialChat" onclick="openOfficial()" class="bg-surface-container-lowest hover:bg-surface-container-high transition cursor-pointer p-4 mb-2 flex items-center gap-4 rounded-xl border border-outline-variant/20">
+    <div class="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center text-white shadow-md">
+      <span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL'1">forum</span>
+    </div>
+    <div class="flex-1">
+      <div class="flex justify-between items-center">
+        <h3 class="font-headline font-bold text-on-surface">Gemgala Official</h3>
+        <span class="text-[11px] text-outline">Now</span>
+      </div>
+      <p class="text-sm text-primary font-medium truncate">Welcome to the Gemgala community! 🌟</p>
+    </div>
+    <span class="material-symbols-outlined text-outline">chevron_right</span>
+  </div>
+
+  <!-- PINNED SECTION: Stranger Messages (second) -->
+  <div id="strangerSection" class="mt-4 mb-3">
+    <div class="flex items-center justify-between mb-2 px-1">
+      <h3 class="font-label font-bold text-xs uppercase tracking-wider text-outline">Stranger Messages</h3>
+      <span class="text-[10px] text-primary font-bold">New matches</span>
+    </div>
+    <div onclick="openStrangerList()" class="bg-surface-container-lowest hover:bg-surface-container-high transition cursor-pointer p-4 flex items-center gap-4 rounded-xl border border-outline-variant/20">
+      <div class="relative w-14 h-14 bg-secondary rounded-2xl flex items-center justify-center text-white">
+        <span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL'1">chat_bubble</span>
+        <div class="absolute -top-1 -right-1 w-5 h-5 bg-tertiary rounded-full border-2 border-white flex items-center justify-center">
+          <span class="text-[10px] font-bold text-white">8</span>
+        </div>
+      </div>
+      <div class="flex-1">
+        <div class="flex justify-between items-center">
+          <h3 class="font-headline font-bold text-on-surface">Stranger Chats</h3>
+          <span class="text-[11px] text-outline">New</span>
+        </div>
+        <p class="text-sm text-on-surface-variant truncate">8 people want to connect with you</p>
+      </div>
+      <span class="material-symbols-outlined text-outline">chevron_right</span>
+    </div>
+  </div>
+
+  <!-- Dynamic User Chats (from Firestore) -->
+  <div class="mt-6">
+    <h3 class="font-label font-bold text-xs uppercase tracking-wider text-outline mb-3 px-1">Your Contacts</h3>
+    <div id="chatList" class="space-y-2"></div>
+  </div>
 </main>
-<!-- Bottom Navigation - Mapped from Shared Components JSON -->
-<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl rounded-t-[2rem] shadow-[0_-4px_24px_rgba(0,101,113,0.06)]">
-<button onclick="location.href='dashboard.html'" class="flex items-center justify-center text-slate-400 p-3 hover:text-cyan-500">
-<span class="material-symbols-outlined text-2xl">videocam</span>
-</button>
-</button>
-<button onclick="location.href='party.html'" class="flex items-center justify-center text-slate-400 p-3 hover:text-cyan-500">
-<span class="material-symbols-outlined text-2xl">video_call</span>
-</button>
-<!-- Center Action (Not part of standard nav items but implied) -->
-<button class="flex items-center justify-center text-slate-400 p-3 hover:text-cyan-500 transition-transform active:scale-110 duration-200">
-<span class="material-symbols-outlined text-3xl text-cyan-600" data-icon="add_circle" style="font-variation-settings: 'FILL' 1;">add_circle</span>
-</button>
-<!-- Active Item: Chats -->
-<button class="flex items-center justify-center bg-cyan-600 text-white rounded-full p-3 shadow-lg shadow-cyan-600/20 active:scale-110 duration-200 transition-transform relative">
-<span class="material-symbols-outlined text-2xl" data-icon="chat_bubble" style="font-variation-settings: 'FILL' 1;">chat_bubble</span>
-<div class="absolute -top-1 -right-1 bg-tertiary text-white text-[10px] font-bold border-2 border-white rounded-full px-1 py-0.5">99+</div>
-</button>
-<button class="flex items-center justify-center text-slate-400 p-3 hover:text-cyan-500 transition-transform active:scale-110 duration-200">
-<span class="material-symbols-outlined text-2xl" data-icon="person">person</span>
-</button>
+
+<!-- Bottom Navigation Bar (same as Galmet design) -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-3 bg-white/80 backdrop-blur-xl rounded-t-2xl shadow-[0_-4px_24px_rgba(0,101,113,0.06)]">
+  <button onclick="location.href='dashboard.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
+    <span class="material-symbols-outlined">home</span>
+    <span class="text-[10px] font-label">Home</span>
+  </button>
+  <button onclick="location.href='party.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
+    <span class="material-symbols-outlined">sports_esports</span>
+    <span class="text-[10px] font-label">Party</span>
+  </button>
+  <button id="activeChatNav" class="flex flex-col items-center text-primary">
+    <span class="material-symbols-outlined" style="font-variation-settings:'FILL'1">chat_bubble</span>
+    <span class="text-[10px] font-label font-bold">Chats</span>
+  </button>
+  <button onclick="location.href='profile.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
+    <span class="material-symbols-outlined">person</span>
+    <span class="text-[10px] font-label">Profile</span>
+  </button>
 </nav>
 
-<script src="auth.js"></script>
-
 <script type="module">
+  // ==================== FIREBASE INIT (same config as setup.html) ====================
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+  import { getFirestore, collection, query, orderBy, onSnapshot, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+  import { getStorage } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
 
-import { db } from "./firebase.js";
-import {
-  collection,
-  onSnapshot,
-  doc,
-  getDoc,
-  query,
-  orderBy,
-  setDoc,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+  const app = initializeApp({
+    apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+    authDomain: "galmet-app.firebaseapp.com",
+    projectId: "galmet-app",
+    storageBucket: "galmet-app.firebasestorage.app"
+  });
+  const db = getFirestore(app);
+  const storage = getStorage(app);
 
-/* ================= 🔐 AUTH ================= */
+  // ==================== USER CHECK (FIXED) ====================
+  const currentUser = JSON.parse(localStorage.getItem("user"));
+  if (!currentUser || !currentUser.userId) {
+    // Redirect to login page, not index.html
+    window.location.replace("login.html");
+    throw new Error("Not logged in");
+  }
+  const myUserId = currentUser.userId.toString(); // Firestore keys are strings
 
-const currentUser = window.requireAuth();
-
-if (!currentUser) {
-  throw new Error("Auth failed");
-}
-
-const myUid = currentUser.uid;
-
-/* ================= 👤 PROFILE IMAGE ================= */
-
-document.querySelector("header img").src =
-  currentUser.photoURL ||
-  "https://ui-avatars.com/api/?name=" + (currentUser.username || "User");
-
-/* ================= ⚡ CACHE ================= */
-
-let usersCache = {};
-
-/* ================= 💬 CHAT LIST ================= */
-
-const q = query(
-  collection(db, "userChats", myUid, "list"),
-  orderBy("updatedAt", "desc")
-);
-
-onSnapshot(q, async (snapshot) => {
-
-  const list = document.getElementById("chatList");
-  list.innerHTML = "";
-
-  if (snapshot.empty) {
-    list.innerHTML = `
-      <div class="text-center text-sm text-gray-400 py-10">
-        No chats yet 🚀
-      </div>
-    `;
-    return;
+  // ==================== PROFILE IMAGE ====================
+  const profileImg = document.getElementById("profilePic");
+  if (currentUser.photoURL) {
+    profileImg.src = currentUser.photoURL;
+  } else {
+    profileImg.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.email || "User")}&background=006571&color=fff`;
   }
 
-  for (const d of snapshot.docs) {
+  // ==================== USER CACHE ====================
+  let usersCache = {};
 
-    const chat = d.data();
-    const otherId = chat.uid;
+  // ==================== LOAD REAL CHATS FROM FIRESTORE ====================
+  // Structure: userChats/{myUserId}/list/{otherUserId}
+  const chatsRef = collection(db, "userChats", myUserId, "list");
+  const q = query(chatsRef, orderBy("updatedAt", "desc"));
 
-    if (!otherId) continue;
+  onSnapshot(q, async (snapshot) => {
+    const chatListDiv = document.getElementById("chatList");
+    chatListDiv.innerHTML = "";
 
-    // ✅ LOAD USER WITH CACHE
-    if (!usersCache[otherId]) {
-      const userSnap = await getDoc(doc(db, "users", otherId));
-      if (!userSnap.exists()) continue;
-      usersCache[otherId] = userSnap.data();
+    for (const docSnap of snapshot.docs) {
+      const chat = docSnap.data();
+      const otherId = chat.uid; // the other user's ID (string)
+      if (!otherId) continue;
+
+      // Fetch other user's data (cached)
+      if (!usersCache[otherId]) {
+        const userDoc = await getDoc(doc(db, "users", otherId));
+        if (userDoc.exists()) {
+          usersCache[otherId] = userDoc.data();
+        } else {
+          continue;
+        }
+      }
+      const otherUser = usersCache[otherId];
+
+      const chatDiv = document.createElement("div");
+      chatDiv.className = "bg-surface-container-lowest hover:bg-surface-container-high transition cursor-pointer p-4 flex items-center gap-4 rounded-xl border border-outline-variant/20";
+      chatDiv.onclick = () => {
+        window.location.href = `chat.html?id=${otherId}`;
+      };
+
+      const displayName = otherUser.username || otherUser.email || "User";
+      const avatar = otherUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=006571&color=fff`;
+      const lastMessage = chat.lastMessage || "Tap to start chatting";
+      const time = chat.updatedAt ? new Date(chat.updatedAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "";
+      const unread = chat.unread || 0;
+
+      chatDiv.innerHTML = `
+        <div class="shrink-0" onclick="event.stopPropagation(); window.location.href='view.html?id=${otherId}'">
+          <img class="w-14 h-14 rounded-full object-cover" src="${avatar}">
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex justify-between items-center">
+            <h3 class="font-headline font-bold text-on-surface truncate">${escapeHtml(displayName)}</h3>
+            <span class="text-[11px] text-outline">${time}</span>
+          </div>
+          <div class="flex justify-between items-center mt-0.5">
+            <p class="text-sm text-on-surface-variant truncate">${escapeHtml(lastMessage)}</p>
+            ${unread > 0 ? `<div class="bg-tertiary text-white text-[10px] font-bold px-2 py-0.5 rounded-full">${unread}</div>` : ''}
+          </div>
+        </div>
+        <span class="material-symbols-outlined text-outline">chevron_right</span>
+      `;
+      chatListDiv.appendChild(chatDiv);
     }
 
-    const u = usersCache[otherId];
+    if (snapshot.empty) {
+      chatListDiv.innerHTML = `<div class="text-center py-8 text-outline">No conversations yet. Start a chat from the party tab!</div>`;
+    }
+  });
 
-    const div = document.createElement("div");
+  // ==================== GLOBAL NAVIGATION ====================
+  window.openOfficial = () => {
+    // You can either open a dedicated official chat room or a special page
+    window.location.href = "platform.html";  // create this page or point to a group chat
+  };
+  window.openStrangerList = () => {
+    window.location.href = "strangers.html";
+  };
+  window.openProfile = () => {
+    window.location.href = "view.html";
+  };
 
-    div.className =
-      "bg-white hover:bg-surface-container-low transition-colors cursor-pointer p-4 flex items-center gap-4";
-
-    div.onclick = () => openChat(otherId);
-
-    div.innerHTML = `
-      <div class="shrink-0" onclick="event.stopPropagation(); openProfile('${otherId}')">
-        <img 
-          class="w-14 h-14 object-cover rounded-full"
-          src="${u.photoURL || 'https://ui-avatars.com/api/?name=' + (u.username || 'User')}"
-        >
-      </div>
-
-      <div class="flex-1 min-w-0">
-        <div class="flex justify-between items-center mb-0.5">
-          <h3 class="font-headline text-[15px] font-bold text-on-surface truncate">
-            ${u.fullName || u.username || "User"}
-          </h3>
-          <span class="text-[11px] font-label text-outline-variant">
-            ${
-              chat.updatedAt
-                ? new Date(chat.updatedAt.seconds * 1000)
-                    .toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-                : ""
-            }
-          </span>
-        </div>
-
-        <div class="flex items-center justify-between">
-          <p class="text-sm text-on-surface-variant truncate">
-            ${chat.lastMessage || ""}
-          </p>
-
-          ${
-            chat.unread && chat.unread > 0
-              ? `<div class="bg-tertiary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">${chat.unread}</div>`
-              : ""
-          }
-        </div>
-      </div>
-    `;
-
-    list.appendChild(div);
+  // Helper to escape HTML
+  function escapeHtml(str) {
+    if (!str) return "";
+    return str.replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    });
   }
-
-});
-
-/* ================= 🌐 PLATFORM ================= */
-
-window.openPlatform = async () => {
-  await setDoc(doc(db, "platformReads", myUid), {
-    lastSeen: serverTimestamp()
-  }, { merge:true });
-
-  location.href = "platform.html";
-};
-
-/* ================= 🚀 NAVIGATION ================= */
-
-window.openChat = (id) => {
-  location.href = "chat.html?id=" + id;
-};
-
-window.openProfile = (id) => {
-  location.href = "view.html?id=" + id;
-};
-
 </script>
+</body>
+</html>
