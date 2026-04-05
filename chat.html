@@ -55,12 +55,34 @@
     /* Dynamic bottom padding for messages container */
     .messages-container {
       scroll-behavior: smooth;
-      padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 180px);
+      padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 170px);
     }
     @media (min-width: 640px) {
       .messages-container {
-        padding-bottom: 200px;
+        padding-bottom: 190px;
       }
+    }
+    
+    /* Loading overlay for image sending */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+    }
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #fff;
+      border-top-color: #006571;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
   </style>
 </head>
@@ -102,16 +124,16 @@
 <!-- ================= CHAT MESSAGES AREA ================= -->
 <main id="messagesContainer" class="messages-container flex-1 mt-36 px-4 overflow-y-auto space-y-6 pt-4"></main>
 
-<!-- ================= BOTTOM BAR (input + actions) - SMALLER ICONS & LESS PADDING ================= -->
+<!-- ================= BOTTOM BAR (input + actions) ================= -->
 <div class="fixed bottom-0 left-0 w-full z-50 bg-white/90 backdrop-blur-lg rounded-t-2xl shadow-[0_-8px_30px_rgb(0,0,0,0.04)]">
-  <!-- Quick Replies (smaller) -->
+  <!-- Quick Replies -->
   <div class="flex gap-2 px-4 overflow-x-auto py-2 no-scrollbar">
     <button onclick="sendQuickReply('Down for a game?')" class="shrink-0 bg-surface-container-low text-primary-dim px-3 py-1.5 rounded-full text-[11px] font-medium hover:bg-primary-container/20">Down for a game?</button>
     <button onclick="sendQuickReply('So proud of you')" class="shrink-0 bg-surface-container-low text-primary-dim px-3 py-1.5 rounded-full text-[11px] font-medium hover:bg-primary-container/20">So proud of you</button>
     <button onclick="sendQuickReply('Hello! 👋')" class="shrink-0 bg-surface-container-low text-primary-dim px-3 py-1.5 rounded-full text-[11px] font-medium hover:bg-primary-container/20">Hello! 👋</button>
     <button onclick="sendQuickReply('Tell me more')" class="shrink-0 bg-surface-container-low text-primary-dim px-3 py-1.5 rounded-full text-[11px] font-medium hover:bg-primary-container/20">Tell me more</button>
   </div>
-  <!-- Input Row (no emoji) -->
+  <!-- Input Row -->
   <div class="px-4 pt-1 pb-2 flex items-center gap-2">
     <div class="flex-1 bg-surface-container-low rounded-full px-3 py-2 flex items-center gap-1">
       <input id="messageInput" type="text" class="bg-transparent border-none focus:ring-0 text-sm w-full font-body placeholder:text-outline-variant" placeholder="Say something...">
@@ -120,7 +142,7 @@
       <span class="material-symbols-outlined text-xl">send</span>
     </button>
   </div>
-  <!-- Action Buttons (smaller) -->
+  <!-- Action Buttons -->
   <div class="flex justify-around items-center px-4 pb-4 pt-1">
     <button onclick="pickImage()" class="text-slate-400 p-2 hover:scale-110 transition">
       <span class="material-symbols-outlined text-xl">image</span>
@@ -141,7 +163,7 @@
   </div>
 </div>
 
-<!-- ================= MODAL: MENU (Follow/Block/Profile) ================= -->
+<!-- ================= MODAL: MENU ================= -->
 <div id="menuModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] hidden items-end justify-center" onclick="closeMenu()">
   <div class="bg-surface-container-lowest w-full rounded-t-2xl p-6 max-w-md mx-auto" onclick="event.stopPropagation()">
     <div class="flex flex-col gap-4">
@@ -158,7 +180,7 @@
   <img id="previewImage" class="max-w-[90%] max-h-[70vh] rounded-xl object-contain">
   <div class="flex gap-4" onclick="event.stopPropagation()">
     <button onclick="closePreview()" class="px-6 py-2 bg-surface rounded-full">Cancel</button>
-    <button onclick="sendImageMessage()" class="px-6 py-2 bg-primary text-white rounded-full">Send</button>
+    <button id="sendImageBtn" onclick="sendImageMessage()" class="px-6 py-2 bg-primary text-white rounded-full">Send</button>
   </div>
 </div>
 
@@ -168,8 +190,11 @@
   <a id="downloadLink" class="absolute bottom-10 right-6 bg-primary text-white px-4 py-2 rounded-full text-sm" download>Save Image</a>
 </div>
 
-<!-- ================= TOAST NOTIFICATION ================= -->
+<!-- ================= TOAST & LOADING ================= -->
 <div id="toast" class="fixed bottom-28 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-full text-sm z-[90] hidden"></div>
+<div id="loadingOverlay" class="loading-overlay hidden">
+  <div class="spinner"></div>
+</div>
 
 <script type="module">
   // ==================== FIREBASE INIT ====================
@@ -209,6 +234,7 @@
   const followBtn = document.getElementById("followBtn");
   const blockBtn = document.getElementById("blockBtn");
   const toast = document.getElementById("toast");
+  const loadingOverlay = document.getElementById("loadingOverlay");
 
   let selectedImageFile = null;
   let userScrolledUp = false;
@@ -225,7 +251,7 @@
     setTimeout(() => toast.classList.add("hidden"), 2000);
   }
 
-  // ==================== LOAD OTHER USER'S INFO (with flag) ====================
+  // ==================== LOAD OTHER USER'S INFO ====================
   async function loadOtherUser() {
     const userDoc = await getDoc(doc(db, "users", otherUserId));
     if (!userDoc.exists()) return;
@@ -262,7 +288,7 @@
     return String.fromCodePoint(...codePoints);
   }
 
-  // ==================== REAL-TIME MESSAGES WITH SMART AUTO-SCROLL ====================
+  // ==================== REAL-TIME MESSAGES (NO "Delivered" text) ====================
   function loadMessages() {
     const q = query(collection(db, "chats", chatId, "messages"), orderBy("createdAt", "asc"));
     onSnapshot(q, (snapshot) => {
@@ -282,13 +308,12 @@
         const isMe = msg.senderId === myUserId;
         const bubbleDiv = document.createElement("div");
         if (isMe) {
-          bubbleDiv.className = "flex flex-col items-end gap-2";
+          bubbleDiv.className = "flex flex-col items-end gap-1";
           bubbleDiv.innerHTML = `
-            <div class="bg-primary-container text-on-surface p-4 rounded-lg chat-bubble-right max-w-[85%] shadow-sm">
+            <div class="bg-primary-container text-on-surface p-3 rounded-lg chat-bubble-right max-w-[85%] shadow-sm">
               ${msg.text ? `<p class="text-sm leading-relaxed">${escapeHtml(msg.text)}</p>` : ''}
-              ${msg.image ? `<div class="rounded-md overflow-hidden mt-2"><img src="${msg.image}" class="max-w-[200px] max-h-[200px] rounded-lg cursor-pointer" onclick="openImageViewer('${msg.image}')"></div>` : ''}
+              ${msg.image ? `<div class="rounded-md overflow-hidden mt-1"><img src="${msg.image}" class="max-w-[200px] max-h-[200px] rounded-lg cursor-pointer" onclick="openImageViewer('${msg.image}')"></div>` : ''}
             </div>
-            <span class="text-[10px] text-outline-variant mr-1">${msg.createdAt ? "Delivered" : "Sending..."}</span>
           `;
         } else {
           bubbleDiv.className = "flex items-start gap-3 max-w-[85%]";
@@ -296,16 +321,16 @@
             <div class="w-8 h-8 rounded-full overflow-hidden mt-1 shrink-0">
               <img src="${chatAvatarImg.src}" class="w-full h-full object-cover">
             </div>
-            <div class="bg-surface-container-lowest text-on-surface p-4 rounded-lg chat-bubble-left shadow-sm">
+            <div class="bg-surface-container-lowest text-on-surface p-3 rounded-lg chat-bubble-left shadow-sm">
               ${msg.text ? `<p class="text-sm leading-relaxed">${escapeHtml(msg.text)}</p>` : ''}
-              ${msg.image ? `<div class="rounded-md overflow-hidden mt-2"><img src="${msg.image}" class="max-w-[200px] max-h-[200px] rounded-lg cursor-pointer" onclick="openImageViewer('${msg.image}')"></div>` : ''}
+              ${msg.image ? `<div class="rounded-md overflow-hidden mt-1"><img src="${msg.image}" class="max-w-[200px] max-h-[200px] rounded-lg cursor-pointer" onclick="openImageViewer('${msg.image}')"></div>` : ''}
             </div>
           `;
         }
         messagesDiv.appendChild(bubbleDiv);
       });
       
-      // Auto-scroll only if user was at bottom before update OR the new message is from me
+      // Auto-scroll logic
       if (wasUserAtBottom || (snapshot.docs.length > 0 && snapshot.docs[snapshot.docs.length-1].data().senderId === myUserId)) {
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
         userScrolledUp = false;
@@ -319,7 +344,7 @@
     await setDoc(doc(db, "userChats", myUserId, "list", otherUserId), { unread: 0 }, { merge: true });
   }
 
-  // ==================== UPDATE CHAT LIST (unread for other) ====================
+  // ==================== UPDATE CHAT LIST ====================
   async function updateChatList(lastMsg) {
     await setDoc(doc(db, "userChats", myUserId, "list", otherUserId), {
       uid: otherUserId,
@@ -358,7 +383,7 @@
     });
     await updateChatList(text);
     // Force scroll to bottom after sending
-    setTimeout(() => { messagesDiv.scrollTop = messagesDiv.scrollHeight; userScrolledUp = false; }, 100);
+    setTimeout(() => { messagesDiv.scrollTop = messagesDiv.scrollHeight; userScrolledUp = false; }, 50);
   };
 
   window.sendQuickReply = async (text) => {
@@ -366,7 +391,7 @@
     await sendMessage();
   };
 
-  // ==================== IMAGE PICK & COMPRESS ====================
+  // ==================== IMAGE PICK & SEND (SMOOTH) ====================
   window.pickImage = () => {
     const input = document.createElement("input");
     input.type = "file";
@@ -413,20 +438,28 @@
 
   window.sendImageMessage = async () => {
     if (!selectedImageFile) return;
-    const compressed = await compressImage(selectedImageFile);
-    const fileName = `chatImages/${Date.now()}_${Math.random()}.jpg`;
-    const storageRef = ref(storage, fileName);
-    await uploadBytes(storageRef, compressed);
-    const url = await getDownloadURL(storageRef);
-    await addDoc(collection(db, "chats", chatId, "messages"), {
-      image: url,
-      senderId: myUserId,
-      receiverId: otherUserId,
-      createdAt: serverTimestamp()
-    });
-    await updateChatList("📷 Image");
-    closePreview();
-    setTimeout(() => { messagesDiv.scrollTop = messagesDiv.scrollHeight; }, 100);
+    loadingOverlay.classList.remove("hidden");
+    try {
+      const compressed = await compressImage(selectedImageFile);
+      const fileName = `chatImages/${Date.now()}_${Math.random()}.jpg`;
+      const storageRef = ref(storage, fileName);
+      await uploadBytes(storageRef, compressed);
+      const url = await getDownloadURL(storageRef);
+      await addDoc(collection(db, "chats", chatId, "messages"), {
+        image: url,
+        senderId: myUserId,
+        receiverId: otherUserId,
+        createdAt: serverTimestamp()
+      });
+      await updateChatList("📷 Image");
+      closePreview();
+      setTimeout(() => { messagesDiv.scrollTop = messagesDiv.scrollHeight; userScrolledUp = false; }, 50);
+    } catch (err) {
+      console.error(err);
+      showToast("Failed to send image");
+    } finally {
+      loadingOverlay.classList.add("hidden");
+    }
   };
 
   window.closePreview = () => {
@@ -434,7 +467,7 @@
     selectedImageFile = null;
   };
 
-  // ==================== CAMERA FUNCTION ====================
+  // ==================== CAMERA ====================
   window.openCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -570,11 +603,17 @@
     });
   }
 
-  // ==================== INIT ====================
+  // ==================== INIT & SCROLL TO BOTTOM ON LOAD ====================
   loadOtherUser();
   loadMessages();
   initRealtimeStatus();
   messageInput.addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
+  
+  // Scroll to bottom after messages load (initial)
+  setTimeout(() => {
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    userScrolledUp = false;
+  }, 500);
   
   // Click outside modals
   document.getElementById("menuModal").addEventListener("click", (e) => { if (e.target === document.getElementById("menuModal")) closeMenu(); });
