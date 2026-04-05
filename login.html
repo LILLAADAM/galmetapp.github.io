@@ -340,31 +340,31 @@ async function verifyOtp() {
 
   // ✅ ALL COMPLETE
   window.location.href = "dashboard.html";
-  }
+  
     } else {
 
       // 🔥 FIXED USER CREATION
       const userId = generateUserId();
 
       const newUser = {
-  email: email,
-  userId: userId,
-  coins: 500,
+       email: email,
+       userId: userId,
+       coins: 500,
 
-  username: "",
-  gender: "",
-  country: null,
-  dob: null,
-  age: null,
+       username: "",
+       gender: "",
+       country: null,
+       dob: null,
+       age: null,
 
-  photoURL: "",
-  profileCompleted: false,
+       photoURL: "",
+       profileCompleted: false,
 
-  inviteCode: "INV" + userId,
-  referredBy: null,
-  totalInvites: 0,
-  totalEarned: 0
-};
+       inviteCode: "INV" + userId,
+       referredBy: null,
+       totalInvites: 0,
+       totalEarned: 0
+     };
       console.log("🆕 Creating user:", newUser);
 
       const createRes = await fetch(BASE_URL + "/createUser", {
