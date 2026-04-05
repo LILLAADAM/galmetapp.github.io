@@ -195,23 +195,7 @@
       projectId: "galmet-app"
     });
     const db = getFirestore(app);
-
-    const user = JSON.parse(localStorage.getItem("user"));
-
-// ❌ Not logged in
-if (!user || !user.userId) {
-  window.location.replace("index.html");
-}
-
-// ❌ Step 2 NOT DONE → go to username page
-if (!user.username || !user.country || !user.dob) {
-  window.location.replace("username.html"); // 👈 your file name
-}
-
-// ❌ Step 3 NOT DONE → go to avatar setup
-if (!user.profileCompleted || !user.photoURL) {
-  window.location.replace("setup.html");
-}
+    
     // ----- Helper: get user from localStorage -----
     const localUser = JSON.parse(localStorage.getItem("user"));
     if (!localUser || !localUser.userId) {
@@ -232,8 +216,8 @@ if (!user.profileCompleted || !user.photoURL) {
       if (!snap.exists()) return;
 
       const data = snap.data();
-      const currentPath = window.location.pathname;
-
+      const currentPath = window.location.href;
+      
       // Gender missing → gender.html
       if (!data.gender && !currentPath.includes("gender.html")) {
   window.location.replace("gender.html");
