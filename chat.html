@@ -58,6 +58,10 @@
     .animate-bounce-custom {
       animation: bounce 0.6s infinite;
     }
+    /* Prevent header overlap */
+    .messages-container {
+      scroll-behavior: smooth;
+    }
   </style>
 </head>
 <body class="bg-surface font-body text-on-surface flex flex-col min-h-screen">
@@ -68,7 +72,7 @@
     <button onclick="window.location.href='chats.html'" class="p-2 hover:bg-primary-container/30 transition-colors rounded-full text-primary">
       <span class="material-symbols-outlined">arrow_back</span>
     </button>
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-2 cursor-pointer" onclick="viewProfile()">
       <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container">
         <img id="chatAvatar" class="w-full h-full object-cover" src="https://ui-avatars.com/api/?name=User">
       </div>
@@ -82,11 +86,11 @@
   </div>
 </header>
 
-<!-- ================= SUB-HEADER (user details) ================= -->
+<!-- ================= SUB-HEADER (user details with flag) ================= -->
 <div id="subHeader" class="fixed top-16 w-full z-40 bg-white/40 backdrop-blur-md px-6 py-3 flex flex-col gap-1 border-b border-outline-variant/20">
   <div class="flex items-center gap-4 text-xs font-medium text-on-surface-variant">
-    <div id="userCountry" class="flex items-center gap-1 bg-surface-container-lowest px-2 py-1 rounded-full shadow-sm">🇵🇰 Pakistan</div>
-    <div id="userGenderAge" class="flex items-center gap-1 bg-surface-container-lowest px-2 py-1 rounded-full shadow-sm text-primary">♂ 23</div>
+    <div id="userCountry" class="flex items-center gap-1 bg-surface-container-lowest px-2 py-1 rounded-full shadow-sm">🌍 Loading...</div>
+    <div id="userGenderAge" class="flex items-center gap-1 bg-surface-container-lowest px-2 py-1 rounded-full shadow-sm text-primary">♂ ?</div>
     <div id="userLanguage" class="flex items-center gap-1 bg-surface-container-lowest px-2 py-1 rounded-full shadow-sm">🌐 English</div>
   </div>
   <div id="userLocation" class="flex items-center gap-1 text-[10px] text-outline px-1">
@@ -96,7 +100,7 @@
 </div>
 
 <!-- ================= CHAT MESSAGES AREA ================= -->
-<main id="messagesContainer" class="flex-1 mt-36 mb-44 px-4 overflow-y-auto space-y-6 pt-4"></main>
+<main id="messagesContainer" class="messages-container flex-1 mt-36 mb-44 px-4 overflow-y-auto space-y-6 pt-4"></main>
 
 <!-- ================= BOTTOM BAR (input + actions) ================= -->
 <div class="fixed bottom-0 left-0 w-full z-50 bg-white/90 backdrop-blur-lg rounded-t-2xl shadow-[0_-8px_30px_rgb(0,0,0,0.04)]">
@@ -107,13 +111,10 @@
     <button onclick="sendQuickReply('Hello! 👋')" class="shrink-0 bg-surface-container-low text-primary-dim px-4 py-2 rounded-full text-xs font-medium hover:bg-primary-container/20">Hello! 👋</button>
     <button onclick="sendQuickReply('Tell me more')" class="shrink-0 bg-surface-container-low text-primary-dim px-4 py-2 rounded-full text-xs font-medium hover:bg-primary-container/20">Tell me more</button>
   </div>
-  <!-- Input Row -->
+  <!-- Input Row (emoji button removed) -->
   <div class="px-6 pt-1 pb-4 flex items-center gap-3">
     <div class="flex-1 bg-surface-container-low rounded-full px-4 py-3 flex items-center gap-2">
       <input id="messageInput" type="text" class="bg-transparent border-none focus:ring-0 text-sm w-full font-body placeholder:text-outline-variant" placeholder="Say something...">
-      <button onclick="pickImage()" class="text-primary hover:scale-110 transition">
-        <span class="material-symbols-outlined">mood</span>
-      </button>
     </div>
     <button onclick="sendMessage()" class="w-12 h-12 bg-primary-container rounded-full flex items-center justify-center text-on-primary-container shadow-md active:scale-90 transition">
       <span class="material-symbols-outlined">send</span>
@@ -124,14 +125,14 @@
     <button onclick="pickImage()" class="text-slate-400 p-3 hover:scale-110 transition">
       <span class="material-symbols-outlined">image</span>
     </button>
-    <button onclick="pickImage()" class="text-slate-400 p-3 hover:scale-110 transition">
+    <button onclick="openCamera()" class="text-slate-400 p-3 hover:scale-110 transition">
       <span class="material-symbols-outlined">photo_camera</span>
     </button>
     <button onclick="startVideoCall()" class="relative text-slate-400 p-3 hover:scale-110 transition">
       <span class="material-symbols-outlined">videocam</span>
       <div class="absolute top-1 -right-2 bg-secondary-container text-on-secondary-fixed text-[8px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-0.5 shadow-sm">
         <span class="material-symbols-outlined text-[10px]" style="font-variation-settings:'FILL'1">monetization_on</span>
-        <span>75</span>
+        <span>0.1</span>
       </div>
     </button>
     <button onclick="sendGift()" class="text-slate-400 p-3 hover:scale-110 transition">
@@ -152,9 +153,9 @@
   </div>
 </div>
 
-<!-- ================= IMAGE PREVIEW MODAL ================= -->
+<!-- ================= IMAGE PREVIEW MODAL (fixed layout) ================= -->
 <div id="previewModal" class="fixed inset-0 bg-black/90 z-[70] hidden flex-col items-center justify-center gap-6" onclick="closePreview()">
-  <img id="previewImage" class="max-w-[90%] max-h-[70vh] rounded-xl">
+  <img id="previewImage" class="max-w-[90%] max-h-[70vh] rounded-xl object-contain">
   <div class="flex gap-4" onclick="event.stopPropagation()">
     <button onclick="closePreview()" class="px-6 py-2 bg-surface rounded-full">Cancel</button>
     <button onclick="sendImageMessage()" class="px-6 py-2 bg-primary text-white rounded-full">Send</button>
@@ -163,7 +164,7 @@
 
 <!-- ================= FULLSCREEN IMAGE VIEWER ================= -->
 <div id="viewerModal" class="fixed inset-0 bg-black/95 z-[80] hidden flex-col items-center justify-center" onclick="closeViewer()">
-  <img id="viewerImage" class="max-w-[90%] max-h-[80vh] rounded-lg">
+  <img id="viewerImage" class="max-w-[90%] max-h-[80vh] rounded-lg object-contain">
   <a id="downloadLink" class="absolute bottom-10 right-6 bg-primary text-white px-4 py-2 rounded-full text-sm" download>Save Image</a>
 </div>
 
@@ -185,7 +186,7 @@
   const db = getFirestore(app);
   const storage = getStorage(app);
 
-  // ==================== CHECK LOGIN (FIX) ====================
+  // ==================== CHECK LOGIN ====================
   const currentUser = JSON.parse(localStorage.getItem("user"));
   if (!currentUser || !currentUser.userId) {
     alert("Please login first");
@@ -205,12 +206,12 @@
   const messageInput = document.getElementById("messageInput");
   const chatNameSpan = document.getElementById("chatName");
   const chatAvatarImg = document.getElementById("chatAvatar");
-  const subHeader = document.getElementById("subHeader");
   const followBtn = document.getElementById("followBtn");
   const blockBtn = document.getElementById("blockBtn");
   const toast = document.getElementById("toast");
 
   let selectedImageFile = null;
+  let autoScroll = true; // flag to control auto-scroll
 
   function showToast(msg) {
     toast.innerText = msg;
@@ -218,32 +219,51 @@
     setTimeout(() => toast.classList.add("hidden"), 2000);
   }
 
-  // ==================== LOAD OTHER USER'S INFO ====================
+  // ==================== LOAD OTHER USER'S INFO (with flag) ====================
   async function loadOtherUser() {
     const userDoc = await getDoc(doc(db, "users", otherUserId));
     if (!userDoc.exists()) return;
     const data = userDoc.data();
     chatNameSpan.innerText = data.username || data.email || "User";
     chatAvatarImg.src = data.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.username || "User")}&background=006571&color=fff`;
-    // update subheader
+    
+    // Country flag and name
     const countryEl = document.getElementById("userCountry");
     if (data.country) {
       const countryName = typeof data.country === "object" ? data.country.name : data.country;
-      countryEl.innerHTML = `🌍 ${countryName}`;
+      const countryCode = typeof data.country === "object" ? data.country.code : "";
+      const flag = countryCode ? getFlagEmoji(countryCode) : "🌍";
+      countryEl.innerHTML = `${flag} ${countryName}`;
+    } else {
+      countryEl.innerHTML = "🌍 Unknown";
     }
+    
+    // Gender & Age
     const genderAgeEl = document.getElementById("userGenderAge");
     if (data.gender || data.age) {
-      genderAgeEl.innerHTML = `${data.gender === 'male' ? '♂' : '♀'} ${data.age || '?'}`;
+      const genderSymbol = data.gender === 'male' ? '♂' : (data.gender === 'female' ? '♀' : '');
+      genderAgeEl.innerHTML = `${genderSymbol} ${data.age || '?'}`;
     }
-    // optional language/location mock
-    document.getElementById("userLanguage").innerHTML = `🌐 English`;
-    document.getElementById("userLocation").innerHTML = `<span class="material-symbols-outlined text-[12px]">location_on</span> <span>${data.country ? 'From ' + (typeof data.country === 'object' ? data.country.name : data.country) : 'Unknown'}</span>`;
+    
+    // Location (from country)
+    const locationEl = document.getElementById("userLocation");
+    if (data.country) {
+      const countryName = typeof data.country === "object" ? data.country.name : data.country;
+      locationEl.innerHTML = `<span class="material-symbols-outlined text-[12px]">location_on</span> <span>From ${countryName}</span>`;
+    }
+  }
+  
+  function getFlagEmoji(countryCode) {
+    if (!countryCode) return "🌍";
+    const codePoints = countryCode.toUpperCase().split('').map(c => 127397 + c.charCodeAt(0));
+    return String.fromCodePoint(...codePoints);
   }
 
-  // ==================== REAL-TIME MESSAGES ====================
+  // ==================== REAL-TIME MESSAGES WITH AUTO-SCROLL ====================
   function loadMessages() {
     const q = query(collection(db, "chats", chatId, "messages"), orderBy("createdAt", "asc"));
     onSnapshot(q, (snapshot) => {
+      const wasAtBottom = messagesDiv.scrollHeight - messagesDiv.scrollTop <= messagesDiv.clientHeight + 50;
       messagesDiv.innerHTML = "";
       let lastTimestamp = null;
       snapshot.forEach(docSnap => {
@@ -281,7 +301,10 @@
         }
         messagesDiv.appendChild(bubbleDiv);
       });
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      // Auto-scroll if user was at bottom or new message is from me
+      if (wasAtBottom || snapshot.docs.length > 0 && snapshot.docs[snapshot.docs.length-1].data().senderId === myUserId) {
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      }
       resetUnread();
     });
   }
@@ -293,14 +316,12 @@
 
   // ==================== UPDATE CHAT LIST (unread for other) ====================
   async function updateChatList(lastMsg) {
-    // my side (reset unread)
     await setDoc(doc(db, "userChats", myUserId, "list", otherUserId), {
       uid: otherUserId,
       lastMessage: lastMsg,
       updatedAt: serverTimestamp(),
       unread: 0
     }, { merge: true });
-    // other side (increase unread)
     const otherRef = doc(db, "userChats", otherUserId, "list", myUserId);
     const snap = await getDoc(otherRef);
     let unreadCount = 1;
@@ -318,7 +339,6 @@
     const text = messageInput.value.trim();
     if (!text) return;
     messageInput.value = "";
-    // check if blocked
     const blockedByThem = await getDoc(doc(db, "blocked", otherUserId, "list", myUserId));
     const blockedByMe = await getDoc(doc(db, "blocked", myUserId, "list", otherUserId));
     if (blockedByThem.exists() || blockedByMe.exists()) {
@@ -334,13 +354,12 @@
     await updateChatList(text);
   };
 
-  // ==================== SEND QUICK REPLY ====================
   window.sendQuickReply = async (text) => {
     messageInput.value = text;
     await sendMessage();
   };
 
-  // ==================== IMAGE PICK & SEND ====================
+  // ==================== IMAGE PICK & COMPRESS (quality preserved) ====================
   window.pickImage = () => {
     const input = document.createElement("input");
     input.type = "file";
@@ -363,13 +382,24 @@
       reader.onload = (e) => img.src = e.target.result;
       img.onload = () => {
         const canvas = document.createElement("canvas");
-        const maxWidth = 800;
-        let scale = maxWidth / img.width;
-        canvas.width = maxWidth;
-        canvas.height = img.height * scale;
         const ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        canvas.toBlob(blob => resolve(blob), "image/jpeg", 0.7);
+        // Keep aspect ratio, max width 1024px for good quality
+        let width = img.width;
+        let height = img.height;
+        const maxDim = 1024;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = (height / width) * maxDim;
+            width = maxDim;
+          } else {
+            width = (width / height) * maxDim;
+            height = maxDim;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(blob => resolve(blob), "image/jpeg", 0.85);
       };
       reader.readAsDataURL(file);
     });
@@ -397,20 +427,50 @@
     selectedImageFile = null;
   };
 
-  // ==================== IMAGE VIEWER ====================
-  window.openImageViewer = (url) => {
-    const viewer = document.getElementById("viewerModal");
-    const viewerImg = document.getElementById("viewerImage");
-    const downloadLink = document.getElementById("downloadLink");
-    viewerImg.src = url;
-    downloadLink.href = url;
-    viewer.classList.remove("hidden");
-  };
-  window.closeViewer = () => {
-    document.getElementById("viewerModal").classList.add("hidden");
+  // ==================== CAMERA FUNCTION ====================
+  window.openCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      // Create a video element to capture frame
+      const video = document.createElement("video");
+      video.srcObject = stream;
+      video.play();
+      // Create canvas to capture photo
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      video.addEventListener("loadedmetadata", () => {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(async (blob) => {
+          const file = new File([blob], "camera-photo.jpg", { type: "image/jpeg" });
+          selectedImageFile = file;
+          const previewImg = document.getElementById("previewImage");
+          previewImg.src = URL.createObjectURL(file);
+          document.getElementById("previewModal").classList.remove("hidden");
+          // Stop all tracks
+          stream.getTracks().forEach(track => track.stop());
+          video.remove();
+        }, "image/jpeg", 0.85);
+      });
+    } catch (err) {
+      console.error("Camera error:", err);
+      showToast("Camera permission denied or not available");
+    }
   };
 
-  // ==================== FOLLOW / UNFOLLOW ====================
+  // ==================== FOLLOW / UNBLOCK / BLOCK (REAL-TIME) ====================
+  // Real-time listeners for follow/block status
+  function initRealtimeStatus() {
+    const followRef = doc(db, "followers", otherUserId, "list", myUserId);
+    const blockByMeRef = doc(db, "blocked", myUserId, "list", otherUserId);
+    const blockByThemRef = doc(db, "blocked", otherUserId, "list", myUserId);
+    
+    onSnapshot(followRef, () => updateMenuState());
+    onSnapshot(blockByMeRef, () => updateMenuState());
+    onSnapshot(blockByThemRef, () => updateMenuState());
+  }
+  
   async function updateMenuState() {
     const followed = await getDoc(doc(db, "followers", otherUserId, "list", myUserId));
     const blockedByMe = await getDoc(doc(db, "blocked", myUserId, "list", otherUserId));
@@ -432,14 +492,12 @@
     if (exists) {
       await deleteDoc(followRef);
       await deleteDoc(followingRef);
-      // also remove from friends if mutual
       await deleteDoc(doc(db, "friends", otherUserId, "list", myUserId));
       await deleteDoc(doc(db, "friends", myUserId, "list", otherUserId));
       showToast("Unfollowed");
     } else {
       await setDoc(followRef, { uid: myUserId });
       await setDoc(followingRef, { uid: otherUserId });
-      // check if they follow me back -> become friends
       const otherFollowsMe = await getDoc(doc(db, "followers", myUserId, "list", otherUserId));
       if (otherFollowsMe.exists()) {
         await setDoc(doc(db, "friends", otherUserId, "list", myUserId), { uid: myUserId });
@@ -448,7 +506,6 @@
       showToast("Followed");
     }
     closeMenu();
-    updateMenuState();
   };
 
   window.toggleBlock = async () => {
@@ -459,7 +516,6 @@
       showToast("Unblocked");
     } else {
       await setDoc(blockedRef, { uid: otherUserId });
-      // remove any follow/friend relations
       await deleteDoc(doc(db, "followers", otherUserId, "list", myUserId));
       await deleteDoc(doc(db, "following", myUserId, "list", otherUserId));
       await deleteDoc(doc(db, "friends", otherUserId, "list", myUserId));
@@ -467,12 +523,10 @@
       showToast("Blocked");
     }
     closeMenu();
-    updateMenuState();
   };
 
-  // ==================== MENU ====================
+  // ==================== MENU & NAVIGATION ====================
   window.openMenu = () => {
-    updateMenuState();
     document.getElementById("menuModal").classList.remove("hidden");
     document.getElementById("menuModal").classList.add("flex");
   };
@@ -484,13 +538,25 @@
     window.location.href = `view.html?id=${otherUserId}`;
   };
   window.startVideoCall = () => {
-    showToast("Video call coming soon (75 coins)");
+    showToast("Video call costs 0.1 coins (coming soon)");
   };
   window.sendGift = () => {
     showToast("Gift shop opens soon");
   };
 
-  // ==================== ESCAPE HTML ====================
+  // ==================== IMAGE VIEWER ====================
+  window.openImageViewer = (url) => {
+    const viewer = document.getElementById("viewerModal");
+    const viewerImg = document.getElementById("viewerImage");
+    const downloadLink = document.getElementById("downloadLink");
+    viewerImg.src = url;
+    downloadLink.href = url;
+    viewer.classList.remove("hidden");
+  };
+  window.closeViewer = () => {
+    document.getElementById("viewerModal").classList.add("hidden");
+  };
+
   function escapeHtml(str) {
     if (!str) return "";
     return str.replace(/[&<>]/g, function(m) {
@@ -504,8 +570,10 @@
   // ==================== INIT ====================
   loadOtherUser();
   loadMessages();
+  initRealtimeStatus();
   messageInput.addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
-  // click outside modals
+  
+  // Click outside modals
   document.getElementById("menuModal").addEventListener("click", (e) => { if (e.target === document.getElementById("menuModal")) closeMenu(); });
   document.getElementById("previewModal").addEventListener("click", (e) => { if (e.target === document.getElementById("previewModal")) closePreview(); });
   document.getElementById("viewerModal").addEventListener("click", (e) => { if (e.target === document.getElementById("viewerModal")) closeViewer(); });
