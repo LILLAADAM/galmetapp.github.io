@@ -122,9 +122,6 @@
 <img id="profilePreview"
      class="w-full h-full object-cover rounded-lg"
      src="https://ui-avatars.com/api/?name=User">
-<div class="absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent flex items-center justify-center">
-<span class="material-symbols-outlined text-primary-dim text-6xl opacity-20" data-icon="person">person</span>
-</div>
 <input type="file" id="photoInput" accept="image/*" hidden>
 </div>
 <!-- Floating Upload Action -->
@@ -142,30 +139,15 @@ class="absolute -bottom-4 -right-4 bg-primary text-on-primary w-14 h-14 rounded-
 <span class="text-[10px] uppercase tracking-widest text-primary font-bold">Suggested</span>
 </div>
 <div class="grid grid-cols-4 gap-3">
-<div class="aspect-square rounded-lg bg-surface-container-low border-2 border-dashed border-outline-variant/30 flex items-center justify-center group cursor-pointer hover:bg-surface-container-highest transition-colors">
-<span class="material-symbols-outlined text-outline-variant group-hover:text-primary" data-icon="add">add</span>
-</div>
+
 <div class="aspect-square rounded-lg overflow-hidden bg-surface-container-low">
 <img class="w-full h-full object-cover opacity-60 grayscale hover:grayscale-0 transition-all cursor-pointer" data-alt="Professional headshot of a smiling young man in a clean white shirt with soft natural lighting and blurred background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9ECu9QLZtoe1VHree3DtwMH5qMfm5Tzq77qcn8viyv6JB-g3YseEacUFsUMXrqkWIWelYpHJ0vUClcuL8MLhMfaROQBvqgMnx6E5dQxORK4-7q34ikWKonPZFEDQCByPd7fNhDZp8o3h8Fy-923vjGSZcScnbbi8qIAfMl7P3umvdbZZBQIi8g4ScO9jATIcLKbH3JEfJGfwMHJosn_enBP6yBMsy9rBivth9wtWpfp4C-_B2eEsenIT2alUpYk4TCd9xtkuZY52j"/>
 </div>
 <div class="aspect-square rounded-lg overflow-hidden bg-surface-container-low">
 <img class="w-full h-full object-cover opacity-60 grayscale hover:grayscale-0 transition-all cursor-pointer" data-alt="Portrait of a cheerful woman with long dark hair against a soft pastel blue studio wall" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6Yv8-Cc2G1HzJg-yaT06aQWhaP7mh7flMA1FHS0B9-WE9tiBT1faIgKxJWoEos93tWEKDQoi77pSU3iMbdVj6pNU_tEK_hiz_41g9NIcn0BPlaJgNk5a3TZERMLaz6_ubcE-6JMh1NsHRmy0ycT9U4fJRmEGw3iXE6KInRaSoTzXXveWqLjyfXh1uB5bhvakpALRURs5p2rhUTM3BSy9DY08chwCljiRrOr1LpbH1zbevbgCmsBmJepNqcQdg04IAq05t-QRbhrGX"/>
 </div>
-<div class="aspect-square rounded-lg overflow-hidden bg-surface-container-low relative">
-<div class="absolute inset-0 bg-black/5 flex items-center justify-center">
-<span class="material-symbols-outlined text-outline-variant text-xl" data-icon="image">image</span>
 </div>
-</div>
-</div>
-</div>
-<!-- Permission Alert Box -->
-<div class="w-full p-4 rounded-lg bg-secondary-container/20 flex items-start gap-4 border border-secondary-container/10">
-<span class="material-symbols-outlined text-secondary" data-icon="info">info</span>
-<div>
-<p class="text-sm font-medium text-on-secondary-container leading-relaxed">Please allow photo permission to pick an existing image from your gallery.</p>
-</div>
-</div>
-</div>
+
 <!-- Sticky Footer Action -->
 <div class="mt-12 space-y-4">
 <button 
@@ -203,9 +185,9 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/fireba
 import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
 
-console.log("🔥 Setup Page Loaded");
-
+// ==============================
 // ✅ FIREBASE INIT
+// ==============================
 const app = initializeApp({
   apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
   authDomain: "galmet-app.firebaseapp.com",
@@ -216,160 +198,148 @@ const app = initializeApp({
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-// ✅ GET USER FROM LOCAL STORAGE
+// ==============================
+// ✅ USER LOAD + BLOCK BACK
+// ==============================
 const user = JSON.parse(localStorage.getItem("user"));
 
-console.log("👤 Local User:", user);
-
 if (!user) {
-  alert("❌ No user found. Please login again.");
   window.location = "index.html";
 }
 
-// ✅ SET CURRENT USER
+// 🔥 BLOCK BACK IF COMPLETED
+if (user.profileCompleted) {
+  window.location.replace("dashboard.html");
+}
+
+history.pushState(null, null, location.href);
+window.onpopstate = function () {
+  history.go(1);
+};
+
 let currentUser = user;
 
+// ==============================
+// ✅ LOAD COUNTRY
+// ==============================
+const selectedCountry = JSON.parse(localStorage.getItem("selectedCountry"));
+
+if (selectedCountry) {
+  currentUser.country = selectedCountry;
+}
 
 // ==============================
-// ✅ IMAGE PREVIEW
+// ✅ IMAGE PREVIEW + SIMPLE CROP
 // ==============================
+let selectedImage = null;
+
 window.addEventListener("DOMContentLoaded", () => {
-  console.log("📸 Image preview ready");
 
   const input = document.getElementById("photoInput");
   const preview = document.getElementById("profilePreview");
 
-  if (!input || !preview) {
-    console.error("❌ Input or Preview not found");
-    return;
-  }
-
   input.addEventListener("change", (e) => {
+
     const file = e.target.files[0];
+    if (!file) return;
 
-    if (!file) {
-      console.warn("⚠️ No file selected");
-      return;
-    }
-
-    console.log("📁 File selected:", file.name);
+    selectedImage = file;
 
     const reader = new FileReader();
 
     reader.onload = (ev) => {
-      preview.src = ev.target.result;
-      console.log("✅ Preview updated");
+      preview.src = ev.target.result; // 🔥 instant preview
     };
 
     reader.readAsDataURL(file);
   });
-});
 
+});
 
 // ==============================
 // ✅ IMAGE COMPRESS
 // ==============================
 async function compressImage(file) {
-  console.log("🧠 Compressing image...");
 
   return new Promise((resolve) => {
+
     const img = new Image();
     const reader = new FileReader();
 
     reader.onload = (e) => img.src = e.target.result;
 
     img.onload = () => {
+
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
 
-      const maxSize = 512;
+      const size = 512;
 
-      let width = img.width;
-      let height = img.height;
+      canvas.width = size;
+      canvas.height = size;
 
-      if (width > height) {
-        if (width > maxSize) {
-          height *= maxSize / width;
-          width = maxSize;
-        }
-      } else {
-        if (height > maxSize) {
-          width *= maxSize / height;
-          height = maxSize;
-        }
-      }
+      // 🔥 CENTER CROP (LIKE YOUR FIRST IMAGE)
+      const min = Math.min(img.width, img.height);
 
-      canvas.width = width;
-      canvas.height = height;
+      const sx = (img.width - min) / 2;
+      const sy = (img.height - min) / 2;
 
-      ctx.drawImage(img, 0, 0, width, height);
+      ctx.drawImage(img, sx, sy, min, min, 0, 0, size, size);
 
       canvas.toBlob((blob) => {
-        console.log("✅ Image compressed");
         resolve(blob);
-      }, "image/jpeg", 0.8);
+      }, "image/jpeg", 0.85);
+
     };
 
     reader.readAsDataURL(file);
   });
 }
 
-
 // ==============================
-// ✅ COMPLETE SETUP FUNCTION
+// ✅ COMPLETE SETUP
 // ==============================
 window.completeSetup = async function () {
 
-  console.log("🚀 Upload started");
-
-  if (!currentUser) {
-    alert("❌ User not ready");
-    return;
-  }
-
-  const input = document.getElementById("photoInput");
-
-  if (!input || !input.files[0]) {
-    alert("⚠️ Please select an image");
+  if (!selectedImage) {
+    alert("Select image");
     return;
   }
 
   try {
 
-    // 🔹 STEP 1: COMPRESS
-    const compressed = await compressImage(input.files[0]);
+    // 🔥 compress + crop
+    const compressed = await compressImage(selectedImage);
 
-    // 🔹 STEP 2: UPLOAD TO STORAGE
     const storageRef = ref(storage, "profiles/" + currentUser.userId);
 
     await uploadBytes(storageRef, compressed);
-    console.log("☁️ Uploaded to Firebase Storage");
 
-    // 🔹 STEP 3: GET URL
     const photoURL = await getDownloadURL(storageRef);
 
-    console.log("🌍 Image URL:", photoURL);
-
-    // 🔹 STEP 4: SAVE TO FIRESTORE
+    // 🔥 SAVE FULL DATA
     await setDoc(doc(db, "users", currentUser.userId.toString()), {
-      ...currentUser,
+      email: currentUser.email,
+      userId: currentUser.userId,
+      username: currentUser.username,
+      gender: currentUser.gender,
+      country: currentUser.country,
+      dob: currentUser.dob,
+      age: currentUser.age,
       photoURL: photoURL,
       profileCompleted: true
     }, { merge: true });
 
-    console.log("🔥 Firestore updated");
-
-    // 🔹 STEP 5: UPDATE LOCAL
+    // 🔥 UPDATE LOCAL
     currentUser.photoURL = photoURL;
+    currentUser.profileCompleted = true;
+
     localStorage.setItem("user", JSON.stringify(currentUser));
 
-    console.log("💾 Local updated");
-
-    // 🔹 STEP 6: REDIRECT
-    window.location = "dashboard.html";
+    // 🔥 REDIRECT (NO BACK)
+    window.location.replace("dashboard.html");
 
   } catch (err) {
-    console.error("❌ ERROR:", err);
     alert("Upload failed: " + err.message);
   }
 };
