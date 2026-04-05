@@ -305,12 +305,35 @@ import {
 
 const currentUser = JSON.parse(localStorage.getItem("user"));
 
-if (!currentUser || !currentUser.uid) {
-  window.location.replace("index.html");
-  throw new Error("Not logged in"); // ⛔ STOP script execution
+// ❌ NOT LOGGED IN → go to NEW LOGIN
+if (!currentUser || !currentUser.userId) {
+  window.location.replace("login.html");
+  throw new Error("Not logged in");
 }
 
-const myUid = currentUser.uid;
+// 🔥 STEP CHECK SYSTEM (IMPORTANT)
+if (!currentUser.gender) {
+  window.location.href = "gender.html";
+  throw new Error("Incomplete profile");
+}
+
+if (
+  !currentUser.username ||
+  !currentUser.country ||
+  !currentUser.dob ||
+  !currentUser.age
+) {
+  window.location.href = "username.html";
+  throw new Error("Incomplete profile");
+}
+
+if (!currentUser.photoURL || !currentUser.profileCompleted) {
+  window.location.href = "setup.html";
+  throw new Error("Incomplete profile");
+}
+
+// ✅ FINAL USER ID
+const myUid = currentUser.userId.toString();
 
 /* ================= PROFILE IMAGE ================= */
 
