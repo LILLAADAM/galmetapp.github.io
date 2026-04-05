@@ -387,7 +387,13 @@ const newUser = {
   totalEarned: 0,
   firstTopup: false
 };
-       
+
+// 🚫 Prevent self referral
+if (newUser.referredBy === newUser.userId.toString()) {
+  console.log("❌ Self referral blocked");
+  newUser.referredBy = null; // remove invalid referral
+}
+
       console.log("🆕 Creating user:", newUser);
 
       const createRes = await fetch(BASE_URL + "/createUser", {
