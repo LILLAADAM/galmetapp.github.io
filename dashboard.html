@@ -220,19 +220,32 @@
 
       // Gender missing → gender.html
       if (!data.gender && !currentPath.includes("gender.html")) {
-        window.location.replace("gender.html");
-        return;
-      }
-      // Username / country / dob missing → username.html
-      if ((!data.username || !data.country || !data.dob || !data.age) && !currentPath.includes("username.html")) {
-        window.location.replace("username.html");
-        return;
-      }
-      // Photo or profileCompleted missing → setup.html
-      if ((!data.photoURL || !data.profileCompleted) && !currentPath.includes("setup.html")) {
-        window.location.replace("setup.html");
-        return;
-      }
+  window.location.replace("gender.html");
+  return;
+}
+
+if (
+  (!data.username ||
+  !data.country ||
+  !data.country.name ||
+  !data.dob ||
+  !data.dob.day ||
+  !data.dob.month ||
+  !data.dob.year ||
+  !data.age)
+  && !currentPath.includes("username.html")
+) {
+  window.location.replace("username.html");
+  return;
+}
+
+if (
+  (!data.photoURL || !data.profileCompleted)
+  && !currentPath.includes("setup.html")
+) {
+  window.location.replace("setup.html");
+  return;
+}
 
       // All good – start realtime dashboard
       startRealtimeDashboard();
