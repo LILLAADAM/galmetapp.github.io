@@ -83,7 +83,7 @@
     </div>
   </div>
 
-  <!-- Dynamic Chat List (all conversations, real‑time) -->
+  <!-- Dynamic Chat List (real‑time, no flicker) -->
   <div id="chatList" class="space-y-2"></div>
 </main>
 
@@ -130,76 +130,164 @@
   profileImg.src = currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.email || "User")}&background=006571&color=fff`;
 
   window.openProfile = () => location.href = "profile.html";
-  window.openOfficial = () => location.href = "official.html";  // create this page for group chat
+  window.openOfficial = () => location.href = "official.html";
 
-  // ==================== LOAD ALL CONVERSATIONS (userChats) ====================
-  const chatsRef = collection(db, "userChats", myUserId, "list");
-  const q = query(chatsRef, orderBy("updatedAt", "desc"));
+  // Cache for user data
+  const userCache = new Map();
+  // Map of chat ID -> DOM element
+  const chatElements = new Map();
+  // Ordered list of chat IDs
+  let orderedIds = [];
 
-  onSnapshot(q, async (snapshot) => {
-    const chatListDiv = document.getElementById("chatList");
-    chatListDiv.innerHTML = "";
+  const chatListDiv = document.getElementById("chatList");
 
-    if (snapshot.empty) {
-      chatListDiv.innerHTML = `<div class="text-center py-8 text-outline">No conversations yet. Start a chat from the Party tab!</div>`;
-      return;
-    }
-
-    // Build array with user data and message info
-    const items = [];
-    for (const docSnap of snapshot.docs) {
-      const chat = docSnap.data();
-      const otherId = chat.uid;
-      if (!otherId) continue;
-
-      // Fetch other user's data
-      const userSnap = await getDoc(doc(db, "users", otherId));
-      if (!userSnap.exists()) continue;
-      const user = userSnap.data();
-
-      items.push({
-        id: otherId,
-        name: user.username || user.email || "User",
-        photo: user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username || "User")}&background=006571&color=fff`,
-        lastMessage: chat.lastMessage || "Tap to start chatting",
-        updatedAt: chat.updatedAt,
-        unread: chat.unread || 0
-      });
-    }
-
-    // Sort by updatedAt (already sorted by query, but keep for safety)
-    items.sort((a, b) => (b.updatedAt?.seconds || 0) - (a.updatedAt?.seconds || 0));
-
-    // Render each conversation
-    for (const item of items) {
-      const time = item.updatedAt ? new Date(item.updatedAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "";
-      const div = document.createElement("div");
-      div.className = "bg-surface-container-lowest hover:bg-surface-container-high transition cursor-pointer p-4 flex items-center gap-4 rounded-xl border border-outline-variant/20";
-      div.onclick = () => location.href = `chat.html?id=${item.id}`;
-
-      div.innerHTML = `
-        <div class="shrink-0" onclick="event.stopPropagation(); location.href='view.html?id=${item.id}'">
-          <img class="w-14 h-14 rounded-full object-cover" src="${item.photo}">
-        </div>
-        <div class="flex-1 min-w-0">
-          <div class="flex justify-between items-center">
-            <h3 class="font-headline font-bold text-on-surface truncate">${escapeHtml(item.name)}</h3>
-            <span class="text-[11px] text-outline">${time}</span>
-          </div>
-          <div class="flex justify-between items-center mt-0.5">
-            <p class="text-sm text-on-surface-variant truncate">${escapeHtml(item.lastMessage)}</p>
-            ${item.unread > 0 ? `<div class="bg-tertiary text-white text-[10px] font-bold px-2 py-0.5 rounded-full">${item.unread}</div>` : ''}
-          </div>
-        </div>
-      `;
-      chatListDiv.appendChild(div);
-    }
-  });
+  function formatTime(timestamp) {
+    if (!timestamp) return "";
+    const date = new Date(timestamp.seconds * 1000);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
 
   function escapeHtml(str) {
     if (!str) return "";
     return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m]));
   }
+
+  async function getUserData(userId) {
+    if (userCache.has(userId)) return userCache.get(userId);
+    const userSnap = await getDoc(doc(db, "users", userId));
+    if (!userSnap.exists()) return null;
+    const user = userSnap.data();
+    const userData = {
+      id: userId,
+      name: user.username || user.email || "User",
+      photo: user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username || "User")}&background=006571&color=fff`
+    };
+    userCache.set(userId, userData);
+    return userData;
+  }
+
+  function createChatElement(chatId, itemData) {
+    const div = document.createElement("div");
+    div.className = "bg-surface-container-lowest hover:bg-surface-container-high transition cursor-pointer p-4 flex items-center gap-4 rounded-xl border border-outline-variant/20 chat-item";
+    div.setAttribute("data-chat-id", chatId);
+    div.onclick = () => location.href = `chat.html?id=${chatId}`;
+    updateChatElementContent(div, itemData);
+    return div;
+  }
+
+  function updateChatElementContent(el, data) {
+    const { name, photo, lastMessage, updatedAt, unread } = data;
+    const time = formatTime(updatedAt);
+    el.innerHTML = `
+      <div class="shrink-0" onclick="event.stopPropagation(); location.href='view.html?id=${data.id}'">
+        <img class="w-14 h-14 rounded-full object-cover" src="${photo}">
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex justify-between items-center">
+          <h3 class="font-headline font-bold text-on-surface truncate">${escapeHtml(name)}</h3>
+          <span class="text-[11px] text-outline">${time}</span>
+        </div>
+        <div class="flex justify-between items-center mt-0.5">
+          <p class="text-sm text-on-surface-variant truncate">${escapeHtml(lastMessage)}</p>
+          ${unread > 0 ? `<div class="bg-tertiary text-white text-[10px] font-bold px-2 py-0.5 rounded-full">${unread}</div>` : ''}
+        </div>
+      </div>
+    `;
+    el.__data = data;
+  }
+
+  function reorderDOM() {
+    const fragment = document.createDocumentFragment();
+    for (const id of orderedIds) {
+      const el = chatElements.get(id);
+      if (el) fragment.appendChild(el);
+    }
+    chatListDiv.innerHTML = "";
+    if (fragment.children.length > 0) {
+      chatListDiv.appendChild(fragment);
+    } else {
+      chatListDiv.innerHTML = `<div class="text-center py-8 text-outline">No conversations yet. Start a chat from the Party tab!</div>`;
+    }
+  }
+
+  const chatsRef = collection(db, "userChats", myUserId, "list");
+  const q = query(chatsRef, orderBy("updatedAt", "desc"));
+
+  onSnapshot(q, async (snapshot) => {
+    const changes = snapshot.docChanges();
+    let needsReorder = false;
+
+    for (const change of changes) {
+      const chatDoc = change.doc;
+      const chatId = chatDoc.id;
+      const chatData = chatDoc.data();
+      const otherId = chatData.uid;
+      if (!otherId) continue;
+
+      const userData = await getUserData(otherId);
+      if (!userData) continue;
+
+      const itemData = {
+        id: otherId,
+        name: userData.name,
+        photo: userData.photo,
+        lastMessage: chatData.lastMessage || "Tap to start chatting",
+        updatedAt: chatData.updatedAt,
+        unread: chatData.unread || 0
+      };
+
+      if (change.type === "added") {
+        const newEl = createChatElement(otherId, itemData);
+        chatElements.set(otherId, newEl);
+        orderedIds.push(otherId);
+        needsReorder = true;
+      } else if (change.type === "modified") {
+        const existingEl = chatElements.get(otherId);
+        if (existingEl) {
+          updateChatElementContent(existingEl, itemData);
+          needsReorder = true; // because updatedAt may have changed order
+        }
+      } else if (change.type === "removed") {
+        const el = chatElements.get(otherId);
+        if (el) el.remove();
+        chatElements.delete(otherId);
+        orderedIds = orderedIds.filter(id => id !== otherId);
+        needsReorder = true;
+      }
+    }
+
+    if (needsReorder || (changes.length === 0 && snapshot.docs.length > 0 && chatElements.size === 0)) {
+      // Initial load or order changed
+      if (chatElements.size === 0 && snapshot.docs.length > 0) {
+        // First load – populate all
+        for (const docSnap of snapshot.docs) {
+          const chatData = docSnap.data();
+          const otherId = chatData.uid;
+          if (!otherId) continue;
+          const userData = await getUserData(otherId);
+          if (!userData) continue;
+          const itemData = {
+            id: otherId,
+            name: userData.name,
+            photo: userData.photo,
+            lastMessage: chatData.lastMessage || "Tap to start chatting",
+            updatedAt: chatData.updatedAt,
+            unread: chatData.unread || 0
+          };
+          const el = createChatElement(otherId, itemData);
+          chatElements.set(otherId, el);
+          orderedIds.push(otherId);
+        }
+      }
+      // Sort by updatedAt descending
+      orderedIds.sort((a, b) => {
+        const aData = chatElements.get(a)?.__data?.updatedAt?.seconds || 0;
+        const bData = chatElements.get(b)?.__data?.updatedAt?.seconds || 0;
+        return bData - aData;
+      });
+      reorderDOM();
+    }
+  });
 </script>
 </body>
 </html>
