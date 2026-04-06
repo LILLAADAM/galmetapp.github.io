@@ -1,331 +1,339 @@
 <!DOCTYPE html>
-
-<html class="light" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Galmet Profile - Digital Sky Garden</title>
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Be+Vietnam+Pro:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
-<!-- Material Symbols -->
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
-<!-- Tailwind CSS -->
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            "colors": {
-                    "surface-container-low": "#ecf1f6",
-                    "background": "#f3f7fb",
-                    "outline-variant": "#a9aeb1",
-                    "primary-fixed-dim": "#00d4ec",
-                    "surface-container-high": "#dde3e8",
-                    "secondary": "#755700",
-                    "on-tertiary-fixed": "#380014",
-                    "on-error-container": "#570008",
-                    "on-primary-fixed": "#003840",
-                    "on-secondary-fixed": "#443100",
-                    "on-primary-container": "#004d57",
-                    "on-secondary-fixed-variant": "#674c00",
-                    "primary": "#006571",
-                    "on-surface-variant": "#575c60",
-                    "on-background": "#2a2f32",
-                    "error-container": "#fb5151",
-                    "primary-container": "#00e3fd",
-                    "on-tertiary-fixed-variant": "#770033",
-                    "secondary-container": "#ffca4d",
-                    "primary-dim": "#005863",
-                    "surface-variant": "#d7dee3",
-                    "secondary-fixed": "#ffca4d",
-                    "surface-container": "#e3e9ee",
-                    "tertiary-container": "#ff8fa9",
-                    "tertiary-fixed-dim": "#ff769b",
-                    "surface-bright": "#f3f7fb",
-                    "on-error": "#ffefee",
-                    "outline": "#73777b",
-                    "surface-dim": "#ced5db",
-                    "tertiary": "#b60051",
-                    "tertiary-fixed": "#ff8fa9",
-                    "inverse-primary": "#00e3fd",
-                    "on-tertiary-container": "#66002b",
-                    "surface-container-highest": "#d7dee3",
-                    "primary-fixed": "#00e3fd",
-                    "inverse-on-surface": "#999da1",
-                    "secondary-fixed-dim": "#f7ba00",
-                    "on-tertiary": "#ffeff0",
-                    "inverse-surface": "#0a0f12",
-                    "surface-container-lowest": "#ffffff",
-                    "surface-tint": "#006571",
-                    "error": "#b31b25",
-                    "secondary-dim": "#664b00",
-                    "on-secondary-container": "#5c4400",
-                    "error-dim": "#9f0519",
-                    "surface": "#f3f7fb",
-                    "on-secondary": "#fff1db",
-                    "on-primary": "#d8f8ff",
-                    "tertiary-dim": "#a00047",
-                    "on-primary-fixed-variant": "#005762",
-                    "on-surface": "#2a2f32"
-            },
-            "borderRadius": {
-                    "DEFAULT": "1rem",
-                    "lg": "1.5rem",
-                    "xl": "2.5rem",
-                    "full": "9999px"
-            },
-            "fontFamily": {
-                    "headline": ["Plus Jakarta Sans"],
-                    "body": ["Be Vietnam Pro"],
-                    "label": ["Plus Jakarta Sans"]
-            }
+<html class="light" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Galmet Profile - Digital Sky Garden</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Material Symbols -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-container-low": "#ecf1f6",
+            "background": "#f3f7fb",
+            "outline-variant": "#a9aeb1",
+            "primary-fixed-dim": "#00d4ec",
+            "surface-container-high": "#dde3e8",
+            "secondary": "#755700",
+            "on-tertiary-fixed": "#380014",
+            "on-error-container": "#570008",
+            "on-primary-fixed": "#003840",
+            "on-secondary-fixed": "#443100",
+            "on-primary-container": "#004d57",
+            "on-secondary-fixed-variant": "#674c00",
+            "primary": "#006571",
+            "on-surface-variant": "#575c60",
+            "on-background": "#2a2f32",
+            "error-container": "#fb5151",
+            "primary-container": "#00e3fd",
+            "on-tertiary-fixed-variant": "#770033",
+            "secondary-container": "#ffca4d",
+            "primary-dim": "#005863",
+            "surface-variant": "#d7dee3",
+            "secondary-fixed": "#ffca4d",
+            "surface-container": "#e3e9ee",
+            "tertiary-container": "#ff8fa9",
+            "tertiary-fixed-dim": "#ff769b",
+            "surface-bright": "#f3f7fb",
+            "on-error": "#ffefee",
+            "outline": "#73777b",
+            "surface-dim": "#ced5db",
+            "tertiary": "#b60051",
+            "tertiary-fixed": "#ff8fa9",
+            "inverse-primary": "#00e3fd",
+            "on-tertiary-container": "#66002b",
+            "surface-container-highest": "#d7dee3",
+            "primary-fixed": "#00e3fd",
+            "inverse-on-surface": "#999da1",
+            "secondary-fixed-dim": "#f7ba00",
+            "on-tertiary": "#ffeff0",
+            "inverse-surface": "#0a0f12",
+            "surface-container-lowest": "#ffffff",
+            "surface-tint": "#006571",
+            "error": "#b31b25",
+            "secondary-dim": "#664b00",
+            "on-secondary-container": "#5c4400",
+            "error-dim": "#9f0519",
+            "surface": "#f3f7fb",
+            "on-secondary": "#fff1db",
+            "on-primary": "#d8f8ff",
+            "tertiary-dim": "#a00047",
+            "on-primary-fixed-variant": "#005762",
+            "on-surface": "#2a2f32"
           },
-        },
+          borderRadius: {
+            "DEFAULT": "1rem",
+            "lg": "1.5rem",
+            "xl": "2.5rem",
+            "full": "9999px"
+          },
+          fontFamily: {
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Be Vietnam Pro"],
+            "label": ["Plus Jakarta Sans"]
+          }
+        }
       }
-    </script>
-<style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        body {
-            font-family: 'Be Vietnam Pro', sans-serif;
-            background-color: #f3f7fb;
-            overflow-x: hidden;
-        }
-        h1, h2, h3, .font-headline {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-        .ios-safe-bottom {
-            padding-bottom: env(safe-area-inset-bottom, 20px);
-        }
-    </style>
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body {
+      font-family: 'Be Vietnam Pro', sans-serif;
+      background-color: #f3f7fb;
+      overflow-x: hidden;
+    }
+    h1, h2, h3, .font-headline {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .ios-safe-bottom {
+      padding-bottom: env(safe-area-inset-bottom, 20px);
+    }
+  </style>
 </head>
 <body class="text-on-surface min-h-screen">
-<!-- Top App Bar -->
-</header>
-<main class="px-4 pb-20 space-y-3">
-<!-- User Identity Section (Scaled down) -->
-<section class="relative group cursor-pointer active:scale-[0.98] transition-transform duration-200">
-<div class="flex items-center gap-3 p-1">
-<div class="relative">
-<div class="w-16 h-16 rounded-full border-2 border-white overflow-hidden shadow-md shadow-primary/5">
-<img id="profileImg" class="w-full h-full object-cover">
-</div>
-<div class="absolute bottom-0 right-0 bg-white p-0.5 rounded-full shadow-sm ring-1 ring-background">
-<img alt="AE Flag" class="w-4 h-3 object-cover rounded-[1px]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSfc7AxShCvtblOoy3tGTMqIPOx3BAmntRoQJn7ZAMzV-aXa2qtWBb6cKKgTfuxHTh_KQjrCoSgiFUXBfSj7eZLKG2W33TgdIA3uVjDIFznxqogvQPOBGBTtCOcySauvb3i8T3IHSY97WCTNImt7iKz3qupCjR7rrDilbuHNcm4PSzsf6EWGSHKJnnb-GgfloQevfUmMmbqSepmL8gvOLxZjamASKTYLhsd4804nDT272zeuRSl4Zb3Zs9xb8HbhZRhkA_-opNcAAp"/>
-</div>
-</div>
-<div class="flex-1">
-<h2 id="username" class="font-headline font-extrabold text-2xl"></h2>
-<p id="userIdText" class="text-sm"></p>
-</div>
-<span onclick="goProfile()" class="material-symbols-outlined cursor-pointer">
-chevron_right
-</span>
-</div>
-</section>
-<!-- Stats Bar (Tightened) -->
-<section class="bg-white rounded-lg py-3 px-2 flex justify-around items-center shadow-sm">
-<button class="flex flex-col items-center group">
-<span id="friendsCount" class="font-headline font-bold text-xl text-on-surface group-hover:text-primary transition-colors">0</span>
-<span class="text-on-surface-variant text-[9px] font-bold uppercase tracking-wider opacity-70">Friends</span>
-</button>
-<div class="w-px h-5 bg-surface-variant/50"></div>
-<button class="flex flex-col items-center group">
-<span id="followingCount" class="font-headline font-bold text-xl text-on-surface group-hover:text-primary transition-colors">0</span>
-<span class="text-on-surface-variant text-[9px] font-bold uppercase tracking-wider opacity-70">Following</span>
-</button>
-<div class="w-px h-5 bg-surface-variant/50"></div>
-<button class="flex flex-col items-center group">
-<span id="followersCount" class="font-headline font-bold text-xl text-on-surface group-hover:text-primary transition-colors">0</span>
-<span class="text-on-surface-variant text-[9px] font-bold uppercase tracking-wider opacity-70">Followers</span>
-</button>
-</section>
-<!-- Level Card (Reduced height) -->
-<section class="bg-primary p-3 rounded-lg shadow-md relative overflow-hidden flex items-center justify-between cursor-pointer active:scale-[0.99] transition-transform">
-<div class="absolute -top-6 -right-6 w-20 h-20 bg-white/10 rounded-full blur-xl"></div>
-<div class="relative z-10 flex items-center gap-3">
-<div class="bg-primary-container/30 backdrop-blur-md p-2 rounded-full flex items-center justify-center">
-<span class="material-symbols-outlined text-white text-xl" data-icon="military_tech">military_tech</span>
-</div>
-<div>
-<p class="text-white/70 text-[9px] font-bold uppercase tracking-widest leading-none mb-1">Global Rank</p>
-<h3 class="font-headline text-xl font-black text-white leading-none">Lv.3</h3>
-</div>
-</div>
-<div class="bg-white/20 p-1 rounded-full text-white">
-<span class="material-symbols-outlined text-base" data-icon="chevron_right">chevron_right</span>
-</div>
-</section>
-<!-- Branded Currencies Row (Scaled down) -->
-<section class="grid grid-cols-2 gap-2">
-<div class="bg-secondary-container/20 p-2.5 rounded-lg flex items-center gap-2.5 border border-secondary/10 cursor-pointer active:scale-95 transition-transform">
-<div class="bg-secondary-container w-9 h-9 rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
-<span class="material-symbols-outlined text-on-secondary-fixed text-lg" data-icon="monetization_on" style="font-variation-settings: 'FILL' 1;">monetization_on</span>
-</div>
-<div>
-<p class="text-[9px] font-bold text-on-secondary-fixed-variant uppercase tracking-tighter">My coins</p>
-<p id="coins">0</p>
-</div>
-</div>
-<div class="bg-tertiary-container/20 p-2.5 rounded-lg flex items-center gap-2.5 border border-tertiary/10 cursor-pointer active:scale-95 transition-transform">
-<div class="bg-tertiary-container w-9 h-9 rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
-<span class="material-symbols-outlined text-on-tertiary-container text-lg" data-icon="diamond" style="font-variation-settings: 'FILL' 1;">diamond</span>
-</div>
-<div>
-<p class="text-[9px] font-bold text-on-tertiary-fixed-variant uppercase tracking-tighter">My gems</p>
-<p class="font-headline font-extrabold text-base text-on-tertiary-container leading-none">444</p>
-</div>
-</div>
-</section>
-<!-- Action Grid (Scaled down) -->
-<section class="bg-surface-container-low/40 p-4 rounded-xl">
-<div class="grid grid-cols-4 gap-1">
-<button class="flex flex-col items-center gap-1.5 group">
-<div class="w-11 h-11 bg-white rounded-xl flex items-center justify-center shadow-sm group-hover:bg-primary group-hover:text-white transition-all">
-<span class="material-symbols-outlined text-primary group-hover:text-white text-xl" data-icon="storefront">storefront</span>
-</div>
-<span class="text-[10px] font-bold text-on-surface-variant">Store</span>
-</button>
-<button class="flex flex-col items-center gap-1.5 group">
-<div class="w-11 h-11 bg-white rounded-xl flex items-center justify-center shadow-sm group-hover:bg-secondary group-hover:text-white transition-all">
-<span class="material-symbols-outlined text-secondary group-hover:text-white text-xl" data-icon="person_add">person_add</span>
-</div>
-<span class="text-[10px] font-bold text-on-surface-variant">Invite</span>
-</button>
-<button class="flex flex-col items-center gap-1.5 group">
-<div class="w-11 h-11 bg-white rounded-xl flex items-center justify-center shadow-sm group-hover:bg-tertiary group-hover:text-white transition-all">
-<span class="material-symbols-outlined text-tertiary group-hover:text-white text-xl" data-icon="task_alt">task_alt</span>
-</div>
-<span class="text-[10px] font-bold text-on-surface-variant">Tasks</span>
-</button>
-<button class="flex flex-col items-center gap-1.5 group">
-<div class="w-11 h-11 bg-white rounded-xl flex items-center justify-center shadow-sm group-hover:bg-primary-dim group-hover:text-white transition-all">
-<span class="material-symbols-outlined text-on-primary-fixed-variant group-hover:text-white text-xl" data-icon="support_agent">support_agent</span>
-</div>
-<span class="text-[10px] font-bold text-on-surface-variant">Agent</span>
-</button>
-</div>
-</section>
-<!-- System List (Clean Navigation) -->
-<section class="bg-white rounded-lg shadow-sm overflow-hidden">
-<button class="w-full flex items-center gap-4 px-4 py-3 hover:bg-surface-container-low transition-colors text-left group border-b border-surface-container-high/50">
-<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors text-[20px]" data-icon="translate">translate</span>
-<span class="flex-1 font-bold text-on-surface text-[14px]">Language</span>
-<span class="material-symbols-outlined text-outline-variant text-base" data-icon="chevron_right">chevron_right</span>
-</button>
-<button class="w-full flex items-center gap-4 px-4 py-3 hover:bg-surface-container-low transition-colors text-left group border-b border-surface-container-high/50">
-<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors text-[20px]" data-icon="quiz">quiz</span>
-<span class="flex-1 font-bold text-on-surface text-[14px]">FAQ &amp; Feedback</span>
-<span class="material-symbols-outlined text-outline-variant text-base" data-icon="chevron_right">chevron_right</span>
-</button>
-<button class="w-full flex items-center gap-4 px-4 py-3 hover:bg-surface-container-low transition-colors text-left group">
-<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors text-[20px]" data-icon="tune">tune</span>
-<span class="flex-1 font-bold text-on-surface text-[14px]">Settings</span>
-<span class="material-symbols-outlined text-outline-variant text-base" data-icon="chevron_right">chevron_right</span>
-<button onclick="goSettings()">
-</section>
+
+<main class="px-4 pb-20 space-y-3 pt-4">
+  <!-- User Identity Section (Scaled down) -->
+  <section class="relative group cursor-pointer active:scale-[0.98] transition-transform duration-200">
+    <div class="flex items-center gap-3 p-1">
+      <div class="relative">
+        <div class="w-16 h-16 rounded-full border-2 border-white overflow-hidden shadow-md shadow-primary/5">
+          <img id="profileImg" class="w-full h-full object-cover">
+        </div>
+        <div class="absolute bottom-0 right-0 bg-white p-0.5 rounded-full shadow-sm ring-1 ring-background">
+          <span id="countryFlag" class="text-[14px] leading-none">🌍</span>
+        </div>
+      </div>
+      <div class="flex-1">
+        <h2 id="username" class="font-headline font-extrabold text-2xl"></h2>
+        <p id="userIdText" class="text-sm text-outline"></p>
+      </div>
+      <span onclick="goProfile()" class="material-symbols-outlined cursor-pointer text-primary">chevron_right</span>
+    </div>
+  </section>
+
+  <!-- Stats Bar (Tightened) -->
+  <section class="bg-white rounded-lg py-3 px-2 flex justify-around items-center shadow-sm">
+    <button class="flex flex-col items-center group">
+      <span id="friendsCount" class="font-headline font-bold text-xl text-on-surface group-hover:text-primary transition-colors">0</span>
+      <span class="text-on-surface-variant text-[9px] font-bold uppercase tracking-wider opacity-70">Friends</span>
+    </button>
+    <div class="w-px h-5 bg-surface-variant/50"></div>
+    <button class="flex flex-col items-center group">
+      <span id="followingCount" class="font-headline font-bold text-xl text-on-surface group-hover:text-primary transition-colors">0</span>
+      <span class="text-on-surface-variant text-[9px] font-bold uppercase tracking-wider opacity-70">Following</span>
+    </button>
+    <div class="w-px h-5 bg-surface-variant/50"></div>
+    <button class="flex flex-col items-center group">
+      <span id="followersCount" class="font-headline font-bold text-xl text-on-surface group-hover:text-primary transition-colors">0</span>
+      <span class="text-on-surface-variant text-[9px] font-bold uppercase tracking-wider opacity-70">Followers</span>
+    </button>
+  </section>
+
+  <!-- Level Card (Reduced height) -->
+  <section class="bg-primary p-3 rounded-lg shadow-md relative overflow-hidden flex items-center justify-between cursor-pointer active:scale-[0.99] transition-transform">
+    <div class="absolute -top-6 -right-6 w-20 h-20 bg-white/10 rounded-full blur-xl"></div>
+    <div class="relative z-10 flex items-center gap-3">
+      <div class="bg-primary-container/30 backdrop-blur-md p-2 rounded-full flex items-center justify-center">
+        <span class="material-symbols-outlined text-white text-xl">military_tech</span>
+      </div>
+      <div>
+        <p class="text-white/70 text-[9px] font-bold uppercase tracking-widest leading-none mb-1">Global Rank</p>
+        <h3 id="userLevel" class="font-headline text-xl font-black text-white leading-none">Lv.1</h3>
+      </div>
+    </div>
+    <div class="bg-white/20 p-1 rounded-full text-white">
+      <span class="material-symbols-outlined text-base">chevron_right</span>
+    </div>
+  </section>
+
+  <!-- Branded Currencies Row (Scaled down) -->
+  <section class="grid grid-cols-2 gap-2">
+    <div class="bg-secondary-container/20 p-2.5 rounded-lg flex items-center gap-2.5 border border-secondary/10 cursor-pointer active:scale-95 transition-transform">
+      <div class="bg-secondary-container w-9 h-9 rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
+        <span class="material-symbols-outlined text-on-secondary-fixed text-lg" style="font-variation-settings: 'FILL' 1;">monetization_on</span>
+      </div>
+      <div>
+        <p class="text-[9px] font-bold text-on-secondary-fixed-variant uppercase tracking-tighter">My coins</p>
+        <p id="coins" class="font-headline font-extrabold text-base text-on-secondary-fixed">0</p>
+      </div>
+    </div>
+    <div class="bg-tertiary-container/20 p-2.5 rounded-lg flex items-center gap-2.5 border border-tertiary/10 cursor-pointer active:scale-95 transition-transform">
+      <div class="bg-tertiary-container w-9 h-9 rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
+        <span class="material-symbols-outlined text-on-tertiary-container text-lg" style="font-variation-settings: 'FILL' 1;">diamond</span>
+      </div>
+      <div>
+        <p class="text-[9px] font-bold text-on-tertiary-fixed-variant uppercase tracking-tighter">My gems</p>
+        <p id="gems" class="font-headline font-extrabold text-base text-on-tertiary-container leading-none">0</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Action Grid (Scaled down) -->
+  <section class="bg-surface-container-low/40 p-4 rounded-xl">
+    <div class="grid grid-cols-4 gap-1">
+      <button class="flex flex-col items-center gap-1.5 group" onclick="alert('Store coming soon')">
+        <div class="w-11 h-11 bg-white rounded-xl flex items-center justify-center shadow-sm group-hover:bg-primary group-hover:text-white transition-all">
+          <span class="material-symbols-outlined text-primary group-hover:text-white text-xl">storefront</span>
+        </div>
+        <span class="text-[10px] font-bold text-on-surface-variant">Store</span>
+      </button>
+      <button class="flex flex-col items-center gap-1.5 group" onclick="inviteFriend()">
+        <div class="w-11 h-11 bg-white rounded-xl flex items-center justify-center shadow-sm group-hover:bg-secondary group-hover:text-white transition-all">
+          <span class="material-symbols-outlined text-secondary group-hover:text-white text-xl">person_add</span>
+        </div>
+        <span class="text-[10px] font-bold text-on-surface-variant">Invite</span>
+      </button>
+      <button class="flex flex-col items-center gap-1.5 group" onclick="alert('Tasks coming soon')">
+        <div class="w-11 h-11 bg-white rounded-xl flex items-center justify-center shadow-sm group-hover:bg-tertiary group-hover:text-white transition-all">
+          <span class="material-symbols-outlined text-tertiary group-hover:text-white text-xl">task_alt</span>
+        </div>
+        <span class="text-[10px] font-bold text-on-surface-variant">Tasks</span>
+      </button>
+      <button class="flex flex-col items-center gap-1.5 group" onclick="alert('Agent support coming soon')">
+        <div class="w-11 h-11 bg-white rounded-xl flex items-center justify-center shadow-sm group-hover:bg-primary-dim group-hover:text-white transition-all">
+          <span class="material-symbols-outlined text-on-primary-fixed-variant group-hover:text-white text-xl">support_agent</span>
+        </div>
+        <span class="text-[10px] font-bold text-on-surface-variant">Agent</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- System List (Clean Navigation) -->
+  <section class="bg-white rounded-lg shadow-sm overflow-hidden">
+    <button class="w-full flex items-center gap-4 px-4 py-3 hover:bg-surface-container-low transition-colors text-left group border-b border-surface-container-high/50">
+      <span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors text-[20px]">translate</span>
+      <span class="flex-1 font-bold text-on-surface text-[14px]">Language</span>
+      <span class="material-symbols-outlined text-outline-variant text-base">chevron_right</span>
+    </button>
+    <button class="w-full flex items-center gap-4 px-4 py-3 hover:bg-surface-container-low transition-colors text-left group border-b border-surface-container-high/50">
+      <span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors text-[20px]">quiz</span>
+      <span class="flex-1 font-bold text-on-surface text-[14px]">FAQ &amp; Feedback</span>
+      <span class="material-symbols-outlined text-outline-variant text-base">chevron_right</span>
+    </button>
+    <button onclick="goSettings()" class="w-full flex items-center gap-4 px-4 py-3 hover:bg-surface-container-low transition-colors text-left group">
+      <span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors text-[20px]">tune</span>
+      <span class="flex-1 font-bold text-on-surface text-[14px]">Settings</span>
+      <span class="material-symbols-outlined text-outline-variant text-base">chevron_right</span>
+    </button>
+  </section>
 </main>
-<!-- Bottom Navigation Bar (Cohesive) -->
-<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-2 pt-1 pb-1 ios-safe-bottom bg-white/95 backdrop-blur-xl border-t border-surface-variant/30 z-50 shadow-[0_-8px_30px_rgb(0,0,0,0.04)]">
-<!-- Movie/Video -->
-<button class="flex items-center justify-center text-on-surface-variant/60 w-11 h-11 hover:scale-110 active:scale-90 transition-all">
-<span class="material-symbols-outlined text-[24px]" data-icon="movie">movie</span>
-</button>
-<!-- Groups (Party) -->
-<button class="flex items-center justify-center text-on-surface-variant/60 w-11 h-11 hover:scale-110 active:scale-90 transition-all">
-<span class="material-symbols-outlined text-[24px]" data-icon="celebration">celebration</span>
-</button>
-<!-- Discover/Explore -->
-<button class="flex items-center justify-center text-on-surface-variant/60 w-11 h-11 hover:scale-110 active:scale-90 transition-all">
-<span class="material-symbols-outlined text-[24px]" data-icon="explore">explore</span>
-</button>
-<!-- Chat -->
-<button class="relative flex items-center justify-center text-on-surface-variant/60 w-11 h-11 hover:scale-110 active:scale-90 transition-all">
-<span class="material-symbols-outlined text-[24px]" data-icon="chat">chat</span>
-<span class="absolute top-1 right-1 bg-error-container text-on-error px-1 min-w-[16px] h-[16px] flex items-center justify-center rounded-full text-[8px] font-black border-[1.5px] border-white">99+</span>
-</button>
-<!-- Person (Active Profile) -->
-<button class="flex items-center justify-center bg-primary/10 text-primary rounded-full w-11 h-11 hover:scale-110 active:scale-95 transition-all">
-<span class="material-symbols-outlined text-[24px]" data-icon="person" style="font-variation-settings: 'FILL' 1;">person</span>
-</button>
+
+<!-- Bottom Navigation Bar (same as chats.html) -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-3 bg-white/80 backdrop-blur-xl rounded-t-2xl shadow-[0_-4px_24px_rgba(0,101,113,0.06)]">
+  <button onclick="location.href='dashboard.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
+    <span class="material-symbols-outlined">home</span>
+    <span class="text-[10px] font-label">Home</span>
+  </button>
+  <button onclick="location.href='party.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
+    <span class="material-symbols-outlined">sports_esports</span>
+    <span class="text-[10px] font-label">Party</span>
+  </button>
+  <button onclick="location.href='chats.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
+    <span class="material-symbols-outlined">chat_bubble</span>
+    <span class="text-[10px] font-label">Chats</span>
+  </button>
+  <button class="flex flex-col items-center text-primary">
+    <span class="material-symbols-outlined" style="font-variation-settings:'FILL'1">person</span>
+    <span class="text-[10px] font-label font-bold">Profile</span>
+  </button>
 </nav>
 
 <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+  import { getFirestore, doc, getDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import {
-  getFirestore, doc, getDoc,
-  collection, onSnapshot
-} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+  const app = initializeApp({
+    apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+    authDomain: "galmet-app.firebaseapp.com",
+    projectId: "galmet-app",
+    storageBucket: "galmet-app.firebasestorage.app"
+  });
+  const db = getFirestore(app);
 
-/* CONFIG */
-const app = initializeApp({
-  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
-  authDomain: "galmet-app.firebaseapp.com",
-  projectId: "galmet-app"
-});
+  // ==================== USER LOGIN SYSTEM (userId) ====================
+  const currentUser = JSON.parse(localStorage.getItem("user"));
+  if (!currentUser || !currentUser.userId) {
+    window.location.replace("login.html");
+  }
+  const myUserId = currentUser.userId.toString();
 
-const db = getFirestore(app);
+  // Helper: flag emoji from country code
+  function getFlagEmoji(countryCode) {
+    if (!countryCode) return "🌍";
+    const codePoints = countryCode.toUpperCase().split('').map(c => 127397 + c.charCodeAt(0));
+    return String.fromCodePoint(...codePoints);
+  }
 
-/* USER */
-const me = JSON.parse(localStorage.getItem("user"));
-
-if (!me?.uid) {
-  location.href = "index.html";
-}
-
-const myUid = me.uid;
-
-/* LOAD USER */
-async function loadUser(){
-
-  const snap = await getDoc(doc(db,"users",myUid));
-  if(!snap.exists()) return;
-
-  const u = snap.data();
-
-  document.getElementById("username").innerText =
-    u.username || "User";
-
-  document.getElementById("userIdText").innerText =
-    "ID: " + (u.userId || "");
-
-  document.getElementById("profileImg").src =
-    u.photoURL || "https://ui-avatars.com/api/?name=User";
-
-  document.getElementById("coins").innerText =
-    u.coins || 0;
-}
-
-/* REALTIME STATS */
-onSnapshot(collection(db,"followers",myUid,"list"), s=>{
-  document.getElementById("followersCount").innerText = s.size;
-});
-
-onSnapshot(collection(db,"following",myUid,"list"), s=>{
-  document.getElementById("followingCount").innerText = s.size;
-});
-
-onSnapshot(collection(db,"friends",myUid,"list"), s=>{
-  document.getElementById("friendsCount").innerText = s.size;
-});
-
-/* NAVIGATION */
-window.goView = () => {
-  location.href = "view.html?id=" + myUid;
-};
-
-window.goProfile = () => {
-  location.href = "profile.html";
-};
-
-window.goSettings = () => {
-  location.href = "settings.html";
-};
-
-/* START */
-loadUser();
-
+  // Load user data from Firestore
+  async function loadUser() {
+    const userSnap = await getDoc(doc(db, "users", myUserId));
+    if (!userSnap.exists()) return;
+    const user = userSnap.data();
+    
+    document.getElementById("username").innerText = user.username || user.email || "User";
+    document.getElementById("userIdText").innerText = "ID: " + (user.userId || myUserId);
+    document.getElementById("profileImg").src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username || "User")}&background=006571&color=fff`;
+    document.getElementById("coins").innerText = user.coins || 0;
+    document.getElementById("gems").innerText = user.diamonds || 0;
+    
+    // Level (simple calculation based on coins or custom)
+    let level = 1;
+    if (user.coins >= 10000) level = 5;
+    else if (user.coins >= 5000) level = 4;
+    else if (user.coins >= 2000) level = 3;
+    else if (user.coins >= 500) level = 2;
+    document.getElementById("userLevel").innerText = `Lv.${level}`;
+    
+    // Country flag
+    if (user.country) {
+      const countryCode = typeof user.country === "object" ? user.country.code : null;
+      if (countryCode) {
+        document.getElementById("countryFlag").innerText = getFlagEmoji(countryCode);
+      } else {
+        document.getElementById("countryFlag").innerText = "🌍";
+      }
+    } else {
+      document.getElementById("countryFlag").innerText = "🌍";
+    }
+  }
+  
+  // Real‑time stats: followers, following, friends
+  onSnapshot(collection(db, "followers", myUserId, "list"), (snap) => {
+    document.getElementById("followersCount").innerText = snap.size;
+  });
+  onSnapshot(collection(db, "following", myUserId, "list"), (snap) => {
+    document.getElementById("followingCount").innerText = snap.size;
+  });
+  onSnapshot(collection(db, "friends", myUserId, "list"), (snap) => {
+    document.getElementById("friendsCount").innerText = snap.size;
+  });
+  
+  // Navigation functions
+  window.goProfile = () => {
+    window.location.href = "profile.html"; // same page, but could be edit profile later
+  };
+  window.goSettings = () => {
+    window.location.href = "settings.html";
+  };
+  window.inviteFriend = () => {
+    const inviteCode = currentUser.inviteCode || myUserId;
+    const link = `https://lillaadam.github.io/galmetapp.github.io/?ref=${inviteCode}`;
+    navigator.clipboard.writeText(link);
+    alert("Invite link copied: " + link);
+  };
+  
+  loadUser();
 </script>
-
+</body>
+</html>
