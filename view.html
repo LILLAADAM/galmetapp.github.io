@@ -1,314 +1,547 @@
 <!DOCTYPE html>
-<html>
+<html class="light" lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<style>
-body { margin:0; font-family:Segoe UI; background:#fff; }
-
-/* TOP */
-.top { position:relative; height:320px; }
-.top img { width:100%; height:100%; object-fit:cover; }
-
-/* BACK */
-.back {
-  position:absolute; top:10px; left:10px;
-  background:rgba(0,0,0,0.5); color:white;
-  padding:6px 10px; border-radius:6px;
-}
-
-/* MENU */
-.menu {
-  position:absolute; top:10px; right:10px;
-  color:white; font-size:20px; cursor:pointer;
-}
-
-/* ONLINE */
-.online {
-  position:absolute; top:10px; right:45px;
-  background:#4cd964; padding:5px 10px;
-  border-radius:20px; color:white;
-}
-
-/* INFO */
-.info { padding:15px; }
-
-.stats { display:flex; justify-content:space-around; margin:10px 0; }
-
-button {
-  width:90%; margin:10px; padding:14px;
-  border:none; border-radius:8px; font-size:16px;
-}
-
-.follow { background:#4cd964; color:white; }
-.following { background:#999; color:white; }
-.friend { background:#007aff; color:white; }
-.blocked { background:red; color:white; }
-
-/* POPUP MENU */
-.popup {
-  position:fixed; bottom:0; width:100%;
-  background:white; border-radius:15px 15px 0 0;
-  display:none;
-}
-
-.popup div {
-  padding:15px;
-  text-align:center;
-  border-bottom:1px solid #eee;
-}
-
-/* TOAST */
-.toast {
-  position:fixed;
-  bottom:70px;
-  left:50%;
-  transform:translateX(-50%);
-  background:black;
-  color:white;
-  padding:10px 20px;
-  border-radius:20px;
-  display:none;
-}
-
-/* COPY */
-.copy {
-  margin-left:10px;
-  cursor:pointer;
-}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Galmet – Profile</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface": "#f3f7fb", "surface-container-low": "#ecf1f6",
+            "surface-container-lowest": "#ffffff", "on-surface": "#2a2f32",
+            "on-surface-variant": "#575c60", "primary": "#006571",
+            "primary-container": "#00e3fd", "primary-dim": "#005863",
+            "secondary": "#755700", "tertiary": "#b60051",
+            "outline": "#73777b", "outline-variant": "#a9aeb1"
+          },
+          fontFamily: {
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Be Vietnam Pro"],
+            "label": ["Plus Jakarta Sans"]
+          },
+          borderRadius: { DEFAULT: "1rem", lg: "2rem", xl: "3rem", full: "9999px" }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(20px);
+    }
+    .dark .glass-card {
+      background: rgba(17, 24, 39, 0.6);
+    }
+    /* popup menu */
+    .popup-menu {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: white;
+      border-radius: 1.5rem 1.5rem 0 0;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+      z-index: 200;
+      display: none;
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+    }
+    .popup-menu.show {
+      display: block;
+      transform: translateY(0);
+    }
+    .dark .popup-menu {
+      background: #1f2937;
+    }
+    .popup-item {
+      padding: 1rem;
+      text-align: center;
+      border-bottom: 1px solid #e2e8f0;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .dark .popup-item {
+      border-bottom-color: #374151;
+    }
+    .toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: black;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 14px;
+      z-index: 300;
+      display: none;
+      white-space: nowrap;
+    }
+  </style>
 </head>
+<body class="bg-surface font-body text-on-surface min-h-screen pb-32">
 
-<body>
-
-<div class="top">
-  <div class="back" onclick="history.back()">←</div>
-  <div class="menu" onclick="openMenu()">⋯</div>
-  <div id="onlineBox"></div>
-  <img id="photo">
-</div>
-
-<div class="info">
-  <h2 id="name"></h2>
-  <p id="userIdText"></p>
-  <p id="bio"></p>
-
-  <div class="stats">
-    <div><b id="fans">0</b><br>Fans</div>
-    <div><b id="following">0</b><br>Following</div>
-    <div><b id="friends">0</b><br>Friends</div>
+<!-- Top App Bar -->
+<nav class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 py-4 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/20">
+  <div class="flex items-center gap-3">
+    <button onclick="history.back()" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low active:scale-95 transition">
+      <span class="material-symbols-outlined text-primary">arrow_back</span>
+    </button>
+    <span class="font-headline font-bold text-lg text-primary">Galmet</span>
   </div>
+  <div class="flex items-center gap-2">
+    <button id="menuButton" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low active:scale-95 transition">
+      <span class="material-symbols-outlined text-on-surface-variant">more_vert</span>
+    </button>
+  </div>
+</nav>
 
-  <button id="followBtn" onclick="toggleFollow()">Follow</button>
-  <button id="chatBtn" onclick="startChat()">Chat</button>
+<main class="relative w-full overflow-x-hidden">
+  <!-- Cover Image (same as avatar) -->
+  <section class="relative h-64 w-full">
+    <img id="coverImg" class="w-full h-full object-cover" src="" alt="cover">
+    <div class="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent"></div>
+    <!-- Action button (Edit for own profile, Follow for others) -->
+    <button id="actionBtn" class="absolute bottom-4 right-4 w-12 h-12 bg-primary-fixed rounded-full flex items-center justify-center shadow-lg active:scale-90 transition z-10">
+      <span id="actionIcon" class="material-symbols-outlined text-on-primary-fixed">edit</span>
+    </button>
+  </section>
+
+  <!-- Profile Identity -->
+  <section class="relative px-6 -mt-16 z-20">
+    <div class="flex items-end gap-4 mb-4">
+      <div class="relative">
+        <div class="w-28 h-28 rounded-full p-1 bg-gradient-to-tr from-primary-container to-primary-fixed-dim shadow-lg">
+          <img id="avatarImg" class="w-full h-full rounded-full object-cover border-4 border-white" src="" alt="avatar">
+        </div>
+        <div id="onlineIndicator" class="absolute bottom-1 right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full hidden"></div>
+      </div>
+      <div class="pb-2">
+        <div class="flex items-center gap-2">
+          <h1 id="displayName" class="font-headline font-extrabold text-2xl tracking-tight">Loading...</h1>
+          <span id="countryFlag" class="text-xl">🌍</span>
+        </div>
+        <div class="flex items-center gap-2 mt-1">
+          <span id="genderAge" class="px-3 py-0.5 bg-tertiary-container text-on-tertiary-container rounded-full text-[10px] font-bold flex items-center gap-1">
+            <span class="material-symbols-outlined text-[12px]">female</span> <span id="ageValue">?</span>
+          </span>
+          <div id="onlineText" class="hidden items-center gap-1">
+            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span class="text-[10px] font-bold text-green-600 uppercase tracking-wider">Live</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="glass-card rounded-2xl p-4 flex justify-around items-center gap-4 mb-6">
+      <div class="text-center">
+        <p id="fansCount" class="font-headline font-bold text-xl">0</p>
+        <p class="font-label text-[10px] text-on-surface-variant uppercase tracking-wider">Fans</p>
+      </div>
+      <div class="w-px h-8 bg-outline-variant/20"></div>
+      <div class="text-center">
+        <p id="followingCount" class="font-headline font-bold text-xl">0</p>
+        <p class="font-label text-[10px] text-on-surface-variant uppercase tracking-wider">Following</p>
+      </div>
+      <div class="w-px h-8 bg-outline-variant/20"></div>
+      <div class="text-center">
+        <p id="friendsCount" class="font-headline font-bold text-xl">0</p>
+        <p class="font-label text-[10px] text-on-surface-variant uppercase tracking-wider">Friends</p>
+      </div>
+    </div>
+
+    <!-- Info Chips -->
+    <div class="flex flex-wrap gap-2 mb-6">
+      <div class="px-4 py-2 bg-surface-container-lowest rounded-full flex items-center gap-2 shadow-sm border border-outline-variant/10">
+        <span class="font-label text-xs font-bold text-on-surface-variant">ID: <span id="userIdSpan">---</span></span>
+        <span onclick="copyUserId()" class="material-symbols-outlined text-primary text-sm cursor-pointer">content_copy</span>
+      </div>
+      <div class="px-4 py-2 bg-surface-container-lowest rounded-full flex items-center gap-2 shadow-sm border border-outline-variant/10">
+        <span class="material-symbols-outlined text-primary text-sm">language</span>
+        <span id="languageSpan" class="font-label text-xs font-bold text-on-surface-variant">English</span>
+      </div>
+      <div class="px-4 py-2 bg-surface-container-lowest rounded-full flex items-center gap-2 shadow-sm border border-outline-variant/10">
+        <span class="material-symbols-outlined text-primary text-sm">location_on</span>
+        <span id="locationSpan" class="font-label text-xs font-bold text-on-surface-variant">Unknown</span>
+      </div>
+    </div>
+
+    <!-- Level Cards (based on coins and gift count) -->
+    <div class="grid grid-cols-2 gap-4 mb-8">
+      <div class="p-4 rounded-2xl bg-gradient-to-br from-secondary-container to-secondary-fixed-dim text-on-secondary-container">
+        <div class="flex justify-between items-start mb-2">
+          <span class="material-symbols-outlined text-2xl">military_tech</span>
+          <span id="wealthLevel" class="font-headline font-bold">Lv.1</span>
+        </div>
+        <p class="font-label text-xs font-bold uppercase">Wealth Level</p>
+        <div class="w-full h-1 bg-white/30 rounded-full mt-2">
+          <div id="wealthBar" class="h-full bg-white rounded-full" style="width: 0%"></div>
+        </div>
+      </div>
+      <div class="p-4 rounded-2xl bg-gradient-to-br from-tertiary-container to-tertiary-fixed-dim text-white">
+        <div class="flex justify-between items-start mb-2">
+          <span class="material-symbols-outlined text-2xl">auto_awesome</span>
+          <span id="charmLevel" class="font-headline font-bold">Lv.1</span>
+        </div>
+        <p class="font-label text-xs font-bold uppercase">Charm Level</p>
+        <div class="w-full h-1 bg-white/30 rounded-full mt-2">
+          <div id="charmBar" class="h-full bg-white rounded-full" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gifts Section (static for now) -->
+    <div class="mb-8">
+      <div class="flex justify-between items-center mb-3">
+        <h2 class="font-headline font-semibold text-lg">Gifts</h2>
+        <span id="totalGiftsSpan" class="px-2 py-1 bg-surface-container text-on-surface-variant rounded text-[10px] font-bold">0 Total</span>
+      </div>
+      <div class="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
+        <div class="flex-shrink-0 flex flex-col items-center gap-1">
+          <div class="w-16 h-16 bg-white rounded-xl p-2 shadow-sm flex items-center justify-center border border-outline-variant/10">
+            <span class="material-symbols-outlined text-4xl text-rose-400" style="font-variation-settings:'FILL'1">favorite</span>
+          </div>
+          <span class="font-label text-[10px] font-bold text-on-surface-variant">x0</span>
+        </div>
+        <div class="flex-shrink-0 flex flex-col items-center gap-1">
+          <div class="w-16 h-16 bg-white rounded-xl p-2 shadow-sm flex items-center justify-center border border-outline-variant/10">
+            <span class="material-symbols-outlined text-4xl text-amber-400" style="font-variation-settings:'FILL'1">workspace_premium</span>
+          </div>
+          <span class="font-label text-[10px] font-bold text-on-surface-variant">x0</span>
+        </div>
+        <div class="flex-shrink-0 flex flex-col items-center gap-1">
+          <div class="w-16 h-16 bg-white rounded-xl p-2 shadow-sm flex items-center justify-center border border-outline-variant/10">
+            <span class="material-symbols-outlined text-4xl text-cyan-400" style="font-variation-settings:'FILL'1">diamond</span>
+          </div>
+          <span class="font-label text-[10px] font-bold text-on-surface-variant">x0</span>
+        </div>
+        <div class="flex-shrink-0 flex flex-col items-center gap-1">
+          <div class="w-16 h-16 bg-white rounded-xl p-2 shadow-sm flex items-center justify-center border border-outline-variant/10">
+            <span class="material-symbols-outlined text-4xl text-purple-400" style="font-variation-settings:'FILL'1">local_fire_department</span>
+          </div>
+          <span class="font-label text-[10px] font-bold text-on-surface-variant">x0</span>
+        </div>
+        <div class="flex-shrink-0 flex flex-col items-center gap-1">
+          <div class="w-16 h-16 bg-white rounded-xl p-2 shadow-sm flex items-center justify-center border border-outline-variant/10">
+            <span class="material-symbols-outlined text-4xl text-orange-400" style="font-variation-settings:'FILL'1">celebration</span>
+          </div>
+          <span class="font-label text-[10px] font-bold text-on-surface-variant">x0</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Bottom Action Bar -->
+<div class="fixed bottom-0 left-0 w-full z-50 p-4">
+  <div class="glass-card rounded-full p-2 flex items-center gap-2 shadow-2xl">
+    <button id="giftBtn" class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center text-primary active:scale-95 transition">
+      <span class="material-symbols-outlined">card_giftcard</span>
+    </button>
+    <button id="videoCallBtn" class="flex-1 h-12 rounded-full bg-gradient-to-r from-primary to-primary-fixed-dim text-white flex items-center justify-center gap-2 active:scale-95 transition">
+      <span class="material-symbols-outlined">videocam</span>
+      <div class="flex flex-col items-start leading-tight">
+        <span class="font-label font-bold text-xs">Video Call</span>
+        <span class="text-[9px] opacity-80">5,000 coins/min</span>
+      </div>
+    </button>
+    <button id="chatBtn" class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center text-primary active:scale-95 transition">
+      <span class="material-symbols-outlined">chat_bubble</span>
+    </button>
+  </div>
 </div>
 
-<!-- MENU -->
-<div class="popup" id="menuBox">
-  <div onclick="toggleFollow()">Unfollow</div>
-  <div onclick="toggleBlock()">Block</div>
+<!-- Popup Menu (for follow/unfollow/block) -->
+<div id="popupMenu" class="popup-menu">
+  <div id="popupFollow" class="popup-item">Follow</div>
+  <div id="popupBlock" class="popup-item">Block</div>
+  <div class="popup-item" onclick="closePopup()">Cancel</div>
 </div>
 
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
+<!-- Toast -->
+<div id="toast" class="toast"></div>
 
 <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+  import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import {
-  getFirestore, doc, getDoc, setDoc, deleteDoc,
-  collection, onSnapshot
-} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+  const app = initializeApp({
+    apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+    authDomain: "galmet-app.firebaseapp.com",
+    projectId: "galmet-app",
+    storageBucket: "galmet-app.firebasestorage.app"
+  });
+  const db = getFirestore(app);
 
-const app = initializeApp({
-  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
-  authDomain: "galmet-app.firebaseapp.com",
-  projectId: "galmet-app"
-});
+  // Get current user and target user
+  const currentUser = JSON.parse(localStorage.getItem("user"));
+  if (!currentUser || !currentUser.userId) {
+    window.location.replace("login.html");
+  }
+  const myUserId = currentUser.userId.toString();
+  const targetUserId = new URLSearchParams(window.location.search).get("id");
+  if (!targetUserId) {
+    alert("Invalid profile");
+    window.location.href = "dashboard.html";
+  }
+  const isOwnProfile = (myUserId === targetUserId);
 
-const db = getFirestore(app);
+  // DOM elements
+  const coverImg = document.getElementById("coverImg");
+  const avatarImg = document.getElementById("avatarImg");
+  const displayName = document.getElementById("displayName");
+  const countryFlagSpan = document.getElementById("countryFlag");
+  const genderAgeSpan = document.getElementById("genderAge");
+  const ageValueSpan = document.getElementById("ageValue");
+  const onlineIndicator = document.getElementById("onlineIndicator");
+  const onlineText = document.getElementById("onlineText");
+  const fansCountSpan = document.getElementById("fansCount");
+  const followingCountSpan = document.getElementById("followingCount");
+  const friendsCountSpan = document.getElementById("friendsCount");
+  const userIdSpan = document.getElementById("userIdSpan");
+  const locationSpan = document.getElementById("locationSpan");
+  const wealthLevelSpan = document.getElementById("wealthLevel");
+  const charmLevelSpan = document.getElementById("charmLevel");
+  const wealthBar = document.getElementById("wealthBar");
+  const charmBar = document.getElementById("charmBar");
+  const totalGiftsSpan = document.getElementById("totalGiftsSpan");
+  const actionBtn = document.getElementById("actionBtn");
+  const actionIcon = document.getElementById("actionIcon");
+  const giftBtn = document.getElementById("giftBtn");
+  const videoCallBtn = document.getElementById("videoCallBtn");
+  const chatBtn = document.getElementById("chatBtn");
+  const popupMenu = document.getElementById("popupMenu");
+  const popupFollow = document.getElementById("popupFollow");
+  const popupBlock = document.getElementById("popupBlock");
+  const toast = document.getElementById("toast");
 
-const me = JSON.parse(localStorage.getItem("user"));
-const myUid = me?.uid;
-const uid = new URLSearchParams(location.search).get("id");
+  let targetUserData = null;
+  let isFollowing = false;
+  let isBlocked = false;
 
-/* ELEMENTS */
-const menuBox = document.getElementById("menuBox");
-const followBtn = document.getElementById("followBtn");
-const chatBtn = document.getElementById("chatBtn");
-
-/* TOAST */
-function showToast(msg){
-  const t = document.getElementById("toast");
-  t.innerText = msg;
-  t.style.display="block";
-  setTimeout(()=> t.style.display="none",2000);
-}
-
-/* LOAD PROFILE */
-const snap = await getDoc(doc(db, "users", uid));
-const u = snap.data();
-
-document.getElementById("photo").src = u.photoURL || "";
-document.getElementById("name").innerText = u.username || "User";
-
-document.getElementById("userIdText").innerHTML =
-  "ID: " + (u.userId || "") +
-  `<span class="copy" onclick="copyId()">📑</span>`;
-
-document.getElementById("bio").innerText = u.bio || "";
-
-if(u.online){
-  document.getElementById("onlineBox").innerHTML =
-    `<div class="online">Online</div>`;
-}
-
-/* COPY */
-window.copyId = ()=>{
-  navigator.clipboard.writeText(u.userId);
-  showToast("Copied");
-};
-
-/* REALTIME COUNTS */
-onSnapshot(collection(db,"followers",uid,"list"), s=>{
-  fans.innerText = s.size;
-});
-onSnapshot(collection(db,"following",uid,"list"), s=>{
-  following.innerText = s.size;
-});
-onSnapshot(collection(db,"friends",uid,"list"), s=>{
-  friends.innerText = s.size;
-});
-
-/* REALTIME STATE */
-onSnapshot(doc(db,"followers",uid,"list",myUid), checkState);
-onSnapshot(doc(db,"followers",myUid,"list",uid), checkState);
-onSnapshot(doc(db,"blocked",uid,"list",myUid), checkState);
-
-async function checkState(){
-
-  const f1 = await getDoc(doc(db,"followers",uid,"list",myUid));
-  const f2 = await getDoc(doc(db,"followers",myUid,"list",uid));
-  const block = await getDoc(doc(db,"blocked",uid,"list",myUid));
-
-  /* MAIN BUTTON */
-  if(block.exists()){
-    followBtn.innerText="Blocked";
-    followBtn.className="blocked";
-    chatBtn.style.display="none";
-  } else {
-    chatBtn.style.display="block";
-
-    if(f1.exists() && f2.exists()){
-      followBtn.innerText="Friends";
-      followBtn.className="friend";
-    }
-    else if(f1.exists()){
-      followBtn.innerText="Following";
-      followBtn.className="following";
-    }
-    else{
-      followBtn.innerText="Follow";
-      followBtn.className="follow";
-    }
+  function showToast(msg) {
+    toast.innerText = msg;
+    toast.style.display = "block";
+    setTimeout(() => toast.style.display = "none", 2000);
   }
 
-  /* 🔥 MENU TEXT UPDATE */
-  const menuItems = menuBox.querySelectorAll("div");
+  function copyUserId() {
+    navigator.clipboard.writeText(targetUserId);
+    showToast("User ID copied");
+  }
 
-  if(block.exists()){
-    menuItems[0].innerText = "Follow";
-    menuItems[1].innerText = "Unblock";
-  } else {
-    menuItems[1].innerText = "Block";
+  function getFlagEmoji(countryCode) {
+    if (!countryCode) return "🌍";
+    const code = countryCode.toUpperCase();
+    const codePoints = [...code].map(c => 127397 + c.charCodeAt(0));
+    return String.fromCodePoint(...codePoints);
+  }
 
-    if(f1.exists()){
-      menuItems[0].innerText = "Unfollow";
+  // Load user data
+  async function loadUserData() {
+    const userDoc = await getDoc(doc(db, "users", targetUserId));
+    if (!userDoc.exists()) {
+      alert("User not found");
+      window.location.href = "dashboard.html";
+      return;
+    }
+    targetUserData = userDoc.data();
+    const photo = targetUserData.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(targetUserData.username || "User")}&background=006571&color=fff`;
+    avatarImg.src = photo;
+    coverImg.src = photo; // cover same as avatar
+    displayName.innerText = targetUserData.username || targetUserData.email || "User";
+    userIdSpan.innerText = targetUserData.userId || targetUserId;
+    // Country flag
+    let countryCode = null;
+    if (targetUserData.country) {
+      if (typeof targetUserData.country === "object") countryCode = targetUserData.country.code;
+      else countryCode = targetUserData.country;
+    }
+    countryFlagSpan.innerText = getFlagEmoji(countryCode);
+    // Gender & Age
+    const gender = targetUserData.gender;
+    const age = targetUserData.age || "?";
+    const genderIcon = gender === "male" ? "male" : (gender === "female" ? "female" : "transgender");
+    genderAgeSpan.innerHTML = `<span class="material-symbols-outlined text-[12px]">${genderIcon}</span> ${age}`;
+    ageValueSpan.innerText = age;
+    // Location
+    const countryName = (targetUserData.country && typeof targetUserData.country === "object") ? targetUserData.country.name : (targetUserData.country || "Unknown");
+    locationSpan.innerText = countryName;
+    // Language (default)
+    document.getElementById("languageSpan").innerText = "English";
+    // Online status
+    if (targetUserData.online) {
+      onlineIndicator.classList.remove("hidden");
+      onlineText.classList.remove("hidden");
     } else {
-      menuItems[0].innerText = "Follow";
+      onlineIndicator.classList.add("hidden");
+      onlineText.classList.add("hidden");
+    }
+    // Levels based on coins
+    const coins = targetUserData.coins || 0;
+    const wealth = Math.floor(coins / 500) + 1;
+    wealthLevelSpan.innerText = `Lv.${wealth}`;
+    let wealthPercent = (coins % 500) / 5;
+    wealthBar.style.width = Math.min(100, wealthPercent) + "%";
+    // Charm level based on total gifts (mock)
+    const charm = Math.floor((targetUserData.totalGifts || 0) / 100) + 1;
+    charmLevelSpan.innerText = `Lv.${charm}`;
+    charmBar.style.width = "0%"; // placeholder
+    totalGiftsSpan.innerText = `${targetUserData.totalGifts || 0} Total`;
+  }
+
+  // Real-time stats
+  function listenStats() {
+    onSnapshot(collection(db, "followers", targetUserId, "list"), snap => {
+      fansCountSpan.innerText = snap.size;
+    });
+    onSnapshot(collection(db, "following", targetUserId, "list"), snap => {
+      followingCountSpan.innerText = snap.size;
+    });
+    onSnapshot(collection(db, "friends", targetUserId, "list"), snap => {
+      friendsCountSpan.innerText = snap.size;
+    });
+  }
+
+  // Real-time follow/block state (for others)
+  function listenRelationship() {
+    if (isOwnProfile) return;
+    const followRef = doc(db, "followers", targetUserId, "list", myUserId);
+    const blockRef = doc(db, "blocked", targetUserId, "list", myUserId);
+    onSnapshot(followRef, (snap) => {
+      isFollowing = snap.exists();
+      updatePopupMenu();
+    });
+    onSnapshot(blockRef, (snap) => {
+      isBlocked = snap.exists();
+      updatePopupMenu();
+    });
+  }
+
+  function updatePopupMenu() {
+    if (isBlocked) {
+      popupFollow.innerText = "Unblock";
+      popupBlock.innerText = "Blocked";
+    } else {
+      popupFollow.innerText = isFollowing ? "Unfollow" : "Follow";
+      popupBlock.innerText = "Block";
     }
   }
-}
 
-/* FOLLOW */
-window.toggleFollow = async () => {
-
-  const a = doc(db,"followers",uid,"list",myUid);
-  const b = doc(db,"following",myUid,"list",uid);
-
-  const snap = await getDoc(a);
-
-  if(snap.exists()){
-    await deleteDoc(a);
-    await deleteDoc(b);
-
-    await deleteDoc(doc(db,"friends",uid,"list",myUid));
-    await deleteDoc(doc(db,"friends",myUid,"list",uid));
-
-    showToast("Unfollowed");
-  }
-  else{
-    await setDoc(a,{uid:myUid});
-    await setDoc(b,{uid:uid});
-
-    const other = await getDoc(doc(db,"followers",myUid,"list",uid));
-    if(other.exists()){
-      await setDoc(doc(db,"friends",uid,"list",myUid),{uid:myUid});
-      await setDoc(doc(db,"friends",myUid,"list",uid),{uid:uid});
+  // Actions
+  async function toggleFollow() {
+    if (isBlocked) {
+      await unblockUser();
+      return;
     }
-
-    showToast("Followed");
+    const followRef = doc(db, "followers", targetUserId, "list", myUserId);
+    const followingRef = doc(db, "following", myUserId, "list", targetUserId);
+    if (isFollowing) {
+      await deleteDoc(followRef);
+      await deleteDoc(followingRef);
+      await deleteDoc(doc(db, "friends", targetUserId, "list", myUserId));
+      await deleteDoc(doc(db, "friends", myUserId, "list", targetUserId));
+      showToast("Unfollowed");
+    } else {
+      await setDoc(followRef, { uid: myUserId });
+      await setDoc(followingRef, { uid: targetUserId });
+      const mutual = await getDoc(doc(db, "followers", myUserId, "list", targetUserId));
+      if (mutual.exists()) {
+        await setDoc(doc(db, "friends", targetUserId, "list", myUserId), { uid: myUserId });
+        await setDoc(doc(db, "friends", myUserId, "list", targetUserId), { uid: targetUserId });
+      }
+      showToast("Followed");
+    }
+    closePopup();
   }
 
-  closeMenu();
-};
-
-/* BLOCK */
-window.toggleBlock = async () => {
-
-  const ref = doc(db,"blocked",uid,"list",myUid);
-  const snap = await getDoc(ref);
-
-  if(snap.exists()){
-    await deleteDoc(ref);
-    showToast("Unblocked");
-  }else{
-    await setDoc(ref,{uid:myUid});
-
-    await deleteDoc(doc(db,"followers",uid,"list",myUid));
-    await deleteDoc(doc(db,"following",myUid,"list",uid));
-    await deleteDoc(doc(db,"friends",uid,"list",myUid));
-    await deleteDoc(doc(db,"friends",myUid,"list",uid));
-
+  async function toggleBlock() {
+    if (isBlocked) {
+      await unblockUser();
+      return;
+    }
+    const blockRef = doc(db, "blocked", targetUserId, "list", myUserId);
+    await setDoc(blockRef, { uid: myUserId });
+    // Remove all relationships
+    await deleteDoc(doc(db, "followers", targetUserId, "list", myUserId));
+    await deleteDoc(doc(db, "following", myUserId, "list", targetUserId));
+    await deleteDoc(doc(db, "friends", targetUserId, "list", myUserId));
+    await deleteDoc(doc(db, "friends", myUserId, "list", targetUserId));
     showToast("Blocked");
+    closePopup();
   }
 
-  closeMenu();
-};
-
-/* MENU OPEN */
-window.openMenu = () => {
-  menuBox.style.display="block";
-};
-
-/* MENU CLOSE */
-function closeMenu(){
-  menuBox.style.display="none";
-}
-
-/* 🔥 CLICK OUTSIDE CLOSE */
-window.addEventListener("click",(e)=>{
-  if(!menuBox.contains(e.target) && !e.target.classList.contains("menu")){
-    closeMenu();
+  async function unblockUser() {
+    const blockRef = doc(db, "blocked", targetUserId, "list", myUserId);
+    await deleteDoc(blockRef);
+    showToast("Unblocked");
+    closePopup();
   }
-});
 
-/* CHAT */
-window.startChat = () => {
-  location="chat.html?id="+uid;
-};
+  // Edit profile (redirect to edit page)
+  function editProfile() {
+    window.location.href = "edit-profile.html"; // you can create this page later
+  }
 
+  // Chat
+  function startChat() {
+    window.location.href = `chat.html?id=${targetUserId}`;
+  }
+
+  // Gift / Video call placeholders
+  function sendGift() {
+    showToast("Gift shop coming soon");
+  }
+  function startVideoCall() {
+    showToast("Video call costs 5,000 coins/min (coming soon)");
+  }
+
+  // Popup menu control
+  function openPopup() {
+    popupMenu.classList.add("show");
+  }
+  window.closePopup = function() {
+    popupMenu.classList.remove("show");
+  };
+  window.addEventListener("click", (e) => {
+    if (!popupMenu.contains(e.target) && e.target !== document.getElementById("menuButton") && !document.getElementById("menuButton")?.contains(e.target)) {
+      closePopup();
+    }
+  });
+
+  // Set up UI based on own profile or other
+  function setupUI() {
+    if (isOwnProfile) {
+      actionIcon.innerText = "edit";
+      actionBtn.onclick = editProfile;
+      document.getElementById("menuButton").style.display = "none";
+    } else {
+      actionIcon.innerText = "add";
+      actionBtn.onclick = () => startChat(); // or follow? but we have menu
+      document.getElementById("menuButton").onclick = openPopup;
+      popupFollow.onclick = toggleFollow;
+      popupBlock.onclick = toggleBlock;
+      listenRelationship();
+    }
+    chatBtn.onclick = startChat;
+    giftBtn.onclick = sendGift;
+    videoCallBtn.onclick = startVideoCall;
+  }
+
+  // Init
+  await loadUserData();
+  listenStats();
+  setupUI();
 </script>
-
 </body>
 </html>
