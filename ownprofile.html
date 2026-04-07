@@ -283,6 +283,15 @@
   }
 
   // ✅ string case
+  function getFlagEmoji(country) {
+  if (!country) return "🌍";
+
+  let code = null;
+
+  if (typeof country === "object") {
+    code = country.flag || country.code;
+  }
+
   if (typeof country === "string") {
     const map = {
       pakistan: "PK",
@@ -298,14 +307,13 @@
     code = map[country.toLowerCase()];
   }
 
-  if (!code || code.length !== 2) return "🌍";
+  if (!code) return "🌍";
 
-  // ✅ CORRECT FLAG EMOJI GENERATION
   return code
     .toUpperCase()
-    .split('')
+    .split("")
     .map(c => String.fromCodePoint(127397 + c.charCodeAt()))
-    .join('');
+    .join("");
 }
   // Real‑time user data (coins, gems, level, flag)
   onSnapshot(userRef, (snap) => {
