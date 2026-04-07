@@ -165,7 +165,7 @@
       </div>
     </div>
 
-    <!-- Level Cards (visible colors) -->
+    <!-- Level Cards -->
     <div class="grid grid-cols-2 gap-4 mb-8">
       <div class="p-4 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700 text-white shadow-md">
         <div class="flex justify-between items-start mb-2">
@@ -231,8 +231,8 @@
   </section>
 </main>
 
-<!-- Bottom Action Bar -->
-<div class="fixed bottom-0 left-0 w-full z-50 p-4">
+<!-- Bottom Action Bar (only for other profiles) -->
+<div id="bottomActions" class="fixed bottom-0 left-0 w-full z-50 p-4 hidden">
   <div class="glass-card rounded-full p-2 flex items-center gap-2 shadow-2xl">
     <button id="giftBtn" class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center text-primary active:scale-95 transition">
       <span class="material-symbols-outlined">card_giftcard</span>
@@ -250,6 +250,13 @@
   </div>
 </div>
 
+<!-- Floating Action Button (Follow/Edit) - only visible if not following (for others) -->
+<div id="floatingAction" class="fixed bottom-24 right-6 z-20 hidden">
+  <button id="actionBtn" class="w-12 h-12 bg-primary-fixed rounded-full flex items-center justify-center shadow-lg active:scale-90 transition">
+    <span id="actionIcon" class="material-symbols-outlined text-on-primary-fixed">add</span>
+  </button>
+</div>
+
 <!-- Popup Menu (for follow/unfollow/block) -->
 <div id="popupMenu" class="popup-menu">
   <div id="popupFollow" class="popup-item">Follow</div>
@@ -259,13 +266,6 @@
 
 <!-- Toast -->
 <div id="toast" class="toast"></div>
-
-<!-- Action Button (floating over avatar area) - moved to top right of avatar -->
-<div class="fixed bottom-24 right-6 z-20">
-  <button id="actionBtn" class="w-12 h-12 bg-primary-fixed rounded-full flex items-center justify-center shadow-lg active:scale-90 transition">
-    <span id="actionIcon" class="material-symbols-outlined text-on-primary-fixed">edit</span>
-  </button>
-</div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
@@ -311,6 +311,8 @@
   const wealthBar = document.getElementById("wealthBar");
   const charmBar = document.getElementById("charmBar");
   const totalGiftsSpan = document.getElementById("totalGiftsSpan");
+  const floatingAction = document.getElementById("floatingAction");
+  const bottomActions = document.getElementById("bottomActions");
   const actionBtn = document.getElementById("actionBtn");
   const actionIcon = document.getElementById("actionIcon");
   const giftBtn = document.getElementById("giftBtn");
@@ -422,19 +424,39 @@
     });
   }
 
-  // Real-time follow/block state (for others)
+  // Real-time follow/block state and UI visibility
   function listenRelationship() {
     if (isOwnProfile) return;
     const followRef = doc(db, "followers", targetUserId, "list", myUserId);
     const blockRef = doc(db, "blocked", targetUserId, "list", myUserId);
     onSnapshot(followRef, (snap) => {
       isFollowing = snap.exists();
+      updateUIForFollowState();
       updatePopupMenu();
     });
     onSnapshot(blockRef, (snap) => {
       isBlocked = snap.exists();
+      updateUIForFollowState();
       updatePopupMenu();
     });
+  }
+
+  function updateUIForFollowState() {
+    if (isOwnProfile) return;
+    if (isBlocked) {
+      floatingAction.classList.add("hidden");
+      bottomActions.classList.add("hidden");
+    } else {
+      // Show floating action button only if NOT following
+      if (!isFollowing) {
+        floatingAction.classList.remove("hidden");
+        actionIcon.innerText = "add";
+      } else {
+        floatingAction.classList.add("hidden");
+      }
+      // Bottom actions always visible for others (unless blocked)
+      bottomActions.classList.remove("hidden");
+    }
   }
 
   function updatePopupMenu() {
@@ -501,7 +523,7 @@
     window.location.href = "profile.html";
   }
 
-  // Follow/unfollow from floating action button (for other profiles)
+  // Follow/unfollow from floating action button
   async function actionButtonClick() {
     if (isOwnProfile) {
       editProfile();
@@ -539,14 +561,17 @@
   // Set up UI based on own profile or other
   function setupUI() {
     if (isOwnProfile) {
-      actionIcon.innerText = "edit";
+      // Own profile: no floating action, no bottom actions, no menu button
+      floatingAction.classList.add("hidden");
+      bottomActions.classList.add("hidden");
       document.getElementById("menuButton").style.display = "none";
     } else {
-      actionIcon.innerText = "add";
+      // Other profile: show menu button, set up popup
       document.getElementById("menuButton").onclick = openPopup;
       popupFollow.onclick = toggleFollow;
       popupBlock.onclick = toggleBlock;
       listenRelationship();
+      // Bottom actions will be shown by listener (if not blocked)
     }
     actionBtn.onclick = actionButtonClick;
     chatBtn.onclick = startChat;
