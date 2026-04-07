@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Coins Store - Galmet</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface": "#f3f7fb",
+            "surface-container-low": "#ecf1f6",
+            "surface-container-lowest": "#ffffff",
+            "on-surface": "#2a2f32",
+            "on-surface-variant": "#575c60",
+            "primary": "#006571",
+            "primary-container": "#00e3fd",
+            "primary-dim": "#005863",
+            "secondary": "#755700",
+            "tertiary": "#b60051",
+            "outline": "#73777b",
+            "outline-variant": "#a9aeb1",
+            "error": "#b31b25"
+          },
+          fontFamily: {
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Be Vietnam Pro"],
+            "label": ["Plus Jakarta Sans"]
+          },
+          borderRadius: { DEFAULT: "1rem", lg: "2rem", xl: "3rem", full: "9999px" }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+  </style>
+</head>
+<body class="bg-surface font-body text-on-surface min-h-screen pb-24">
+
+<!-- Top App Bar -->
+<header class="sticky top-0 w-full bg-surface/80 backdrop-blur-xl z-50 border-b border-outline-variant/20">
+  <div class="flex justify-between items-center px-4 h-14 max-w-md mx-auto">
+    <button id="backBtn" class="p-2 rounded-full hover:bg-primary-container/30 transition-colors active:scale-95">
+      <span class="material-symbols-outlined text-primary">arrow_back</span>
+    </button>
+    <h1 class="font-headline font-semibold text-lg text-primary">Coins</h1>
+    <button id="historyBtn" class="p-2 rounded-full hover:bg-primary-container/30 transition-colors active:scale-95">
+      <span class="material-symbols-outlined text-primary">history</span>
+    </button>
+  </div>
+</header>
+
+<main class="max-w-md mx-auto px-4 pt-5 pb-10 space-y-5">
+  <!-- Balance Card -->
+  <div class="bg-surface-container-lowest rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+    <div class="w-14 h-14 bg-secondary-container rounded-full flex items-center justify-center shadow-md">
+      <span class="material-symbols-outlined text-on-secondary-fixed text-3xl" style="font-variation-settings:'FILL'1">monetization_on</span>
+    </div>
+    <div>
+      <p class="font-label text-[10px] uppercase tracking-wider text-outline">Current Balance</p>
+      <p id="coinsBalance" class="font-headline font-bold text-3xl text-on-surface">0</p>
+    </div>
+  </div>
+
+  <!-- User Info Card (compact) -->
+  <div class="bg-surface-container-low rounded-xl p-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <img id="userAvatar" class="w-10 h-10 rounded-full object-cover" src="https://ui-avatars.com/api/?name=User">
+      <div>
+        <p id="userName" class="font-headline font-semibold text-sm text-on-surface">Loading...</p>
+        <p id="userLevel" class="font-label text-[10px] text-outline">Lv. --</p>
+      </div>
+    </div>
+    <button id="changeBtn" class="bg-surface-container-highest text-primary text-xs px-3 py-1.5 rounded-full font-bold active:scale-95 transition">Change</button>
+  </div>
+
+  <!-- Level Restriction Message (hidden by default) -->
+  <div id="restrictionMsg" class="bg-error-container/20 text-error p-3 rounded-xl text-center text-sm font-medium hidden">
+    ⚠️ Top‑up is only available for Wealth Level 3 or higher.<br>
+    Keep playing to level up!
+  </div>
+
+  <!-- Tabs -->
+  <div class="flex p-1 bg-surface-container-high/50 backdrop-blur-md rounded-full">
+    <button id="googleTab" class="flex-1 py-2 rounded-full text-primary font-headline font-bold text-sm flex items-center justify-center gap-1 bg-white shadow-sm">
+      <span class="material-symbols-outlined text-base">account_balance_wallet</span> Google
+    </button>
+    <button id="recommendedTab" class="flex-1 py-2 rounded-full text-on-surface-variant font-headline font-semibold text-sm flex items-center justify-center gap-1">
+      <span class="material-symbols-outlined text-base">star</span> Recommended
+    </button>
+  </div>
+
+  <!-- Packages Grid (Recommended) -->
+  <div id="packagesGrid" class="grid grid-cols-2 gap-3">
+    <!-- Packs will be injected via JS -->
+  </div>
+
+  <!-- Google Section (hidden by default) -->
+  <div id="googleSection" class="hidden text-center py-8">
+    <span class="material-symbols-outlined text-5xl text-outline">construction</span>
+    <p class="text-outline mt-2">Google Pay integration coming soon</p>
+  </div>
+
+  <p class="text-center text-[10px] text-outline uppercase tracking-wider pb-4">Secure checkout • Instant delivery</p>
+</main>
+
+<!-- Bottom Navigation (standard) -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-3 bg-white/80 backdrop-blur-xl rounded-t-2xl shadow-[0_-4px_24px_rgba(0,101,113,0.06)]">
+  <button onclick="location.href='dashboard.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
+    <span class="material-symbols-outlined">home</span>
+    <span class="text-[10px] font-label">Home</span>
+  </button>
+  <button onclick="location.href='party.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
+    <span class="material-symbols-outlined">sports_esports</span>
+    <span class="text-[10px] font-label">Party</span>
+  </button>
+  <button onclick="location.href='chats.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
+    <span class="material-symbols-outlined">chat_bubble</span>
+    <span class="text-[10px] font-label">Chats</span>
+  </button>
+  <button onclick="location.href='profile.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
+    <span class="material-symbols-outlined">person</span>
+    <span class="text-[10px] font-label">Profile</span>
+  </button>
+</nav>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+  import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+  const app = initializeApp({
+    apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+    authDomain: "galmet-app.firebaseapp.com",
+    projectId: "galmet-app",
+    storageBucket: "galmet-app.firebasestorage.app"
+  });
+  const db = getFirestore(app);
+
+  // User from localStorage
+  const currentUser = JSON.parse(localStorage.getItem("user"));
+  if (!currentUser || !currentUser.userId) {
+    window.location.replace("login.html");
+  }
+  const userId = currentUser.userId.toString();
+  const userRef = doc(db, "users", userId);
+
+  let userCoins = 0;
+  let userLevel = 1;
+
+  // Predefined packs: USDT amount, coin bonus (using old rates? but we just show USDT and coins)
+  // For simplicity, we show pack amount and price. Coins are calculated on backend.
+  const packs = [
+    { usdt: 1, price: "$1.00", coinsBonus: 5000, icon: "payments" },
+    { usdt: 10, price: "$10.00", coinsBonus: 55000, icon: "monetization_on", hot: true },
+    { usdt: 50, price: "$50.00", coinsBonus: 300000, icon: "savings" },
+    { usdt: 100, price: "$100.00", coinsBonus: 620000, icon: "database" },
+    { usdt: 500, price: "$500.00", coinsBonus: 3250000, icon: "diamond", wide: true }
+  ];
+
+  function getLevelFromCoins(coins) {
+    if (coins >= 10000) return 5;
+    if (coins >= 5000) return 4;
+    if (coins >= 2000) return 3;
+    if (coins >= 500) return 2;
+    return 1;
+  }
+
+  function renderPacks() {
+    const container = document.getElementById("packagesGrid");
+    container.innerHTML = "";
+    for (const p of packs) {
+      const card = document.createElement("div");
+      card.className = `bg-surface-container-lowest p-4 flex flex-col items-center rounded-xl shadow-sm ${p.wide ? 'col-span-2 flex-row justify-between' : ''}`;
+      if (p.wide) {
+        card.innerHTML = `
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-secondary-fixed-dim text-4xl" style="font-variation-settings:'FILL'1">${p.icon}</span>
+            <div>
+              <span class="block font-headline font-extrabold text-2xl text-on-surface">${p.coinsBonus.toLocaleString()}</span>
+              <span class="block font-label text-[10px] text-outline uppercase">Coins</span>
+            </div>
+          </div>
+          <button class="px-5 py-2 bg-primary text-white rounded-full font-bold text-sm active:scale-95 transition pack-btn" data-usdt="${p.usdt}">${p.price}</button>
+        `;
+      } else {
+        card.innerHTML = `
+          <span class="material-symbols-outlined text-secondary-fixed-dim text-4xl mb-2" style="font-variation-settings:'FILL'1">${p.icon}</span>
+          <span class="font-headline font-extrabold text-2xl text-on-surface">${p.coinsBonus.toLocaleString()}</span>
+          <span class="font-label text-[10px] text-outline uppercase mb-3">Coins</span>
+          <button class="w-full py-2 bg-primary text-white rounded-full font-bold text-sm active:scale-95 transition pack-btn" data-usdt="${p.usdt}">${p.price}</button>
+        `;
+        if (p.hot) {
+          const badge = document.createElement("div");
+          badge.className = "absolute -top-2 -right-2 bg-tertiary text-white text-[8px] font-bold px-2 py-0.5 rounded-full uppercase";
+          badge.innerText = "Hot";
+          card.classList.add("relative");
+          card.appendChild(badge);
+        }
+      }
+      container.appendChild(card);
+    }
+
+    // Attach event listeners
+    document.querySelectorAll(".pack-btn").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const usdt = parseInt(btn.dataset.usdt);
+        if (userLevel < 3) {
+          alert("Top‑up is only available for Wealth Level 3 or higher.");
+          return;
+        }
+        // Redirect to topup page with amount
+        window.location.href = `topup.html?amount=${usdt}`;
+      });
+    });
+  }
+
+  // Real‑time user data
+  onSnapshot(userRef, (snap) => {
+    if (snap.exists()) {
+      const data = snap.data();
+      userCoins = data.coins || 0;
+      userLevel = getLevelFromCoins(userCoins);
+      document.getElementById("coinsBalance").innerText = userCoins.toLocaleString();
+      document.getElementById("userLevel").innerText = `Lv. ${userLevel}`;
+      document.getElementById("userName").innerText = data.username || "User";
+      const avatar = data.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.username || "User")}&background=006571&color=fff`;
+      document.getElementById("userAvatar").src = avatar;
+
+      // Show restriction message if level < 3
+      const restrictionMsg = document.getElementById("restrictionMsg");
+      if (userLevel < 3) {
+        restrictionMsg.classList.remove("hidden");
+      } else {
+        restrictionMsg.classList.add("hidden");
+      }
+    }
+  });
+
+  // Tab switching
+  const googleTab = document.getElementById("googleTab");
+  const recommendedTab = document.getElementById("recommendedTab");
+  const packagesGrid = document.getElementById("packagesGrid");
+  const googleSection = document.getElementById("googleSection");
+
+  googleTab.addEventListener("click", () => {
+    googleTab.classList.add("bg-white", "shadow-sm", "text-primary");
+    googleTab.classList.remove("text-on-surface-variant");
+    recommendedTab.classList.remove("bg-white", "shadow-sm", "text-primary");
+    recommendedTab.classList.add("text-on-surface-variant");
+    packagesGrid.classList.add("hidden");
+    googleSection.classList.remove("hidden");
+  });
+  recommendedTab.addEventListener("click", () => {
+    recommendedTab.classList.add("bg-white", "shadow-sm", "text-primary");
+    recommendedTab.classList.remove("text-on-surface-variant");
+    googleTab.classList.remove("bg-white", "shadow-sm", "text-primary");
+    googleTab.classList.add("text-on-surface-variant");
+    googleSection.classList.add("hidden");
+    packagesGrid.classList.remove("hidden");
+  });
+  // initial: recommended active
+  recommendedTab.click();
+
+  // Navigation
+  document.getElementById("backBtn").addEventListener("click", () => window.history.back());
+  document.getElementById("historyBtn").addEventListener("click", () => window.location.href = "coinshistory.html");
+  document.getElementById("changeBtn").addEventListener("click", () => alert("Change profile coming soon"));
+
+  // Render packs
+  renderPacks();
+</script>
+</body>
+</html>
