@@ -1,266 +1,452 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Your Profile</title>
-
-<style>
-body {
-    margin:0;
-    font-family:'Segoe UI',sans-serif;
-    background: linear-gradient(135deg,#0f1b5c,#1f2f9c);
-    color:white;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    min-height:100vh;
-}
-
-.card {
-    background: rgba(255,255,255,0.08);
-    padding:25px;
-    border-radius:15px;
-    width:90%;
-    max-width:420px;
-    text-align:center;
-}
-
-img {
-    width:110px;
-    height:110px;
-    border-radius:50%;
-    margin-bottom:10px;
-    object-fit:cover;
-    border:3px solid rgba(255,255,255,0.2);
-}
-
-input, textarea {
-    width:100%;
-    padding:10px;
-    margin-top:8px;
-    border:none;
-    border-radius:8px;
-}
-
-button {
-    width:100%;
-    padding:12px;
-    margin-top:10px;
-    border:none;
-    border-radius:8px;
-    font-weight:bold;
-    cursor:pointer;
-}
-
-.save { background:#f39c12; color:white; }
-.logout { background:red; color:white; }
-.back { background:#4cd964; color:white; }
-
-.file-btn {
-    background:#222;
-    padding:10px;
-    border-radius:8px;
-    margin-top:10px;
-    cursor:pointer;
-}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Edit Profile - Galmet</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface": "#f3f7fb",
+            "surface-container-low": "#ecf1f6",
+            "surface-container-lowest": "#ffffff",
+            "on-surface": "#2a2f32",
+            "on-surface-variant": "#575c60",
+            "primary": "#006571",
+            "primary-container": "#00e3fd",
+            "primary-dim": "#005863",
+            "secondary": "#755700",
+            "tertiary": "#b60051",
+            "outline": "#73777b",
+            "outline-variant": "#a9aeb1",
+            "error": "#b31b25"
+          },
+          fontFamily: {
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Be Vietnam Pro"],
+            "label": ["Plus Jakarta Sans"]
+          },
+          borderRadius: { DEFAULT: "1rem", lg: "2rem", xl: "3rem", full: "9999px" }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    /* loading overlay */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+    }
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #fff;
+      border-top-color: #006571;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
 </head>
+<body class="bg-surface font-body text-on-surface min-h-screen pb-6">
 
-<body>
+<!-- Top App Bar (no bottom navigation) -->
+<header class="sticky top-0 w-full bg-surface/80 backdrop-blur-xl z-50 border-b border-outline-variant/20">
+  <div class="flex justify-between items-center px-4 h-14 max-w-md mx-auto">
+    <button id="backBtn" class="p-2 rounded-full hover:bg-primary-container/30 transition-colors active:scale-95">
+      <span class="material-symbols-outlined text-primary">arrow_back</span>
+    </button>
+    <h1 class="font-headline font-semibold text-lg text-primary">Edit Profile</h1>
+    <button id="saveBtn" class="p-2 rounded-full hover:bg-primary-container/30 transition-colors active:scale-95">
+      <span class="material-symbols-outlined text-primary">check</span>
+    </button>
+  </div>
+</header>
 
-<div class="card">
+<main class="max-w-md mx-auto px-4 py-5 space-y-5">
+  <!-- Profile Photo Section -->
+  <section class="flex flex-col items-center justify-center py-2">
+    <div class="relative group">
+      <div class="w-28 h-28 rounded-full overflow-hidden border-4 border-surface-container-lowest shadow-lg">
+        <img id="profileImg" class="w-full h-full object-cover" src="https://ui-avatars.com/api/?name=User">
+      </div>
+      <button id="cameraBtn" class="absolute bottom-1 right-1 bg-primary text-on-primary p-2 rounded-full shadow-lg hover:scale-105 transition-transform">
+        <span class="material-symbols-outlined" style="font-variation-settings:'FILL'1">camera</span>
+      </button>
+      <input type="file" id="photoInput" accept="image/*" hidden>
+    </div>
+  </section>
 
-<h2>Your Profile</h2>
+  <!-- Identity & Basic Info -->
+  <div class="bg-surface-container-low rounded-xl p-1 space-y-1">
+    <!-- ID Item (read‑only, with copy) -->
+    <div class="bg-surface-container-lowest p-3 flex items-center justify-between rounded-t-lg rounded-b-sm">
+      <div>
+        <p class="text-[10px] font-headline font-bold text-outline tracking-wider">ID</p>
+        <p id="userIdDisplay" class="font-headline font-semibold text-on-surface text-sm">---</p>
+      </div>
+      <button id="copyIdBtn" class="p-2 text-primary hover:bg-primary-container/20 rounded-full transition-colors">
+        <span class="material-symbols-outlined text-sm">content_copy</span>
+      </button>
+    </div>
 
-<img id="photo">
+    <!-- Nickname (editable) -->
+    <button id="editNicknameBtn" class="w-full bg-surface-container-lowest p-3 flex items-center justify-between rounded-sm text-left hover:bg-surface-bright transition-colors group">
+      <div class="flex-1">
+        <p class="text-[10px] font-headline font-bold text-outline tracking-wider">Nickname</p>
+        <p id="nicknameDisplay" class="font-headline font-semibold text-on-surface text-sm">Loading...</p>
+      </div>
+      <span class="material-symbols-outlined text-outline-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+    </button>
 
-<h3 id="usernameDisplay">Loading...</h3>
-<p id="email"></p>
-<p style="font-size:13px;opacity:0.7;">User ID: <span id="userId"></span></p>
+    <!-- Age (read‑only) -->
+    <div class="bg-surface-container-lowest p-3 flex items-center justify-between rounded-sm">
+      <div>
+        <p class="text-[10px] font-headline font-bold text-outline tracking-wider">Age</p>
+        <p id="ageDisplay" class="font-headline font-semibold text-on-surface text-sm">--</p>
+      </div>
+      <span id="levelBadge" class="px-3 py-1 bg-secondary-container/20 text-on-secondary-container text-[11px] font-bold rounded-full">Lv. --</span>
+    </div>
 
-<!-- USERNAME -->
-<input id="username" placeholder="Username (min 4 chars)">
+    <!-- Region (read‑only, from country) -->
+    <div class="bg-surface-container-lowest p-3 flex items-center justify-between rounded-sm">
+      <div>
+        <p class="text-[10px] font-headline font-bold text-outline tracking-wider">Region</p>
+        <p id="regionDisplay" class="font-headline font-semibold text-on-surface text-sm flex items-center gap-1">🌍 Loading...</p>
+      </div>
+    </div>
 
-<!-- BIO -->
-<textarea id="bio" placeholder="Your bio..."></textarea>
+    <!-- Location (toggle hide/show) -->
+    <button id="locationToggleBtn" class="w-full bg-surface-container-lowest p-3 flex items-center justify-between rounded-sm text-left hover:bg-surface-bright transition-colors group">
+      <div class="flex-1">
+        <p class="text-[10px] font-headline font-bold text-outline tracking-wider">Location</p>
+        <p id="locationStatus" class="font-headline font-semibold text-outline text-sm">Hide</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary text-base">location_on</span>
+        <span class="material-symbols-outlined text-outline-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+      </div>
+    </button>
 
-<!-- HIDDEN FILE INPUT -->
-<input type="file" id="photoInput" hidden>
+    <!-- Language (coming soon) -->
+    <button id="languageBtn" class="w-full bg-surface-container-lowest p-3 flex items-center justify-between rounded-sm text-left hover:bg-surface-bright transition-colors group">
+      <div class="flex-1">
+        <p class="text-[10px] font-headline font-bold text-outline tracking-wider">Language</p>
+        <p class="font-headline font-semibold text-on-surface text-sm">English</p>
+      </div>
+      <span class="material-symbols-outlined text-outline-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+    </button>
 
-<div class="file-btn" onclick="document.getElementById('photoInput').click()">
-📸 Change Profile Photo
+    <!-- Account Verification (linked email) -->
+    <div class="bg-surface-container-lowest p-3 flex items-center justify-between rounded-b-lg">
+      <div class="flex-1">
+        <p class="text-[10px] font-headline font-bold text-outline tracking-wider">Account Verification</p>
+        <div class="flex items-center gap-2 mt-0.5">
+          <span class="material-symbols-outlined text-error text-sm" style="font-variation-settings:'FILL'1">error</span>
+          <p id="emailDisplay" class="font-headline font-semibold text-error text-sm">---</p>
+        </div>
+      </div>
+      <button id="verifyBtn" class="px-3 py-1.5 bg-error-container text-on-error-container text-xs font-bold rounded-full">Verify Now</button>
+    </div>
+  </div>
+
+  <!-- Linked Accounts (coming soon) -->
+  <section class="pt-2 px-1">
+    <p class="text-xs text-outline font-medium px-1 mb-2">Linked Accounts</p>
+    <div class="flex gap-3">
+      <div class="flex-1 bg-surface-container p-3 rounded-xl flex items-center justify-center">
+        <img alt="Google" class="h-5 opacity-50 grayscale" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAatlW_DOwUxsZUOVlS2d0gCFtNbyl5UaAURQ3DN4USVxvwznHyxT5UjAiKf-2vlT1TKslZ08c7Oc3i79NDVWLT02ZfD33QbMrDvj_rikq5iKze6TmRItRXAufvrqWkF1rKIrZ1jv5pvuEK_sMXYiMuznPYPZ9SuGPIsl-lbLfI5upT9y1hy7xVvjE_GWiVnFscvEjRiMsAPA2chiHAFkBezyPa4UUCeBdcSP6ZoZylKRVKauy5wpHoeB9qdsTqt4VByO7XxLY_vV2M">
+      </div>
+      <button id="addAccountBtn" class="flex-1 bg-surface-container p-3 rounded-xl flex items-center justify-center gap-1 hover:bg-surface-container-high transition">
+        <span class="material-symbols-outlined text-primary text-base">add</span>
+        <span class="font-headline font-bold text-xs text-primary">Add More</span>
+      </button>
+    </div>
+  </section>
+</main>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay hidden">
+  <div class="spinner"></div>
 </div>
 
-<button class="save" onclick="updateProfile()">Save Profile</button>
-<button class="back" onclick="goBack()">⬅ Back</button>
-<button class="logout" onclick="logout()">Logout</button>
-
+<!-- Nickname Edit Modal -->
+<div id="nicknameModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] hidden items-center justify-center p-4" onclick="if(event.target===this) closeNicknameModal()">
+  <div class="bg-surface-container-lowest rounded-2xl max-w-sm w-full p-5 shadow-xl">
+    <h3 class="font-headline font-bold text-lg mb-3">Change Nickname</h3>
+    <input type="text" id="nicknameInput" class="w-full bg-surface-container-low rounded-xl px-4 py-3 ring-1 ring-outline-variant/15 focus:ring-2 focus:ring-primary" placeholder="Enter new nickname">
+    <div class="flex gap-3 mt-4">
+      <button onclick="closeNicknameModal()" class="flex-1 py-2 rounded-full bg-surface-container-low text-on-surface-variant">Cancel</button>
+      <button id="saveNicknameBtn" class="flex-1 py-2 rounded-full bg-primary text-white">Save</button>
+    </div>
+  </div>
 </div>
 
 <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+  import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } 
-from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+  const app = initializeApp({
+    apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+    authDomain: "galmet-app.firebaseapp.com",
+    projectId: "galmet-app",
+    storageBucket: "galmet-app.firebasestorage.app"
+  });
+  const db = getFirestore(app);
+  const storage = getStorage(app);
 
-import { 
-    getFirestore, doc, getDoc, updateDoc, 
-    collection, query, where, getDocs 
-} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+  // Get current user from localStorage (new login system)
+  const currentUser = JSON.parse(localStorage.getItem("user"));
+  if (!currentUser || !currentUser.userId) {
+    window.location.replace("login.html");
+  }
+  const userId = currentUser.userId.toString();
+  const userRef = doc(db, "users", userId);
 
-import { 
-    getStorage, ref, uploadBytes, getDownloadURL 
-} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
+  // DOM elements
+  const profileImg = document.getElementById("profileImg");
+  const userIdDisplay = document.getElementById("userIdDisplay");
+  const nicknameDisplay = document.getElementById("nicknameDisplay");
+  const ageDisplay = document.getElementById("ageDisplay");
+  const levelBadge = document.getElementById("levelBadge");
+  const regionDisplay = document.getElementById("regionDisplay");
+  const locationStatus = document.getElementById("locationStatus");
+  const emailDisplay = document.getElementById("emailDisplay");
 
-const app = initializeApp({
-  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
-  authDomain: "galmet-app.firebaseapp.com",
-  projectId: "galmet-app",
-  storageBucket: "galmet-app.firebasestorage.app"
-});
+  const photoInput = document.getElementById("photoInput");
+  const cameraBtn = document.getElementById("cameraBtn");
+  const backBtn = document.getElementById("backBtn");
+  const saveBtn = document.getElementById("saveBtn");
+  const copyIdBtn = document.getElementById("copyIdBtn");
+  const editNicknameBtn = document.getElementById("editNicknameBtn");
+  const locationToggleBtn = document.getElementById("locationToggleBtn");
+  const languageBtn = document.getElementById("languageBtn");
+  const verifyBtn = document.getElementById("verifyBtn");
+  const addAccountBtn = document.getElementById("addAccountBtn");
+  const loadingOverlay = document.getElementById("loadingOverlay");
+  const nicknameModal = document.getElementById("nicknameModal");
+  const nicknameInput = document.getElementById("nicknameInput");
+  const saveNicknameBtn = document.getElementById("saveNicknameBtn");
 
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
+  let userData = null;
+  let showLocation = false; // default hidden
+  let selectedImageFile = null;
 
-let currentUser = null;
+  // Load user data
+  async function loadUserData() {
+    const snap = await getDoc(userRef);
+    if (!snap.exists()) return;
+    userData = snap.data();
 
-// LOAD USER
-onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-        window.location = "index.html";
-        return;
+    // Profile photo
+    const photo = userData.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.username || "User")}&background=006571&color=fff`;
+    profileImg.src = photo;
+
+    // ID
+    userIdDisplay.innerText = userData.userId || userId;
+
+    // Nickname
+    nicknameDisplay.innerText = userData.username || "No nickname";
+
+    // Age
+    const age = userData.age || "?";
+    ageDisplay.innerText = age;
+
+    // Level (simple based on coins)
+    const coins = userData.coins || 0;
+    let level = 1;
+    if (coins >= 10000) level = 5;
+    else if (coins >= 5000) level = 4;
+    else if (coins >= 2000) level = 3;
+    else if (coins >= 500) level = 2;
+    levelBadge.innerText = `Lv. ${level}`;
+
+    // Region (country)
+    let countryName = "Unknown";
+    let flag = "🌍";
+    if (userData.country) {
+      if (typeof userData.country === "object") {
+        countryName = userData.country.name || userData.country.code;
+        const code = userData.country.code;
+        if (code) flag = getFlagEmoji(code);
+      } else {
+        countryName = userData.country;
+      }
     }
+    regionDisplay.innerHTML = `${flag} ${countryName}`;
 
-    currentUser = user;
+    // Location visibility (default false)
+    showLocation = userData.showLocation === true;
+    locationStatus.innerText = showLocation ? "Show" : "Hide";
 
-    const snap = await getDoc(doc(db, "users", user.uid));
-    const data = snap.data();
-
-    document.getElementById("usernameDisplay").innerText = data.username || "No Username";
-    document.getElementById("email").innerText = data.email;
-    document.getElementById("userId").innerText = data.userId;
-
-    document.getElementById("username").value = data.username || "";
-    document.getElementById("bio").value = data.bio || "";
-
-    document.getElementById("photo").src = 
-        data.photoURL || "https://ui-avatars.com/api/?name=" + (data.username || "User");
-});
-
-async function compressImage(file) {
-    return new Promise((resolve) => {
-        const img = new Image();
-        const reader = new FileReader();
-
-        reader.onload = (e) => img.src = e.target.result;
-
-        img.onload = () => {
-            const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
-
-            const maxSize = 512;
-            let width = img.width;
-            let height = img.height;
-
-            if (width > height && width > maxSize) {
-                height *= maxSize / width;
-                width = maxSize;
-            } else if (height > maxSize) {
-                width *= maxSize / height;
-                height = maxSize;
-            }
-
-            canvas.width = width;
-            canvas.height = height;
-
-            ctx.drawImage(img, 0, 0, width, height);
-
-            canvas.toBlob((blob) => {
-                resolve(blob);
-            }, "image/jpeg", 0.8);
-        };
-
-        reader.readAsDataURL(file);
-    });
-}
-    
-// ✅ UNIQUE USERNAME CHECK
-async function isUsernameTaken(username) {
-    const q = query(collection(db,"users"), where("username","==",username));
-    const snap = await getDocs(q);
-
-    let taken = false;
-
-    snap.forEach(docSnap=>{
-        if(docSnap.id !== currentUser.uid){
-            taken = true;
-        }
-    });
-
-    return taken;
-}
-
-
-// UPDATE PROFILE
-window.updateProfile = async () => {
-
-    const username = document.getElementById("username").value.trim();
-    const bio = document.getElementById("bio").value.trim();
-    const file = document.getElementById("photoInput").files[0];
-
-    if (username.length < 4) {
-        alert("Username must be at least 4 characters");
-        return;
+    // Email (masked)
+    const email = userData.email || "";
+    let maskedEmail = email;
+    if (email && email.includes('@')) {
+      const [local, domain] = email.split('@');
+      if (local.length > 4) {
+        maskedEmail = local.slice(0, 4) + '*****' + '@' + domain;
+      } else {
+        maskedEmail = local[0] + '*****' + '@' + domain;
+      }
     }
+    emailDisplay.innerText = maskedEmail || "Not set";
+  }
 
-    const taken = await isUsernameTaken(username);
-    if (taken) {
-        alert("Username already taken ❌");
-        return;
-    }
+  function getFlagEmoji(countryCode) {
+    if (!countryCode) return "🌍";
+    const codePoints = countryCode.toUpperCase().split('').map(c => 127397 + c.charCodeAt(0));
+    return String.fromCodePoint(...codePoints);
+  }
 
-    let photoURL = null;
-
+  // Save all changes (nickname, photo, location visibility)
+  async function saveChanges() {
+    loadingOverlay.classList.remove("hidden");
     try {
-
-        // UPLOAD IMAGE
-        if (file) {
-            const storageRef = ref(storage, "profiles/" + currentUser.uid);
-            const compressed = await compressImage(file);
-            await uploadBytes(storageRef, compressed);
-            photoURL = await getDownloadURL(storageRef);
-        }
-
-        // UPDATE FIRESTORE
-        await updateDoc(doc(db,"users",currentUser.uid), {
-            username,
-            bio,
-            ...(photoURL && {photoURL})
-        });
-
-        alert("Profile updated ✅");
-        location.reload();
-
+      const updates = {};
+      if (selectedImageFile) {
+        const compressed = await compressImage(selectedImageFile);
+        const storageRef = ref(storage, `profiles/${userId}`);
+        await uploadBytes(storageRef, compressed);
+        const photoURL = await getDownloadURL(storageRef);
+        updates.photoURL = photoURL;
+        // update local storage
+        currentUser.photoURL = photoURL;
+        localStorage.setItem("user", JSON.stringify(currentUser));
+      }
+      if (nicknameInput.value.trim() && nicknameInput.value.trim() !== userData.username) {
+        const newNickname = nicknameInput.value.trim();
+        // check uniqueness (optional)
+        updates.username = newNickname;
+        currentUser.username = newNickname;
+        localStorage.setItem("user", JSON.stringify(currentUser));
+      }
+      if (showLocation !== userData.showLocation) {
+        updates.showLocation = showLocation;
+      }
+      if (Object.keys(updates).length > 0) {
+        await updateDoc(userRef, updates);
+      }
+      alert("Profile updated successfully!");
+      window.location.reload();
     } catch (err) {
-        console.error(err);
-        alert("Error updating profile ❌");
+      console.error(err);
+      alert("Error updating profile");
+    } finally {
+      loadingOverlay.classList.add("hidden");
     }
-};
+  }
 
-localStorage.setItem("user", JSON.stringify({
-  uid: user.uid,
-  username: data.username,
-  photoURL: data.photoURL,
-  userId: data.userId
-}));
-    
-// ACTIONS
-window.logout = ()=> signOut(auth).then(()=>location="index.html");
-window.goBack = ()=> location="dashboard.html";
+  // Compress image (same as before)
+  async function compressImage(file) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      const reader = new FileReader();
+      reader.onload = (e) => img.src = e.target.result;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+        const maxDim = 1024;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = (height / width) * maxDim;
+            width = maxDim;
+          } else {
+            width = (width / height) * maxDim;
+            height = maxDim;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(blob => resolve(blob), "image/jpeg", 0.85);
+      };
+      reader.readAsDataURL(file);
+    });
+  }
 
+  // Camera button
+  cameraBtn.onclick = () => photoInput.click();
+  photoInput.onchange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      selectedImageFile = file;
+      const reader = new FileReader();
+      reader.onload = (ev) => { profileImg.src = ev.target.result; };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Back button
+  backBtn.onclick = () => window.history.back();
+
+  // Save button
+  saveBtn.onclick = saveChanges;
+
+  // Copy ID
+  copyIdBtn.onclick = () => {
+    navigator.clipboard.writeText(userIdDisplay.innerText);
+    alert("User ID copied");
+  };
+
+  // Edit nickname modal
+  editNicknameBtn.onclick = () => {
+    nicknameInput.value = userData.username || "";
+    nicknameModal.classList.remove("hidden");
+    nicknameModal.classList.add("flex");
+  };
+  window.closeNicknameModal = () => {
+    nicknameModal.classList.add("hidden");
+    nicknameModal.classList.remove("flex");
+  };
+  saveNicknameBtn.onclick = () => {
+    const newName = nicknameInput.value.trim();
+    if (newName.length < 3) {
+      alert("Nickname must be at least 3 characters");
+      return;
+    }
+    nicknameDisplay.innerText = newName;
+    closeNicknameModal();
+  };
+
+  // Location toggle
+  locationToggleBtn.onclick = () => {
+    showLocation = !showLocation;
+    locationStatus.innerText = showLocation ? "Show" : "Hide";
+  };
+
+  // Language (coming soon)
+  languageBtn.onclick = () => alert("Language settings coming soon");
+
+  // Verify account (coming soon)
+  verifyBtn.onclick = () => alert("Account verification coming soon");
+
+  // Add account (coming soon)
+  addAccountBtn.onclick = () => alert("Linked accounts coming soon");
+
+  // Load initial data
+  loadUserData();
 </script>
-
 </body>
 </html>
