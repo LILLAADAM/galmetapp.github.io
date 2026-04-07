@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Gems - Galmet</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface": "#f3f7fb",
+            "surface-container-low": "#ecf1f6",
+            "surface-container-lowest": "#ffffff",
+            "on-surface": "#2a2f32",
+            "on-surface-variant": "#575c60",
+            "primary": "#006571",
+            "primary-container": "#00e3fd",
+            "primary-dim": "#005863",
+            "secondary": "#755700",
+            "tertiary": "#b60051",
+            "outline": "#73777b",
+            "outline-variant": "#a9aeb1",
+            "error": "#b31b25"
+          },
+          fontFamily: {
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Be Vietnam Pro"],
+            "label": ["Plus Jakarta Sans"]
+          },
+          borderRadius: { DEFAULT: "1rem", lg: "2rem", xl: "3rem", full: "9999px" }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(20px);
+    }
+    .dark .glass-card {
+      background: rgba(17, 24, 39, 0.7);
+    }
+    .gem-glow {
+      filter: drop-shadow(0 0 12px rgba(255, 143, 169, 0.4));
+    }
+  </style>
+</head>
+<body class="bg-surface font-body text-on-surface min-h-screen">
+
+<!-- Top App Bar -->
+<header class="sticky top-0 w-full bg-surface/80 backdrop-blur-md z-50 border-b border-outline-variant/20">
+  <div class="flex items-center justify-between px-4 py-3 max-w-md mx-auto">
+    <button id="backBtn" class="p-2 rounded-full hover:bg-primary-container/30 transition-colors active:scale-95">
+      <span class="material-symbols-outlined text-primary">arrow_back</span>
+    </button>
+    <h1 class="font-headline font-semibold text-lg text-primary">Gems</h1>
+    <button id="historyBtn" class="p-2 rounded-full hover:bg-primary-container/30 transition-colors active:scale-95">
+      <span class="material-symbols-outlined text-primary">history</span>
+    </button>
+  </div>
+</header>
+
+<main class="max-w-md mx-auto px-4 pt-6 pb-24">
+  <!-- Hero Balance Section (smaller) -->
+  <section class="text-center mb-8">
+    <div class="relative inline-block">
+      <div class="absolute inset-0 bg-tertiary-container blur-[40px] opacity-20 rounded-full scale-150"></div>
+      <div class="relative flex flex-col items-center">
+        <div class="flex items-center justify-center gap-2 mb-2">
+          <span class="material-symbols-outlined text-tertiary text-4xl gem-glow" style="font-variation-settings:'FILL'1">diamond</span>
+          <span id="gemsAmount" class="font-headline font-extrabold text-5xl tracking-tight">0</span>
+        </div>
+        <p class="font-label text-on-surface-variant tracking-wider uppercase text-[10px] font-bold">Total Gems</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Action List (smaller padding, reduced text) -->
+  <div class="space-y-3">
+    <!-- Exchange Row -->
+    <div class="glass-card p-3 rounded-xl flex items-center justify-between active:scale-[0.98] cursor-pointer transition" onclick="showComingSoon()">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-secondary-container/20 flex items-center justify-center">
+          <span class="material-symbols-outlined text-secondary text-xl">currency_exchange</span>
+        </div>
+        <div>
+          <span class="font-headline font-semibold text-sm text-on-surface">Exchange gems into coins</span>
+          <p class="text-[11px] text-on-surface-variant">Convert your earnings easily</p>
+        </div>
+      </div>
+      <span class="material-symbols-outlined text-outline-variant text-base">chevron_right</span>
+    </div>
+
+    <!-- Chat Price Row -->
+    <div class="glass-card p-3 rounded-xl flex items-center justify-between active:scale-[0.98] cursor-pointer transition" onclick="showComingSoon()">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center">
+          <span class="material-symbols-outlined text-primary text-xl">chat_bubble</span>
+        </div>
+        <div>
+          <span class="font-headline font-semibold text-sm text-on-surface">Chat price</span>
+          <p class="text-[11px] text-on-surface-variant">Set your interaction rates</p>
+        </div>
+      </div>
+      <span class="material-symbols-outlined text-outline-variant text-base">chevron_right</span>
+    </div>
+
+    <!-- Withdraw Row -->
+    <div class="glass-card p-3 rounded-xl flex items-center justify-between active:scale-[0.98] cursor-pointer transition" onclick="showComingSoon()">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-tertiary-container/20 flex items-center justify-center">
+          <span class="material-symbols-outlined text-tertiary text-xl">account_balance_wallet</span>
+        </div>
+        <div>
+          <span class="font-headline font-semibold text-sm text-on-surface">Withdraw gems</span>
+          <p class="text-[11px] text-on-surface-variant">Get your earnings to your bank</p>
+        </div>
+      </div>
+      <span class="material-symbols-outlined text-outline-variant text-base">chevron_right</span>
+    </div>
+  </div>
+
+  <!-- Featured Banner (smaller, without gift store / vip) -->
+  <section class="mt-8">
+    <div class="relative overflow-hidden rounded-xl h-32 bg-gradient-to-r from-primary-container to-primary-dim flex items-center justify-between px-5">
+      <img alt="Banner pattern" class="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjETS00cL1rUBeuiWMgtgu3MxqtTwlG-CpcGYFUQfFQprqdPoBFh1IJX0Gf7kryLRs5MtasmKudiKWNHMDfl-VJqzqZm5oMebe6ZbbAciNmiIcUBcsgTOixRvXcYA0M4PN1OTKGK-fZF0vMyeZPOuQTdoQu6akT1C-jFDJr3aWxSwuwfOeQbDBD4HudGPd9qAX1VD_FoSyVhoQgaUG9DPf1rkXJwkwQt7a7EhnFMfo6ACetv03Ka7IneNBmzxvp_-gYSxwXiPThCht">
+      <div class="relative z-10">
+        <h3 class="font-headline font-bold text-on-primary-container text-base leading-tight">Double your Gems</h3>
+        <p class="text-on-primary-container/80 text-xs mt-0.5">Host a live party for 30+ mins</p>
+      </div>
+      <div class="relative z-10 w-14 h-14 bg-surface-container-lowest/30 backdrop-blur-xl rounded-full flex items-center justify-center">
+        <span class="material-symbols-outlined text-on-primary-container text-2xl">auto_awesome</span>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Floating Action Button (smaller) -->
+<div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-md px-4">
+  <button id="getMoreBtn" class="w-full h-12 bg-gradient-to-r from-primary to-primary-fixed-dim text-on-primary rounded-full font-headline font-bold text-sm shadow-lg flex items-center justify-center gap-2 active:scale-95 transition">
+    <span class="material-symbols-outlined text-base">add_circle</span>
+    Get More Gems
+  </button>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+  import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+  const app = initializeApp({
+    apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+    authDomain: "galmet-app.firebaseapp.com",
+    projectId: "galmet-app",
+    storageBucket: "galmet-app.firebasestorage.app"
+  });
+  const db = getFirestore(app);
+
+  const currentUser = JSON.parse(localStorage.getItem("user"));
+  if (!currentUser || !currentUser.userId) {
+    window.location.replace("login.html");
+  }
+  const userId = currentUser.userId.toString();
+  const userRef = doc(db, "users", userId);
+
+  // Real‑time gems display (field "gems")
+  onSnapshot(userRef, (snap) => {
+    if (snap.exists()) {
+      const gems = snap.data().gems || 0;
+      document.getElementById("gemsAmount").innerText = gems;
+    }
+  });
+
+  // Back button
+  document.getElementById("backBtn").addEventListener("click", () => {
+    window.history.back();
+  });
+
+  // History button -> gemshistory.html
+  document.getElementById("historyBtn").addEventListener("click", () => {
+    window.location.href = "gemshistory.html";
+  });
+
+  // Coming soon for all action rows and the "Get More Gems" button
+  window.showComingSoon = () => {
+    alert("Coming soon!");
+  };
+  document.getElementById("getMoreBtn").addEventListener("click", showComingSoon);
+  document.querySelectorAll(".glass-card").forEach(card => {
+    card.addEventListener("click", showComingSoon);
+  });
+</script>
+</body>
+</html>
