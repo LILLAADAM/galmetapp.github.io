@@ -3,83 +3,29 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Galmet - Log In</title>
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com" rel="preconnect">
-  <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
-  <!-- Material Symbols -->
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <title>Galmet – Complete Profile</title>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-  <script id="tailwind-config">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script>
     tailwind.config = {
       darkMode: "class",
       theme: {
         extend: {
           colors: {
-            "surface-dim": "#ced5db",
-            "on-tertiary-container": "#66002b",
-            "surface-bright": "#f3f7fb",
-            "on-tertiary-fixed-variant": "#770033",
-            "tertiary": "#b60051",
-            "inverse-on-surface": "#999da1",
-            "tertiary-fixed": "#ff8fa9",
-            "on-primary": "#d8f8ff",
-            "on-secondary": "#fff1db",
-            "secondary-fixed": "#ffca4d",
-            "tertiary-container": "#ff8fa9",
-            "surface-container-highest": "#d7dee3",
-            "secondary-container": "#ffca4d",
-            "background": "#f3f7fb",
-            "on-tertiary-fixed": "#380014",
-            "primary-container": "#00e3fd",
-            "outline": "#73777b",
-            "error-dim": "#9f0519",
-            "surface-container-lowest": "#ffffff",
-            "surface-container-high": "#dde3e8",
-            "primary-fixed-dim": "#00d4ec",
-            "on-secondary-container": "#5c4400",
-            "secondary-dim": "#664b00",
-            "tertiary-fixed-dim": "#ff769b",
-            "on-primary-fixed-variant": "#005762",
-            "surface": "#f3f7fb",
-            "on-background": "#2a2f32",
-            "surface-tint": "#006571",
-            "primary": "#006571",
-            "on-primary-container": "#004d57",
-            "on-surface": "#2a2f32",
-            "outline-variant": "#a9aeb1",
-            "on-tertiary": "#ffeff0",
-            "error-container": "#fb5151",
-            "on-primary-fixed": "#003840",
-            "error": "#b31b25",
-            "inverse-surface": "#0a0f12",
-            "primary-fixed": "#00e3fd",
-            "surface-variant": "#d7dee3",
-            "surface-container": "#e3e9ee",
-            "secondary-fixed-dim": "#f7ba00",
-            "primary-dim": "#005863",
-            "on-surface-variant": "#575c60",
-            "inverse-primary": "#00e3fd",
-            "secondary": "#755700",
-            "on-error": "#ffefee",
-            "surface-container-low": "#ecf1f6",
-            "on-error-container": "#570008",
-            "on-secondary-fixed-variant": "#674c00",
-            "tertiary-dim": "#a00047",
-            "on-secondary-fixed": "#443100"
-          },
-          borderRadius: {
-            "DEFAULT": "1rem",
-            "lg": "2rem",
-            "xl": "3rem",
-            "full": "9999px"
+            "surface": "#f3f7fb", "surface-container-low": "#ecf1f6",
+            "surface-container-lowest": "#ffffff", "on-surface": "#2a2f32",
+            "on-surface-variant": "#575c60", "primary": "#006571",
+            "primary-container": "#00e3fd", "primary-dim": "#005863",
+            "secondary": "#755700", "tertiary": "#b60051",
+            "outline": "#73777b", "outline-variant": "#a9aeb1"
           },
           fontFamily: {
             "headline": ["Plus Jakarta Sans"],
             "body": ["Be Vietnam Pro"],
             "label": ["Plus Jakarta Sans"]
-          }
+          },
+          borderRadius: { DEFAULT: "1rem", lg: "2rem", xl: "3rem", full: "9999px" }
         }
       }
     }
@@ -87,242 +33,289 @@
   <style>
     .material-symbols-outlined {
       font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-      display: inline-block;
-      line-height: 1;
-      text-transform: none;
-      letter-spacing: normal;
-      word-wrap: normal;
-      white-space: nowrap;
-      direction: ltr;
     }
-    input:focus {
-      outline: none;
-      box-shadow: none;
+    .wheel {
+      height: 100%; overflow-y: auto; scroll-snap-type: y mandatory;
+      display: flex; flex-direction: column; align-items: center;
     }
-    .message-fade {
-      transition: opacity 0.2s ease;
+    .wheel::-webkit-scrollbar { display: none; }
+    .item {
+      height: 40px; display: flex; align-items: center; justify-content: center;
+      scroll-snap-align: center; font-weight: 600; flex-shrink: 0;
+    }
+    .spacer { height: 76px; width: 100%; flex-shrink: 0; }
+    .gender-card {
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .gender-card.selected {
+      background: #00e3fd20;
+      border-color: #006571;
+      transform: scale(0.98);
     }
   </style>
 </head>
-<body class="bg-background text-on-surface font-body min-h-screen flex flex-col items-center">
+<body class="bg-surface font-body text-on-surface min-h-screen flex flex-col items-center">
 
-<!-- Top Navigation -->
-<header class="w-full top-0 z-50">
-  <div class="flex items-center justify-between px-6 h-16 w-full max-w-md mx-auto">
-    <button onclick="window.location.href='index.html'" class="text-cyan-600 hover:opacity-80 transition-opacity active:scale-95 duration-150">
-      <span class="material-symbols-outlined">arrow_back</span>
-    </button>
-    <h1 class="text-2xl font-bold bg-gradient-to-r from-cyan-600 to-cyan-400 bg-clip-text text-transparent font-['Plus_Jakarta_Sans'] tracking-tight">
-      Galmet
-    </h1>
-    <div class="w-6"></div>
-  </div>
+<!-- Top Bar (compact) -->
+<header class="w-full max-w-md mx-auto flex justify-between items-center px-6 h-16">
+  <button onclick="window.location.href='login.html'" class="text-primary">
+    <span class="material-symbols-outlined">arrow_back</span>
+  </button>
+  <h1 class="text-xl font-bold bg-gradient-to-r from-primary to-primary-dim bg-clip-text text-transparent">Galmet</h1>
+  <div class="w-6"></div>
 </header>
 
-<!-- Main Content -->
-<main class="flex-1 w-full max-w-md px-8 pt-8 pb-32 flex flex-col">
-  <div class="mb-12">
-    <h2 class="text-[1.75rem] font-headline font-semibold text-on-surface tracking-tight mb-2">
-      Log in with Email
-    </h2>
-    <p class="text-on-surface-variant font-body text-sm">
-      Enter your details to access your Galmet Digital World account.
-    </p>
+<main class="flex-1 w-full max-w-md px-6 py-2 flex flex-col gap-4 overflow-y-auto" style="max-height: calc(100vh - 70px);">
+  <!-- Progress steps (minimal) -->
+  <div class="flex justify-center gap-2 mb-1">
+    <div class="h-1.5 w-8 rounded-full bg-primary-container"></div>
+    <div class="h-1.5 w-8 rounded-full bg-surface-container-high"></div>
+    <div class="h-1.5 w-8 rounded-full bg-surface-container-high"></div>
   </div>
 
-  <!-- Form -->
-  <div class="space-y-6">
-    <!-- Email Group -->
-    <div class="group">
-      <label class="block text-[11px] font-label font-bold uppercase tracking-wider text-on-surface-variant mb-2 ml-1">
-        Email
-      </label>
-      <div class="relative flex items-center bg-surface-container-low rounded-lg p-1 transition-all duration-300 focus-within:bg-surface-container-lowest focus-within:shadow-[0_4px_20px_rgba(0,101,113,0.08)]">
-        <div class="pl-4 pr-2 text-primary">
-          <span class="material-symbols-outlined text-[20px]">mail</span>
-        </div>
-        <input id="email" class="w-full bg-transparent border-none py-3 text-on-surface placeholder:text-outline-variant font-body focus:ring-0" placeholder="your@email.com" type="email">
+  <!-- Gender Selection (with icons) -->
+  <div>
+    <label class="block text-[11px] font-label font-bold uppercase tracking-wider text-on-surface-variant mb-2">Gender</label>
+    <div class="flex gap-3">
+      <!-- Male -->
+      <div id="genderMaleCard" onclick="selectGender('male')" class="gender-card flex-1 flex flex-col items-center gap-2 p-3 rounded-xl border-2 border-outline-variant/30 bg-surface-container-lowest">
+        <span class="material-symbols-outlined text-4xl text-primary">male</span>
+        <span class="text-sm font-medium">Male</span>
+      </div>
+      <!-- Female -->
+      <div id="genderFemaleCard" onclick="selectGender('female')" class="gender-card flex-1 flex flex-col items-center gap-2 p-3 rounded-xl border-2 border-outline-variant/30 bg-surface-container-lowest">
+        <span class="material-symbols-outlined text-4xl text-primary">female</span>
+        <span class="text-sm font-medium">Female</span>
       </div>
     </div>
+  </div>
 
-    <!-- OTP Group -->
-    <div class="group">
-      <label class="block text-[11px] font-label font-bold uppercase tracking-wider text-on-surface-variant mb-2 ml-1">
-        Verification code
-      </label>
-      <div class="flex gap-3">
-        <div class="relative flex-1 flex items-center bg-surface-container-low rounded-lg p-1 transition-all duration-300 focus-within:bg-surface-container-lowest focus-within:shadow-[0_4px_20px_rgba(0,101,113,0.08)]">
-          <div class="pl-4 pr-2 text-primary">
-            <span class="material-symbols-outlined text-[20px]">verified_user</span>
-          </div>
-          <input id="otp" class="w-full bg-transparent border-none py-3 text-on-surface placeholder:text-outline-variant font-body focus:ring-0 tracking-widest" maxlength="6" placeholder="6-digit code" type="text">
-        </div>
-        <button id="sendOtpBtn" onclick="sendOtp()" class="px-6 rounded-lg bg-surface-container-highest text-primary font-label font-bold text-xs uppercase tracking-widest hover:bg-primary-container hover:text-on-primary-container transition-all active:scale-95 duration-150 whitespace-nowrap">
-          Send
-        </button>
+  <!-- Nickname -->
+  <div>
+    <label class="block text-[11px] font-label font-bold uppercase tracking-wider text-on-surface-variant mb-2">Nickname</label>
+    <input id="nickname" type="text" class="w-full bg-surface-container-lowest rounded-xl px-4 py-3 ring-1 ring-outline-variant/15 focus:ring-2 focus:ring-primary" placeholder="e.g. SkyWalker">
+  </div>
+
+  <!-- Country (with flag) -->
+  <div>
+    <label class="block text-[11px] font-label font-bold uppercase tracking-wider text-on-surface-variant mb-2">Country</label>
+    <button onclick="openCountryPage()" class="w-full flex items-center justify-between bg-surface-container-lowest rounded-xl px-4 py-3 ring-1 ring-outline-variant/15">
+      <div class="flex items-center gap-3">
+        <span id="countryFlag">🌍</span>
+        <span id="countryName" class="text-outline">Select region</span>
       </div>
-      <div id="otpMessage" class="text-xs mt-2 ml-1 min-h-[20px] message-fade"></div>
-    </div>
-  </div>
-
-  <!-- Decorative elements -->
-  <div class="mt-16 relative">
-    <div class="absolute -z-10 -right-20 top-0 w-64 h-64 bg-primary-container/20 rounded-full blur-[80px]"></div>
-    <div class="absolute -z-10 -left-10 top-20 w-48 h-48 bg-secondary-container/10 rounded-full blur-[60px]"></div>
-  </div>
-
-  <!-- Login Button -->
-  <div class="mt-auto pt-10">
-    <button onclick="verifyOtp()" class="w-full py-4 bg-gradient-to-r from-primary to-primary-fixed-dim text-on-primary font-label font-bold rounded-full shadow-[0_12px_24px_rgba(0,101,113,0.15)] hover:shadow-[0_16px_32px_rgba(0,101,113,0.25)] transition-all active:scale-[0.98] flex items-center justify-center gap-2">
-      <span class="material-symbols-outlined">login</span>
-      Log in
+      <span class="material-symbols-outlined">expand_more</span>
     </button>
   </div>
+
+  <!-- Date of Birth (compact wheel) -->
+  <div>
+    <label class="block text-[11px] font-label font-bold uppercase tracking-wider text-on-surface-variant mb-2">Birth Date</label>
+    <div class="relative bg-surface-container-low rounded-xl h-36 overflow-hidden ring-1 ring-outline-variant/20">
+      <div class="absolute left-3 right-3 top-1/2 -translate-y-1/2 h-10 bg-primary-container/20 rounded-lg z-10"></div>
+      <div class="flex h-full">
+        <div id="dayWheel" class="wheel w-1/4"></div>
+        <div id="monthWheel" class="wheel w-2/5"></div>
+        <div id="yearWheel" class="wheel w-1/4"></div>
+      </div>
+      <div class="absolute inset-0 pointer-events-none" style="background: linear-gradient(to bottom, #f3f7fb 0%, rgba(243,247,251,0) 25%, rgba(243,247,251,0) 75%, #f3f7fb 100%);"></div>
+    </div>
+  </div>
+
+  <!-- Continue Button -->
+  <button id="continueBtn" class="mt-2 w-full h-12 bg-gradient-to-r from-primary to-primary-dim text-on-primary rounded-full font-bold shadow-lg active:scale-95 transition">Continue</button>
+  <p class="text-center text-[10px] text-outline uppercase tracking-[0.1em] pb-4">Step 1 of 2</p>
 </main>
 
-<!-- Visual Background Enhancements -->
-<div class="fixed inset-0 pointer-events-none -z-20 overflow-hidden">
-  <div class="absolute top-0 right-0 w-full h-[353px] bg-gradient-to-b from-primary-container/10 to-transparent"></div>
+<!-- Loading Overlay (same as setup.html) -->
+<div id="loadingOverlay" class="fixed inset-0 bg-surface/80 backdrop-blur-md flex flex-col items-center justify-center hidden z-[100]">
+  <div class="relative">
+    <div class="w-24 h-24 rounded-full border-4 border-primary-container border-t-primary animate-spin"></div>
+    <div class="absolute inset-0 flex items-center justify-center">
+      <span class="material-symbols-outlined text-primary text-4xl" style="font-variation-settings:'FILL'1">explore</span>
+    </div>
+  </div>
+  <p class="mt-8 font-headline font-bold text-2xl text-primary animate-bounce">Galmet</p>
+  <p class="text-on-surface-variant font-medium">Saving your profile...</p>
 </div>
 
 <script>
   const BASE_URL = "https://us-central1-galmet-app.cloudfunctions.net";
-  let sendCooldown = 0;
-  let timerInterval = null;
-  const otpMessageDiv = document.getElementById("otpMessage");
+  let selectedGender = "";
+  let selectedCountry = null;
 
-  function showMessage(text, isError = false) {
-    otpMessageDiv.innerText = text;
-    otpMessageDiv.className = `text-xs mt-2 ml-1 message-fade ${isError ? 'text-error' : 'text-primary'}`;
+  // Load user from localStorage
+  const user = JSON.parse(localStorage.getItem("user"));
+  if (!user || !user.email) window.location = "login.html";
+
+  // ---------- Gender UI ----------
+  function selectGender(gender) {
+    selectedGender = gender;
+    // Reset both cards
+    document.getElementById("genderMaleCard").classList.remove("selected", "border-primary", "bg-primary-container/20");
+    document.getElementById("genderFemaleCard").classList.remove("selected", "border-primary", "bg-primary-container/20");
+    const activeCard = document.getElementById(`gender${gender === 'male' ? 'Male' : 'Female'}Card`);
+    activeCard.classList.add("selected", "border-primary", "bg-primary-container/20");
+  }
+
+  // Pre-fill gender if exists
+  if (user.gender) {
+    selectGender(user.gender);
+  }
+
+  // Pre-fill nickname
+  if (user.username) document.getElementById("nickname").value = user.username;
+
+  // Pre-fill country
+  const savedCountry = JSON.parse(localStorage.getItem("selectedCountry"));
+  if (savedCountry) {
+    selectedCountry = savedCountry;
+    document.getElementById("countryFlag").innerText = savedCountry.flag;
+    document.getElementById("countryName").innerText = savedCountry.name;
+  } else if (user.country) {
+    selectedCountry = user.country;
+    document.getElementById("countryFlag").innerText = user.country.flag || "🌍";
+    document.getElementById("countryName").innerText = user.country.name || user.country;
+  }
+
+  // ---------- Country picker ----------
+  function openCountryPage() {
+    window.location = "country.html";
+  }
+  function loadCountry() {
+    const country = JSON.parse(localStorage.getItem("selectedCountry"));
+    if (country) {
+      selectedCountry = country;
+      document.getElementById("countryFlag").innerText = country.flag;
+      document.getElementById("countryName").innerText = country.name;
+    }
+  }
+  window.addEventListener("pageshow", loadCountry);
+
+  // ---------- Date wheel (compact) ----------
+  function initWheels() {
+    const spacer = '<div class="spacer"></div>';
+    // days
+    let days = spacer;
+    for (let i=1;i<=31;i++) days += `<div class="item day">${i}</div>`;
+    document.getElementById("dayWheel").innerHTML = days + spacer;
+    // months
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    let monthHTML = spacer;
+    months.forEach(m => monthHTML += `<div class="item month">${m}</div>`);
+    document.getElementById("monthWheel").innerHTML = monthHTML + spacer;
+    // years
+    let years = spacer;
+    for (let y=1980;y<=2025;y++) years += `<div class="item year">${y}</div>`;
+    document.getElementById("yearWheel").innerHTML = years + spacer;
     setTimeout(() => {
-      if (otpMessageDiv.innerText === text) otpMessageDiv.innerText = "";
-    }, 5000);
+      ["dayWheel","monthWheel","yearWheel"].forEach(id => {
+        const el = document.getElementById(id);
+        el.scrollTop = el.scrollHeight / 2;
+      });
+    }, 50);
   }
 
-  async function sendOtp() {
-    const email = document.getElementById("email").value;
-    const btn = document.getElementById("sendOtpBtn");
-
-    if (!email) {
-      showMessage("Please enter your email address", true);
-      return;
-    }
-    if (sendCooldown > 0) {
-      showMessage(`Please wait ${sendCooldown} seconds before requesting another code`, true);
-      return;
-    }
-
-    try {
-      const res = await fetch(BASE_URL + "/sendOtpEmail", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
-      });
-      const data = await res.json();
-
-      if (data.success) {
-        showMessage(`✅ OTP sent to ${email}`, false);
-        sendCooldown = 60;
-        btn.disabled = true;
-        timerInterval = setInterval(() => {
-          sendCooldown--;
-          btn.innerText = sendCooldown + "s";
-          if (sendCooldown <= 0) {
-            clearInterval(timerInterval);
-            btn.disabled = false;
-            btn.innerText = "Send";
-          }
-        }, 1000);
-      } else {
-        showMessage(data.error || "Failed to send OTP. Try again.", true);
-      }
-    } catch (err) {
-      console.error(err);
-      showMessage("Network error. Please check your connection.", true);
-    }
+  function getCenterValue(container, className) {
+    const items = container.querySelectorAll("." + className);
+    let closest = null, closestOffset = Infinity;
+    const center = container.getBoundingClientRect().top + container.offsetHeight/2;
+    items.forEach(el => {
+      const rect = el.getBoundingClientRect();
+      const offset = Math.abs(center - (rect.top + rect.height/2));
+      if (offset < closestOffset) { closestOffset = offset; closest = el; }
+    });
+    return closest?.innerText;
   }
 
-  async function verifyOtp() {
-    const email = document.getElementById("email").value;
-    const otp = document.getElementById("otp").value;
+  function getDOB() {
+    let day = parseInt(getCenterValue(document.getElementById("dayWheel"), "day"));
+    let monthText = getCenterValue(document.getElementById("monthWheel"), "month");
+    let year = parseInt(getCenterValue(document.getElementById("yearWheel"), "year"));
+    const monthMap = { Jan:1, Feb:2, Mar:3, Apr:4, May:5, Jun:6, Jul:7, Aug:8, Sep:9, Oct:10, Nov:11, Dec:12 };
+    let month = monthMap[monthText];
+    if (isNaN(day)) day = 1;
+    if (!month) month = 1;
+    if (isNaN(year)) year = 2000;
+    return { day, month, year };
+  }
 
-    if (!email || !otp) {
-      showMessage("Please enter both email and verification code", true);
-      return;
-    }
+  function calculateAge(day, month, year) {
+    const today = new Date();
+    let age = today.getFullYear() - year;
+    if (today.getMonth()+1 < month || (today.getMonth()+1 === month && today.getDate() < day)) age--;
+    return age;
+  }
+
+  // ---------- Save all with loading overlay ----------
+  async function saveAll() {
+    if (!selectedGender) { alert("Please select gender"); return; }
+    const nickname = document.getElementById("nickname").value.trim();
+    if (!nickname || nickname.length < 3) { alert("Nickname must be at least 3 characters"); return; }
+    if (!selectedCountry) { alert("Please select your country"); return; }
+    const dob = getDOB();
+    if (!dob.day || !dob.month || !dob.year) { alert("Select full date"); return; }
+    const age = calculateAge(dob.day, dob.month, dob.year);
+    if (age < 18) { alert("You must be 18 or older"); return; }
+
+    const loading = document.getElementById("loadingOverlay");
+    loading.classList.remove("hidden");
 
     try {
-      const res = await fetch(BASE_URL + "/verifyOtp", {
+      // Update gender
+      const genderRes = await fetch(BASE_URL + "/updateUser", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp })
+        body: JSON.stringify({ email: user.email, gender: selectedGender })
       });
-      const data = await res.json();
+      const genderData = await genderRes.json();
+      if (!genderData.success) throw new Error("Gender update failed");
 
-      if (!data.success) {
-        showMessage(data.message || "Invalid verification code. Please try again.", true);
+      // Update rest (username, country, dob, age)
+      const step2Res = await fetch(BASE_URL + "/updateUserStep2", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: user.email,
+          username: nickname,
+          country: selectedCountry,
+          dob: { day: dob.day, month: dob.month, year: dob.year },
+          age: age
+        })
+      });
+      const step2Data = await step2Res.json();
+      if (!step2Data.success) {
+        alert(step2Data.message || "Username taken");
+        loading.classList.add("hidden");
         return;
       }
 
-      const checkRes = await fetch(BASE_URL + "/getUserByEmail?email=" + encodeURIComponent(email));
-      const checkData = await checkRes.json();
+      // Update local storage
+      user.gender = selectedGender;
+      user.username = nickname;
+      user.country = selectedCountry;
+      user.dob = { day: dob.day, month: dob.month, year: dob.year };
+      user.age = age;
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.removeItem("selectedCountry"); // clean temp
 
-      if (checkData.exists) {
-        const user = checkData.user;
-        localStorage.setItem("user", JSON.stringify(user));
-
-        // Redirect based on profile completion
-        if (!user.gender || !user.username || !user.country || !user.dob || !user.age) {
-          window.location.href = "basic-info.html";
-          return;
-        }
-        if (!user.photoURL || !user.profileCompleted) {
-          window.location.href = "setup.html";
-          return;
-        }
-        window.location.href = "dashboard.html";
+      // Redirect to setup or dashboard
+      if (!user.photoURL || !user.profileCompleted) {
+        window.location.href = "setup.html";
       } else {
-        // New user – create account then go to basic-info
-        const userId = Math.floor(10000000 + Math.random() * 90000000);
-        const urlParams = new URLSearchParams(window.location.search);
-        let referralCode = urlParams.get("ref") || localStorage.getItem("referral");
-        const newUser = {
-          email: email,
-          userId: userId,
-          coins: 500,
-          username: "",
-          gender: "",
-          country: null,
-          dob: null,
-          age: null,
-          photoURL: "",
-          profileCompleted: false,
-          inviteCode: userId.toString(),
-          referredBy: (referralCode && referralCode !== userId.toString()) ? referralCode : null,
-          totalInvites: 0,
-          totalEarned: 0,
-          firstTopup: false
-        };
-
-        const createRes = await fetch(BASE_URL + "/createUser", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(newUser)
-        });
-        const createData = await createRes.json();
-
-        if (createData.success) {
-          localStorage.setItem("user", JSON.stringify(newUser));
-          window.location.href = "basic-info.html";
-        } else {
-          showMessage("Failed to create account. Please try again.", true);
-        }
+        window.location.href = "dashboard.html";
       }
     } catch (err) {
       console.error(err);
-      showMessage("Something went wrong. Please check your connection.", true);
+      alert("Error saving. Please try again.");
+      loading.classList.add("hidden");
     }
   }
+
+  // Attach event
+  document.getElementById("continueBtn").onclick = saveAll;
+  initWheels();
 </script>
 </body>
 </html>
