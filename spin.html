@@ -1,55 +1,55 @@
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Galmet – Lucky Spin</title>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
-  <script>
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            "surface": "#f3f7fb", "surface-container-low": "#ecf1f6",
-            "surface-container-lowest": "#ffffff", "on-surface": "#2a2f32",
-            "on-surface-variant": "#575c60", "primary": "#006571",
-            "primary-container": "#00e3fd", "primary-dim": "#005863",
-            "secondary": "#755700", "tertiary": "#b60051",
-            "outline": "#73777b", "outline-variant": "#a9aeb1"
-          },
-          fontFamily: {
-            "headline": ["Plus Jakarta Sans"],
-            "body": ["Be Vietnam Pro"],
-            "label": ["Plus Jakarta Sans"]
-          },
-          borderRadius: { DEFAULT: "1rem", lg: "2rem", xl: "3rem", full: "9999px" }
-        }
-      }
-    }
-  </script>
   <style>
+    * { user-select: none; }
     .material-symbols-outlined {
       font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
     }
-    /* Confetti animation (fake win) */
-    @keyframes confetti {
-      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-      100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+    body {
+      background: #f3f7fb;
+      font-family: 'Be Vietnam Pro', sans-serif;
     }
-    .confetti {
+    .glass-card {
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(0,101,113,0.1);
+    }
+    .dark .glass-card {
+      background: rgba(17,24,39,0.7);
+    }
+    /* custom spin animation */
+    @keyframes winFlash {
+      0% { background: rgba(0,101,113,0); transform: scale(1); }
+      50% { background: rgba(0,229,253,0.3); transform: scale(1.02); }
+      100% { background: rgba(0,101,113,0); transform: scale(1); }
+    }
+    .win-flash {
+      animation: winFlash 0.6s ease-out 2;
+    }
+    /* loading overlay */
+    .loading-overlay {
       position: fixed;
-      width: 10px;
-      height: 10px;
-      background: gold;
-      position: absolute;
-      animation: confetti 1s ease-out forwards;
-      pointer-events: none;
+      inset: 0;
+      background: rgba(243,247,251,0.9);
+      backdrop-filter: blur(8px);
       z-index: 200;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.3s;
     }
-    /* Modal backdrop */
+    .dark .loading-overlay {
+      background: rgba(10,15,31,0.9);
+    }
+    /* modals */
     .modal {
       display: none;
       position: fixed;
@@ -69,109 +69,117 @@
       max-height: 70vh;
       overflow-y: auto;
     }
+    .dark .modal-content {
+      background: #1f2937;
+      color: #e2e8f0;
+    }
   </style>
 </head>
-<body class="bg-surface font-body text-on-surface min-h-screen flex flex-col items-center">
+<body class="bg-surface text-on-surface min-h-screen flex flex-col items-center transition-colors duration-300">
 
-<!-- Top Bar -->
-<header class="w-full max-w-md mx-auto flex justify-between items-center px-6 h-16">
+<!-- Loading overlay -->
+<div id="loadingOverlay" class="loading-overlay">
+  <div class="w-16 h-16 border-4 border-primary-container border-t-primary rounded-full animate-spin mb-4"></div>
+  <p class="text-primary font-headline font-bold">Loading game...</p>
+</div>
+
+<!-- Top bar (Galmet style) -->
+<header class="fixed top-0 w-full max-w-md mx-auto flex justify-between items-center px-6 h-16 bg-surface/80 backdrop-blur-xl z-50 border-b border-outline-variant/20">
   <button onclick="window.location.href='dashboard.html'" class="text-primary">
     <span class="material-symbols-outlined">arrow_back</span>
   </button>
   <h1 class="text-xl font-bold bg-gradient-to-r from-primary to-primary-dim bg-clip-text text-transparent">Lucky Spin</h1>
-  <div class="flex gap-2">
+  <div class="flex gap-3">
+    <button id="rulesBtn" class="text-primary">
+      <span class="material-symbols-outlined">help</span>
+    </button>
     <button id="historyBtn" class="text-primary">
       <span class="material-symbols-outlined">history</span>
     </button>
-    <button id="rulesBtn" class="text-primary">
-      <span class="material-symbols-outlined">help</span>
+    <button id="themeToggle" class="text-primary">
+      <span class="material-symbols-outlined">dark_mode</span>
     </button>
   </div>
 </header>
 
-<main class="flex-1 w-full max-w-md mx-auto px-4 py-4 flex flex-col items-center gap-4">
-  <!-- User Coins -->
-  <div class="w-full bg-surface-container-lowest rounded-2xl p-3 flex justify-between items-center shadow-sm">
+<main class="flex-1 w-full max-w-md mx-auto px-4 pt-20 pb-8 flex flex-col items-center gap-5">
+  <!-- User coins -->
+  <div class="w-full glass-card rounded-2xl p-3 flex justify-between items-center shadow-sm">
     <div class="flex items-center gap-2">
       <span class="material-symbols-outlined text-primary">account_balance_wallet</span>
       <span class="text-sm font-medium">Your Coins</span>
     </div>
-    <span id="userCoins" class="text-2xl font-bold text-primary">0</span>
+    <span id="coins" class="text-2xl font-bold text-primary">0</span>
   </div>
 
-  <!-- Canvas Wheel -->
-  <div class="relative w-full flex justify-center">
-    <canvas id="wheelCanvas" width="280" height="280" class="rounded-full shadow-xl"></canvas>
-    <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-0 h-0 border-l-[15px] border-r-[15px] border-t-[25px] border-l-transparent border-r-transparent border-t-primary z-10"></div>
+  <!-- Wheel canvas -->
+  <div class="relative w-64 h-64 sm:w-72 sm:h-72">
+    <canvas id="wheelCanvas" width="300" height="300" class="w-full h-full rounded-full shadow-xl"></canvas>
+    <div class="absolute -top-4 left-1/2 -translate-x-1/2 text-3xl filter drop-shadow-md z-10 text-primary">▼</div>
   </div>
 
-  <!-- Bet Selector -->
-  <div class="w-full bg-surface-container-lowest rounded-2xl p-4">
-    <label class="block text-[11px] font-label font-bold uppercase tracking-wider text-on-surface-variant mb-2">Your Bet</label>
-    <div class="flex gap-2">
-      <button id="betSmall" data-bet="10" class="flex-1 py-2 rounded-full bg-surface-container-low text-sm font-bold transition-all">🟢 10</button>
-      <button id="betMedium" data-bet="50" class="flex-1 py-2 rounded-full bg-surface-container-low text-sm font-bold transition-all">🟡 50</button>
-      <button id="betHigh" data-bet="200" class="flex-1 py-2 rounded-full bg-surface-container-low text-sm font-bold transition-all">🔴 200</button>
-    </div>
-    <p id="riskNote" class="text-[10px] text-outline text-center mt-2">Higher risk = bigger multipliers, but more loss chance</p>
+  <!-- Bet input -->
+  <div class="glass-card rounded-full px-5 py-2 flex gap-3 items-center">
+    <span class="font-bold text-sm">⚡ BET</span>
+    <input id="betInput" type="number" value="50" min="10" step="10" class="w-24 bg-transparent text-center font-bold text-primary border-none focus:ring-0">
   </div>
 
-  <!-- Spin Button -->
-  <button id="spinBtn" class="w-full py-4 bg-gradient-to-r from-primary to-primary-dim text-white rounded-full font-headline font-bold text-lg shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2">
-    <span class="material-symbols-outlined">casino</span>
-    SPIN THE WHEEL
-  </button>
+  <!-- Spin & Top Up buttons -->
+  <div class="flex gap-4 w-full">
+    <button id="spinBtn" class="flex-1 py-3 bg-gradient-to-r from-primary to-primary-fixed-dim text-white rounded-full font-bold shadow-md active:scale-95 transition flex items-center justify-center gap-2">
+      <span class="material-symbols-outlined">casino</span> SPIN
+    </button>
+    <button id="topupBtn" class="flex-1 py-3 bg-gradient-to-r from-secondary to-secondary-fixed-dim text-white rounded-full font-bold shadow-md active:scale-95 transition flex items-center justify-center gap-2">
+      <span class="material-symbols-outlined">add_circle</span> TOP UP
+    </button>
+  </div>
+  <div id="cooldownMsg" class="text-xs text-outline h-5"></div>
 
-  <!-- Result Card -->
-  <div id="resultCard" class="w-full bg-surface-container-lowest rounded-2xl p-4 text-center">
-    <p id="resultMessage" class="text-lg font-bold">Ready to spin?</p>
-    <p id="resultDetail" class="text-sm text-outline mt-1">Place your bet and try your luck!</p>
+  <!-- Result box -->
+  <div id="resultBox" class="glass-card rounded-2xl px-6 py-3 text-center w-full">
+    <p id="resultText" class="font-bold text-lg">✨ Ready to spin ✨</p>
+    <p id="resultDetail" class="text-xs text-outline mt-1">Place your bet and try your luck</p>
   </div>
 
-  <!-- Fake Recent Wins (scrolling) -->
-  <div class="w-full bg-surface-container-low rounded-xl p-2 text-xs text-outline overflow-hidden whitespace-nowrap">
-    <div id="fakeWins" class="inline-block animate-pulse">🔥 Alex won 500 coins • 🎉 Sarah hit 10x • 💎 Mike got 2000 coins • </div>
+  <!-- Recent wins feed -->
+  <div class="glass-card rounded-2xl p-3 w-full">
+    <h4 class="text-center text-xs font-bold uppercase tracking-wider text-primary mb-2">Recent wins</h4>
+    <div id="recentWins" class="flex flex-wrap gap-2 justify-center max-h-20 overflow-y-auto text-xs"></div>
   </div>
 </main>
-
-<!-- History Modal -->
-<div id="historyModal" class="modal">
-  <div class="modal-content">
-    <div class="flex justify-between items-center mb-3">
-      <h3 class="font-headline font-bold">Spin History</h3>
-      <button class="close-modal text-outline">✕</button>
-    </div>
-    <div id="historyList" class="space-y-2 max-h-60 overflow-y-auto">
-      <p class="text-center text-outline">No spins yet</p>
-    </div>
-  </div>
-</div>
 
 <!-- Rules Modal -->
 <div id="rulesModal" class="modal">
   <div class="modal-content">
-    <div class="flex justify-between items-center mb-3">
-      <h3 class="font-headline font-bold">Game Rules</h3>
-      <button class="close-modal text-outline">✕</button>
+    <h3 class="font-headline font-bold text-primary mb-2">🎡 How to Play</h3>
+    <ul class="text-sm space-y-2">
+      <li>1. Enter your bet (min 10 coins).</li>
+      <li>2. Click SPIN – the wheel stops after 3 seconds.</li>
+      <li>3. The pointer shows your multiplier (0x – 10x).</li>
+      <li>4. Win = bet × multiplier (0x loses the bet).</li>
+      <li>5. 3 seconds cooldown between spins.</li>
+      <li>6. Higher bets = higher risk but bigger rewards.</li>
+    </ul>
+    <button class="close-modal w-full mt-4 py-2 bg-primary text-white rounded-full">Got it</button>
+  </div>
+</div>
+
+<!-- History Modal -->
+<div id="historyModal" class="modal">
+  <div class="modal-content">
+    <h3 class="font-headline font-bold text-primary mb-2">📜 Spin History</h3>
+    <div id="historyList" class="max-h-60 overflow-y-auto text-sm space-y-2">
+      <p class="text-center text-outline">No spins yet</p>
     </div>
-    <div class="text-sm space-y-2">
-      <p>🎯 <strong>How to play:</strong> Choose your bet (10, 50, or 200 coins) and spin the wheel.</p>
-      <p>🎁 <strong>Multipliers:</strong> 0x (loss), 1x, 2x, 3x, 5x, 10x. Win = bet × multiplier.</p>
-      <p>⚖️ <strong>Risk levels:</strong><br>
-        🟢 10 coins – safer, mostly 0x/1x/2x, rare 10x.<br>
-        🟡 50 coins – balanced odds.<br>
-        🔴 200 coins – higher risk, but bigger chances for 5x/10x.
-      </p>
-      <p>📜 <strong>History:</strong> Your last 10 spins are saved automatically.</p>
-    </div>
+    <button class="close-modal w-full mt-4 py-2 bg-primary text-white rounded-full">Close</button>
   </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-  import { getFirestore, doc, getDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-  // Firebase
+  // Firebase config
   const app = initializeApp({
     apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
     authDomain: "galmet-app.firebaseapp.com",
@@ -180,280 +188,301 @@
   });
   const db = getFirestore(app);
 
-  // Auth
+  // Login check (using userId from localStorage)
   const user = JSON.parse(localStorage.getItem("user"));
-  if (!user || !user.userId) window.location.replace("login.html");
+  if (!user || !user.userId) {
+    window.location.replace("login.html");
+  }
   const userId = user.userId.toString();
   const userRef = doc(db, "users", userId);
 
-  // DOM
+  // DOM elements
+  const coinsSpan = document.getElementById("coins");
+  const spinBtn = document.getElementById("spinBtn");
+  const topupBtn = document.getElementById("topupBtn");
+  const betInput = document.getElementById("betInput");
+  const resultText = document.getElementById("resultText");
+  const resultDetail = document.getElementById("resultDetail");
+  const cooldownMsg = document.getElementById("cooldownMsg");
+  const recentWinsDiv = document.getElementById("recentWins");
+  const loadingOverlay = document.getElementById("loadingOverlay");
+
+  let coins = 0;
+  let spinning = false;
+  let cooldown = false;
+  let cooldownTimer = null;
+  let spinTimeout = null;
+
+  // Wheel data
+  const segments = [
+    { value: 0, color: "#ef4444", label: "0x" },
+    { value: 1, color: "#f59e0b", label: "1x" },
+    { value: 2, color: "#10b981", label: "2x" },
+    { value: 3, color: "#f97316", label: "3x" },
+    { value: 5, color: "#3b82f6", label: "5x" },
+    { value: 10, color: "#8b5cf6", label: "10x" }
+  ];
+  const SEGMENT_COUNT = segments.length;
+  const ANGLE_PER_SEG = 360 / SEGMENT_COUNT;
+  const POINTER_ANGLE = 270; // top is 270deg
+
   const canvas = document.getElementById("wheelCanvas");
   const ctx = canvas.getContext("2d");
-  const coinsSpan = document.getElementById("userCoins");
-  const spinBtn = document.getElementById("spinBtn");
-  const betSmall = document.getElementById("betSmall");
-  const betMedium = document.getElementById("betMedium");
-  const betHigh = document.getElementById("betHigh");
-  const resultMsg = document.getElementById("resultMessage");
-  const resultDetail = document.getElementById("resultDetail");
-  const riskNote = document.getElementById("riskNote");
+  let canvasSize = 300;
 
-  let currentBet = 10;
-  let userCoins = 0;
-  let spinning = false;
-  let animationId = null;
-  let currentRotation = 0;
-  let targetRotation = 0;
+  function resizeCanvas() {
+    const container = canvas.parentElement;
+    const size = container.clientWidth;
+    canvas.width = size;
+    canvas.height = size;
+    canvasSize = size;
+    drawWheel();
+  }
+  window.addEventListener("resize", resizeCanvas);
+  resizeCanvas();
 
-  // Multipliers in order around wheel (clockwise)
-  const multipliers = [0, 1, 2, 3, 5, 10];
-  const segmentAngle = (Math.PI * 2) / multipliers.length;
-  const colors = ["#ff6b6b", "#f9ca24", "#f6e58d", "#7ed6df", "#22a6b3", "#eb4d4b"];
-
-  // Draw wheel
   function drawWheel(rotation = 0) {
-    const w = canvas.width, h = canvas.height;
-    const centerX = w/2, centerY = h/2;
-    const radius = w/2 - 5;
-    ctx.clearRect(0, 0, w, h);
-    for (let i = 0; i < multipliers.length; i++) {
-      const start = i * segmentAngle + rotation;
-      const end = start + segmentAngle;
+    const center = canvasSize / 2;
+    const radius = center - 4;
+    ctx.clearRect(0, 0, canvasSize, canvasSize);
+    for (let i = 0; i < SEGMENT_COUNT; i++) {
+      const start = (i * ANGLE_PER_SEG + rotation) * Math.PI / 180;
+      const end = ((i + 1) * ANGLE_PER_SEG + rotation) * Math.PI / 180;
       ctx.beginPath();
-      ctx.moveTo(centerX, centerY);
-      ctx.arc(centerX, centerY, radius, start, end);
-      ctx.fillStyle = colors[i % colors.length];
+      ctx.moveTo(center, center);
+      ctx.arc(center, center, radius, start, end);
+      ctx.fillStyle = segments[i].color;
       ctx.fill();
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      // draw text
       ctx.save();
-      ctx.translate(centerX, centerY);
-      ctx.rotate(start + segmentAngle/2);
-      ctx.fillStyle = "#fff";
-      ctx.font = "bold 18px 'Plus Jakarta Sans'";
-      ctx.shadowBlur = 0;
-      ctx.fillText(multipliers[i] + "x", radius - 35, 8);
+      ctx.translate(center, center);
+      ctx.rotate(start + (ANGLE_PER_SEG * Math.PI / 360));
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = `bold ${Math.max(14, canvasSize / 18)}px "Plus Jakarta Sans"`;
+      ctx.fillStyle = "white";
+      ctx.shadowBlur = 2;
+      ctx.shadowColor = "black";
+      ctx.fillText(segments[i].label, radius * 0.7, 0);
       ctx.restore();
     }
     // inner circle
     ctx.beginPath();
-    ctx.arc(centerX, centerY, 30, 0, 2*Math.PI);
-    ctx.fillStyle = "#fff";
+    ctx.arc(center, center, canvasSize * 0.09, 0, 2 * Math.PI);
+    ctx.fillStyle = "#ffcf40";
     ctx.fill();
+    ctx.beginPath();
+    ctx.arc(center, center, canvasSize * 0.06, 0, 2 * Math.PI);
     ctx.fillStyle = "#006571";
-    ctx.font = "bold 14px 'Plus Jakarta Sans'";
-    ctx.fillText("SPIN", centerX-15, centerY+5);
+    ctx.fill();
   }
 
-  // Animate wheel spin
-  function animateSpin() {
-    if (!spinning) return;
-    const diff = targetRotation - currentRotation;
-    if (Math.abs(diff) < 0.005) {
-      currentRotation = targetRotation;
-      drawWheel(currentRotation);
-      spinning = false;
-      spinBtn.disabled = false;
+  // Get multiplier based on bet & coins ratio (risk-based)
+  function getMultiplier(bet, totalCoins) {
+    let ratio = Math.min(1, Math.max(0, bet / totalCoins));
+    let lossProb = 0.25 + ratio * 0.3; // 25% up to 55%
+    let winProbs = [0.35, 0.20, 0.12, 0.06, 0.02]; // 1x,2x,3x,5x,10x
+    if (ratio > 0.5) {
+      let shift = (ratio - 0.5) * 0.5;
+      winProbs[0] = Math.min(0.45, winProbs[0] + shift * 0.2);
+      winProbs[1] = Math.max(0.12, winProbs[1] - shift * 0.05);
+      winProbs[2] = Math.max(0.06, winProbs[2] - shift * 0.03);
+      winProbs[3] = Math.max(0.02, winProbs[3] - shift * 0.02);
+      winProbs[4] = Math.max(0.005, winProbs[4] - shift * 0.01);
+    }
+    let totalWin = winProbs.reduce((a,b)=>a+b,0);
+    let scale = (1 - lossProb) / totalWin;
+    winProbs = winProbs.map(p => p * scale);
+    let cum = lossProb;
+    let thresholds = [lossProb];
+    for (let p of winProbs) {
+      cum += p;
+      thresholds.push(cum);
+    }
+    const r = Math.random();
+    if (r < thresholds[0]) return 0;
+    for (let i=0; i<5; i++) {
+      if (r < thresholds[i+1]) return [1,2,3,5,10][i];
+    }
+    return 1;
+  }
+
+  // Firestore helpers
+  async function loadCoins() {
+    const snap = await getDoc(userRef);
+    if (snap.exists()) {
+      coins = snap.data().coins || 0;
+      coinsSpan.innerText = coins;
+    }
+  }
+
+  async function updateCoins(newCoins) {
+    coins = newCoins;
+    coinsSpan.innerText = coins;
+    await updateDoc(userRef, { coins });
+    // update local user copy
+    user.coins = coins;
+    localStorage.setItem("user", JSON.stringify(user));
+  }
+
+  async function addHistoryEntry(multiplier, bet, winAmount) {
+    const entry = { timestamp: Date.now(), multiplier, bet, winAmount, netChange: winAmount - bet };
+    await updateDoc(userRef, { history: arrayUnion(entry) });
+  }
+
+  async function loadRecentWins() {
+    const snap = await getDoc(userRef);
+    const history = snap.data()?.history || [];
+    recentWinsDiv.innerHTML = "";
+    history.slice(-8).reverse().forEach(h => {
+      const span = document.createElement("span");
+      span.className = "bg-surface-container-low px-2 py-1 rounded-full text-xs";
+      span.textContent = h.multiplier === 0 ? `💀 0x lost ${h.bet}` : `🏆 ${h.multiplier}x +${h.winAmount}`;
+      recentWinsDiv.appendChild(span);
+    });
+    if (!history.length) recentWinsDiv.innerHTML = "<span class='text-outline text-xs'>No spins yet</span>";
+  }
+
+  async function loadHistoryModal() {
+    const snap = await getDoc(userRef);
+    const history = snap.data()?.history || [];
+    const container = document.getElementById("historyList");
+    if (!history.length) {
+      container.innerHTML = "<p class='text-center text-outline'>No spins yet</p>";
       return;
     }
-    currentRotation += diff * 0.1;
-    drawWheel(currentRotation);
-    requestAnimationFrame(animateSpin);
+    container.innerHTML = "";
+    history.slice().reverse().forEach(h => {
+      const date = new Date(h.timestamp).toLocaleString();
+      const div = document.createElement("div");
+      div.className = "border-b border-outline-variant/30 pb-2";
+      div.innerHTML = `<span class="font-bold">${h.multiplier}x</span> | Bet: ${h.bet} | Win: ${h.winAmount}<br><span class="text-[10px] text-outline">${date}</span>`;
+      container.appendChild(div);
+    });
   }
 
-  // Start spin to land on multiplier index (0-5)
-  function startSpinToMultiplier(index) {
-    if (spinning) return;
+  // Spin logic
+  async function spin() {
+    if (spinning || cooldown) return;
+    let bet = parseInt(betInput.value);
+    if (isNaN(bet) || bet < 10) {
+      resultText.innerText = "⚠️ Minimum bet 10";
+      return;
+    }
+    if (bet > coins) {
+      resultText.innerText = "❌ Not enough coins! Top up.";
+      return;
+    }
     spinning = true;
     spinBtn.disabled = true;
-    // Add extra full rotations (random 5-10)
-    const extraRot = (Math.floor(Math.random() * 6) + 5) * 2 * Math.PI;
-    // Desired final angle: we want the pointer (top) to point at the segment's middle
-    // The pointer is at angle -PI/2 (top). We want segment's middle to align with pointer.
-    const targetSegmentMiddle = (index * segmentAngle) + segmentAngle/2;
-    // currentRotation is current offset. Need to compute targetRotation such that after rotation, the segment middle is at -PI/2
-    // newRotation = targetSegmentMiddle - (-PI/2) = targetSegmentMiddle + PI/2
-    let desired = targetSegmentMiddle + Math.PI/2;
-    desired = desired % (2*Math.PI);
-    let target = desired + extraRot;
-    // Ensure smooth direction (shortest path)
-    let delta = target - currentRotation;
-    if (delta > Math.PI) delta -= 2*Math.PI;
-    if (delta < -Math.PI) delta += 2*Math.PI;
-    targetRotation = currentRotation + delta;
-    animateSpin();
-  }
+    // deduct bet
+    await updateCoins(coins - bet);
+    const originalCoins = coins + bet;
+    const multiplier = getMultiplier(bet, originalCoins);
+    const winAmount = multiplier * bet;
+    const targetIndex = segments.findIndex(s => s.value === multiplier);
+    const segmentCenter = targetIndex * ANGLE_PER_SEG + ANGLE_PER_SEG/2;
+    let targetRotation = (POINTER_ANGLE - segmentCenter) % 360;
+    if (targetRotation < 0) targetRotation += 360;
+    const fullSpins = 360 * 5;
+    const totalRotation = fullSpins + targetRotation;
 
-  // Probability (same as before)
-  function getMultiplierByBet(bet) {
-    let r = Math.random() * 100;
-    if (bet === 10) {
-      if (r < 45) return 0;
-      else if (r < 70) return 1;
-      else if (r < 85) return 2;
-      else if (r < 95) return 3;
-      else if (r < 98) return 5;
-      else return 10;
-    } else if (bet === 50) {
-      if (r < 35) return 0;
-      else if (r < 55) return 1;
-      else if (r < 70) return 2;
-      else if (r < 82) return 3;
-      else if (r < 92) return 5;
-      else return 10;
-    } else {
-      if (r < 50) return 0;
-      else if (r < 65) return 1;
-      else if (r < 75) return 2;
-      else if (r < 85) return 3;
-      else if (r < 95) return 5;
-      else return 10;
-    }
-  }
+    // animate wheel
+    canvas.style.transition = "none";
+    canvas.style.transform = "rotate(0deg)";
+    canvas.offsetHeight;
+    canvas.style.transition = "transform 3s cubic-bezier(0.2, 0.9, 0.3, 1.1)";
+    canvas.style.transform = `rotate(${totalRotation}deg)`;
 
-  // Confetti effect
-  function confetti() {
-    for (let i = 0; i < 50; i++) {
-      const conf = document.createElement('div');
-      conf.classList.add('confetti');
-      conf.style.left = Math.random() * 100 + '%';
-      conf.style.top = '50%';
-      conf.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
-      document.body.appendChild(conf);
-      setTimeout(() => conf.remove(), 1000);
-    }
-  }
-
-  // Save spin to history (localStorage)
-  function saveToHistory(bet, multiplier, winAmount, finalCoins) {
-    const history = JSON.parse(localStorage.getItem('spinHistory') || '[]');
-    history.unshift({ bet, multiplier, winAmount, finalCoins, time: new Date().toLocaleTimeString() });
-    if (history.length > 10) history.pop();
-    localStorage.setItem('spinHistory', JSON.stringify(history));
-    updateHistoryModal();
-  }
-
-  function updateHistoryModal() {
-    const history = JSON.parse(localStorage.getItem('spinHistory') || '[]');
-    const container = document.getElementById('historyList');
-    if (!history.length) {
-      container.innerHTML = '<p class="text-center text-outline">No spins yet</p>';
-      return;
-    }
-    container.innerHTML = history.map(h => `
-      <div class="bg-surface-container-low p-2 rounded-lg text-sm">
-        <span class="font-bold">${h.multiplier}x</span> on ${h.bet} coins → ${h.winAmount > 0 ? '+' : ''}${h.winAmount} coins
-        <span class="text-[10px] text-outline block">${h.time}</span>
-      </div>
-    `).join('');
-  }
-
-  // Load last result from localStorage
-  function loadLastResult() {
-    const last = localStorage.getItem('lastSpinResult');
-    if (last) {
-      const { bet, multiplier, winAmount, message, detail } = JSON.parse(last);
-      resultMsg.innerText = message;
-      resultDetail.innerText = detail;
-      resultCard.classList.remove('hidden');
-    }
-  }
-
-  // Main spin action
-  async function spin() {
-    if (spinning) return;
-    if (userCoins < currentBet) {
-      alert(`Not enough coins! You need ${currentBet} coins.`);
-      return;
-    }
-    // Deduct bet
-    const newCoins = userCoins - currentBet;
-    await updateDoc(userRef, { coins: increment(-currentBet) });
-    user.coins = newCoins;
-    localStorage.setItem('user', JSON.stringify(user));
-    userCoins = newCoins;
-    coinsSpan.innerText = userCoins;
-
-    // Get multiplier and index
-    const multiplier = getMultiplierByBet(currentBet);
-    const index = multipliers.indexOf(multiplier);
-    startSpinToMultiplier(index);
-
-    // Wait for spin to finish (approx 1 sec)
-    setTimeout(async () => {
-      const winAmount = multiplier * currentBet;
-      let finalCoins = userCoins;
-      let msg, detail;
-      if (multiplier === 0) {
-        msg = "😢 Oh no! You lost this round.";
-        detail = `You bet ${currentBet} coins and got 0x. Better luck next time!`;
+    spinTimeout = setTimeout(async () => {
+      let newCoins = coins;
+      if (multiplier > 0) {
+        newCoins += winAmount;
+        await updateCoins(newCoins);
+        resultText.innerText = `🎉 YOU WON ${winAmount} COINS (${multiplier}x) 🎉`;
+        resultDetail.innerText = `Bet ${bet} → ${multiplier}x = +${winAmount}`;
+        document.getElementById("resultBox").classList.add("win-flash");
+        setTimeout(() => document.getElementById("resultBox").classList.remove("win-flash"), 800);
       } else {
-        finalCoins = userCoins + winAmount;
-        await updateDoc(userRef, { coins: increment(winAmount) });
-        user.coins = finalCoins;
-        localStorage.setItem('user', JSON.stringify(user));
-        userCoins = finalCoins;
-        coinsSpan.innerText = finalCoins;
-        msg = `🎉 You won ${winAmount} coins! (${multiplier}x) 🎉`;
-        detail = `You bet ${currentBet} coins and hit a ${multiplier}x multiplier!`;
-        confetti();
+        resultText.innerText = `💀 LOST ${bet} COINS (0x) 💀`;
+        resultDetail.innerText = `Better luck next time!`;
       }
-      resultMsg.innerText = msg;
-      resultDetail.innerText = detail;
-      resultCard.classList.remove('hidden');
-      // Save to history & last result
-      saveToHistory(currentBet, multiplier, winAmount, finalCoins);
-      localStorage.setItem('lastSpinResult', JSON.stringify({ bet: currentBet, multiplier, winAmount, message: msg, detail }));
-      // Fake wins update (rotate text)
-      const fakeDiv = document.getElementById('fakeWins');
-      const fakeTexts = ["🔥 Alex won 500 coins • 🎉 Sarah hit 10x • 💎 Mike got 2000 coins • ", "⭐ Emma won 1,200 coins • 🚀 James hit 5x • 💰 Lisa got 800 coins • "];
-      fakeDiv.innerText = fakeTexts[Math.floor(Math.random()*fakeTexts.length)];
+      await addHistoryEntry(multiplier, bet, winAmount);
+      await loadRecentWins();
+      spinning = false;
+      startCooldown();
+    }, 3100);
+  }
+
+  function startCooldown() {
+    cooldown = true;
+    let remaining = 3;
+    cooldownMsg.innerText = `⏳ Wait ${remaining}s`;
+    cooldownTimer = setInterval(() => {
+      remaining--;
+      if (remaining <= 0) {
+        clearInterval(cooldownTimer);
+        cooldown = false;
+        cooldownMsg.innerText = "";
+        if (!spinning) spinBtn.disabled = false;
+      } else {
+        cooldownMsg.innerText = `⏳ Wait ${remaining}s`;
+      }
     }, 1000);
   }
 
-  // UI updates
-  async function loadUserCoins() {
-    const snap = await getDoc(userRef);
-    if (snap.exists()) {
-      userCoins = snap.data().coins || 0;
-      coinsSpan.innerText = userCoins;
-    }
-  }
-
-  function highlightBet(selected) {
-    [betSmall, betMedium, betHigh].forEach(btn => {
-      btn.classList.remove("bg-primary-container", "text-on-primary-container");
-      btn.classList.add("bg-surface-container-low");
-    });
-    selected.classList.remove("bg-surface-container-low");
-    selected.classList.add("bg-primary-container", "text-on-primary-container");
-  }
-
-  function updateRiskNote() {
-    if (currentBet === 10) riskNote.innerText = "🟢 Low risk – mostly 0x, 1x, 2x. Rare 5x/10x.";
-    else if (currentBet === 50) riskNote.innerText = "🟡 Medium risk – balanced chances for 1x to 10x.";
-    else riskNote.innerText = "🔴 High risk – higher chance of loss, but bigger multipliers possible!";
-  }
-
-  betSmall.onclick = () => { currentBet = 10; highlightBet(betSmall); updateRiskNote(); };
-  betMedium.onclick = () => { currentBet = 50; highlightBet(betMedium); updateRiskNote(); };
-  betHigh.onclick = () => { currentBet = 200; highlightBet(betHigh); updateRiskNote(); };
-  spinBtn.onclick = spin;
-
-  // Modals
-  const historyModal = document.getElementById('historyModal');
-  const rulesModal = document.getElementById('rulesModal');
-  document.getElementById('historyBtn').onclick = () => { historyModal.style.display = 'flex'; updateHistoryModal(); };
-  document.getElementById('rulesBtn').onclick = () => { rulesModal.style.display = 'flex'; };
-  document.querySelectorAll('.close-modal').forEach(btn => {
-    btn.onclick = () => { historyModal.style.display = 'none'; rulesModal.style.display = 'none'; };
+  // Cancel spin on page unload
+  window.addEventListener("beforeunload", () => {
+    if (spinTimeout) clearTimeout(spinTimeout);
+    if (cooldownTimer) clearInterval(cooldownTimer);
   });
-  window.onclick = (e) => { if (e.target === historyModal) historyModal.style.display = 'none'; if (e.target === rulesModal) rulesModal.style.display = 'none'; };
+
+  // Top up redirect
+  topupBtn.onclick = () => window.location.href = "topup.html";
+
+  // Save bet to localStorage
+  betInput.addEventListener("input", (e) => localStorage.setItem("lastSpinBet", e.target.value));
+  const savedBet = localStorage.getItem("lastSpinBet");
+  if (savedBet) betInput.value = savedBet;
+
+  // Modals & theme
+  const rulesModal = document.getElementById("rulesModal");
+  const historyModal = document.getElementById("historyModal");
+  document.getElementById("rulesBtn").onclick = () => rulesModal.style.display = "flex";
+  document.getElementById("historyBtn").onclick = async () => { await loadHistoryModal(); historyModal.style.display = "flex"; };
+  document.querySelectorAll(".close-modal").forEach(btn => {
+    btn.onclick = () => { rulesModal.style.display = "none"; historyModal.style.display = "none"; };
+  });
+  window.onclick = (e) => {
+    if (e.target === rulesModal) rulesModal.style.display = "none";
+    if (e.target === historyModal) historyModal.style.display = "none";
+  };
+
+  // Theme toggle (light/dark)
+  const themeToggle = document.getElementById("themeToggle");
+  themeToggle.onclick = () => {
+    document.documentElement.classList.toggle("dark");
+    const isDark = document.documentElement.classList.contains("dark");
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+    themeToggle.innerText = isDark ? "light_mode" : "dark_mode";
+  };
+  if (localStorage.getItem("theme") === "dark") {
+    document.documentElement.classList.add("dark");
+    themeToggle.innerText = "light_mode";
+  } else {
+    themeToggle.innerText = "dark_mode";
+  }
 
   // Initialize
+  spinBtn.onclick = spin;
+  await loadCoins();
+  await loadRecentWins();
   drawWheel(0);
-  loadUserCoins();
-  loadLastResult();
-  highlightBet(betSmall);
-  updateRiskNote();
+  loadingOverlay.style.opacity = "0";
+  setTimeout(() => loadingOverlay.style.display = "none", 500);
 </script>
 </body>
 </html>
