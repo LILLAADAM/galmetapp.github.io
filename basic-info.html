@@ -53,14 +53,13 @@
       border-color: #006571;
       transform: scale(0.98);
     }
-    /* prevent body scroll on wheel interaction */
     body { overflow: hidden; }
     main { overflow-y: auto; -webkit-overflow-scrolling: touch; }
   </style>
 </head>
 <body class="bg-surface font-body text-on-surface h-screen flex flex-col">
 
-<!-- Top Bar (compact) -->
+<!-- Top Bar -->
 <header class="w-full max-w-md mx-auto flex justify-between items-center px-6 h-14 shrink-0">
   <button onclick="window.location.href='login.html'" class="text-primary">
     <span class="material-symbols-outlined">arrow_back</span>
@@ -77,20 +76,17 @@
     <div class="h-1.5 w-8 rounded-full bg-surface-container-high"></div>
   </div>
 
-  <!-- Gender Selection (with small photos) -->
-  <div>
-    <label class="block text-[11px] font-label font-bold uppercase tracking-wider text-on-surface-variant mb-2">Gender</label>
-    <div class="flex gap-3">
-      <!-- Male -->
-      <div id="genderMaleCard" onclick="selectGender('male')" class="gender-card flex-1 flex flex-col items-center gap-1 p-2 rounded-xl border-2 border-outline-variant/30 bg-surface-container-lowest">
-        <img src="https://cdn-icons-png.flaticon.com/512/4140/4140047.png" class="w-10 h-10 rounded-full object-cover" alt="male">
-        <span class="text-xs font-medium">Male</span>
-      </div>
-      <!-- Female -->
-      <div id="genderFemaleCard" onclick="selectGender('female')" class="gender-card flex-1 flex flex-col items-center gap-1 p-2 rounded-xl border-2 border-outline-variant/30 bg-surface-container-lowest">
-        <img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" class="w-10 h-10 rounded-full object-cover" alt="female">
-        <span class="text-xs font-medium">Female</span>
-      </div>
+  <!-- Gender Selection (no label, bigger cards) -->
+  <div class="flex gap-3">
+    <!-- Male (correct image) -->
+    <div id="genderMaleCard" onclick="selectGender('male')" class="gender-card flex-1 flex flex-col items-center gap-2 p-3 rounded-xl border-2 border-outline-variant/30 bg-surface-container-lowest">
+      <img src="https://cdn-icons-png.flaticon.com/512/4140/4140047.png" class="w-12 h-12 rounded-full object-cover" alt="male">
+      <span class="text-sm font-medium">Male</span>
+    </div>
+    <!-- Female (correct image) -->
+    <div id="genderFemaleCard" onclick="selectGender('female')" class="gender-card flex-1 flex flex-col items-center gap-2 p-3 rounded-xl border-2 border-outline-variant/30 bg-surface-container-lowest">
+      <img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" class="w-12 h-12 rounded-full object-cover" alt="female">
+      <span class="text-sm font-medium">Female</span>
     </div>
   </div>
 
@@ -100,7 +96,7 @@
     <input id="nickname" type="text" class="w-full bg-surface-container-lowest rounded-xl px-4 py-2.5 text-sm ring-1 ring-outline-variant/15 focus:ring-2 focus:ring-primary" placeholder="e.g. SkyWalker">
   </div>
 
-  <!-- Country (with flag) -->
+  <!-- Country -->
   <div>
     <label class="block text-[11px] font-label font-bold uppercase tracking-wider text-on-surface-variant mb-2">Country</label>
     <button onclick="openCountryPage()" class="w-full flex items-center justify-between bg-surface-container-lowest rounded-xl px-4 py-2.5 text-sm ring-1 ring-outline-variant/15">
@@ -112,7 +108,7 @@
     </button>
   </div>
 
-  <!-- Date of Birth (compact wheel) -->
+  <!-- Date of Birth -->
   <div>
     <label class="block text-[11px] font-label font-bold uppercase tracking-wider text-on-surface-variant mb-2">Birth Date</label>
     <div class="relative bg-surface-container-low rounded-xl h-32 overflow-hidden ring-1 ring-outline-variant/20">
@@ -151,7 +147,7 @@
   const user = JSON.parse(localStorage.getItem("user"));
   if (!user || !user.email) window.location = "login.html";
 
-  // ---------- Gender UI with small photos ----------
+  // ---------- Gender UI with correct images ----------
   function selectGender(gender) {
     selectedGender = gender;
     document.getElementById("genderMaleCard").classList.remove("selected", "border-primary", "bg-primary-container/20");
@@ -187,19 +183,16 @@
   }
   window.addEventListener("pageshow", loadCountry);
 
-  // ---------- Date wheel (compact, no external scroll) ----------
+  // ---------- Date wheel ----------
   function initWheels() {
     const spacer = '<div class="spacer"></div>';
-    // days
     let days = spacer;
     for (let i=1;i<=31;i++) days += `<div class="item day">${i}</div>`;
     document.getElementById("dayWheel").innerHTML = days + spacer;
-    // months (short)
     const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
     let monthHTML = spacer;
     months.forEach(m => monthHTML += `<div class="item month">${m}</div>`);
     document.getElementById("monthWheel").innerHTML = monthHTML + spacer;
-    // years
     let years = spacer;
     for (let y=1980;y<=2025;y++) years += `<div class="item year">${y}</div>`;
     document.getElementById("yearWheel").innerHTML = years + spacer;
@@ -242,7 +235,6 @@
     return age;
   }
 
-  // ---------- Save with loading overlay ----------
   async function saveAll() {
     if (!selectedGender) { alert("Please select gender"); return; }
     const nickname = document.getElementById("nickname").value.trim();
