@@ -62,6 +62,35 @@
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
+    /* QR image – no rounded corners */
+    .qr-image {
+      border-radius: 0 !important;
+    }
+    /* Success Modal */
+    .success-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 300;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    .success-modal.show {
+      opacity: 1;
+      visibility: visible;
+    }
+    .modal-card {
+      transform: scale(0.9);
+      transition: transform 0.3s ease;
+    }
+    .success-modal.show .modal-card {
+      transform: scale(1);
+    }
   </style>
 </head>
 <body class="bg-surface font-body text-on-surface min-h-screen">
@@ -73,28 +102,25 @@
       <span class="material-symbols-outlined text-primary">close</span>
     </button>
     <h1 class="font-headline font-semibold text-lg text-primary">Top Up</h1>
-    <div class="w-8"></div> <!-- placeholder for balance -->
+    <div class="w-8"></div>
   </div>
 </header>
 
 <main class="max-w-md mx-auto px-4 py-6">
-  <!-- Amount Display -->
   <div class="text-center mb-6">
     <p class="text-outline text-sm">You are about to top up</p>
     <p id="amountUsdt" class="font-headline font-black text-4xl text-primary">-- USDT</p>
   </div>
 
-  <!-- Loading indicator while creating topup -->
   <div id="loadingState" class="flex flex-col items-center justify-center py-12">
     <div class="spinner"></div>
     <p class="mt-4 text-outline">Creating payment request...</p>
   </div>
 
-  <!-- Payment Details (hidden initially) -->
   <div id="paymentDetails" class="hidden">
     <div class="bg-surface-container-lowest rounded-2xl p-5 space-y-4 shadow-sm">
       <div class="flex flex-col items-center">
-        <img id="qrImage" class="w-48 h-48 rounded-xl shadow-md" src="" alt="QR Code">
+        <img id="qrImage" class="w-48 h-48 shadow-md qr-image" src="" alt="QR Code">
         <button id="copyAddressBtn" class="mt-3 text-primary text-sm font-bold flex items-center gap-1">
           <span class="material-symbols-outlined text-base">content_copy</span> Copy Address
         </button>
@@ -122,6 +148,21 @@
   <p class="text-center text-[10px] text-outline mt-6">Send exactly the amount shown. Payment is verified automatically.</p>
 </main>
 
+<!-- Success Modal -->
+<div id="successModal" class="success-modal">
+  <div class="modal-card bg-surface-container-lowest rounded-2xl p-6 max-w-sm w-full mx-4 text-center">
+    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+      <span class="material-symbols-outlined text-green-600 text-3xl">check_circle</span>
+    </div>
+    <h3 class="font-headline font-bold text-xl text-on-surface">Payment Successful!</h3>
+    <p id="successMessage" class="text-on-surface-variant mt-2">Coins added to your account</p>
+    <div class="mt-4">
+      <div class="spinner mx-auto"></div>
+      <p class="text-xs text-outline mt-2">Redirecting to Coins page...</p>
+    </div>
+  </div>
+</div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
   import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
@@ -134,7 +175,6 @@
   });
   const db = getFirestore(app);
 
-  // User
   const currentUser = JSON.parse(localStorage.getItem("user"));
   if (!currentUser || !currentUser.userId) {
     window.location.replace("login.html");
@@ -152,18 +192,14 @@
   let timerInterval = null;
   let checkInterval = null;
 
-  // Helper: load existing active topup from localStorage
   function loadStoredTopup() {
     const stored = localStorage.getItem("activeTopup");
     if (stored) {
-      try {
-        return JSON.parse(stored);
-      } catch(e) { return null; }
+      try { return JSON.parse(stored); } catch(e) { return null; }
     }
     return null;
   }
 
-  // Render payment UI
   function renderPayment(topupId, amount, wallet, network, startTime) {
     document.getElementById("loadingState").classList.add("hidden");
     document.getElementById("paymentDetails").classList.remove("hidden");
@@ -176,7 +212,6 @@
     startChecking(topupId);
   }
 
-  // Timer (15 minutes = 900 seconds)
   function startTimer(startTime) {
     if (timerInterval) clearInterval(timerInterval);
     timerInterval = setInterval(() => {
@@ -197,7 +232,6 @@
     }, 1000);
   }
 
-  // Check payment status
   function startChecking(topupId) {
     if (checkInterval) clearInterval(checkInterval);
     checkInterval = setInterval(async () => {
@@ -208,8 +242,20 @@
           clearInterval(checkInterval);
           clearInterval(timerInterval);
           localStorage.removeItem("activeTopup");
-          alert("✅ Payment completed! Coins added to your balance.");
-          window.location.href = "dashboard.html";
+          
+          // Show success modal with coins info
+          const userSnap = await getDoc(doc(db, "users", userId));
+          const newCoins = userSnap.exists() ? (userSnap.data().coins || 0) : 0;
+          const coinsEarned = newCoins - (currentUser.coins || 0);
+          const message = `+${coinsEarned.toLocaleString()} coins added to your account!`;
+          document.getElementById("successMessage").innerText = message;
+          const modal = document.getElementById("successModal");
+          modal.classList.add("show");
+          
+          // Redirect after 2 seconds
+          setTimeout(() => {
+            window.location.href = "coins.html";
+          }, 2000);
         }
       } catch (err) {
         console.log("Check error", err);
@@ -217,16 +263,13 @@
     }, 3000);
   }
 
-  // Create new topup or restore existing
   async function initTopup() {
     const stored = loadStoredTopup();
     if (stored && stored.topupId && stored.amount == amount) {
-      // restore
       activeTopup = stored;
       renderPayment(stored.topupId, stored.amount, stored.wallet, stored.network, stored.startTime);
       return;
     }
-    // Create new topup
     try {
       const res = await fetch("https://createtopup-k3vzdssfra-uc.a.run.app", {
         method: "POST",
@@ -251,7 +294,6 @@
     }
   }
 
-  // Cancel and go back
   function cancelTopup() {
     localStorage.removeItem("activeTopup");
     if (timerInterval) clearInterval(timerInterval);
