@@ -1,30 +1,165 @@
-<div id="gemsHistory"></div>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Gems History</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f6fa;
+      margin: 0;
+      padding: 0;
+    }
+
+    .header {
+      padding: 15px;
+      background: #fff;
+      font-weight: bold;
+      text-align: center;
+      border-bottom: 1px solid #eee;
+    }
+
+    .container {
+      padding: 10px;
+    }
+
+    .card {
+      background: #fff;
+      padding: 12px;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .left {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .time {
+      font-size: 11px;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    .amount {
+      font-size: 16px;
+      font-weight: bold;
+      color: #00b894;
+    }
+
+    .empty {
+      text-align: center;
+      margin-top: 50px;
+      color: #999;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="header">💎 Gems History</div>
+
+<div class="container" id="gemsHistory"></div>
 
 <script type="module">
-import { getFirestore, collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-const db = getFirestore();
+// 🔥 FIREBASE INIT
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 
+import {
+  getFirestore,
+  collection,
+  query,
+  where,
+  orderBy,
+  onSnapshot
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+// ✅ YOUR CONFIG (already correct from your project)
+const firebaseConfig = {
+  apiKey: "AIzaSyAxNlQ9g2kcDcaiTwPsSZFgsTvtyLyN3oY",
+  authDomain: "galmet-app.firebaseapp.com",
+  projectId: "galmet-app",
+  storageBucket: "galmet-app.appspot.com",
+};
+
+// INIT
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+
+// ================= USER =================
 const user = JSON.parse(localStorage.getItem("user"));
-const userId = user.userId;
 
+if (!user) {
+  alert("Login required");
+}
+
+const userId = user.userId.toString();
+
+
+// ================= QUERY =================
 const q = query(
   collection(db, "transactions"),
-  where("receiverId", "==", userId)
+  where("receiverId", "==", userId),
+  orderBy("createdAt", "desc")
 );
 
+
+// ================= FORMAT TIME =================
+function formatTime(ts) {
+  if (!ts) return "";
+
+  const date = ts.toDate();
+
+  return date.toLocaleString("en-US", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+
+// ================= RENDER =================
 onSnapshot(q, (snap) => {
-  const div = document.getElementById("gemsHistory");
-  div.innerHTML = "";
+
+  const container = document.getElementById("gemsHistory");
+  container.innerHTML = "";
+
+  if (snap.empty) {
+    container.innerHTML = `<div class="empty">No gems yet 💎</div>`;
+    return;
+  }
 
   snap.forEach(doc => {
     const d = doc.data();
 
-    div.innerHTML += `
-      <div style="padding:10px; border-bottom:1px solid #ddd;">
-        ✅ +${d.gems} gems (Gift received)
+    container.innerHTML += `
+      <div class="card">
+        <div class="left">
+          <div class="title">🎁 Gift Received</div>
+          <div class="time">${formatTime(d.createdAt)}</div>
+        </div>
+        <div class="amount">+${d.gems} 💎</div>
       </div>
     `;
   });
+
 });
+
 </script>
+
+</body>
+</html>
