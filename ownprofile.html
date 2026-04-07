@@ -272,11 +272,39 @@
   const userRef = doc(db, "users", myUserId);
 
   // Helper: flag emoji from country code
-  function getFlagEmoji(countryCode) {
-    if (!countryCode) return "🌍";
-    const codePoints = countryCode.toUpperCase().split('').map(c => 127397 + c.charCodeAt(0));
-    return String.fromCodePoint(...codePoints);
+  function getFlagEmoji(country) {
+  if (!country) return "🌍";
+
+  let code = null;
+
+  // ✅ YOUR CASE (object with flag)
+  if (typeof country === "object") {
+    code = country.code || country.flag; // FIX HERE
   }
+
+  // ✅ STRING CASE
+  if (typeof country === "string") {
+    const map = {
+      pakistan: "PK",
+      india: "IN",
+      usa: "US",
+      uk: "GB",
+      philippines: "PH",
+      indonesia: "ID",
+      malaysia: "MY",
+      uae: "AE"
+    };
+    code = map[country.toLowerCase()];
+  }
+
+  if (!code) return "🌍";
+
+  const codePoints = code.toUpperCase()
+    .split('')
+    .map(c => 127397 + c.charCodeAt(0));
+
+  return String.fromCodePoint(...codePoints);
+}
 
   // Real‑time user data (coins, gems, level, flag)
   onSnapshot(userRef, (snap) => {
@@ -298,7 +326,7 @@
     if (user.coins >= 10000) level = 5;
     else if (user.coins >= 5000) level = 4;
     else if (user.coins >= 2000) level = 3;
-    else if (user.coins >= 500) level = 2;
+    else if (user.coins >= 500) level = 1;
     document.getElementById("userLevel").innerText = `Lv.${level}`;
 
     // Country flag (detailed debug)
