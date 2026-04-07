@@ -43,7 +43,7 @@
       height: 40px; display: flex; align-items: center; justify-content: center;
       scroll-snap-align: center; font-weight: 600; flex-shrink: 0;
     }
-    .spacer { height: 76px; width: 100%; flex-shrink: 0; }
+    .spacer { height: 70px; width: 100%; flex-shrink: 0; }
     .gender-card {
       transition: all 0.2s ease;
       cursor: pointer;
@@ -53,40 +53,43 @@
       border-color: #006571;
       transform: scale(0.98);
     }
+    /* prevent body scroll on wheel interaction */
+    body { overflow: hidden; }
+    main { overflow-y: auto; -webkit-overflow-scrolling: touch; }
   </style>
 </head>
-<body class="bg-surface font-body text-on-surface min-h-screen flex flex-col items-center">
+<body class="bg-surface font-body text-on-surface h-screen flex flex-col">
 
 <!-- Top Bar (compact) -->
-<header class="w-full max-w-md mx-auto flex justify-between items-center px-6 h-16">
+<header class="w-full max-w-md mx-auto flex justify-between items-center px-6 h-14 shrink-0">
   <button onclick="window.location.href='login.html'" class="text-primary">
     <span class="material-symbols-outlined">arrow_back</span>
   </button>
-  <h1 class="text-xl font-bold bg-gradient-to-r from-primary to-primary-dim bg-clip-text text-transparent">Galmet</h1>
+  <h1 class="text-lg font-bold bg-gradient-to-r from-primary to-primary-dim bg-clip-text text-transparent">Galmet</h1>
   <div class="w-6"></div>
 </header>
 
-<main class="flex-1 w-full max-w-md px-6 py-2 flex flex-col gap-4 overflow-y-auto" style="max-height: calc(100vh - 70px);">
-  <!-- Progress steps (minimal) -->
+<main class="flex-1 w-full max-w-md mx-auto px-6 py-2 flex flex-col gap-3 overflow-y-auto">
+  <!-- Progress steps -->
   <div class="flex justify-center gap-2 mb-1">
     <div class="h-1.5 w-8 rounded-full bg-primary-container"></div>
     <div class="h-1.5 w-8 rounded-full bg-surface-container-high"></div>
     <div class="h-1.5 w-8 rounded-full bg-surface-container-high"></div>
   </div>
 
-  <!-- Gender Selection (with icons) -->
+  <!-- Gender Selection (with small photos) -->
   <div>
     <label class="block text-[11px] font-label font-bold uppercase tracking-wider text-on-surface-variant mb-2">Gender</label>
     <div class="flex gap-3">
       <!-- Male -->
-      <div id="genderMaleCard" onclick="selectGender('male')" class="gender-card flex-1 flex flex-col items-center gap-2 p-3 rounded-xl border-2 border-outline-variant/30 bg-surface-container-lowest">
-        <span class="material-symbols-outlined text-4xl text-primary">male</span>
-        <span class="text-sm font-medium">Male</span>
+      <div id="genderMaleCard" onclick="selectGender('male')" class="gender-card flex-1 flex flex-col items-center gap-1 p-2 rounded-xl border-2 border-outline-variant/30 bg-surface-container-lowest">
+        <img src="https://cdn-icons-png.flaticon.com/512/4140/4140047.png" class="w-10 h-10 rounded-full object-cover" alt="male">
+        <span class="text-xs font-medium">Male</span>
       </div>
       <!-- Female -->
-      <div id="genderFemaleCard" onclick="selectGender('female')" class="gender-card flex-1 flex flex-col items-center gap-2 p-3 rounded-xl border-2 border-outline-variant/30 bg-surface-container-lowest">
-        <span class="material-symbols-outlined text-4xl text-primary">female</span>
-        <span class="text-sm font-medium">Female</span>
+      <div id="genderFemaleCard" onclick="selectGender('female')" class="gender-card flex-1 flex flex-col items-center gap-1 p-2 rounded-xl border-2 border-outline-variant/30 bg-surface-container-lowest">
+        <img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" class="w-10 h-10 rounded-full object-cover" alt="female">
+        <span class="text-xs font-medium">Female</span>
       </div>
     </div>
   </div>
@@ -94,41 +97,41 @@
   <!-- Nickname -->
   <div>
     <label class="block text-[11px] font-label font-bold uppercase tracking-wider text-on-surface-variant mb-2">Nickname</label>
-    <input id="nickname" type="text" class="w-full bg-surface-container-lowest rounded-xl px-4 py-3 ring-1 ring-outline-variant/15 focus:ring-2 focus:ring-primary" placeholder="e.g. SkyWalker">
+    <input id="nickname" type="text" class="w-full bg-surface-container-lowest rounded-xl px-4 py-2.5 text-sm ring-1 ring-outline-variant/15 focus:ring-2 focus:ring-primary" placeholder="e.g. SkyWalker">
   </div>
 
   <!-- Country (with flag) -->
   <div>
     <label class="block text-[11px] font-label font-bold uppercase tracking-wider text-on-surface-variant mb-2">Country</label>
-    <button onclick="openCountryPage()" class="w-full flex items-center justify-between bg-surface-container-lowest rounded-xl px-4 py-3 ring-1 ring-outline-variant/15">
-      <div class="flex items-center gap-3">
-        <span id="countryFlag">🌍</span>
-        <span id="countryName" class="text-outline">Select region</span>
+    <button onclick="openCountryPage()" class="w-full flex items-center justify-between bg-surface-container-lowest rounded-xl px-4 py-2.5 text-sm ring-1 ring-outline-variant/15">
+      <div class="flex items-center gap-2">
+        <span id="countryFlag" class="text-lg">🌍</span>
+        <span id="countryName" class="text-outline text-sm">Select region</span>
       </div>
-      <span class="material-symbols-outlined">expand_more</span>
+      <span class="material-symbols-outlined text-base">expand_more</span>
     </button>
   </div>
 
   <!-- Date of Birth (compact wheel) -->
   <div>
     <label class="block text-[11px] font-label font-bold uppercase tracking-wider text-on-surface-variant mb-2">Birth Date</label>
-    <div class="relative bg-surface-container-low rounded-xl h-36 overflow-hidden ring-1 ring-outline-variant/20">
-      <div class="absolute left-3 right-3 top-1/2 -translate-y-1/2 h-10 bg-primary-container/20 rounded-lg z-10"></div>
+    <div class="relative bg-surface-container-low rounded-xl h-32 overflow-hidden ring-1 ring-outline-variant/20">
+      <div class="absolute left-3 right-3 top-1/2 -translate-y-1/2 h-8 bg-primary-container/20 rounded-lg z-10"></div>
       <div class="flex h-full">
-        <div id="dayWheel" class="wheel w-1/4"></div>
-        <div id="monthWheel" class="wheel w-2/5"></div>
-        <div id="yearWheel" class="wheel w-1/4"></div>
+        <div id="dayWheel" class="wheel w-1/4 text-sm"></div>
+        <div id="monthWheel" class="wheel w-2/5 text-sm"></div>
+        <div id="yearWheel" class="wheel w-1/4 text-sm"></div>
       </div>
       <div class="absolute inset-0 pointer-events-none" style="background: linear-gradient(to bottom, #f3f7fb 0%, rgba(243,247,251,0) 25%, rgba(243,247,251,0) 75%, #f3f7fb 100%);"></div>
     </div>
   </div>
 
   <!-- Continue Button -->
-  <button id="continueBtn" class="mt-2 w-full h-12 bg-gradient-to-r from-primary to-primary-dim text-on-primary rounded-full font-bold shadow-lg active:scale-95 transition">Continue</button>
-  <p class="text-center text-[10px] text-outline uppercase tracking-[0.1em] pb-4">Step 1 of 2</p>
+  <button id="continueBtn" class="mt-2 w-full h-11 bg-gradient-to-r from-primary to-primary-dim text-on-primary rounded-full font-bold shadow-md active:scale-95 transition text-sm">Continue</button>
+  <p class="text-center text-[10px] text-outline uppercase tracking-[0.1em] pb-2">Step 1 of 2</p>
 </main>
 
-<!-- Loading Overlay (same as setup.html) -->
+<!-- Loading Overlay -->
 <div id="loadingOverlay" class="fixed inset-0 bg-surface/80 backdrop-blur-md flex flex-col items-center justify-center hidden z-[100]">
   <div class="relative">
     <div class="w-24 h-24 rounded-full border-4 border-primary-container border-t-primary animate-spin"></div>
@@ -145,24 +148,18 @@
   let selectedGender = "";
   let selectedCountry = null;
 
-  // Load user from localStorage
   const user = JSON.parse(localStorage.getItem("user"));
   if (!user || !user.email) window.location = "login.html";
 
-  // ---------- Gender UI ----------
+  // ---------- Gender UI with small photos ----------
   function selectGender(gender) {
     selectedGender = gender;
-    // Reset both cards
     document.getElementById("genderMaleCard").classList.remove("selected", "border-primary", "bg-primary-container/20");
     document.getElementById("genderFemaleCard").classList.remove("selected", "border-primary", "bg-primary-container/20");
     const activeCard = document.getElementById(`gender${gender === 'male' ? 'Male' : 'Female'}Card`);
     activeCard.classList.add("selected", "border-primary", "bg-primary-container/20");
   }
-
-  // Pre-fill gender if exists
-  if (user.gender) {
-    selectGender(user.gender);
-  }
+  if (user.gender) selectGender(user.gender);
 
   // Pre-fill nickname
   if (user.username) document.getElementById("nickname").value = user.username;
@@ -179,10 +176,7 @@
     document.getElementById("countryName").innerText = user.country.name || user.country;
   }
 
-  // ---------- Country picker ----------
-  function openCountryPage() {
-    window.location = "country.html";
-  }
+  function openCountryPage() { window.location = "country.html"; }
   function loadCountry() {
     const country = JSON.parse(localStorage.getItem("selectedCountry"));
     if (country) {
@@ -193,14 +187,14 @@
   }
   window.addEventListener("pageshow", loadCountry);
 
-  // ---------- Date wheel (compact) ----------
+  // ---------- Date wheel (compact, no external scroll) ----------
   function initWheels() {
     const spacer = '<div class="spacer"></div>';
     // days
     let days = spacer;
     for (let i=1;i<=31;i++) days += `<div class="item day">${i}</div>`;
     document.getElementById("dayWheel").innerHTML = days + spacer;
-    // months
+    // months (short)
     const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
     let monthHTML = spacer;
     months.forEach(m => monthHTML += `<div class="item month">${m}</div>`);
@@ -248,7 +242,7 @@
     return age;
   }
 
-  // ---------- Save all with loading overlay ----------
+  // ---------- Save with loading overlay ----------
   async function saveAll() {
     if (!selectedGender) { alert("Please select gender"); return; }
     const nickname = document.getElementById("nickname").value.trim();
@@ -263,19 +257,15 @@
     loading.classList.remove("hidden");
 
     try {
-      // Update gender
       const genderRes = await fetch(BASE_URL + "/updateUser", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: user.email, gender: selectedGender })
       });
       const genderData = await genderRes.json();
       if (!genderData.success) throw new Error("Gender update failed");
 
-      // Update rest (username, country, dob, age)
       const step2Res = await fetch(BASE_URL + "/updateUserStep2", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: user.email,
           username: nickname,
@@ -291,16 +281,14 @@
         return;
       }
 
-      // Update local storage
       user.gender = selectedGender;
       user.username = nickname;
       user.country = selectedCountry;
       user.dob = { day: dob.day, month: dob.month, year: dob.year };
       user.age = age;
       localStorage.setItem("user", JSON.stringify(user));
-      localStorage.removeItem("selectedCountry"); // clean temp
+      localStorage.removeItem("selectedCountry");
 
-      // Redirect to setup or dashboard
       if (!user.photoURL || !user.profileCompleted) {
         window.location.href = "setup.html";
       } else {
@@ -313,7 +301,6 @@
     }
   }
 
-  // Attach event
   document.getElementById("continueBtn").onclick = saveAll;
   initWheels();
 </script>
