@@ -278,12 +278,12 @@
   import { getDatabase, ref as dbRef, onChildAdded } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
 
   const app = initializeApp({
-    apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
-    authDomain: "galmet-app.firebaseapp.com",
-    projectId: "galmet-app",
-    storageBucket: "galmet-app.firebasestorage.app"
-    databaseURL: "https://galmet-app-default-rtdb.asia-southeast1.firebasedatabase.app"
-  });
+  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+  authDomain: "galmet-app.firebaseapp.com",
+  projectId: "galmet-app",
+  storageBucket: "galmet-app.firebasestorage.app",
+  databaseURL: "https://galmet-app-default-rtdb.asia-southeast1.firebasedatabase.app"
+});
   const db = getFirestore(app);
   const storage = getStorage(app);
   const rtdb = getDatabase(app);
