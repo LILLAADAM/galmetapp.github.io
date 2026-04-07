@@ -63,7 +63,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-/* 🔥 YOUR CONFIG */
 const firebaseConfig = {
   apiKey: "AIzaSyAxNlQ9g2kcDcaiTwPsSZFgsTvtyLyN3oY",
   authDomain: "galmet-app.firebaseapp.com",
@@ -76,11 +75,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* 👤 USER */
 const user = JSON.parse(localStorage.getItem("user"));
 const userId = user.userId.toString();
 
-/* 🔥 QUERY */
 const q = query(
   collection(db, "transactions"),
   orderBy("createdAt", "desc")
@@ -95,31 +92,35 @@ onSnapshot(q, (snap) => {
 
     const d = doc.data();
 
-    let isSender = d.senderId === userId;
-    let isReceiver = d.receiverId === userId;
+    const isSender = d.senderId === userId;
+    const isReceiver = d.receiverId === userId;
+    const isTopup = d.type === "topup" && d.userId === userId;
+    const isWithdraw = d.type === "withdraw" && d.userId === userId;
 
-    // ❌ IMPORTANT FIX: skip received gift coins
+    // ❌ Skip unrelated
+    if (!isSender && !isReceiver && !isTopup && !isWithdraw) return;
+
+    // ❌ Skip received gifts (only show sent)
     if (d.type === "gift" && isReceiver) return;
-
-    // ❌ skip unrelated
-    if (!isSender && !isReceiver && d.type !== "topup") return;
 
     let sign = "-";
     let color = "minus";
     let title = "Transaction";
     let amount = d.coins || 0;
 
+    // 🎁 Gift
     if (d.type === "gift") {
-      if (!isSender) return; // only sender
       title = "Sent Gift 🎁";
     }
 
+    // 💳 Topup
     if (d.type === "topup") {
       sign = "+";
       color = "plus";
       title = "Top-up 💳";
     }
 
+    // 💸 Withdraw
     if (d.type === "withdraw") {
       title = "Withdraw 💸";
     }
@@ -144,6 +145,10 @@ onSnapshot(q, (snap) => {
     `;
 
   });
+
+});
+
+</script>
 
 });
 
