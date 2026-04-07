@@ -377,9 +377,24 @@ if (targetUserData.country) {
   }
 }
 
-const flag = getFlagEmoji(countryCode);
-countryFlagSpan.innerText = flag;
-locationSpan.innerHTML = `${countryName} ${flag}`;
+const code = (countryCode || "").toLowerCase();
+
+// 🌍 fallback
+const flagUrl = code
+  ? `https://flagcdn.com/w40/${code}.png`
+  : null;
+
+// Profile small flag
+if (flagUrl) {
+  countryFlagSpan.innerHTML = `<img src="${flagUrl}" style="width:20px;height:14px;border-radius:2px;">`;
+} else {
+  countryFlagSpan.innerText = "🌍";
+}
+
+// Location line
+locationSpan.innerHTML = flagUrl
+  ? `${countryName} <img src="${flagUrl}" style="width:16px;height:12px;display:inline;margin-left:4px;">`
+  : `${countryName} 🌍`;
     
     // Gender & Age
     const gender = targetUserData.gender;
