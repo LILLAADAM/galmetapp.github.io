@@ -95,15 +95,12 @@
     h1, h2, h3, .font-headline {
       font-family: 'Plus Jakarta Sans', sans-serif;
     }
-    .ios-safe-bottom {
-      padding-bottom: env(safe-area-inset-bottom, 20px);
-    }
   </style>
 </head>
 <body class="text-on-surface min-h-screen">
 
 <main class="px-4 pb-20 space-y-3 pt-4">
-  <!-- User Identity Section (Scaled down) -->
+  <!-- User Identity Section -->
   <section class="relative group active:scale-[0.98] transition-transform duration-200">
     <div class="flex items-center gap-3 p-1">
       <!-- Avatar + flag badge – clickable to view.html -->
@@ -159,7 +156,7 @@
     </div>
   </section>
 
-  <!-- Currencies Row (clickable: coins → coins.html, gems → gems.html) -->
+  <!-- Currencies Row (clickable) -->
   <section class="grid grid-cols-2 gap-2">
     <div id="coinsCard" class="bg-secondary-container/20 p-2.5 rounded-lg flex items-center gap-2.5 border border-secondary/10 cursor-pointer active:scale-95 transition-transform">
       <div class="bg-secondary-container w-9 h-9 rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
@@ -271,82 +268,69 @@
   const myUserId = currentUser.userId.toString();
   const userRef = doc(db, "users", myUserId);
 
-  // Helper: flag emoji from country code
+  // Flag logic (exactly as you provided)
   function getFlagEmoji(country) {
-  if (!country) return "🌍";
+    if (!country) return "🌍";
 
-  let code = null;
+    let code = null;
 
-  // ✅ object case
-  if (typeof country === "object") {
-    code = country.flag || country.code;
+    // object case
+    if (typeof country === "object") {
+      code = country.flag || country.code;
+    }
+
+    // string case
+    if (typeof country === "string") {
+      const map = {
+        pakistan: "PK",
+        india: "IN",
+        usa: "US",
+        uk: "GB",
+        philippines: "PH",
+        indonesia: "ID",
+        malaysia: "MY",
+        uae: "AE",
+        angola: "AO"
+      };
+      code = map[country.toLowerCase()];
+    }
+
+    if (!code || code.length !== 2) return "🌍";
+
+    return code
+      .toUpperCase()
+      .split("")
+      .map(c => String.fromCodePoint(127397 + c.charCodeAt()))
+      .join("");
   }
 
-  // ✅ string case
-  function getFlagEmoji(country) {
-  if (!country) return "🌍";
-
-  let code = null;
-
-  // ✅ object case
-  if (typeof country === "object") {
-    code = country.flag || country.code;
-  }
-
-  // ✅ string case
-  if (typeof country === "string") {
-    const map = {
-      pakistan: "PK",
-      india: "IN",
-      usa: "US",
-      uk: "GB",
-      philippines: "PH",
-      indonesia: "ID",
-      malaysia: "MY",
-      uae: "AE",
-      angola: "AO"
-    };
-    code = map[country.toLowerCase()];
-  }
-
-  if (!code || code.length !== 2) return "🌍";
-
-  // ✅ CORRECT FLAG EMOJI GENERATION
-  return code
-    .toUpperCase()
-    .split('')
-    .map(c => String.fromCodePoint(127397 + c.charCodeAt()))
-    .join('');
-}
   // Real‑time user data (coins, gems, level, flag)
   onSnapshot(userRef, (snap) => {
     if (!snap.exists()) return;
     const user = snap.data();
-    console.log("🔍 User data from Firestore:", user); // DEBUG
 
     // Update display name & ID
     document.getElementById("username").innerText = user.username || user.email || "User";
     document.getElementById("userIdText").innerText = "ID: " + (user.userId || myUserId);
     document.getElementById("profileImg").src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username || "User")}&background=006571&color=fff`;
 
-    // Coins & Gems
+    // Coins & Gems (using user.gems, not diamonds)
     document.getElementById("coins").innerText = user.coins || 0;
-    document.getElementById("gems").innerText = user.gems || 0;  // field "diamonds" in Firestore
+    document.getElementById("gems").innerText = user.gems || 0;
 
     // Level (simple)
     let level = 1;
     if (user.coins >= 10000) level = 5;
     else if (user.coins >= 5000) level = 4;
     else if (user.coins >= 2000) level = 3;
-    else if (user.coins >= 500) level = 1;
+    else if (user.coins >= 500) level = 2;
     document.getElementById("userLevel").innerText = `Lv.${level}`;
 
-    // Country flag (detailed debug)
+    // Country flag using the provided function
     const flagEmoji = getFlagEmoji(user.country);
     document.getElementById("countryFlag").innerText = flagEmoji;
+  });
 
-    console.log("🏁 Final flag emoji displayed:", flagEmoji);
-    
   // Real‑time stats (followers, following, friends)
   onSnapshot(collection(db, "followers", myUserId, "list"), (snap) => {
     document.getElementById("followersCount").innerText = snap.size;
@@ -363,7 +347,7 @@
     window.location.href = `view.html?id=${myUserId}`;
   };
   window.goToEditProfile = () => {
-    window.location.href = "profile.html"; // currently same page, but can be edit-profile.html later
+    window.location.href = "profile.html"; // can be changed to edit-profile.html later
   };
   window.goSettings = () => {
     window.location.href = "settings.html";
