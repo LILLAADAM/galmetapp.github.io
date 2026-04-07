@@ -288,10 +288,12 @@
 
   let code = null;
 
+  // ✅ object case
   if (typeof country === "object") {
     code = country.flag || country.code;
   }
 
+  // ✅ string case
   if (typeof country === "string") {
     const map = {
       pakistan: "PK",
@@ -307,13 +309,14 @@
     code = map[country.toLowerCase()];
   }
 
-  if (!code) return "🌍";
+  if (!code || code.length !== 2) return "🌍";
 
+  // ✅ CORRECT FLAG EMOJI GENERATION
   return code
     .toUpperCase()
-    .split("")
+    .split('')
     .map(c => String.fromCodePoint(127397 + c.charCodeAt()))
-    .join("");
+    .join('');
 }
   // Real‑time user data (coins, gems, level, flag)
   onSnapshot(userRef, (snap) => {
