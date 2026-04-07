@@ -334,10 +334,12 @@
     if (user.country) {
       console.log("✅ Country object found:", user.country);
       if (typeof user.country === "object") {
-        const code = user.country.code;
-        console.log("🔹 Country code from object:", code);
-        if (code) flagEmoji = getFlagEmoji(code);
-        else flagEmoji = "🌍";
+      console.log("🔹 Country object:", user.country);
+
+   // ✅ FIX: use flag instead of code
+      flagEmoji = getFlagEmoji(user.country);
+    
+     }
       } else if (typeof user.country === "string") {
         // If country is stored as string (e.g., "Pakistan"), try to guess? We'll fallback to globe.
         console.log("🔹 Country as string:", user.country);
