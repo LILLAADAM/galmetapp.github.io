@@ -331,15 +331,7 @@
     document.getElementById("userLevel").innerText = `Lv.${level}`;
 
     // Country flag (detailed debug)
-    const flagEmoji = getFlagEmoji(user.country);
-    document.getElementById("countryFlag").innerText = flagEmoji;
-        // If country is stored as string (e.g., "Pakistan"), try to guess? We'll fallback to globe.
-        console.log("🔹 Country as string:", user.country);
-        flagEmoji = "🌍";
-      }
-    } else {
-      console.warn("⚠️ No 'country' field in user document");
-    }
+   const flagEmoji = getFlagEmoji(user.country);
     document.getElementById("countryFlag").innerText = flagEmoji;
     console.log("🏁 Final flag emoji displayed:", flagEmoji);
   });
