@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Galmet – Complete Profile</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface": "#f3f7fb", "surface-container-low": "#ecf1f6",
+            "surface-container-lowest": "#ffffff", "on-surface": "#2a2f32",
+            "on-surface-variant": "#575c60", "primary": "#006571",
+            "primary-container": "#00e3fd", "primary-dim": "#005863",
+            "secondary": "#755700", "tertiary": "#b60051",
+            "outline": "#73777b", "outline-variant": "#a9aeb1"
+          },
+          fontFamily: {
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Be Vietnam Pro"],
+            "label": ["Plus Jakarta Sans"]
+          },
+          borderRadius: { DEFAULT: "1rem", lg: "2rem", xl: "3rem", full: "9999px" }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .wheel {
+      height: 100%; overflow-y: auto; scroll-snap-type: y mandatory;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .wheel::-webkit-scrollbar { display: none; }
+    .item {
+      height: 40px; display: flex; align-items: center; justify-content: center;
+      scroll-snap-align: center; font-weight: 600; flex-shrink: 0;
+    }
+    .spacer { height: 76px; width: 100%; flex-shrink: 0; }
+  </style>
+</head>
+<body class="bg-surface font-body text-on-surface min-h-screen flex flex-col items-center">
+
+<!-- Top Bar -->
+<header class="w-full max-w-md mx-auto flex justify-between items-center px-6 h-16">
+  <button onclick="window.location.href='login.html'" class="text-primary">
+    <span class="material-symbols-outlined">arrow_back</span>
+  </button>
+  <h1 class="text-xl font-bold bg-gradient-to-r from-primary to-primary-dim bg-clip-text text-transparent">Galmet</h1>
+  <div class="w-6"></div>
+</header>
+
+<main class="flex-1 w-full max-w-md px-6 py-4 flex flex-col gap-5 overflow-y-auto">
+  <!-- Progress indicator -->
+  <div class="flex justify-center gap-2 mb-2">
+    <div class="h-1.5 w-8 rounded-full bg-primary-container"></div>
+    <div class="h-1.5 w-8 rounded-full bg-surface-container-high"></div>
+    <div class="h-1.5 w-8 rounded-full bg-surface-container-high"></div>
+  </div>
+
+  <!-- Gender (small inline) -->
+  <div>
+    <label class="block text-[11px] font-label font-bold uppercase tracking-wider text-on-surface-variant mb-2">Gender</label>
+    <div class="flex gap-3">
+      <button id="genderMale" onclick="selectGender('male')" class="flex-1 py-2 rounded-full bg-surface-container-low text-center font-medium transition-all">♂ Male</button>
+      <button id="genderFemale" onclick="selectGender('female')" class="flex-1 py-2 rounded-full bg-surface-container-low text-center font-medium transition-all">♀ Female</button>
+    </div>
+  </div>
+
+  <!-- Nickname -->
+  <div>
+    <label class="block text-[11px] font-label font-bold uppercase tracking-wider text-on-surface-variant mb-2">Nickname</label>
+    <input id="nickname" type="text" class="w-full bg-surface-container-lowest rounded-xl px-4 py-3 ring-1 ring-outline-variant/15 focus:ring-2 focus:ring-primary" placeholder="e.g. SkyWalker">
+  </div>
+
+  <!-- Country (with flag) -->
+  <div>
+    <label class="block text-[11px] font-label font-bold uppercase tracking-wider text-on-surface-variant mb-2">Country</label>
+    <button onclick="openCountryPage()" class="w-full flex items-center justify-between bg-surface-container-lowest rounded-xl px-4 py-3 ring-1 ring-outline-variant/15">
+      <div class="flex items-center gap-3">
+        <span id="countryFlag">🌍</span>
+        <span id="countryName" class="text-outline">Select region</span>
+      </div>
+      <span class="material-symbols-outlined">expand_more</span>
+    </button>
+  </div>
+
+  <!-- Date of Birth (compact wheel) -->
+  <div>
+    <label class="block text-[11px] font-label font-bold uppercase tracking-wider text-on-surface-variant mb-2">Birth Date</label>
+    <div class="relative bg-surface-container-low rounded-xl h-40 overflow-hidden ring-1 ring-outline-variant/20">
+      <div class="absolute left-3 right-3 top-1/2 -translate-y-1/2 h-10 bg-primary-container/20 rounded-lg z-10"></div>
+      <div class="flex h-full">
+        <div id="dayWheel" class="wheel w-1/4"></div>
+        <div id="monthWheel" class="wheel w-2/5"></div>
+        <div id="yearWheel" class="wheel w-1/4"></div>
+      </div>
+      <div class="absolute inset-0 pointer-events-none" style="background: linear-gradient(to bottom, #f3f7fb 0%, rgba(243,247,251,0) 25%, rgba(243,247,251,0) 75%, #f3f7fb 100%);"></div>
+    </div>
+  </div>
+
+  <!-- Continue Button -->
+  <button id="continueBtn" onclick="saveAll()" class="mt-4 w-full h-12 bg-gradient-to-r from-primary to-primary-dim text-on-primary rounded-full font-bold shadow-lg active:scale-95 transition">Continue</button>
+  <p class="text-center text-[10px] text-outline uppercase tracking-[0.1em]">Step 1 of 2</p>
+</main>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="fixed inset-0 bg-background/90 backdrop-blur-md z-[100] flex flex-col items-center justify-center hidden">
+  <div class="w-20 h-20 border-4 border-primary-container rounded-full animate-pulse"></div>
+  <div class="absolute w-14 h-14 border-4 border-t-primary border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
+  <p class="mt-6 font-headline font-bold text-primary tracking-widest uppercase text-[10px] animate-pulse">Saving...</p>
+</div>
+
+<script>
+  const BASE_URL = "https://us-central1-galmet-app.cloudfunctions.net";
+  let selectedGender = "";
+  let selectedCountry = null;
+
+  // ---------- Load existing user data ----------
+  const user = JSON.parse(localStorage.getItem("user"));
+  if (!user || !user.email) window.location = "login.html";
+
+  // Pre-fill gender
+  if (user.gender) {
+    selectedGender = user.gender;
+    document.getElementById(`gender${user.gender === 'male' ? 'Male' : 'Female'}`).classList.add('bg-primary-container', 'text-on-primary-container');
+  }
+
+  // Pre-fill nickname
+  if (user.username) document.getElementById("nickname").value = user.username;
+
+  // Pre-fill country
+  const savedCountry = JSON.parse(localStorage.getItem("selectedCountry"));
+  if (savedCountry) {
+    selectedCountry = savedCountry;
+    document.getElementById("countryFlag").innerText = savedCountry.flag;
+    document.getElementById("countryName").innerText = savedCountry.name;
+  } else if (user.country) {
+    selectedCountry = user.country;
+    document.getElementById("countryFlag").innerText = user.country.flag || "🌍";
+    document.getElementById("countryName").innerText = user.country.name || user.country;
+  }
+
+  // ---------- Gender selection ----------
+  function selectGender(gender) {
+    selectedGender = gender;
+    document.getElementById("genderMale").classList.remove('bg-primary-container', 'text-on-primary-container');
+    document.getElementById("genderFemale").classList.remove('bg-primary-container', 'text-on-primary-container');
+    document.getElementById(`gender${gender === 'male' ? 'Male' : 'Female'}`).classList.add('bg-primary-container', 'text-on-primary-container');
+  }
+
+  // ---------- Country picker ----------
+  function openCountryPage() {
+    window.location = "country.html";
+  }
+  function loadCountry() {
+    const country = JSON.parse(localStorage.getItem("selectedCountry"));
+    if (country) {
+      selectedCountry = country;
+      document.getElementById("countryFlag").innerText = country.flag;
+      document.getElementById("countryName").innerText = country.name;
+    }
+  }
+  window.addEventListener("pageshow", loadCountry);
+
+  // ---------- Date wheel ----------
+  function initWheels() {
+    const spacer = '<div class="spacer"></div>';
+    // days
+    let days = spacer;
+    for (let i=1;i<=31;i++) days += `<div class="item day">${i}</div>`;
+    document.getElementById("dayWheel").innerHTML = days + spacer;
+    // months
+    const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    let monthHTML = spacer;
+    months.forEach(m => monthHTML += `<div class="item month">${m}</div>`);
+    document.getElementById("monthWheel").innerHTML = monthHTML + spacer;
+    // years
+    let years = spacer;
+    for (let y=1980;y<=2025;y++) years += `<div class="item year">${y}</div>`;
+    document.getElementById("yearWheel").innerHTML = years + spacer;
+    setTimeout(() => {
+      ["dayWheel","monthWheel","yearWheel"].forEach(id => {
+        const el = document.getElementById(id);
+        el.scrollTop = el.scrollHeight / 2;
+      });
+    }, 50);
+  }
+
+  function getCenterValue(container, className) {
+    const items = container.querySelectorAll("." + className);
+    let closest = null, closestOffset = Infinity;
+    const center = container.getBoundingClientRect().top + container.offsetHeight/2;
+    items.forEach(el => {
+      const rect = el.getBoundingClientRect();
+      const offset = Math.abs(center - (rect.top + rect.height/2));
+      if (offset < closestOffset) { closestOffset = offset; closest = el; }
+    });
+    return closest?.innerText;
+  }
+
+  function getDOB() {
+    const day = parseInt(getCenterValue(document.getElementById("dayWheel"), "day"));
+    const monthText = getCenterValue(document.getElementById("monthWheel"), "month");
+    const year = parseInt(getCenterValue(document.getElementById("yearWheel"), "year"));
+    const map = { January:1, February:2, March:3, April:4, May:5, June:6, July:7, August:8, September:9, October:10, November:11, December:12 };
+    return { day, month: map[monthText], year };
+  }
+
+  function calculateAge(day, month, year) {
+    const today = new Date();
+    let age = today.getFullYear() - year;
+    if (today.getMonth()+1 < month || (today.getMonth()+1 === month && today.getDate() < day)) age--;
+    return age;
+  }
+
+  // ---------- Save all ----------
+  async function saveAll() {
+    if (!selectedGender) { alert("Please select gender"); return; }
+    const nickname = document.getElementById("nickname").value.trim();
+    if (!nickname || nickname.length < 3) { alert("Nickname must be at least 3 characters"); return; }
+    if (!selectedCountry) { alert("Please select your country"); return; }
+    const dob = getDOB();
+    if (!dob.day || !dob.month || !dob.year) { alert("Select full date"); return; }
+    const age = calculateAge(dob.day, dob.month, dob.year);
+    if (age < 18) { alert("You must be 18 or older"); return; }
+
+    document.getElementById("loadingOverlay").classList.remove("hidden");
+
+    try {
+      // First update gender (using existing /updateUser)
+      const genderRes = await fetch(BASE_URL + "/updateUser", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: user.email, gender: selectedGender })
+      });
+      const genderData = await genderRes.json();
+      if (!genderData.success) throw new Error("Gender update failed");
+
+      // Then update rest (username, country, dob, age)
+      const step2Res = await fetch(BASE_URL + "/updateUserStep2", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: user.email,
+          username: nickname,
+          country: selectedCountry,
+          dob: { day: dob.day, month: dob.month, year: dob.year },
+          age: age
+        })
+      });
+      const step2Data = await step2Res.json();
+      if (!step2Data.success) {
+        alert(step2Data.message || "Username taken");
+        document.getElementById("loadingOverlay").classList.add("hidden");
+        return;
+      }
+
+      // Update local user
+      user.gender = selectedGender;
+      user.username = nickname;
+      user.country = selectedCountry;
+      user.dob = { day: dob.day, month: dob.month, year: dob.year };
+      user.age = age;
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.removeItem("selectedCountry"); // clean temp
+
+      // Redirect to setup or dashboard
+      if (!user.photoURL || !user.profileCompleted) {
+        window.location = "setup.html";
+      } else {
+        window.location = "dashboard.html";
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error saving. Please try again.");
+      document.getElementById("loadingOverlay").classList.add("hidden");
+    }
+  }
+
+  initWheels();
+</script>
+</body>
+</html>
