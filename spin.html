@@ -3,144 +3,156 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Galmet – Lucky Spin</title>
+  <title>Galmet – Professional Spin</title>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
   <style>
     * { user-select: none; }
-    .material-symbols-outlined {
-      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-    }
     body {
-      background: #f3f7fb;
-      font-family: 'Be Vietnam Pro', sans-serif;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(145deg, #f0f5ff 0%, #e9eff8 100%);
+    }
+    .dark body {
+      background: linear-gradient(145deg, #0a0f1f 0%, #0b1120 100%);
     }
     .glass-card {
-      background: rgba(255,255,255,0.7);
+      background: rgba(255,255,255,0.65);
       backdrop-filter: blur(12px);
-      border: 1px solid rgba(0,101,113,0.1);
+      border: 1px solid rgba(0,101,113,0.15);
+      border-radius: 2rem;
+      box-shadow: 0 8px 20px -6px rgba(0,0,0,0.05);
     }
     .dark .glass-card {
-      background: rgba(17,24,39,0.7);
+      background: rgba(17,24,39,0.65);
+      border-color: rgba(255,193,7,0.2);
+    }
+    .win-flash {
+      animation: winFlash 0.5s ease-out 2;
     }
     @keyframes winFlash {
       0% { background: rgba(0,101,113,0); transform: scale(1); }
-      50% { background: rgba(0,229,253,0.3); transform: scale(1.02); }
+      50% { background: rgba(0,229,253,0.25); transform: scale(1.02); }
       100% { background: rgba(0,101,113,0); transform: scale(1); }
-    }
-    .win-flash {
-      animation: winFlash 0.6s ease-out 2;
     }
     .loading-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(243,247,251,0.9);
-      backdrop-filter: blur(8px);
+      background: rgba(240,245,255,0.92);
+      backdrop-filter: blur(12px);
       z-index: 200;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      transition: opacity 0.3s;
+      transition: opacity 0.4s;
     }
     .dark .loading-overlay {
-      background: rgba(10,15,31,0.9);
+      background: rgba(10,15,31,0.92);
     }
     .modal {
       display: none;
       position: fixed;
       inset: 0;
       background: rgba(0,0,0,0.5);
-      backdrop-filter: blur(4px);
+      backdrop-filter: blur(6px);
       z-index: 150;
       align-items: center;
       justify-content: center;
     }
     .modal-content {
       background: white;
-      border-radius: 1.5rem;
+      border-radius: 2rem;
       max-width: 90%;
-      width: 320px;
-      padding: 1.5rem;
+      width: 340px;
+      padding: 1.8rem;
       max-height: 70vh;
       overflow-y: auto;
     }
     .dark .modal-content {
-      background: #1f2937;
-      color: #e2e8f0;
+      background: #1e293b;
+      color: #f1f5f9;
+    }
+    .risk-meter {
+      transition: all 0.3s;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 500;
     }
   </style>
 </head>
-<body class="bg-surface text-on-surface min-h-screen flex flex-col items-center transition-colors duration-300">
+<body class="text-gray-800 dark:text-gray-100 antialiased">
 
 <!-- Loading overlay -->
 <div id="loadingOverlay" class="loading-overlay">
-  <div class="w-16 h-16 border-4 border-primary-container border-t-primary rounded-full animate-spin mb-4"></div>
-  <p class="text-primary font-headline font-bold">Loading game...</p>
+  <div class="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+  <p class="text-indigo-600 dark:text-indigo-400 font-semibold">Loading your game...</p>
 </div>
 
-<!-- Top bar -->
-<header class="fixed top-0 w-full max-w-md mx-auto flex justify-between items-center px-6 h-16 bg-surface/80 backdrop-blur-xl z-50 border-b border-outline-variant/20">
-  <button onclick="window.location.href='dashboard.html'" class="text-primary">
+<!-- Header -->
+<header class="fixed top-0 w-full max-w-md mx-auto flex justify-between items-center px-5 h-16 bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl z-50 border-b border-gray-200 dark:border-gray-800 rounded-b-2xl shadow-sm">
+  <button onclick="window.location.href='dashboard.html'" class="text-indigo-600 dark:text-indigo-400">
     <span class="material-symbols-outlined">arrow_back</span>
   </button>
-  <h1 class="text-xl font-bold bg-gradient-to-r from-primary to-primary-dim bg-clip-text text-transparent">Lucky Spin</h1>
+  <h1 class="text-xl font-extrabold bg-gradient-to-r from-indigo-600 to-cyan-600 bg-clip-text text-transparent">Galmet Spin</h1>
   <div class="flex gap-3">
-    <button id="rulesBtn" class="text-primary">
-      <span class="material-symbols-outlined">help</span>
-    </button>
-    <button id="historyBtn" class="text-primary">
-      <span class="material-symbols-outlined">history</span>
-    </button>
-    <button id="themeToggle" class="text-primary">
-      <span class="material-symbols-outlined">dark_mode</span>
-    </button>
+    <button id="rulesBtn" class="text-indigo-600 dark:text-indigo-400"><span class="material-symbols-outlined">help</span></button>
+    <button id="historyBtn" class="text-indigo-600 dark:text-indigo-400"><span class="material-symbols-outlined">history</span></button>
+    <button id="themeToggle" class="text-indigo-600 dark:text-indigo-400"><span class="material-symbols-outlined">dark_mode</span></button>
   </div>
 </header>
 
 <main class="flex-1 w-full max-w-md mx-auto px-4 pt-20 pb-8 flex flex-col items-center gap-5">
-  <!-- User coins -->
-  <div class="w-full glass-card rounded-2xl p-3 flex justify-between items-center shadow-sm">
+  <!-- Coin card -->
+  <div class="glass-card w-full p-4 flex justify-between items-center">
     <div class="flex items-center gap-2">
-      <span class="material-symbols-outlined text-primary">account_balance_wallet</span>
-      <span class="text-sm font-medium">Your Coins</span>
+      <span class="material-symbols-outlined text-indigo-600 dark:text-indigo-400">account_balance_wallet</span>
+      <span class="font-medium">Your Balance</span>
     </div>
-    <span id="coins" class="text-2xl font-bold text-primary">0</span>
+    <span id="coins" class="text-3xl font-black text-indigo-600 dark:text-indigo-400">0</span>
   </div>
 
-  <!-- Wheel canvas -->
+  <!-- Risk indicator (dynamic) -->
+  <div class="w-full text-center">
+    <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">Current risk</div>
+    <div class="h-2 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+      <div id="riskBar" class="h-full bg-gradient-to-r from-green-500 via-yellow-500 to-red-500 transition-all duration-300" style="width: 50%"></div>
+    </div>
+    <p id="riskText" class="text-xs mt-1 font-medium text-gray-600 dark:text-gray-300">Low risk (50% loss)</p>
+  </div>
+
+  <!-- Wheel -->
   <div class="relative w-64 h-64 sm:w-72 sm:h-72">
     <canvas id="wheelCanvas" width="300" height="300" class="w-full h-full rounded-full shadow-xl"></canvas>
-    <div class="absolute -top-4 left-1/2 -translate-x-1/2 text-3xl filter drop-shadow-md z-10 text-primary">▼</div>
+    <div class="absolute -top-4 left-1/2 -translate-x-1/2 text-3xl filter drop-shadow-md z-10 text-indigo-600 dark:text-indigo-400">▼</div>
   </div>
 
-  <!-- Bet input -->
-  <div class="glass-card rounded-full px-5 py-2 flex gap-3 items-center">
+  <!-- Bet panel -->
+  <div class="glass-card rounded-full px-5 py-2 flex gap-4 items-center">
     <span class="font-bold text-sm">⚡ BET</span>
-    <input id="betInput" type="number" value="50" min="10" step="10" class="w-24 bg-transparent text-center font-bold text-primary border-none focus:ring-0">
+    <input id="betInput" type="number" value="50" min="10" step="10" class="w-24 bg-transparent text-center font-bold text-indigo-600 dark:text-indigo-400 text-lg border-none focus:ring-0">
   </div>
 
-  <!-- Spin & Top Up buttons -->
+  <!-- Buttons -->
   <div class="flex gap-4 w-full">
-    <button id="spinBtn" class="flex-1 py-3 bg-gradient-to-r from-primary to-primary-fixed-dim text-white rounded-full font-bold shadow-md active:scale-95 transition flex items-center justify-center gap-2">
+    <button id="spinBtn" class="flex-1 py-3.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white rounded-full font-bold shadow-md active:scale-95 transition flex items-center justify-center gap-2">
       <span class="material-symbols-outlined">casino</span> SPIN
     </button>
-    <button id="topupBtn" class="flex-1 py-3 bg-gradient-to-r from-secondary to-secondary-fixed-dim text-white rounded-full font-bold shadow-md active:scale-95 transition flex items-center justify-center gap-2">
+    <button id="topupBtn" class="flex-1 py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-full font-bold shadow-md active:scale-95 transition flex items-center justify-center gap-2">
       <span class="material-symbols-outlined">add_circle</span> TOP UP
     </button>
   </div>
-  <div id="cooldownMsg" class="text-xs text-outline h-5"></div>
+  <div id="cooldownMsg" class="text-xs text-gray-500 dark:text-gray-400 h-5"></div>
 
-  <!-- Result box -->
-  <div id="resultBox" class="glass-card rounded-2xl px-6 py-3 text-center w-full">
-    <p id="resultText" class="font-bold text-lg">✨ Ready to spin ✨</p>
-    <p id="resultDetail" class="text-xs text-outline mt-1">Place your bet and try your luck</p>
+  <!-- Result card -->
+  <div id="resultBox" class="glass-card rounded-2xl px-6 py-4 text-center w-full">
+    <p id="resultText" class="font-bold text-xl">✨ Ready to spin</p>
+    <p id="resultDetail" class="text-xs text-gray-500 dark:text-gray-400 mt-1">Place your bet and try your luck</p>
   </div>
 
-  <!-- Recent wins feed -->
+  <!-- Recent wins -->
   <div class="glass-card rounded-2xl p-3 w-full">
-    <h4 class="text-center text-xs font-bold uppercase tracking-wider text-primary mb-2">Recent wins</h4>
+    <h4 class="text-center text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-2">Recent wins</h4>
     <div id="recentWins" class="flex flex-wrap gap-2 justify-center max-h-20 overflow-y-auto text-xs"></div>
   </div>
 </main>
@@ -148,27 +160,27 @@
 <!-- Rules Modal -->
 <div id="rulesModal" class="modal">
   <div class="modal-content">
-    <h3 class="font-headline font-bold text-primary mb-2">🎡 How to Play</h3>
+    <h3 class="font-bold text-indigo-600 dark:text-indigo-400 text-lg mb-3">🎡 How to Play</h3>
     <ul class="text-sm space-y-2">
       <li>1. Enter your bet (min 10 coins).</li>
-      <li>2. Click SPIN – the wheel stops after 3 seconds.</li>
-      <li>3. The pointer shows your multiplier (0x – 10x).</li>
+      <li>2. Click SPIN – wheel stops after 3 seconds.</li>
+      <li>3. Pointer shows your multiplier (0x – 10x).</li>
       <li>4. Win = bet × multiplier (0x loses the bet).</li>
       <li>5. 3 seconds cooldown between spins.</li>
-      <li>6. Higher bets = higher risk but bigger rewards.</li>
+      <li>6. Higher bets = higher risk (up to 75% loss chance).</li>
     </ul>
-    <button class="close-modal w-full mt-4 py-2 bg-primary text-white rounded-full">Got it</button>
+    <button class="close-modal w-full mt-5 py-2 bg-indigo-600 text-white rounded-full">Got it</button>
   </div>
 </div>
 
 <!-- History Modal -->
 <div id="historyModal" class="modal">
   <div class="modal-content">
-    <h3 class="font-headline font-bold text-primary mb-2">📜 Spin History</h3>
+    <h3 class="font-bold text-indigo-600 dark:text-indigo-400 mb-3">📜 Spin History</h3>
     <div id="historyList" class="max-h-60 overflow-y-auto text-sm space-y-2">
-      <p class="text-center text-outline">No spins yet</p>
+      <p class="text-center text-gray-400">No spins yet</p>
     </div>
-    <button class="close-modal w-full mt-4 py-2 bg-primary text-white rounded-full">Close</button>
+    <button class="close-modal w-full mt-5 py-2 bg-indigo-600 text-white rounded-full">Close</button>
   </div>
 </div>
 
@@ -176,20 +188,18 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
   import { getFirestore, doc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-  // Firebase config
-  const app = initializeApp({
+  const firebaseConfig = {
     apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
     authDomain: "galmet-app.firebaseapp.com",
     projectId: "galmet-app",
     storageBucket: "galmet-app.firebasestorage.app"
-  });
+  };
+  const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // Login check (using localStorage)
+  // Login check
   const user = JSON.parse(localStorage.getItem("user"));
-  if (!user || !user.userId) {
-    window.location.replace("login.html");
-  }
+  if (!user?.userId) window.location.replace("login.html");
   const userId = user.userId.toString();
   const userRef = doc(db, "users", userId);
 
@@ -203,6 +213,8 @@
   const cooldownMsg = document.getElementById("cooldownMsg");
   const recentWinsDiv = document.getElementById("recentWins");
   const loadingOverlay = document.getElementById("loadingOverlay");
+  const riskBar = document.getElementById("riskBar");
+  const riskText = document.getElementById("riskText");
 
   let coins = 0;
   let spinning = false;
@@ -210,7 +222,7 @@
   let cooldownTimer = null;
   let spinTimeout = null;
 
-  // Wheel data
+  // Wheel segments
   const segments = [
     { value: 0, color: "#ef4444", label: "0x" },
     { value: 1, color: "#f59e0b", label: "1x" },
@@ -221,7 +233,7 @@
   ];
   const SEGMENT_COUNT = segments.length;
   const ANGLE_PER_SEG = 360 / SEGMENT_COUNT;
-  const POINTER_ANGLE = 270; // top is 270deg
+  const POINTER_ANGLE = 270;
 
   const canvas = document.getElementById("wheelCanvas");
   const ctx = canvas.getContext("2d");
@@ -253,20 +265,17 @@
       ctx.strokeStyle = "#fff";
       ctx.lineWidth = 2;
       ctx.stroke();
-      // draw text
       ctx.save();
       ctx.translate(center, center);
       ctx.rotate(start + (ANGLE_PER_SEG * Math.PI / 360));
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.font = `bold ${Math.max(14, canvasSize / 18)}px "Plus Jakarta Sans"`;
+      ctx.font = `bold ${Math.max(14, canvasSize / 18)}px "Inter"`;
       ctx.fillStyle = "white";
       ctx.shadowBlur = 2;
-      ctx.shadowColor = "black";
       ctx.fillText(segments[i].label, radius * 0.7, 0);
       ctx.restore();
     }
-    // inner circle
     ctx.beginPath();
     ctx.arc(center, center, canvasSize * 0.09, 0, 2 * Math.PI);
     ctx.fillStyle = "#ffcf40";
@@ -277,87 +286,75 @@
     ctx.fill();
   }
 
-  // ========== UPDATED RISK LOGIC ==========
-  // 0x = 50% for small bets (ratio ~0), 75% for high bets (ratio ~1)
-  // ratio = bet / totalCoins (clamped 0..1)
-  // lossProb = 0.5 + ratio * 0.25  (so min 0.5, max 0.75)
-  // remaining probability distributed among 1x,2x,3x,5x,10x with weights: 
-  // 1x: 35%, 2x: 25%, 3x: 18%, 5x: 12%, 10x: 10% (sum 100%) then scaled to (1-lossProb)
+  // Risk-based multiplier (0x = 50% to 75%)
   function getMultiplier(bet, totalCoins) {
     let ratio = Math.min(1, Math.max(0, bet / totalCoins));
-    // New loss probability: 50% at ratio 0, 75% at ratio 1
-    let lossProb = 0.5 + ratio * 0.25;
-    // win probabilities for 1x,2x,3x,5x,10x (relative weights)
-    let winWeights = [0.35, 0.25, 0.18, 0.12, 0.10];
-    let totalWeight = winWeights.reduce((a,b)=>a+b,0);
-    let winProbTotal = 1 - lossProb;
-    // Scale weights to sum to winProbTotal
-    let winProbs = winWeights.map(w => (w / totalWeight) * winProbTotal);
-    // Build cumulative thresholds
+    const lossProb = 0.5 + ratio * 0.25;  // 50% → 75%
+    const winWeights = [0.35, 0.25, 0.18, 0.12, 0.10]; // 1x..10x
+    const totalWeight = winWeights.reduce((a,b)=>a+b,0);
+    const winProbTotal = 1 - lossProb;
+    const winProbs = winWeights.map(w => (w / totalWeight) * winProbTotal);
     let thresholds = [lossProb];
     let cum = lossProb;
-    for (let p of winProbs) {
-      cum += p;
-      thresholds.push(cum);
-    }
+    for (let p of winProbs) { cum += p; thresholds.push(cum); }
     const r = Math.random();
     if (r < thresholds[0]) return 0;
-    for (let i = 0; i < winProbs.length; i++) {
-      if (r < thresholds[i+1]) return [1,2,3,5,10][i];
-    }
-    return 1; // fallback
+    for (let i=0; i<winProbs.length; i++) if (r < thresholds[i+1]) return [1,2,3,5,10][i];
+    return 1;
   }
 
-  // Firestore helpers
+  function updateRiskMeter(bet, currentCoins) {
+    const ratio = Math.min(1, Math.max(0, bet / currentCoins));
+    const lossProb = (0.5 + ratio * 0.25) * 100;
+    riskBar.style.width = `${lossProb}%`;
+    if (lossProb < 60) riskText.innerText = `Low risk (${Math.round(lossProb)}% lose)`;
+    else if (lossProb < 70) riskText.innerText = `Medium risk (${Math.round(lossProb)}% lose)`;
+    else riskText.innerText = `High risk (${Math.round(lossProb)}% lose)`;
+  }
+
+  // Firebase helpers
   async function loadCoins() {
     const snap = await getDoc(userRef);
-    if (snap.exists()) {
-      coins = snap.data().coins || 0;
-      coinsSpan.innerText = coins;
-    }
+    coins = snap.data()?.coins ?? 0;
+    coinsSpan.innerText = coins;
+    const currentBet = parseInt(betInput.value) || 10;
+    updateRiskMeter(currentBet, coins || 1);
   }
-
   async function updateCoins(newCoins) {
     coins = newCoins;
     coinsSpan.innerText = coins;
     await updateDoc(userRef, { coins });
-    // update local user copy
     user.coins = coins;
     localStorage.setItem("user", JSON.stringify(user));
+    const currentBet = parseInt(betInput.value) || 10;
+    updateRiskMeter(currentBet, coins || 1);
   }
-
   async function addHistoryEntry(multiplier, bet, winAmount) {
-    const entry = { timestamp: Date.now(), multiplier, bet, winAmount, netChange: winAmount - bet };
-    await updateDoc(userRef, { history: arrayUnion(entry) });
+    await updateDoc(userRef, { history: arrayUnion({ timestamp: Date.now(), multiplier, bet, winAmount, netChange: winAmount - bet }) });
   }
-
   async function loadRecentWins() {
     const snap = await getDoc(userRef);
     const history = snap.data()?.history || [];
     recentWinsDiv.innerHTML = "";
     history.slice(-8).reverse().forEach(h => {
       const span = document.createElement("span");
-      span.className = "bg-surface-container-low px-2 py-1 rounded-full text-xs";
+      span.className = "bg-white/50 dark:bg-gray-800/50 px-2 py-1 rounded-full text-xs";
       span.textContent = h.multiplier === 0 ? `💀 0x lost ${h.bet}` : `🏆 ${h.multiplier}x +${h.winAmount}`;
       recentWinsDiv.appendChild(span);
     });
-    if (!history.length) recentWinsDiv.innerHTML = "<span class='text-outline text-xs'>No spins yet</span>";
+    if (!history.length) recentWinsDiv.innerHTML = "<span class='text-gray-400 text-xs'>No spins yet</span>";
   }
-
   async function loadHistoryModal() {
     const snap = await getDoc(userRef);
     const history = snap.data()?.history || [];
     const container = document.getElementById("historyList");
-    if (!history.length) {
-      container.innerHTML = "<p class='text-center text-outline'>No spins yet</p>";
-      return;
-    }
+    if (!history.length) { container.innerHTML = "<p class='text-center text-gray-400'>No spins yet</p>"; return; }
     container.innerHTML = "";
     history.slice().reverse().forEach(h => {
       const date = new Date(h.timestamp).toLocaleString();
       const div = document.createElement("div");
-      div.className = "border-b border-outline-variant/30 pb-2";
-      div.innerHTML = `<span class="font-bold">${h.multiplier}x</span> | Bet: ${h.bet} | Win: ${h.winAmount}<br><span class="text-[10px] text-outline">${date}</span>`;
+      div.className = "border-b border-gray-200 dark:border-gray-700 pb-2";
+      div.innerHTML = `<span class="font-bold">${h.multiplier}x</span> | Bet: ${h.bet} | Win: ${h.winAmount}<br><span class="text-[10px] text-gray-400">${date}</span>`;
       container.appendChild(div);
     });
   }
@@ -366,29 +363,20 @@
   async function spin() {
     if (spinning || cooldown) return;
     let bet = parseInt(betInput.value);
-    if (isNaN(bet) || bet < 10) {
-      resultText.innerText = "⚠️ Minimum bet 10";
-      return;
-    }
-    if (bet > coins) {
-      resultText.innerText = "❌ Not enough coins! Top up.";
-      return;
-    }
+    if (isNaN(bet) || bet < 10) { resultText.innerText = "⚠️ Minimum bet 10"; return; }
+    if (bet > coins) { resultText.innerText = "❌ Not enough coins! Top up."; return; }
     spinning = true;
     spinBtn.disabled = true;
-    // deduct bet
     await updateCoins(coins - bet);
-    const originalCoins = coins + bet; // coins after deduction? Actually we need pre-deduction value for ratio
+    const originalCoins = coins + bet;
     const multiplier = getMultiplier(bet, originalCoins);
     const winAmount = multiplier * bet;
     const targetIndex = segments.findIndex(s => s.value === multiplier);
     const segmentCenter = targetIndex * ANGLE_PER_SEG + ANGLE_PER_SEG/2;
     let targetRotation = (POINTER_ANGLE - segmentCenter) % 360;
     if (targetRotation < 0) targetRotation += 360;
-    const fullSpins = 360 * 5;
-    const totalRotation = fullSpins + targetRotation;
+    const totalRotation = 360 * 5 + targetRotation;
 
-    // animate wheel
     canvas.style.transition = "none";
     canvas.style.transform = "rotate(0deg)";
     canvas.offsetHeight;
@@ -432,21 +420,17 @@
     }, 1000);
   }
 
-  // Cancel spin on page unload
-  window.addEventListener("beforeunload", () => {
-    if (spinTimeout) clearTimeout(spinTimeout);
-    if (cooldownTimer) clearInterval(cooldownTimer);
-  });
-
-  // Top up redirect
+  // Event listeners
+  spinBtn.onclick = spin;
   topupBtn.onclick = () => window.location.href = "topup.html";
-
-  // Save bet to localStorage
-  betInput.addEventListener("input", (e) => localStorage.setItem("lastSpinBet", e.target.value));
+  betInput.addEventListener("input", (e) => {
+    localStorage.setItem("lastSpinBet", e.target.value);
+    updateRiskMeter(parseInt(e.target.value) || 10, coins || 1);
+  });
   const savedBet = localStorage.getItem("lastSpinBet");
   if (savedBet) betInput.value = savedBet;
 
-  // Modals & theme
+  // Modals
   const rulesModal = document.getElementById("rulesModal");
   const historyModal = document.getElementById("historyModal");
   document.getElementById("rulesBtn").onclick = () => rulesModal.style.display = "flex";
@@ -459,7 +443,7 @@
     if (e.target === historyModal) historyModal.style.display = "none";
   };
 
-  // Theme toggle (light/dark)
+  // Theme toggle
   const themeToggle = document.getElementById("themeToggle");
   themeToggle.onclick = () => {
     document.documentElement.classList.toggle("dark");
@@ -475,7 +459,6 @@
   }
 
   // Initialize
-  spinBtn.onclick = spin;
   await loadCoins();
   await loadRecentWins();
   drawWheel(0);
