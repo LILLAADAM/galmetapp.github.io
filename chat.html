@@ -91,6 +91,20 @@
     .gift-gradient {
       background: linear-gradient(180deg, rgba(0, 227, 253, 0.1) 0%, rgba(0, 101, 113, 0.05) 100%);
     }
+    .gift-selected {
+      border: 2px solid #00e3fd;
+      background: rgba(0, 227, 253, 0.2);
+      transform: scale(0.98);
+    }
+    @keyframes floatGift {
+      0% { transform: translateY(0) scale(0.5); opacity: 0; }
+      20% { transform: translateY(-20px) scale(1); opacity: 1; }
+      80% { transform: translateY(-60px) scale(1); opacity: 1; }
+      100% { transform: translateY(-120px) scale(0.8); opacity: 0; }
+    }
+    .gift-float {
+      animation: floatGift 1.5s ease-out forwards;
+    }
   </style>
 </head>
 <body class="bg-surface font-body text-on-surface flex flex-col min-h-screen">
@@ -200,14 +214,16 @@
   <div class="spinner"></div>
 </div>
 
-<!-- ================= NEW GIFT PANEL (Glass, half‑screen) ================= -->
+<!-- Gift Animation & Banner Containers -->
+<div id="giftAnimationContainer" class="fixed inset-0 pointer-events-none z-[999]"></div>
+<div id="giftBannerContainer" class="fixed top-24 left-0 w-full flex flex-col items-center gap-2 z-[999]"></div>
+
+<!-- Gift Panel (Glass, half-screen, with quantity selector) -->
 <div id="giftPanel" class="fixed inset-0 z-[100] hidden items-end justify-center">
   <div class="glass-panel w-full max-w-md rounded-t-3xl flex flex-col" style="height: 62%;">
-    <!-- Drag handle -->
     <div class="w-full flex justify-center py-3">
       <div class="w-12 h-1.5 bg-white/20 rounded-full"></div>
     </div>
-    <!-- Top banner -->
     <div class="px-4 pb-2">
       <div class="w-full py-2.5 px-4 bg-gradient-to-r from-primary to-primary-dim rounded-xl flex items-center justify-between shadow-lg shadow-primary/20">
         <div class="flex items-center gap-2">
@@ -217,13 +233,12 @@
         <span class="material-symbols-outlined text-white/70 text-sm">chevron_right</span>
       </div>
     </div>
-    <!-- Tab Navigation -->
     <div class="flex items-center justify-between px-6 py-3 border-b border-white/5">
       <div class="flex items-center gap-6">
-        <button id="tabHot" class="text-sm font-headline font-semibold text-white/50">Hot</button>
-        <button id="TabLucky" class="text-sm font-headline font-semibold text-white/50">Lucky</button>
+        <button class="text-sm font-headline font-semibold text-white/50">Hot</button>
+        <button class="text-sm font-headline font-semibold text-white/50">Lucky</button>
         <div class="relative py-2">
-          <button id="tabLuxury" class="text-sm font-headline font-bold text-primary-fixed">Luxury</button>
+          <button class="text-sm font-headline font-bold text-primary-fixed">Luxury</button>
           <div class="absolute bottom-0 left-0 w-full h-0.5 bg-primary-fixed rounded-full"></div>
         </div>
       </div>
@@ -239,8 +254,18 @@
         <!-- Gifts loaded dynamically -->
       </div>
     </div>
-    <!-- Footer (close) -->
-    <div class="h-20 flex items-center justify-center border-t border-white/5">
+    <!-- Quantity Selector & Send Button -->
+    <div class="h-24 bg-black/60 backdrop-blur-3xl px-6 flex items-center justify-between border-t border-white/5">
+      <div class="flex items-center gap-3 bg-white/5 p-1 rounded-full border border-white/10">
+        <button data-qty="1" class="qty-btn w-8 h-8 rounded-full bg-white/10 text-[10px] font-bold text-white flex items-center justify-center border border-white/20">1</button>
+        <button data-qty="17" class="qty-btn w-8 h-8 rounded-full text-[10px] font-bold text-white/40 flex items-center justify-center">17</button>
+        <button data-qty="37" class="qty-btn w-8 h-8 rounded-full text-[10px] font-bold text-white/40 flex items-center justify-center">37</button>
+        <button data-qty="77" class="qty-btn w-8 h-8 rounded-full text-[10px] font-bold text-white/40 flex items-center justify-center">77</button>
+        <span class="material-symbols-outlined text-white/30 text-lg pr-2">expand_less</span>
+      </div>
+      <button id="sendGiftBtn" class="flex-1 ml-6 h-12 bg-primary-container text-on-primary-container rounded-full font-headline font-extrabold text-sm tracking-widest flex items-center justify-center shadow-xl shadow-primary/40 active:scale-95 transition-transform uppercase">Send</button>
+    </div>
+    <div class="h-16 flex items-center justify-center border-t border-white/5">
       <button onclick="closeGiftPanel()" class="px-6 py-2 bg-white/10 rounded-full text-white text-sm">Close</button>
     </div>
   </div>
@@ -250,6 +275,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
   import { getFirestore, collection, addDoc, getDocs, query, orderBy, onSnapshot, doc, getDoc, setDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
   import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
+  import { getDatabase, ref as dbRef, onChildAdded } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
 
   const app = initializeApp({
     apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
@@ -259,6 +285,7 @@
   });
   const db = getFirestore(app);
   const storage = getStorage(app);
+  const rtdb = getDatabase(app);
 
   // User check
   const currentUser = JSON.parse(localStorage.getItem("user"));
@@ -287,10 +314,17 @@
   const giftPanel = document.getElementById("giftPanel");
   const giftGrid = document.getElementById("giftGrid");
   const giftUserCoinsSpan = document.getElementById("giftUserCoins");
+  const sendGiftBtn = document.getElementById("sendGiftBtn");
 
   let selectedImageFile = null;
   let userScrolledUp = false;
   let userCoins = 0;
+  let selectedGift = null; // { id, price, name, image }
+  let currentQuantity = 1;
+
+  // Gift combo tracking
+  let combo = 1;
+  let lastGiftTime = 0;
 
   messagesDiv.addEventListener("scroll", () => {
     const isNearBottom = messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight < 50;
@@ -340,7 +374,7 @@
     return String.fromCodePoint(...codePoints);
   }
 
-  // Load user's coins for gift panel
+  // Load user's coins
   async function loadUserCoins() {
     const userSnap = await getDoc(doc(db, "users", myUserId));
     if (userSnap.exists()) {
@@ -349,15 +383,18 @@
     }
   }
 
-  // Gift functions
+  // Gift panel: load gifts from Firestore
   async function loadGifts() {
     const snapshot = await getDocs(collection(db, "gifts"));
     giftGrid.innerHTML = "";
     snapshot.forEach(docSnap => {
       const g = docSnap.data();
       const giftDiv = document.createElement("div");
-      giftDiv.className = "flex flex-col items-center gap-1 cursor-pointer hover:scale-105 transition";
-      giftDiv.onclick = () => sendGiftNow(docSnap.id, g.coinPrice, g.name, g.image);
+      giftDiv.className = "flex flex-col items-center gap-1 cursor-pointer hover:scale-105 transition gift-item";
+      giftDiv.dataset.id = docSnap.id;
+      giftDiv.dataset.price = g.coinPrice;
+      giftDiv.dataset.name = g.name;
+      giftDiv.dataset.image = g.image;
       giftDiv.innerHTML = `
         <div class="w-full aspect-square bg-white/5 rounded-2xl flex items-center justify-center gift-gradient border border-white/10 p-2">
           <img src="${g.image}" class="w-full h-full object-contain">
@@ -365,16 +402,47 @@
         <span class="text-[10px] text-white/80 font-medium">${g.name}</span>
         <span class="text-[9px] text-secondary-fixed font-bold">🌕 ${g.coinPrice}</span>
       `;
+      giftDiv.onclick = () => selectGift(docSnap.id, g.coinPrice, g.name, g.image, giftDiv);
       giftGrid.appendChild(giftDiv);
     });
   }
 
-  async function sendGiftNow(giftId, price, name, image) {
-    if (userCoins < price) {
+  let currentSelectedDiv = null;
+  function selectGift(id, price, name, image, div) {
+    if (currentSelectedDiv) {
+      currentSelectedDiv.classList.remove("gift-selected");
+      currentSelectedDiv.style.border = "";
+      currentSelectedDiv.style.background = "";
+    }
+    currentSelectedDiv = div;
+    div.classList.add("gift-selected");
+    selectedGift = { id, price, name, image };
+  }
+
+  // Quantity selector
+  document.querySelectorAll(".qty-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".qty-btn").forEach(b => {
+        b.classList.remove("bg-white/10", "border-white/20", "text-white");
+        b.classList.add("text-white/40");
+      });
+      btn.classList.add("bg-white/10", "border-white/20", "text-white");
+      currentQuantity = parseInt(btn.dataset.qty);
+    });
+  });
+  // default select quantity 1
+  document.querySelector(".qty-btn[data-qty='1']").classList.add("bg-white/10", "border-white/20", "text-white");
+
+  async function sendSelectedGift() {
+    if (!selectedGift) {
+      showToast("Select a gift first");
+      return;
+    }
+    const totalPrice = selectedGift.price * currentQuantity;
+    if (userCoins < totalPrice) {
       showToast("Not enough coins!");
       return;
     }
-    // Deduct coins optimistically? Better call backend
     try {
       const res = await fetch("https://us-central1-galmet-app.cloudfunctions.net/sendGift", {
         method: "POST",
@@ -382,26 +450,27 @@
         body: JSON.stringify({
           senderId: myUserId,
           receiverId: otherUserId,
-          giftId: giftId,
-          quantity: 1
+          giftId: selectedGift.id,
+          quantity: currentQuantity
         })
       });
       const data = await res.json();
       if (data.error) {
         showToast(data.error);
       } else {
-        showToast(`🎁 ${name} sent!`);
+        showToast(`🎁 ${selectedGift.name} x${currentQuantity} sent!`);
         closeGiftPanel();
         // Update local coins
-        userCoins -= price;
+        userCoins -= totalPrice;
         giftUserCoinsSpan.innerText = userCoins;
-        // Also update user object in localStorage and Firestore? Backend already did.
-        // The chat message will appear via Firestore trigger.
+        // The gift message will appear via Firestore trigger
       }
     } catch (err) {
       showToast("Error sending gift");
     }
   }
+
+  sendGiftBtn.onclick = sendSelectedGift;
 
   function openGiftPanel() {
     giftPanel.classList.remove("hidden");
@@ -412,8 +481,54 @@
   window.closeGiftPanel = () => {
     giftPanel.classList.add("hidden");
     giftPanel.classList.remove("flex");
+    if (currentSelectedDiv) {
+      currentSelectedDiv.classList.remove("gift-selected");
+      currentSelectedDiv = null;
+    }
+    selectedGift = null;
   };
   window.openGiftPanel = openGiftPanel;
+
+  // ========== RTDB Gift Events Listener ==========
+  function listenGiftEvents() {
+    const giftRef = dbRef(rtdb, "giftEvents/" + chatId);
+    onChildAdded(giftRef, (snapshot) => {
+      const gift = snapshot.val();
+      if (gift.senderId === myUserId) return; // ignore own gifts
+      showGiftAnimation(gift);
+      showGiftBanner(gift);
+    });
+  }
+
+  function showGiftAnimation(gift) {
+    const container = document.getElementById("giftAnimationContainer");
+    const el = document.createElement("div");
+    el.className = "absolute bottom-20 left-1/2 -translate-x-1/2";
+    el.innerHTML = `<img src="${gift.giftImage}" class="w-24 h-24 drop-shadow-2xl gift-float">`;
+    container.appendChild(el);
+    setTimeout(() => el.remove(), 1500);
+  }
+
+  let combo = 1;
+  let lastGiftTime = 0;
+  function showGiftBanner(gift) {
+    const now = Date.now();
+    if (now - lastGiftTime < 2000) {
+      combo++;
+    } else {
+      combo = 1;
+    }
+    lastGiftTime = now;
+    const container = document.getElementById("giftBannerContainer");
+    const el = document.createElement("div");
+    el.className = "bg-gradient-to-r from-yellow-400 to-pink-500 text-black px-4 py-2 rounded-full flex items-center gap-2 text-sm font-bold shadow-xl";
+    el.innerHTML = `
+      <img src="${gift.giftImage}" class="w-6 h-6">
+      ${gift.senderName} sent ${gift.giftName} x${combo}
+    `;
+    container.appendChild(el);
+    setTimeout(() => el.remove(), 2000);
+  }
 
   // Real-time messages (including gifts)
   function loadMessages() {
@@ -468,7 +583,6 @@
         }
         messagesDiv.appendChild(bubbleDiv);
       });
-      // Auto-scroll logic
       if (wasUserAtBottom || (snapshot.docs.length > 0 && snapshot.docs[snapshot.docs.length-1].data().senderId === myUserId)) {
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
         userScrolledUp = false;
@@ -631,7 +745,7 @@
     }
   };
 
-  // Follow/block logic (simplified, same as before)
+  // Follow/block logic
   function initRealtimeStatus() {
     const followRef = doc(db, "followers", otherUserId, "list", myUserId);
     const blockByMeRef = doc(db, "blocked", myUserId, "list", otherUserId);
@@ -731,6 +845,9 @@
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
     userScrolledUp = false;
   }, 500);
+  
+  // Start listening to gift events after messages loaded
+  listenGiftEvents();
   
   // Close modals on outside click
   document.getElementById("menuModal").addEventListener("click", (e) => { if (e.target === document.getElementById("menuModal")) closeMenu(); });
