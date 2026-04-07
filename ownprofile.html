@@ -333,8 +333,8 @@
     // Country flag (detailed debug)
    const flagEmoji = getFlagEmoji(user.country);
     document.getElementById("countryFlag").innerText = flagEmoji;
-    console.log("🏁 Final flag emoji displayed:", flagEmoji);
-  });
+
+    console.log("FLAG:", flagEmoji, user.country);
 
   // Real‑time stats (followers, following, friends)
   onSnapshot(collection(db, "followers", myUserId, "list"), (snap) => {
