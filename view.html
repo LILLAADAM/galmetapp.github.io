@@ -360,20 +360,26 @@
     userIdSpan.innerText = targetUserData.userId || targetUserId;
     
     // Country flag from country.code or country name
-    let countryCode = null;
-    let countryName = "Unknown";
-    if (targetUserData.country) {
-      if (typeof targetUserData.country === "object") {
-        countryCode = targetUserData.country.code;
-        countryName = targetUserData.country.name || countryCode;
-      } else {
-        countryCode = targetUserData.country;
-        countryName = targetUserData.country;
-      }
-    }
-    const flag = getFlagEmoji(countryCode);
-    countryFlagSpan.innerText = flag;
-    locationSpan.innerHTML = `${countryName} ${flag}`;
+let countryCode = null;
+let countryName = "Unknown";
+
+if (targetUserData.country) {
+  if (typeof targetUserData.country === "object") {
+
+    // ✅ FIX HERE
+    countryCode = targetUserData.country.flag;
+
+    countryName = targetUserData.country.name || countryCode;
+
+  } else {
+    countryCode = targetUserData.country;
+    countryName = targetUserData.country;
+  }
+}
+
+const flag = getFlagEmoji(countryCode);
+countryFlagSpan.innerText = flag;
+locationSpan.innerHTML = `${countryName} ${flag}`;
     
     // Gender & Age
     const gender = targetUserData.gender;
