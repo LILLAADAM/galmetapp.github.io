@@ -1,0 +1,30 @@
+<div id="gemsHistory"></div>
+
+<script type="module">
+import { getFirestore, collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const db = getFirestore();
+
+const user = JSON.parse(localStorage.getItem("user"));
+const userId = user.userId;
+
+const q = query(
+  collection(db, "transactions"),
+  where("receiverId", "==", userId)
+);
+
+onSnapshot(q, (snap) => {
+  const div = document.getElementById("gemsHistory");
+  div.innerHTML = "";
+
+  snap.forEach(doc => {
+    const d = doc.data();
+
+    div.innerHTML += `
+      <div style="padding:10px; border-bottom:1px solid #ddd;">
+        ✅ +${d.gems} gems (Gift received)
+      </div>
+    `;
+  });
+});
+</script>
