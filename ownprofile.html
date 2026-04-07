@@ -277,12 +277,12 @@
 
   let code = null;
 
-  // ✅ YOUR CASE (object with flag)
+  // ✅ object case
   if (typeof country === "object") {
-    code = country.code || country.flag; // FIX HERE
+    code = country.flag || country.code;
   }
 
-  // ✅ STRING CASE
+  // ✅ string case
   if (typeof country === "string") {
     const map = {
       pakistan: "PK",
@@ -292,20 +292,21 @@
       philippines: "PH",
       indonesia: "ID",
       malaysia: "MY",
-      uae: "AE"
+      uae: "AE",
+      angola: "AO"
     };
     code = map[country.toLowerCase()];
   }
 
-  if (!code) return "🌍";
+  if (!code || code.length !== 2) return "🌍";
 
-  const codePoints = code.toUpperCase()
+  // ✅ CORRECT FLAG EMOJI GENERATION
+  return code
+    .toUpperCase()
     .split('')
-    .map(c => 127397 + c.charCodeAt(0));
-
-  return String.fromCodePoint(...codePoints);
+    .map(c => String.fromCodePoint(127397 + c.charCodeAt()))
+    .join('');
 }
-
   // Real‑time user data (coins, gems, level, flag)
   onSnapshot(userRef, (snap) => {
     if (!snap.exists()) return;
@@ -333,10 +334,8 @@
     let flagEmoji = "🌍";
     if (user.country) {
       console.log("✅ Country object found:", user.country);
-      if (typeof user.country === "object") {
-      console.log("🔹 Country object:", user.country);
-   // ✅ FIX: use flag instead of code
-       flagEmoji = getFlagEmoji(user.country);
+      const flagEmoji = getFlagEmoji(user.country);
+      document.getElementById("countryFlag").innerText = flagEmoji;
       } else if (typeof user.country === "string") {
         // If country is stored as string (e.g., "Pakistan"), try to guess? We'll fallback to globe.
         console.log("🔹 Country as string:", user.country);
