@@ -82,7 +82,6 @@
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
-    /* Gift panel glassmorphism */
     .glass-panel {
       background: rgba(10, 15, 18, 0.85);
       backdrop-filter: blur(24px);
@@ -208,7 +207,7 @@
   <a id="downloadLink" class="absolute bottom-10 right-6 bg-primary text-white px-4 py-2 rounded-full text-sm" download>Save Image</a>
 </div>
 
-<!-- Toast (only for errors, not for gift sent) -->
+<!-- Toast (only errors) -->
 <div id="toast" class="fixed bottom-28 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-full text-sm z-[90] hidden"></div>
 <div id="loadingOverlay" class="loading-overlay hidden">
   <div class="spinner"></div>
@@ -218,7 +217,7 @@
 <div id="giftAnimationContainer" class="fixed inset-0 pointer-events-none z-[999]"></div>
 <div id="giftBannerContainer" class="fixed top-24 left-0 w-full flex flex-col items-center gap-2 z-[999]"></div>
 
-<!-- Gift Panel (Glass, half-screen, with quantity selector) -->
+<!-- Gift Panel (Glass, half-screen) -->
 <div id="giftPanel" class="fixed inset-0 z-[100] hidden items-end justify-center">
   <div class="glass-panel w-full max-w-md rounded-t-3xl flex flex-col" style="height: 62%;">
     <div class="w-full flex justify-center py-3">
@@ -320,8 +319,9 @@
   let selectedImageFile = null;
   let userScrolledUp = false;
   let userCoins = 0;
-  let selectedGift = null; // { id, price, name, image }
+  let selectedGift = null;
   let currentQuantity = 1;
+  let sendingGift = false;  // anti-spam flag
 
   messagesDiv.addEventListener("scroll", () => {
     const isNearBottom = messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight < 50;
@@ -333,6 +333,14 @@
     toast.classList.remove("hidden");
     setTimeout(() => toast.classList.add("hidden"), 2000);
   }
+
+  // Real-time user coins listener (updates instantly after any change)
+  onSnapshot(doc(db, "users", myUserId), (snap) => {
+    if (snap.exists()) {
+      userCoins = snap.data().coins || 0;
+      giftUserCoinsSpan.innerText = userCoins;
+    }
+  });
 
   // Load other user info
   async function loadOtherUser() {
@@ -371,16 +379,7 @@
     return String.fromCodePoint(...codePoints);
   }
 
-  // Load user's coins
-  async function loadUserCoins() {
-    const userSnap = await getDoc(doc(db, "users", myUserId));
-    if (userSnap.exists()) {
-      userCoins = userSnap.data().coins || 0;
-      giftUserCoinsSpan.innerText = userCoins;
-    }
-  }
-
-  // Gift panel: load gifts from Firestore
+  // Load gifts for the panel
   async function loadGifts() {
     const snapshot = await getDocs(collection(db, "gifts"));
     giftGrid.innerHTML = "";
@@ -427,10 +426,11 @@
       currentQuantity = parseInt(btn.dataset.qty);
     });
   });
-  // default select quantity 1
   document.querySelector(".qty-btn[data-qty='1']").classList.add("bg-white/10", "border-white/20", "text-white");
 
+  // Send gift with anti-spam and loading state
   async function sendSelectedGift() {
+    if (sendingGift) return; // prevent double click
     if (!selectedGift) {
       showToast("Select a gift first");
       return;
@@ -440,6 +440,10 @@
       showToast("Not enough coins!");
       return;
     }
+    sendingGift = true;
+    sendGiftBtn.innerText = "Sending...";
+    sendGiftBtn.disabled = true;
+
     try {
       const res = await fetch("https://us-central1-galmet-app.cloudfunctions.net/sendGift", {
         method: "POST",
@@ -455,15 +459,15 @@
       if (data.error) {
         showToast(data.error);
       } else {
-        // ✅ NO TOAST – only animation & banner (will be triggered by RTDB event)
-        // Update local coins immediately for UI
-        userCoins -= totalPrice;
-        giftUserCoinsSpan.innerText = userCoins;
-        // ✅ Do NOT close gift panel – stay open for more gifts
-        // The RTDB event will trigger animation and banner for sender as well
+        // Coins will update automatically via onSnapshot listener
+        // The RTDB event will trigger animation + banner for both users
       }
     } catch (err) {
       showToast("Error sending gift");
+    } finally {
+      sendingGift = false;
+      sendGiftBtn.innerText = "Send";
+      sendGiftBtn.disabled = false;
     }
   }
 
@@ -472,7 +476,6 @@
   function openGiftPanel() {
     giftPanel.classList.remove("hidden");
     giftPanel.classList.add("flex");
-    loadUserCoins();
     loadGifts();
   }
   window.closeGiftPanel = () => {
@@ -486,12 +489,11 @@
   };
   window.openGiftPanel = openGiftPanel;
 
-  // ========== RTDB Gift Events Listener (for both sender and receiver) ==========
+  // RTDB Gift Events Listener (for both sender and receiver)
   function listenGiftEvents() {
     const giftRef = dbRef(rtdb, "giftEvents/" + chatId);
     onChildAdded(giftRef, (snapshot) => {
       const gift = snapshot.val();
-      // Show animation and banner for EVERYONE (including sender)
       showGiftAnimation(gift);
       showGiftBanner(gift);
     });
@@ -580,7 +582,7 @@
         }
         messagesDiv.appendChild(bubbleDiv);
       });
-      // Auto-scroll to bottom if user was at bottom or new message is from me
+      // Auto-scroll logic
       if (wasUserAtBottom || (snapshot.docs.length > 0 && snapshot.docs[snapshot.docs.length-1].data().senderId === myUserId)) {
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
         userScrolledUp = false;
@@ -844,7 +846,6 @@
     userScrolledUp = false;
   }, 500);
   
-  // Start listening to gift events after messages loaded
   listenGiftEvents();
   
   // Close modals on outside click
