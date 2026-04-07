@@ -195,11 +195,27 @@
 <div id="loadingOverlay" class="loading-overlay hidden">
   <div class="spinner"></div>
 </div>
+<!-- GIFT MODAL -->
+<div id="giftModal" class="fixed inset-0 bg-black/40 z-[100] hidden items-end justify-center">
+  <div class="bg-white w-full max-w-md rounded-t-3xl p-4">
+    
+    <h2 class="text-center font-bold text-lg mb-4">🎁 Send Gift</h2>
+    
+    <div id="giftList" class="grid grid-cols-3 gap-4">
+      <!-- Gifts load here -->
+    </div>
 
+    <button onclick="closeGift()" class="w-full mt-4 py-2 bg-gray-200 rounded-full">
+      Close
+    </button>
+    
+  </div>
+</div>
+  
 <script type="module">
   // ==================== FIREBASE INIT ====================
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, getDoc, setDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, getDocs, query, orderBy, onSnapshot, doc, getDoc, setDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
   import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
 
   const app = initializeApp({
@@ -311,6 +327,12 @@
           bubbleDiv.className = "flex flex-col items-end gap-1";
           bubbleDiv.innerHTML = `
             <div class="bg-primary-container text-on-surface p-3 rounded-lg chat-bubble-right max-w-[85%] shadow-sm">
+              ${msg.type === "gift" ? `
+               <div class="bg-yellow-100 p-3 rounded-lg text-center">
+               <img src="${msg.giftImage}" class="w-16 h-16 mx-auto mb-2">
+               <p class="text-sm font-semibold">🎁 ${msg.giftName} x${msg.quantity}</p>
+            </div>
+           ` : ''}
               ${msg.text ? `<p class="text-sm leading-relaxed">${escapeHtml(msg.text)}</p>` : ''}
               ${msg.image ? `<div class="rounded-md overflow-hidden mt-1"><img src="${msg.image}" class="max-w-[200px] max-h-[200px] rounded-lg cursor-pointer" onclick="openImageViewer('${msg.image}')"></div>` : ''}
             </div>
@@ -322,6 +344,12 @@
               <img src="${chatAvatarImg.src}" class="w-full h-full object-cover">
             </div>
             <div class="bg-surface-container-lowest text-on-surface p-3 rounded-lg chat-bubble-left shadow-sm">
+              ${msg.type === "gift" ? `
+               <div class="bg-yellow-100 p-3 rounded-lg text-center">
+               <img src="${msg.giftImage}" class="w-16 h-16 mx-auto mb-2">
+               <p class="text-sm font-semibold">🎁 ${msg.giftName} x${msg.quantity}</p>
+            </div>
+            ` : ''}
               ${msg.text ? `<p class="text-sm leading-relaxed">${escapeHtml(msg.text)}</p>` : ''}
               ${msg.image ? `<div class="rounded-md overflow-hidden mt-1"><img src="${msg.image}" class="max-w-[200px] max-h-[200px] rounded-lg cursor-pointer" onclick="openImageViewer('${msg.image}')"></div>` : ''}
             </div>
@@ -343,7 +371,25 @@
   async function resetUnread() {
     await setDoc(doc(db, "userChats", myUserId, "list", otherUserId), { unread: 0 }, { merge: true });
   }
+  // ==================== Gift function ====================
+  async function loadGifts() {
+  const giftList = document.getElementById("giftList");
+  giftList.innerHTML = "";
 
+  const snapshot = await getDocs(collection(db, "gifts"));
+
+  snapshot.forEach(doc => {
+    const g = doc.data();
+
+    giftList.innerHTML += `
+      <div onclick="sendGiftNow('${doc.id}')" class="bg-gray-100 p-3 rounded-xl text-center cursor-pointer hover:scale-105 transition">
+        <img src="${g.image}" class="w-12 h-12 mx-auto mb-1">
+        <p class="text-xs font-semibold">${g.name}</p>
+        <p class="text-[10px] text-gray-500">${g.coinPrice} coins</p>
+      </div>
+    `;
+  });
+}
   // ==================== UPDATE CHAT LIST ====================
   async function updateChatList(lastMsg) {
     await setDoc(doc(db, "userChats", myUserId, "list", otherUserId), {
@@ -578,9 +624,41 @@
   window.startVideoCall = () => {
     showToast("Video call costs 0.1 coins (coming soon)");
   };
-  window.sendGift = () => {
-    window.location.href = "gift.html?uid=" + otherUserId;
-  };
+  window.sendGift = async () => {
+  document.getElementById("giftModal").classList.remove("hidden");
+  document.getElementById("giftModal").classList.add("flex");
+  loadGifts();
+};
+
+  window.closeGift = () => {
+  document.getElementById("giftModal").classList.add("hidden");
+};
+  window.sendGiftNow = async (giftId) => {
+  try {
+    const res = await fetch("https://us-central1-galmet-app.cloudfunctions.net/sendGift", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        senderId: myUserId,
+        receiverId: otherUserId,
+        giftId: giftId,
+        quantity: 1
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.error) {
+      showToast(data.error);
+    } else {
+      showToast("🎁 Gift sent!");
+      closeGift();
+    }
+
+  } catch (e) {
+    showToast("Error sending gift");
+  }
+};
   window.openImageViewer = (url) => {
     const viewer = document.getElementById("viewerModal");
     const viewerImg = document.getElementById("viewerImage");
