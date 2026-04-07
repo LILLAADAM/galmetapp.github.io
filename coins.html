@@ -43,94 +43,73 @@
     }
   </style>
 </head>
-<body class="bg-surface font-body text-on-surface min-h-screen pb-24">
+<body class="bg-surface font-body text-on-surface min-h-screen pb-8">
 
-<!-- Top App Bar -->
+<!-- Top App Bar (unchanged) -->
 <header class="sticky top-0 w-full bg-surface/80 backdrop-blur-xl z-50 border-b border-outline-variant/20">
-  <div class="flex justify-between items-center px-4 h-14 max-w-md mx-auto">
-    <button id="backBtn" class="p-2 rounded-full hover:bg-primary-container/30 transition-colors active:scale-95">
-      <span class="material-symbols-outlined text-primary">arrow_back</span>
+  <div class="flex justify-between items-center px-4 h-12 max-w-md mx-auto">
+    <button id="backBtn" class="p-1.5 rounded-full hover:bg-primary-container/30 transition-colors active:scale-95">
+      <span class="material-symbols-outlined text-primary text-xl">arrow_back</span>
     </button>
-    <h1 class="font-headline font-semibold text-lg text-primary">Coins</h1>
-    <button id="historyBtn" class="p-2 rounded-full hover:bg-primary-container/30 transition-colors active:scale-95">
-      <span class="material-symbols-outlined text-primary">history</span>
+    <h1 class="font-headline font-semibold text-base text-primary">Coins</h1>
+    <button id="historyBtn" class="p-1.5 rounded-full hover:bg-primary-container/30 transition-colors active:scale-95">
+      <span class="material-symbols-outlined text-primary text-xl">history</span>
     </button>
   </div>
 </header>
 
-<main class="max-w-md mx-auto px-4 pt-5 pb-10 space-y-5">
-  <!-- Balance Card -->
-  <div class="bg-surface-container-lowest rounded-2xl p-5 flex items-center gap-4 shadow-sm">
-    <div class="w-14 h-14 bg-secondary-container rounded-full flex items-center justify-center shadow-md">
-      <span class="material-symbols-outlined text-on-secondary-fixed text-3xl" style="font-variation-settings:'FILL'1">monetization_on</span>
+<main class="max-w-md mx-auto px-4 pt-4 pb-6 space-y-4">
+  <!-- Balance Card (smaller) -->
+  <div class="bg-surface-container-lowest rounded-xl p-3 flex items-center gap-3 shadow-sm">
+    <div class="w-10 h-10 bg-secondary-container rounded-full flex items-center justify-center shadow-sm">
+      <span class="material-symbols-outlined text-on-secondary-fixed text-2xl" style="font-variation-settings:'FILL'1">monetization_on</span>
     </div>
     <div>
-      <p class="font-label text-[10px] uppercase tracking-wider text-outline">Current Balance</p>
-      <p id="coinsBalance" class="font-headline font-bold text-3xl text-on-surface">0</p>
+      <p class="font-label text-[9px] uppercase tracking-wider text-outline">Current Balance</p>
+      <p id="coinsBalance" class="font-headline font-bold text-2xl text-on-surface">0</p>
     </div>
   </div>
 
-  <!-- User Info Card (compact) -->
-  <div class="bg-surface-container-low rounded-xl p-3 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <img id="userAvatar" class="w-10 h-10 rounded-full object-cover" src="https://ui-avatars.com/api/?name=User">
+  <!-- User Info Card (smaller) -->
+  <div class="bg-surface-container-low rounded-lg p-2 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <img id="userAvatar" class="w-8 h-8 rounded-full object-cover" src="https://ui-avatars.com/api/?name=User">
       <div>
-        <p id="userName" class="font-headline font-semibold text-sm text-on-surface">Loading...</p>
-        <p id="userLevel" class="font-label text-[10px] text-outline">Lv. --</p>
+        <p id="userName" class="font-headline font-semibold text-xs text-on-surface">Loading...</p>
+        <p id="userLevel" class="font-label text-[9px] text-outline">Lv. --</p>
       </div>
     </div>
-    <button id="changeBtn" class="bg-surface-container-highest text-primary text-xs px-3 py-1.5 rounded-full font-bold active:scale-95 transition">Change</button>
+    <button id="changeBtn" class="bg-surface-container-highest text-primary text-[10px] px-2 py-1 rounded-full font-bold active:scale-95 transition">Change</button>
   </div>
 
-  <!-- Level Restriction Message (hidden by default) -->
-  <div id="restrictionMsg" class="bg-error-container/20 text-error p-3 rounded-xl text-center text-sm font-medium hidden">
-    ⚠️ Top‑up is only available for Wealth Level 3 or higher.<br>
-    Keep playing to level up!
+  <!-- Level Restriction Message (compact) -->
+  <div id="restrictionMsg" class="bg-error-container/20 text-error p-2 rounded-lg text-center text-[11px] font-medium hidden">
+    ⚠️ Top‑up only for Wealth Level 3 or higher. Keep playing!
   </div>
 
-  <!-- Tabs -->
-  <div class="flex p-1 bg-surface-container-high/50 backdrop-blur-md rounded-full">
-    <button id="googleTab" class="flex-1 py-2 rounded-full text-primary font-headline font-bold text-sm flex items-center justify-center gap-1 bg-white shadow-sm">
-      <span class="material-symbols-outlined text-base">account_balance_wallet</span> Google
+  <!-- Tabs (smaller) -->
+  <div class="flex p-0.5 bg-surface-container-high/50 backdrop-blur-md rounded-full w-fit mx-auto">
+    <button id="googleTab" class="px-3 py-1.5 rounded-full text-primary font-headline font-bold text-xs flex items-center gap-1 bg-white shadow-sm">
+      <span class="material-symbols-outlined text-sm">account_balance_wallet</span> Google
     </button>
-    <button id="recommendedTab" class="flex-1 py-2 rounded-full text-on-surface-variant font-headline font-semibold text-sm flex items-center justify-center gap-1">
-      <span class="material-symbols-outlined text-base">star</span> Recommended
+    <button id="recommendedTab" class="px-3 py-1.5 rounded-full text-on-surface-variant font-headline font-semibold text-xs flex items-center gap-1">
+      <span class="material-symbols-outlined text-sm">star</span> Recommended
     </button>
   </div>
 
-  <!-- Packages Grid (Recommended) -->
-  <div id="packagesGrid" class="grid grid-cols-2 gap-3">
-    <!-- Packs will be injected via JS -->
+  <!-- Packages Grid (compact, consistent coin icon) -->
+  <div id="packagesGrid" class="grid grid-cols-2 gap-2">
+    <!-- Packs injected via JS -->
   </div>
 
-  <!-- Google Section (hidden by default) -->
-  <div id="googleSection" class="hidden text-center py-8">
-    <span class="material-symbols-outlined text-5xl text-outline">construction</span>
-    <p class="text-outline mt-2">Google Pay integration coming soon</p>
+  <!-- Google Section (hidden) -->
+  <div id="googleSection" class="hidden text-center py-6">
+    <span class="material-symbols-outlined text-4xl text-outline">construction</span>
+    <p class="text-outline text-xs mt-1">Google Pay coming soon</p>
   </div>
 
-  <p class="text-center text-[10px] text-outline uppercase tracking-wider pb-4">Secure checkout • Instant delivery</p>
+  <p class="text-center text-[9px] text-outline uppercase tracking-wider pt-2">Secure checkout • Instant delivery</p>
 </main>
-
-<!-- Bottom Navigation (standard) -->
-<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-3 bg-white/80 backdrop-blur-xl rounded-t-2xl shadow-[0_-4px_24px_rgba(0,101,113,0.06)]">
-  <button onclick="location.href='dashboard.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
-    <span class="material-symbols-outlined">home</span>
-    <span class="text-[10px] font-label">Home</span>
-  </button>
-  <button onclick="location.href='party.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
-    <span class="material-symbols-outlined">sports_esports</span>
-    <span class="text-[10px] font-label">Party</span>
-  </button>
-  <button onclick="location.href='chats.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
-    <span class="material-symbols-outlined">chat_bubble</span>
-    <span class="text-[10px] font-label">Chats</span>
-  </button>
-  <button onclick="location.href='profile.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
-    <span class="material-symbols-outlined">person</span>
-    <span class="text-[10px] font-label">Profile</span>
-  </button>
-</nav>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
@@ -144,7 +123,6 @@
   });
   const db = getFirestore(app);
 
-  // User from localStorage
   const currentUser = JSON.parse(localStorage.getItem("user"));
   if (!currentUser || !currentUser.userId) {
     window.location.replace("login.html");
@@ -155,14 +133,13 @@
   let userCoins = 0;
   let userLevel = 1;
 
-  // Predefined packs: USDT amount, coin bonus (using old rates? but we just show USDT and coins)
-  // For simplicity, we show pack amount and price. Coins are calculated on backend.
+  // Packs with consistent coin icon (yellow coin)
   const packs = [
-    { usdt: 1, price: "$1.00", coinsBonus: 5000, icon: "payments" },
-    { usdt: 10, price: "$10.00", coinsBonus: 55000, icon: "monetization_on", hot: true },
-    { usdt: 50, price: "$50.00", coinsBonus: 300000, icon: "savings" },
-    { usdt: 100, price: "$100.00", coinsBonus: 620000, icon: "database" },
-    { usdt: 500, price: "$500.00", coinsBonus: 3250000, icon: "diamond", wide: true }
+    { usdt: 1, price: "$1.00", coinsBonus: 5000, hot: false, wide: false },
+    { usdt: 10, price: "$10.00", coinsBonus: 55000, hot: true, wide: false },
+    { usdt: 50, price: "$50.00", coinsBonus: 300000, hot: false, wide: false },
+    { usdt: 100, price: "$100.00", coinsBonus: 620000, hot: false, wide: false },
+    { usdt: 500, price: "$500.00", coinsBonus: 3250000, hot: false, wide: true }
   ];
 
   function getLevelFromCoins(coins) {
@@ -178,28 +155,28 @@
     container.innerHTML = "";
     for (const p of packs) {
       const card = document.createElement("div");
-      card.className = `bg-surface-container-lowest p-4 flex flex-col items-center rounded-xl shadow-sm ${p.wide ? 'col-span-2 flex-row justify-between' : ''}`;
+      card.className = `bg-surface-container-lowest p-3 flex flex-col items-center rounded-lg shadow-sm ${p.wide ? 'col-span-2 flex-row justify-between items-center' : ''}`;
       if (p.wide) {
         card.innerHTML = `
-          <div class="flex items-center gap-3">
-            <span class="material-symbols-outlined text-secondary-fixed-dim text-4xl" style="font-variation-settings:'FILL'1">${p.icon}</span>
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-secondary-fixed-dim text-3xl" style="font-variation-settings:'FILL'1">monetization_on</span>
             <div>
-              <span class="block font-headline font-extrabold text-2xl text-on-surface">${p.coinsBonus.toLocaleString()}</span>
-              <span class="block font-label text-[10px] text-outline uppercase">Coins</span>
+              <span class="block font-headline font-extrabold text-xl text-on-surface">${p.coinsBonus.toLocaleString()}</span>
+              <span class="block font-label text-[8px] text-outline uppercase">Coins</span>
             </div>
           </div>
-          <button class="px-5 py-2 bg-primary text-white rounded-full font-bold text-sm active:scale-95 transition pack-btn" data-usdt="${p.usdt}">${p.price}</button>
+          <button class="px-3 py-1.5 bg-primary text-white rounded-full font-bold text-xs active:scale-95 transition pack-btn" data-usdt="${p.usdt}">${p.price}</button>
         `;
       } else {
         card.innerHTML = `
-          <span class="material-symbols-outlined text-secondary-fixed-dim text-4xl mb-2" style="font-variation-settings:'FILL'1">${p.icon}</span>
-          <span class="font-headline font-extrabold text-2xl text-on-surface">${p.coinsBonus.toLocaleString()}</span>
-          <span class="font-label text-[10px] text-outline uppercase mb-3">Coins</span>
-          <button class="w-full py-2 bg-primary text-white rounded-full font-bold text-sm active:scale-95 transition pack-btn" data-usdt="${p.usdt}">${p.price}</button>
+          <span class="material-symbols-outlined text-secondary-fixed-dim text-3xl mb-1" style="font-variation-settings:'FILL'1">monetization_on</span>
+          <span class="font-headline font-extrabold text-xl text-on-surface">${p.coinsBonus.toLocaleString()}</span>
+          <span class="font-label text-[8px] text-outline uppercase mb-2">Coins</span>
+          <button class="w-full py-1.5 bg-primary text-white rounded-full font-bold text-xs active:scale-95 transition pack-btn" data-usdt="${p.usdt}">${p.price}</button>
         `;
         if (p.hot) {
           const badge = document.createElement("div");
-          badge.className = "absolute -top-2 -right-2 bg-tertiary text-white text-[8px] font-bold px-2 py-0.5 rounded-full uppercase";
+          badge.className = "absolute -top-1 -right-1 bg-tertiary text-white text-[7px] font-bold px-1.5 py-0.5 rounded-full uppercase";
           badge.innerText = "Hot";
           card.classList.add("relative");
           card.appendChild(badge);
@@ -208,7 +185,6 @@
       container.appendChild(card);
     }
 
-    // Attach event listeners
     document.querySelectorAll(".pack-btn").forEach(btn => {
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -217,7 +193,6 @@
           alert("Top‑up is only available for Wealth Level 3 or higher.");
           return;
         }
-        // Redirect to topup page with amount
         window.location.href = `topup.html?amount=${usdt}`;
       });
     });
@@ -235,7 +210,6 @@
       const avatar = data.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.username || "User")}&background=006571&color=fff`;
       document.getElementById("userAvatar").src = avatar;
 
-      // Show restriction message if level < 3
       const restrictionMsg = document.getElementById("restrictionMsg");
       if (userLevel < 3) {
         restrictionMsg.classList.remove("hidden");
@@ -267,7 +241,6 @@
     googleSection.classList.add("hidden");
     packagesGrid.classList.remove("hidden");
   });
-  // initial: recommended active
   recommendedTab.click();
 
   // Navigation
@@ -275,7 +248,6 @@
   document.getElementById("historyBtn").addEventListener("click", () => window.location.href = "coinshistory.html");
   document.getElementById("changeBtn").addEventListener("click", () => alert("Change profile coming soon"));
 
-  // Render packs
   renderPacks();
 </script>
 </body>
