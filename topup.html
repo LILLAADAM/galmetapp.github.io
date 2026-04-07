@@ -1,277 +1,273 @@
 <!DOCTYPE html>
-<html>
+<html class="light" lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Top Up</title>
-
-<style>
-body{
-    font-family: Arial;
-    background:#0b1f4b;
-    color:#fff;
-    padding:20px;
-}
-.box{
-    background:linear-gradient(135deg,#1e3c72,#2a5298);
-    padding:20px;
-    border-radius:15px;
-    margin-bottom:20px;
-}
-.btn{
-    background:#4cd964;
-    padding:15px;
-    margin:10px 0;
-    border-radius:10px;
-    text-align:center;
-    cursor:pointer;
-    font-weight:bold;
-}
-.btn:hover{opacity:0.8}
-.small{font-size:13px;opacity:0.7;}
-#paymentBox{
-    background:#111;
-    padding:20px;
-    border-radius:10px;
-}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Top Up - Galmet</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface": "#f3f7fb",
+            "surface-container-low": "#ecf1f6",
+            "surface-container-lowest": "#ffffff",
+            "on-surface": "#2a2f32",
+            "on-surface-variant": "#575c60",
+            "primary": "#006571",
+            "primary-container": "#00e3fd",
+            "primary-dim": "#005863",
+            "secondary": "#755700",
+            "tertiary": "#b60051",
+            "outline": "#73777b",
+            "outline-variant": "#a9aeb1",
+            "error": "#b31b25"
+          },
+          fontFamily: {
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Be Vietnam Pro"],
+            "label": ["Plus Jakarta Sans"]
+          },
+          borderRadius: { DEFAULT: "1rem", lg: "2rem", xl: "3rem", full: "9999px" }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+    }
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #fff;
+      border-top-color: #006571;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
 </head>
+<body class="bg-surface font-body text-on-surface min-h-screen">
 
-<body>
+<!-- Top App Bar -->
+<header class="sticky top-0 w-full bg-surface/80 backdrop-blur-xl z-50 border-b border-outline-variant/20">
+  <div class="flex justify-between items-center px-4 h-14 max-w-md mx-auto">
+    <button id="cancelBtn" class="p-2 rounded-full hover:bg-primary-container/30 transition-colors active:scale-95">
+      <span class="material-symbols-outlined text-primary">close</span>
+    </button>
+    <h1 class="font-headline font-semibold text-lg text-primary">Top Up</h1>
+    <div class="w-8"></div> <!-- placeholder for balance -->
+  </div>
+</header>
 
-<h2>💳 Top Up Balance</h2>
+<main class="max-w-md mx-auto px-4 py-6">
+  <!-- Amount Display -->
+  <div class="text-center mb-6">
+    <p class="text-outline text-sm">You are about to top up</p>
+    <p id="amountUsdt" class="font-headline font-black text-4xl text-primary">-- USDT</p>
+  </div>
 
-<div class="box">
+  <!-- Loading indicator while creating topup -->
+  <div id="loadingState" class="flex flex-col items-center justify-center py-12">
+    <div class="spinner"></div>
+    <p class="mt-4 text-outline">Creating payment request...</p>
+  </div>
 
-<div class="btn" onclick="topup(1)">
-1 USDT <br><span class="small">5000 Coins</span>
-</div>
+  <!-- Payment Details (hidden initially) -->
+  <div id="paymentDetails" class="hidden">
+    <div class="bg-surface-container-lowest rounded-2xl p-5 space-y-4 shadow-sm">
+      <div class="flex flex-col items-center">
+        <img id="qrImage" class="w-48 h-48 rounded-xl shadow-md" src="" alt="QR Code">
+        <button id="copyAddressBtn" class="mt-3 text-primary text-sm font-bold flex items-center gap-1">
+          <span class="material-symbols-outlined text-base">content_copy</span> Copy Address
+        </button>
+      </div>
+      <div class="bg-surface-container-low p-3 rounded-xl break-all">
+        <p class="text-[10px] text-outline uppercase tracking-wider">USDT (TRC20) Address</p>
+        <p id="walletAddress" class="text-sm font-mono mt-1 text-on-surface"></p>
+      </div>
+      <div class="flex justify-between text-sm">
+        <span class="text-outline">Network</span>
+        <span id="network" class="font-semibold">TRC20</span>
+      </div>
+      <div class="flex justify-between text-sm">
+        <span class="text-outline">Amount</span>
+        <span id="displayAmount" class="font-semibold">-- USDT</span>
+      </div>
+      <div class="text-center">
+        <div id="timer" class="text-2xl font-mono font-bold text-primary">15:00</div>
+        <p class="text-[10px] text-outline mt-1">Time remaining to complete payment</p>
+      </div>
+      <button id="cancelPaymentBtn" class="w-full py-3 bg-error/10 text-error rounded-full font-bold active:scale-95 transition">Cancel Payment</button>
+    </div>
+  </div>
 
-<div class="btn" onclick="topup(10)">
-10 USDT <br><span class="small">55000 Coins</span>
-</div>
-
-<div class="btn" onclick="topup(50)">
-50 USDT <br><span class="small">300000 Coins</span>
-</div>
-
-</div>
-
-<div id="paymentBox" style="display:none;"></div>
-
-<div class="box">
-<h3>Topup History</h3>
-<div id="history">Loading...</div>
-</div>
+  <p class="text-center text-[10px] text-outline mt-6">Send exactly the amount shown. Payment is verified automatically.</p>
+</main>
 
 <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  const app = initializeApp({
+    apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+    authDomain: "galmet-app.firebaseapp.com",
+    projectId: "galmet-app",
+    storageBucket: "galmet-app.firebasestorage.app"
+  });
+  const db = getFirestore(app);
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
-  authDomain: "galmet-app.firebaseapp.com",
-  projectId: "galmet-app"
-};
+  // User
+  const currentUser = JSON.parse(localStorage.getItem("user"));
+  if (!currentUser || !currentUser.userId) {
+    window.location.replace("login.html");
+  }
+  const userId = currentUser.userId.toString();
 
-initializeApp(firebaseConfig);
+  const amount = new URLSearchParams(window.location.search).get("amount");
+  if (!amount) {
+    alert("Invalid request");
+    window.location.href = "coins.html";
+  }
+  document.getElementById("amountUsdt").innerText = amount + " USDT";
 
-// ===============================
-let currentUser = null;
-let checkInterval = null;
-let timerInterval = null;
+  let activeTopup = null;
+  let timerInterval = null;
+  let checkInterval = null;
 
-// ===============================
-// 🔐 LOGIN CHECK
-// ===============================
-window.addEventListener("DOMContentLoaded", () => {
-
-    const user = JSON.parse(localStorage.getItem("user"));
-
-    if (!user || !user.userId) {
-        alert("Login required");
-        window.location.href = "login.html";
-        return;
+  // Helper: load existing active topup from localStorage
+  function loadStoredTopup() {
+    const stored = localStorage.getItem("activeTopup");
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch(e) { return null; }
     }
+    return null;
+  }
 
-    currentUser = user;
-
-    loadHistory();
-
-    const saved = localStorage.getItem("activeTopup");
-    if (saved) {
-        const data = JSON.parse(saved);
-        renderPayment(data.topupId, data.amount, data.wallet, data.network, data.startTime);
-    }
-});
-
-// ===============================
-// 🚀 TOPUP
-// ===============================
-window.topup = async function(amount){
-
-    try{
-
-        const res = await fetch("https://createtopup-k3vzdssfra-uc.a.run.app",{
-            method:"POST",
-            headers:{"Content-Type":"application/json"},
-            body: JSON.stringify({
-                userId: currentUser.userId,
-                amount: amount
-            })
-        });
-
-        const data = await res.json();
-
-        if(!data.success){
-            alert("Topup failed");
-            return;
-        }
-
-        const saveData = {
-            topupId: data.topupId,
-            amount: amount,
-            wallet: data.wallet,
-            network: data.network,
-            startTime: Date.now()
-        };
-
-        localStorage.setItem("activeTopup", JSON.stringify(saveData));
-
-        renderPayment(
-            data.topupId,
-            amount,
-            data.wallet,
-            data.network,
-            saveData.startTime
-        );
-
-    }catch(e){
-        alert("Network error");
-    }
-};
-
-// ===============================
-// 💳 PAYMENT UI
-// ===============================
-function renderPayment(topupId, amount, wallet, network, startTime){
-
-    const box = document.getElementById("paymentBox");
-
-    if(!box) return;
-
-    const qr = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${wallet}`;
-
-    box.style.display="block";
-
-    box.innerHTML = `
-        <h3>Send Payment</h3>
-        <img src="${qr}" />
-        <p>Network: ${network}</p>
-        <p>Wallet: ${wallet}</p>
-        <p>Amount: ${amount} USDT</p>
-        <div id="timer"></div>
-        <p>Waiting for payment...</p>
-    `;
-
+  // Render payment UI
+  function renderPayment(topupId, amount, wallet, network, startTime) {
+    document.getElementById("loadingState").classList.add("hidden");
+    document.getElementById("paymentDetails").classList.remove("hidden");
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${wallet}`;
+    document.getElementById("qrImage").src = qrUrl;
+    document.getElementById("walletAddress").innerText = wallet;
+    document.getElementById("network").innerText = network;
+    document.getElementById("displayAmount").innerText = amount + " USDT";
     startTimer(startTime);
     startChecking(topupId);
-}
+  }
 
-// ===============================
-// ⏳ TIMER
-// ===============================
-function startTimer(startTime){
+  // Timer (15 minutes = 900 seconds)
+  function startTimer(startTime) {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - startTime) / 1000);
+      const remaining = 900 - elapsed;
+      if (remaining <= 0) {
+        clearInterval(timerInterval);
+        document.getElementById("timer").innerText = "Expired";
+        document.getElementById("timer").classList.add("text-error");
+        localStorage.removeItem("activeTopup");
+        alert("Payment time expired. Please start a new top-up.");
+        window.location.href = "coins.html";
+        return;
+      }
+      const minutes = Math.floor(remaining / 60);
+      const seconds = remaining % 60;
+      document.getElementById("timer").innerText = `${minutes}:${seconds < 10 ? '0'+seconds : seconds}`;
+    }, 1000);
+  }
 
-    if(timerInterval) clearInterval(timerInterval);
-
-    timerInterval = setInterval(()=>{
-
-        let passed = Math.floor((Date.now()-startTime)/1000);
-        let remaining = 900 - passed;
-
-        if(remaining <= 0){
-            clearInterval(timerInterval);
-            localStorage.removeItem("activeTopup");
-            document.getElementById("timer").innerHTML="Expired";
-            return;
-        }
-
-        let m = Math.floor(remaining/60);
-        let s = remaining%60;
-
-        document.getElementById("timer").innerHTML =
-            `Time: ${m}:${s<10?"0"+s:s}`;
-
-    },1000);
-}
-
-// ===============================
-// 🔍 CHECK STATUS
-// ===============================
-function startChecking(topupId){
-
-    if(checkInterval) clearInterval(checkInterval);
-
-    checkInterval = setInterval(async ()=>{
-
-        try{
-            const res = await fetch(
-                "https://gettopups-k3vzdssfra-uc.a.run.app?topupId="+topupId
-            );
-
-            const data = await res.json();
-
-            if(data.status === "completed"){
-
-                clearInterval(checkInterval);
-                clearInterval(timerInterval);
-
-                localStorage.removeItem("activeTopup");
-
-                document.getElementById("paymentBox").innerHTML = `
-                    <h3 style="color:#4cd964;">Payment Completed ✅</h3>
-                `;
-
-                loadHistory();
-
-                setTimeout(()=>{
-                    window.location.href="dashboard.html";
-                },2000);
-            }
-
-        }catch(e){
-            console.log("Check error");
-        }
-
-    },3000);
-}
-
-// ===============================
-// 📜 HISTORY
-// ===============================
-async function loadHistory(){
-
-    try{
-        const res = await fetch(
-            "https://gettopups-k3vzdssfra-uc.a.run.app?userId="+currentUser.userId
-        );
-
+  // Check payment status
+  function startChecking(topupId) {
+    if (checkInterval) clearInterval(checkInterval);
+    checkInterval = setInterval(async () => {
+      try {
+        const res = await fetch(`https://gettopups-k3vzdssfra-uc.a.run.app?topupId=${topupId}`);
         const data = await res.json();
+        if (data.status === "completed") {
+          clearInterval(checkInterval);
+          clearInterval(timerInterval);
+          localStorage.removeItem("activeTopup");
+          alert("✅ Payment completed! Coins added to your balance.");
+          window.location.href = "dashboard.html";
+        }
+      } catch (err) {
+        console.log("Check error", err);
+      }
+    }, 3000);
+  }
 
-        let html="";
-
-        data.forEach(t=>{
-            html+=`<div>${t.amount} USDT - <b>${t.status}</b></div>`;
-        });
-
-        document.getElementById("history").innerHTML=html;
-
-    }catch(e){
-        document.getElementById("history").innerHTML="Error loading history";
+  // Create new topup or restore existing
+  async function initTopup() {
+    const stored = loadStoredTopup();
+    if (stored && stored.topupId && stored.amount == amount) {
+      // restore
+      activeTopup = stored;
+      renderPayment(stored.topupId, stored.amount, stored.wallet, stored.network, stored.startTime);
+      return;
     }
-}
+    // Create new topup
+    try {
+      const res = await fetch("https://createtopup-k3vzdssfra-uc.a.run.app", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: userId, amount: parseInt(amount) })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || "Failed");
+      const newTopup = {
+        topupId: data.topupId,
+        amount: amount,
+        wallet: data.wallet,
+        network: data.network,
+        startTime: Date.now()
+      };
+      localStorage.setItem("activeTopup", JSON.stringify(newTopup));
+      activeTopup = newTopup;
+      renderPayment(newTopup.topupId, newTopup.amount, newTopup.wallet, newTopup.network, newTopup.startTime);
+    } catch (err) {
+      alert("Error creating topup: " + err.message);
+      window.location.href = "coins.html";
+    }
+  }
 
+  // Cancel and go back
+  function cancelTopup() {
+    localStorage.removeItem("activeTopup");
+    if (timerInterval) clearInterval(timerInterval);
+    if (checkInterval) clearInterval(checkInterval);
+    window.location.href = "coins.html";
+  }
+
+  document.getElementById("cancelBtn").addEventListener("click", cancelTopup);
+  document.getElementById("cancelPaymentBtn").addEventListener("click", cancelTopup);
+  document.getElementById("copyAddressBtn").addEventListener("click", () => {
+    const addr = document.getElementById("walletAddress").innerText;
+    navigator.clipboard.writeText(addr);
+    alert("Address copied!");
+  });
+
+  initTopup();
 </script>
-
 </body>
 </html>
