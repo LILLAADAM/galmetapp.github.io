@@ -104,9 +104,10 @@
 
 <main class="px-4 pb-20 space-y-3 pt-4">
   <!-- User Identity Section (Scaled down) -->
-  <section class="relative group cursor-pointer active:scale-[0.98] transition-transform duration-200">
+  <section class="relative group active:scale-[0.98] transition-transform duration-200">
     <div class="flex items-center gap-3 p-1">
-      <div class="relative">
+      <!-- Avatar + flag badge – clickable to view.html -->
+      <div class="relative cursor-pointer" onclick="goToView()">
         <div class="w-16 h-16 rounded-full border-2 border-white overflow-hidden shadow-md shadow-primary/5">
           <img id="profileImg" class="w-full h-full object-cover">
         </div>
@@ -114,15 +115,16 @@
           <span id="countryFlag" class="text-[14px] leading-none">🌍</span>
         </div>
       </div>
-      <div class="flex-1">
+      <div class="flex-1 cursor-pointer" onclick="goToView()">
         <h2 id="username" class="font-headline font-extrabold text-2xl"></h2>
         <p id="userIdText" class="text-sm text-outline"></p>
       </div>
-      <span onclick="goProfile()" class="material-symbols-outlined cursor-pointer text-primary">chevron_right</span>
+      <!-- Chevron (edit profile) -->
+      <span onclick="goToEditProfile()" class="material-symbols-outlined cursor-pointer text-primary">chevron_right</span>
     </div>
   </section>
 
-  <!-- Stats Bar (Tightened) -->
+  <!-- Stats Bar -->
   <section class="bg-white rounded-lg py-3 px-2 flex justify-around items-center shadow-sm">
     <button class="flex flex-col items-center group">
       <span id="friendsCount" class="font-headline font-bold text-xl text-on-surface group-hover:text-primary transition-colors">0</span>
@@ -140,7 +142,7 @@
     </button>
   </section>
 
-  <!-- Level Card (Reduced height) -->
+  <!-- Level Card -->
   <section class="bg-primary p-3 rounded-lg shadow-md relative overflow-hidden flex items-center justify-between cursor-pointer active:scale-[0.99] transition-transform">
     <div class="absolute -top-6 -right-6 w-20 h-20 bg-white/10 rounded-full blur-xl"></div>
     <div class="relative z-10 flex items-center gap-3">
@@ -157,9 +159,9 @@
     </div>
   </section>
 
-  <!-- Branded Currencies Row (Scaled down) -->
+  <!-- Currencies Row (clickable: coins → coins.html, gems → gems.html) -->
   <section class="grid grid-cols-2 gap-2">
-    <div class="bg-secondary-container/20 p-2.5 rounded-lg flex items-center gap-2.5 border border-secondary/10 cursor-pointer active:scale-95 transition-transform">
+    <div id="coinsCard" class="bg-secondary-container/20 p-2.5 rounded-lg flex items-center gap-2.5 border border-secondary/10 cursor-pointer active:scale-95 transition-transform">
       <div class="bg-secondary-container w-9 h-9 rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
         <span class="material-symbols-outlined text-on-secondary-fixed text-lg" style="font-variation-settings: 'FILL' 1;">monetization_on</span>
       </div>
@@ -168,7 +170,7 @@
         <p id="coins" class="font-headline font-extrabold text-base text-on-secondary-fixed">0</p>
       </div>
     </div>
-    <div class="bg-tertiary-container/20 p-2.5 rounded-lg flex items-center gap-2.5 border border-tertiary/10 cursor-pointer active:scale-95 transition-transform">
+    <div id="gemsCard" class="bg-tertiary-container/20 p-2.5 rounded-lg flex items-center gap-2.5 border border-tertiary/10 cursor-pointer active:scale-95 transition-transform">
       <div class="bg-tertiary-container w-9 h-9 rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
         <span class="material-symbols-outlined text-on-tertiary-container text-lg" style="font-variation-settings: 'FILL' 1;">diamond</span>
       </div>
@@ -179,7 +181,7 @@
     </div>
   </section>
 
-  <!-- Action Grid (Scaled down) -->
+  <!-- Action Grid -->
   <section class="bg-surface-container-low/40 p-4 rounded-xl">
     <div class="grid grid-cols-4 gap-1">
       <button class="flex flex-col items-center gap-1.5 group" onclick="alert('Store coming soon')">
@@ -209,7 +211,7 @@
     </div>
   </section>
 
-  <!-- System List (Clean Navigation) -->
+  <!-- System List -->
   <section class="bg-white rounded-lg shadow-sm overflow-hidden">
     <button class="w-full flex items-center gap-4 px-4 py-3 hover:bg-surface-container-low transition-colors text-left group border-b border-surface-container-high/50">
       <span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors text-[20px]">translate</span>
@@ -229,7 +231,7 @@
   </section>
 </main>
 
-<!-- Bottom Navigation Bar (same as chats.html) -->
+<!-- Bottom Navigation Bar -->
 <nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-3 bg-white/80 backdrop-blur-xl rounded-t-2xl shadow-[0_-4px_24px_rgba(0,101,113,0.06)]">
   <button onclick="location.href='dashboard.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
     <span class="material-symbols-outlined">home</span>
@@ -251,7 +253,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-  import { getFirestore, doc, getDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+  import { getFirestore, doc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
   const app = initializeApp({
     apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
@@ -261,12 +263,13 @@
   });
   const db = getFirestore(app);
 
-  // ==================== USER LOGIN SYSTEM (userId) ====================
+  // Current user
   const currentUser = JSON.parse(localStorage.getItem("user"));
   if (!currentUser || !currentUser.userId) {
     window.location.replace("login.html");
   }
   const myUserId = currentUser.userId.toString();
+  const userRef = doc(db, "users", myUserId);
 
   // Helper: flag emoji from country code
   function getFlagEmoji(countryCode) {
@@ -275,40 +278,51 @@
     return String.fromCodePoint(...codePoints);
   }
 
-  // Load user data from Firestore
-  async function loadUser() {
-    const userSnap = await getDoc(doc(db, "users", myUserId));
-    if (!userSnap.exists()) return;
-    const user = userSnap.data();
-    
+  // Real‑time user data (coins, gems, level, flag)
+  onSnapshot(userRef, (snap) => {
+    if (!snap.exists()) return;
+    const user = snap.data();
+    console.log("🔍 User data from Firestore:", user); // DEBUG
+
+    // Update display name & ID
     document.getElementById("username").innerText = user.username || user.email || "User";
     document.getElementById("userIdText").innerText = "ID: " + (user.userId || myUserId);
     document.getElementById("profileImg").src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username || "User")}&background=006571&color=fff`;
+
+    // Coins & Gems
     document.getElementById("coins").innerText = user.coins || 0;
-    document.getElementById("gems").innerText = user.diamonds || 0;
-    
-    // Level (simple calculation based on coins or custom)
+    document.getElementById("gems").innerText = user.gems || 0;  // field "diamonds" in Firestore
+
+    // Level (simple)
     let level = 1;
     if (user.coins >= 10000) level = 5;
     else if (user.coins >= 5000) level = 4;
     else if (user.coins >= 2000) level = 3;
     else if (user.coins >= 500) level = 2;
     document.getElementById("userLevel").innerText = `Lv.${level}`;
-    
-    // Country flag
+
+    // Country flag (detailed debug)
+    let flagEmoji = "🌍";
     if (user.country) {
-      const countryCode = typeof user.country === "object" ? user.country.code : null;
-      if (countryCode) {
-        document.getElementById("countryFlag").innerText = getFlagEmoji(countryCode);
-      } else {
-        document.getElementById("countryFlag").innerText = "🌍";
+      console.log("✅ Country object found:", user.country);
+      if (typeof user.country === "object") {
+        const code = user.country.code;
+        console.log("🔹 Country code from object:", code);
+        if (code) flagEmoji = getFlagEmoji(code);
+        else flagEmoji = "🌍";
+      } else if (typeof user.country === "string") {
+        // If country is stored as string (e.g., "Pakistan"), try to guess? We'll fallback to globe.
+        console.log("🔹 Country as string:", user.country);
+        flagEmoji = "🌍";
       }
     } else {
-      document.getElementById("countryFlag").innerText = "🌍";
+      console.warn("⚠️ No 'country' field in user document");
     }
-  }
-  
-  // Real‑time stats: followers, following, friends
+    document.getElementById("countryFlag").innerText = flagEmoji;
+    console.log("🏁 Final flag emoji displayed:", flagEmoji);
+  });
+
+  // Real‑time stats (followers, following, friends)
   onSnapshot(collection(db, "followers", myUserId, "list"), (snap) => {
     document.getElementById("followersCount").innerText = snap.size;
   });
@@ -318,10 +332,13 @@
   onSnapshot(collection(db, "friends", myUserId, "list"), (snap) => {
     document.getElementById("friendsCount").innerText = snap.size;
   });
-  
-  // Navigation functions
-  window.goProfile = () => {
-    window.location.href = "profile.html"; // same page, but could be edit profile later
+
+  // ==================== NAVIGATION FUNCTIONS ====================
+  window.goToView = () => {
+    window.location.href = `view.html?id=${myUserId}`;
+  };
+  window.goToEditProfile = () => {
+    window.location.href = "profile.html"; // currently same page, but can be edit-profile.html later
   };
   window.goSettings = () => {
     window.location.href = "settings.html";
@@ -332,8 +349,14 @@
     navigator.clipboard.writeText(link);
     alert("Invite link copied: " + link);
   };
-  
-  loadUser();
+
+  // Coins & Gems click handlers
+  document.getElementById("coinsCard").onclick = () => {
+    window.location.href = "coins.html";
+  };
+  document.getElementById("gemsCard").onclick = () => {
+    window.location.href = "gems.html";
+  };
 </script>
 </body>
 </html>
