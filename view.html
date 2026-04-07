@@ -41,7 +41,6 @@
     .dark .glass-card {
       background: rgba(17, 24, 39, 0.6);
     }
-    /* popup menu */
     .popup-menu {
       position: fixed;
       bottom: 0;
@@ -136,7 +135,7 @@
           </span>
           <div id="onlineText" class="hidden items-center gap-1">
             <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span class="text-[10px] font-bold text-green-600 uppercase tracking-wider">Live</span>
+            <span id="onlineStatusLabel" class="text-[10px] font-bold text-green-600 uppercase tracking-wider">Online</span>
           </div>
         </div>
       </div>
@@ -176,31 +175,31 @@
       </div>
     </div>
 
-    <!-- Level Cards (based on coins and gift count) -->
+    <!-- Level Cards (visible colors) -->
     <div class="grid grid-cols-2 gap-4 mb-8">
-      <div class="p-4 rounded-2xl bg-gradient-to-br from-secondary-container to-secondary-fixed-dim text-on-secondary-container">
+      <div class="p-4 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700 text-white shadow-md">
         <div class="flex justify-between items-start mb-2">
           <span class="material-symbols-outlined text-2xl">military_tech</span>
           <span id="wealthLevel" class="font-headline font-bold">Lv.1</span>
         </div>
         <p class="font-label text-xs font-bold uppercase">Wealth Level</p>
-        <div class="w-full h-1 bg-white/30 rounded-full mt-2">
+        <div class="w-full h-1.5 bg-white/30 rounded-full mt-2">
           <div id="wealthBar" class="h-full bg-white rounded-full" style="width: 0%"></div>
         </div>
       </div>
-      <div class="p-4 rounded-2xl bg-gradient-to-br from-tertiary-container to-tertiary-fixed-dim text-white">
+      <div class="p-4 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-md">
         <div class="flex justify-between items-start mb-2">
           <span class="material-symbols-outlined text-2xl">auto_awesome</span>
           <span id="charmLevel" class="font-headline font-bold">Lv.1</span>
         </div>
         <p class="font-label text-xs font-bold uppercase">Charm Level</p>
-        <div class="w-full h-1 bg-white/30 rounded-full mt-2">
+        <div class="w-full h-1.5 bg-white/30 rounded-full mt-2">
           <div id="charmBar" class="h-full bg-white rounded-full" style="width: 0%"></div>
         </div>
       </div>
     </div>
 
-    <!-- Gifts Section (static for now) -->
+    <!-- Gifts Section -->
     <div class="mb-8">
       <div class="flex justify-between items-center mb-3">
         <h2 class="font-headline font-semibold text-lg">Gifts</h2>
@@ -273,7 +272,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-  import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
   const app = initializeApp({
     apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
@@ -283,7 +282,7 @@
   });
   const db = getFirestore(app);
 
-  // Get current user and target user
+  // Current user & target
   const currentUser = JSON.parse(localStorage.getItem("user"));
   if (!currentUser || !currentUser.userId) {
     window.location.replace("login.html");
@@ -305,6 +304,7 @@
   const ageValueSpan = document.getElementById("ageValue");
   const onlineIndicator = document.getElementById("onlineIndicator");
   const onlineText = document.getElementById("onlineText");
+  const onlineStatusLabel = document.getElementById("onlineStatusLabel");
   const fansCountSpan = document.getElementById("fansCount");
   const followingCountSpan = document.getElementById("followingCount");
   const friendsCountSpan = document.getElementById("friendsCount");
@@ -358,46 +358,59 @@
     targetUserData = userDoc.data();
     const photo = targetUserData.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(targetUserData.username || "User")}&background=006571&color=fff`;
     avatarImg.src = photo;
-    coverImg.src = photo; // cover same as avatar
+    coverImg.src = photo;
     displayName.innerText = targetUserData.username || targetUserData.email || "User";
     userIdSpan.innerText = targetUserData.userId || targetUserId;
-    // Country flag
+    
+    // Country flag from country.code or country string
     let countryCode = null;
+    let countryName = "Unknown";
     if (targetUserData.country) {
-      if (typeof targetUserData.country === "object") countryCode = targetUserData.country.code;
-      else countryCode = targetUserData.country;
+      if (typeof targetUserData.country === "object") {
+        countryCode = targetUserData.country.code;
+        countryName = targetUserData.country.name || countryCode;
+      } else {
+        countryCode = targetUserData.country;
+        countryName = targetUserData.country;
+      }
     }
     countryFlagSpan.innerText = getFlagEmoji(countryCode);
+    locationSpan.innerText = countryName + (countryCode ? ` ${getFlagEmoji(countryCode)}` : "");
+    
     // Gender & Age
     const gender = targetUserData.gender;
     const age = targetUserData.age || "?";
     const genderIcon = gender === "male" ? "male" : (gender === "female" ? "female" : "transgender");
     genderAgeSpan.innerHTML = `<span class="material-symbols-outlined text-[12px]">${genderIcon}</span> ${age}`;
     ageValueSpan.innerText = age;
-    // Location
-    const countryName = (targetUserData.country && typeof targetUserData.country === "object") ? targetUserData.country.name : (targetUserData.country || "Unknown");
-    locationSpan.innerText = countryName;
+    
     // Language (default)
-    document.getElementById("languageSpan").innerText = "English";
-    // Online status
+    document.getElementById("languageSpan").innerText = targetUserData.language || "English";
+    
+    // Online status (simple: if online true, show "Online")
     if (targetUserData.online) {
       onlineIndicator.classList.remove("hidden");
       onlineText.classList.remove("hidden");
+      onlineStatusLabel.innerText = "Online";
     } else {
       onlineIndicator.classList.add("hidden");
       onlineText.classList.add("hidden");
     }
-    // Levels based on coins
+    
+    // Wealth level based on coins
     const coins = targetUserData.coins || 0;
     const wealth = Math.floor(coins / 500) + 1;
     wealthLevelSpan.innerText = `Lv.${wealth}`;
-    let wealthPercent = (coins % 500) / 5;
+    const wealthPercent = (coins % 500) / 5;
     wealthBar.style.width = Math.min(100, wealthPercent) + "%";
+    
     // Charm level based on total gifts (mock)
-    const charm = Math.floor((targetUserData.totalGifts || 0) / 100) + 1;
+    const totalGifts = targetUserData.totalGifts || 0;
+    const charm = Math.floor(totalGifts / 100) + 1;
     charmLevelSpan.innerText = `Lv.${charm}`;
-    charmBar.style.width = "0%"; // placeholder
-    totalGiftsSpan.innerText = `${targetUserData.totalGifts || 0} Total`;
+    const charmPercent = (totalGifts % 100);
+    charmBar.style.width = Math.min(100, charmPercent) + "%";
+    totalGiftsSpan.innerText = `${totalGifts} Total`;
   }
 
   // Real-time stats
@@ -488,9 +501,16 @@
     closePopup();
   }
 
-  // Edit profile (redirect to edit page)
+  // Edit profile (redirect to profile.html)
   function editProfile() {
-    window.location.href = "edit-profile.html"; // you can create this page later
+    window.location.href = "profile.html";
+  }
+
+  // Follow action for + button on other profiles
+  function followFromButton() {
+    if (isOwnProfile) return;
+    // If already following, do nothing? Or unfollow? We'll just call toggleFollow.
+    toggleFollow();
   }
 
   // Chat
@@ -527,7 +547,7 @@
       document.getElementById("menuButton").style.display = "none";
     } else {
       actionIcon.innerText = "add";
-      actionBtn.onclick = () => startChat(); // or follow? but we have menu
+      actionBtn.onclick = followFromButton;
       document.getElementById("menuButton").onclick = openPopup;
       popupFollow.onclick = toggleFollow;
       popupBlock.onclick = toggleBlock;
