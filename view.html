@@ -104,19 +104,9 @@
   </div>
 </nav>
 
-<main class="relative w-full overflow-x-hidden">
-  <!-- Cover Image (same as avatar) -->
-  <section class="relative h-64 w-full">
-    <img id="coverImg" class="w-full h-full object-cover" src="" alt="cover">
-    <div class="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent"></div>
-    <!-- Action button (Edit for own profile, Follow for others) -->
-    <button id="actionBtn" class="absolute bottom-4 right-4 w-12 h-12 bg-primary-fixed rounded-full flex items-center justify-center shadow-lg active:scale-90 transition z-10">
-      <span id="actionIcon" class="material-symbols-outlined text-on-primary-fixed">edit</span>
-    </button>
-  </section>
-
-  <!-- Profile Identity -->
-  <section class="relative px-6 -mt-16 z-20">
+<main class="relative w-full overflow-x-hidden pt-16">
+  <!-- Profile Identity (no cover photo) -->
+  <section class="px-6">
     <div class="flex items-end gap-4 mb-4">
       <div class="relative">
         <div class="w-28 h-28 rounded-full p-1 bg-gradient-to-tr from-primary-container to-primary-fixed-dim shadow-lg">
@@ -159,17 +149,17 @@
       </div>
     </div>
 
-    <!-- Info Chips -->
-    <div class="flex flex-wrap gap-2 mb-6">
-      <div class="px-4 py-2 bg-surface-container-lowest rounded-full flex items-center gap-2 shadow-sm border border-outline-variant/10">
+    <!-- Info Chips (one line) -->
+    <div class="flex flex-wrap items-center gap-2 mb-6">
+      <div class="px-3 py-1.5 bg-surface-container-lowest rounded-full flex items-center gap-1 shadow-sm border border-outline-variant/10">
         <span class="font-label text-xs font-bold text-on-surface-variant">ID: <span id="userIdSpan">---</span></span>
         <span onclick="copyUserId()" class="material-symbols-outlined text-primary text-sm cursor-pointer">content_copy</span>
       </div>
-      <div class="px-4 py-2 bg-surface-container-lowest rounded-full flex items-center gap-2 shadow-sm border border-outline-variant/10">
+      <div class="px-3 py-1.5 bg-surface-container-lowest rounded-full flex items-center gap-1 shadow-sm border border-outline-variant/10">
         <span class="material-symbols-outlined text-primary text-sm">language</span>
         <span id="languageSpan" class="font-label text-xs font-bold text-on-surface-variant">English</span>
       </div>
-      <div class="px-4 py-2 bg-surface-container-lowest rounded-full flex items-center gap-2 shadow-sm border border-outline-variant/10">
+      <div class="px-3 py-1.5 bg-surface-container-lowest rounded-full flex items-center gap-1 shadow-sm border border-outline-variant/10">
         <span class="material-symbols-outlined text-primary text-sm">location_on</span>
         <span id="locationSpan" class="font-label text-xs font-bold text-on-surface-variant">Unknown</span>
       </div>
@@ -270,6 +260,13 @@
 <!-- Toast -->
 <div id="toast" class="toast"></div>
 
+<!-- Action Button (floating over avatar area) - moved to top right of avatar -->
+<div class="fixed bottom-24 right-6 z-20">
+  <button id="actionBtn" class="w-12 h-12 bg-primary-fixed rounded-full flex items-center justify-center shadow-lg active:scale-90 transition">
+    <span id="actionIcon" class="material-symbols-outlined text-on-primary-fixed">edit</span>
+  </button>
+</div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
   import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
@@ -282,7 +279,6 @@
   });
   const db = getFirestore(app);
 
-  // Current user & target
   const currentUser = JSON.parse(localStorage.getItem("user"));
   if (!currentUser || !currentUser.userId) {
     window.location.replace("login.html");
@@ -296,7 +292,6 @@
   const isOwnProfile = (myUserId === targetUserId);
 
   // DOM elements
-  const coverImg = document.getElementById("coverImg");
   const avatarImg = document.getElementById("avatarImg");
   const displayName = document.getElementById("displayName");
   const countryFlagSpan = document.getElementById("countryFlag");
@@ -310,6 +305,7 @@
   const friendsCountSpan = document.getElementById("friendsCount");
   const userIdSpan = document.getElementById("userIdSpan");
   const locationSpan = document.getElementById("locationSpan");
+  const languageSpan = document.getElementById("languageSpan");
   const wealthLevelSpan = document.getElementById("wealthLevel");
   const charmLevelSpan = document.getElementById("charmLevel");
   const wealthBar = document.getElementById("wealthBar");
@@ -358,11 +354,10 @@
     targetUserData = userDoc.data();
     const photo = targetUserData.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(targetUserData.username || "User")}&background=006571&color=fff`;
     avatarImg.src = photo;
-    coverImg.src = photo;
     displayName.innerText = targetUserData.username || targetUserData.email || "User";
     userIdSpan.innerText = targetUserData.userId || targetUserId;
     
-    // Country flag from country.code or country string
+    // Country flag from country.code or country name
     let countryCode = null;
     let countryName = "Unknown";
     if (targetUserData.country) {
@@ -374,8 +369,9 @@
         countryName = targetUserData.country;
       }
     }
-    countryFlagSpan.innerText = getFlagEmoji(countryCode);
-    locationSpan.innerText = countryName + (countryCode ? ` ${getFlagEmoji(countryCode)}` : "");
+    const flag = getFlagEmoji(countryCode);
+    countryFlagSpan.innerText = flag;
+    locationSpan.innerHTML = `${countryName} ${flag}`;
     
     // Gender & Age
     const gender = targetUserData.gender;
@@ -385,9 +381,9 @@
     ageValueSpan.innerText = age;
     
     // Language (default)
-    document.getElementById("languageSpan").innerText = targetUserData.language || "English";
+    languageSpan.innerText = targetUserData.language || "English";
     
-    // Online status (simple: if online true, show "Online")
+    // Online status
     if (targetUserData.online) {
       onlineIndicator.classList.remove("hidden");
       onlineText.classList.remove("hidden");
@@ -404,7 +400,7 @@
     const wealthPercent = (coins % 500) / 5;
     wealthBar.style.width = Math.min(100, wealthPercent) + "%";
     
-    // Charm level based on total gifts (mock)
+    // Charm level based on total gifts
     const totalGifts = targetUserData.totalGifts || 0;
     const charm = Math.floor(totalGifts / 100) + 1;
     charmLevelSpan.innerText = `Lv.${charm}`;
@@ -485,7 +481,6 @@
     }
     const blockRef = doc(db, "blocked", targetUserId, "list", myUserId);
     await setDoc(blockRef, { uid: myUserId });
-    // Remove all relationships
     await deleteDoc(doc(db, "followers", targetUserId, "list", myUserId));
     await deleteDoc(doc(db, "following", myUserId, "list", targetUserId));
     await deleteDoc(doc(db, "friends", targetUserId, "list", myUserId));
@@ -506,11 +501,13 @@
     window.location.href = "profile.html";
   }
 
-  // Follow action for + button on other profiles
-  function followFromButton() {
-    if (isOwnProfile) return;
-    // If already following, do nothing? Or unfollow? We'll just call toggleFollow.
-    toggleFollow();
+  // Follow/unfollow from floating action button (for other profiles)
+  async function actionButtonClick() {
+    if (isOwnProfile) {
+      editProfile();
+    } else {
+      await toggleFollow();
+    }
   }
 
   // Chat
@@ -543,16 +540,15 @@
   function setupUI() {
     if (isOwnProfile) {
       actionIcon.innerText = "edit";
-      actionBtn.onclick = editProfile;
       document.getElementById("menuButton").style.display = "none";
     } else {
       actionIcon.innerText = "add";
-      actionBtn.onclick = followFromButton;
       document.getElementById("menuButton").onclick = openPopup;
       popupFollow.onclick = toggleFollow;
       popupBlock.onclick = toggleBlock;
       listenRelationship();
     }
+    actionBtn.onclick = actionButtonClick;
     chatBtn.onclick = startChat;
     giftBtn.onclick = sendGift;
     videoCallBtn.onclick = startVideoCall;
