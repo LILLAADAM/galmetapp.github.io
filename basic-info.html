@@ -31,7 +31,9 @@
     }
   </script>
   <style>
-    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
     .wheel {
       height: 100%; overflow-y: auto; scroll-snap-type: y mandatory;
       display: flex; flex-direction: column; align-items: center;
@@ -42,11 +44,20 @@
       scroll-snap-align: center; font-weight: 600; flex-shrink: 0;
     }
     .spacer { height: 76px; width: 100%; flex-shrink: 0; }
+    .gender-card {
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .gender-card.selected {
+      background: #00e3fd20;
+      border-color: #006571;
+      transform: scale(0.98);
+    }
   </style>
 </head>
 <body class="bg-surface font-body text-on-surface min-h-screen flex flex-col items-center">
 
-<!-- Top Bar -->
+<!-- Top Bar (compact) -->
 <header class="w-full max-w-md mx-auto flex justify-between items-center px-6 h-16">
   <button onclick="window.location.href='login.html'" class="text-primary">
     <span class="material-symbols-outlined">arrow_back</span>
@@ -55,20 +66,28 @@
   <div class="w-6"></div>
 </header>
 
-<main class="flex-1 w-full max-w-md px-6 py-4 flex flex-col gap-5 overflow-y-auto">
-  <!-- Progress indicator -->
-  <div class="flex justify-center gap-2 mb-2">
+<main class="flex-1 w-full max-w-md px-6 py-2 flex flex-col gap-4 overflow-y-auto" style="max-height: calc(100vh - 70px);">
+  <!-- Progress steps (minimal) -->
+  <div class="flex justify-center gap-2 mb-1">
     <div class="h-1.5 w-8 rounded-full bg-primary-container"></div>
     <div class="h-1.5 w-8 rounded-full bg-surface-container-high"></div>
     <div class="h-1.5 w-8 rounded-full bg-surface-container-high"></div>
   </div>
 
-  <!-- Gender (small inline) -->
+  <!-- Gender Selection (with icons) -->
   <div>
     <label class="block text-[11px] font-label font-bold uppercase tracking-wider text-on-surface-variant mb-2">Gender</label>
     <div class="flex gap-3">
-      <button id="genderMale" onclick="selectGender('male')" class="flex-1 py-2 rounded-full bg-surface-container-low text-center font-medium transition-all">♂ Male</button>
-      <button id="genderFemale" onclick="selectGender('female')" class="flex-1 py-2 rounded-full bg-surface-container-low text-center font-medium transition-all">♀ Female</button>
+      <!-- Male -->
+      <div id="genderMaleCard" onclick="selectGender('male')" class="gender-card flex-1 flex flex-col items-center gap-2 p-3 rounded-xl border-2 border-outline-variant/30 bg-surface-container-lowest">
+        <span class="material-symbols-outlined text-4xl text-primary">male</span>
+        <span class="text-sm font-medium">Male</span>
+      </div>
+      <!-- Female -->
+      <div id="genderFemaleCard" onclick="selectGender('female')" class="gender-card flex-1 flex flex-col items-center gap-2 p-3 rounded-xl border-2 border-outline-variant/30 bg-surface-container-lowest">
+        <span class="material-symbols-outlined text-4xl text-primary">female</span>
+        <span class="text-sm font-medium">Female</span>
+      </div>
     </div>
   </div>
 
@@ -93,7 +112,7 @@
   <!-- Date of Birth (compact wheel) -->
   <div>
     <label class="block text-[11px] font-label font-bold uppercase tracking-wider text-on-surface-variant mb-2">Birth Date</label>
-    <div class="relative bg-surface-container-low rounded-xl h-40 overflow-hidden ring-1 ring-outline-variant/20">
+    <div class="relative bg-surface-container-low rounded-xl h-36 overflow-hidden ring-1 ring-outline-variant/20">
       <div class="absolute left-3 right-3 top-1/2 -translate-y-1/2 h-10 bg-primary-container/20 rounded-lg z-10"></div>
       <div class="flex h-full">
         <div id="dayWheel" class="wheel w-1/4"></div>
@@ -105,15 +124,20 @@
   </div>
 
   <!-- Continue Button -->
-  <button id="continueBtn" onclick="saveAll()" class="mt-4 w-full h-12 bg-gradient-to-r from-primary to-primary-dim text-on-primary rounded-full font-bold shadow-lg active:scale-95 transition">Continue</button>
-  <p class="text-center text-[10px] text-outline uppercase tracking-[0.1em]">Step 1 of 2</p>
+  <button id="continueBtn" class="mt-2 w-full h-12 bg-gradient-to-r from-primary to-primary-dim text-on-primary rounded-full font-bold shadow-lg active:scale-95 transition">Continue</button>
+  <p class="text-center text-[10px] text-outline uppercase tracking-[0.1em] pb-4">Step 1 of 2</p>
 </main>
 
-<!-- Loading Overlay -->
-<div id="loadingOverlay" class="fixed inset-0 bg-background/90 backdrop-blur-md z-[100] flex flex-col items-center justify-center hidden">
-  <div class="w-20 h-20 border-4 border-primary-container rounded-full animate-pulse"></div>
-  <div class="absolute w-14 h-14 border-4 border-t-primary border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
-  <p class="mt-6 font-headline font-bold text-primary tracking-widest uppercase text-[10px] animate-pulse">Saving...</p>
+<!-- Loading Overlay (same as setup.html) -->
+<div id="loadingOverlay" class="fixed inset-0 bg-surface/80 backdrop-blur-md flex flex-col items-center justify-center hidden z-[100]">
+  <div class="relative">
+    <div class="w-24 h-24 rounded-full border-4 border-primary-container border-t-primary animate-spin"></div>
+    <div class="absolute inset-0 flex items-center justify-center">
+      <span class="material-symbols-outlined text-primary text-4xl" style="font-variation-settings:'FILL'1">explore</span>
+    </div>
+  </div>
+  <p class="mt-8 font-headline font-bold text-2xl text-primary animate-bounce">Galmet</p>
+  <p class="text-on-surface-variant font-medium">Saving your profile...</p>
 </div>
 
 <script>
@@ -121,14 +145,23 @@
   let selectedGender = "";
   let selectedCountry = null;
 
-  // ---------- Load existing user data ----------
+  // Load user from localStorage
   const user = JSON.parse(localStorage.getItem("user"));
   if (!user || !user.email) window.location = "login.html";
 
-  // Pre-fill gender
+  // ---------- Gender UI ----------
+  function selectGender(gender) {
+    selectedGender = gender;
+    // Reset both cards
+    document.getElementById("genderMaleCard").classList.remove("selected", "border-primary", "bg-primary-container/20");
+    document.getElementById("genderFemaleCard").classList.remove("selected", "border-primary", "bg-primary-container/20");
+    const activeCard = document.getElementById(`gender${gender === 'male' ? 'Male' : 'Female'}Card`);
+    activeCard.classList.add("selected", "border-primary", "bg-primary-container/20");
+  }
+
+  // Pre-fill gender if exists
   if (user.gender) {
-    selectedGender = user.gender;
-    document.getElementById(`gender${user.gender === 'male' ? 'Male' : 'Female'}`).classList.add('bg-primary-container', 'text-on-primary-container');
+    selectGender(user.gender);
   }
 
   // Pre-fill nickname
@@ -146,14 +179,6 @@
     document.getElementById("countryName").innerText = user.country.name || user.country;
   }
 
-  // ---------- Gender selection ----------
-  function selectGender(gender) {
-    selectedGender = gender;
-    document.getElementById("genderMale").classList.remove('bg-primary-container', 'text-on-primary-container');
-    document.getElementById("genderFemale").classList.remove('bg-primary-container', 'text-on-primary-container');
-    document.getElementById(`gender${gender === 'male' ? 'Male' : 'Female'}`).classList.add('bg-primary-container', 'text-on-primary-container');
-  }
-
   // ---------- Country picker ----------
   function openCountryPage() {
     window.location = "country.html";
@@ -168,7 +193,7 @@
   }
   window.addEventListener("pageshow", loadCountry);
 
-  // ---------- Date wheel ----------
+  // ---------- Date wheel (compact) ----------
   function initWheels() {
     const spacer = '<div class="spacer"></div>';
     // days
@@ -176,7 +201,7 @@
     for (let i=1;i<=31;i++) days += `<div class="item day">${i}</div>`;
     document.getElementById("dayWheel").innerHTML = days + spacer;
     // months
-    const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
     let monthHTML = spacer;
     months.forEach(m => monthHTML += `<div class="item month">${m}</div>`);
     document.getElementById("monthWheel").innerHTML = monthHTML + spacer;
@@ -205,11 +230,15 @@
   }
 
   function getDOB() {
-    const day = parseInt(getCenterValue(document.getElementById("dayWheel"), "day"));
-    const monthText = getCenterValue(document.getElementById("monthWheel"), "month");
-    const year = parseInt(getCenterValue(document.getElementById("yearWheel"), "year"));
-    const map = { January:1, February:2, March:3, April:4, May:5, June:6, July:7, August:8, September:9, October:10, November:11, December:12 };
-    return { day, month: map[monthText], year };
+    let day = parseInt(getCenterValue(document.getElementById("dayWheel"), "day"));
+    let monthText = getCenterValue(document.getElementById("monthWheel"), "month");
+    let year = parseInt(getCenterValue(document.getElementById("yearWheel"), "year"));
+    const monthMap = { Jan:1, Feb:2, Mar:3, Apr:4, May:5, Jun:6, Jul:7, Aug:8, Sep:9, Oct:10, Nov:11, Dec:12 };
+    let month = monthMap[monthText];
+    if (isNaN(day)) day = 1;
+    if (!month) month = 1;
+    if (isNaN(year)) year = 2000;
+    return { day, month, year };
   }
 
   function calculateAge(day, month, year) {
@@ -219,7 +248,7 @@
     return age;
   }
 
-  // ---------- Save all ----------
+  // ---------- Save all with loading overlay ----------
   async function saveAll() {
     if (!selectedGender) { alert("Please select gender"); return; }
     const nickname = document.getElementById("nickname").value.trim();
@@ -230,20 +259,23 @@
     const age = calculateAge(dob.day, dob.month, dob.year);
     if (age < 18) { alert("You must be 18 or older"); return; }
 
-    document.getElementById("loadingOverlay").classList.remove("hidden");
+    const loading = document.getElementById("loadingOverlay");
+    loading.classList.remove("hidden");
 
     try {
-      // First update gender (using existing /updateUser)
+      // Update gender
       const genderRes = await fetch(BASE_URL + "/updateUser", {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: user.email, gender: selectedGender })
       });
       const genderData = await genderRes.json();
       if (!genderData.success) throw new Error("Gender update failed");
 
-      // Then update rest (username, country, dob, age)
+      // Update rest (username, country, dob, age)
       const step2Res = await fetch(BASE_URL + "/updateUserStep2", {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: user.email,
           username: nickname,
@@ -255,11 +287,11 @@
       const step2Data = await step2Res.json();
       if (!step2Data.success) {
         alert(step2Data.message || "Username taken");
-        document.getElementById("loadingOverlay").classList.add("hidden");
+        loading.classList.add("hidden");
         return;
       }
 
-      // Update local user
+      // Update local storage
       user.gender = selectedGender;
       user.username = nickname;
       user.country = selectedCountry;
@@ -270,17 +302,19 @@
 
       // Redirect to setup or dashboard
       if (!user.photoURL || !user.profileCompleted) {
-        window.location = "setup.html";
+        window.location.href = "setup.html";
       } else {
-        window.location = "dashboard.html";
+        window.location.href = "dashboard.html";
       }
     } catch (err) {
       console.error(err);
       alert("Error saving. Please try again.");
-      document.getElementById("loadingOverlay").classList.add("hidden");
+      loading.classList.add("hidden");
     }
   }
 
+  // Attach event
+  document.getElementById("continueBtn").onclick = saveAll;
   initWheels();
 </script>
 </body>
