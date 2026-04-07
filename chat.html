@@ -52,7 +52,6 @@
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     
-    /* Dynamic bottom padding for messages container */
     .messages-container {
       scroll-behavior: smooth;
       padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 170px);
@@ -63,7 +62,6 @@
       }
     }
     
-    /* Loading overlay for image sending */
     .loading-overlay {
       position: fixed;
       inset: 0;
@@ -84,11 +82,20 @@
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
+    /* Gift panel glassmorphism */
+    .glass-panel {
+      background: rgba(10, 15, 18, 0.85);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+    }
+    .gift-gradient {
+      background: linear-gradient(180deg, rgba(0, 227, 253, 0.1) 0%, rgba(0, 101, 113, 0.05) 100%);
+    }
   </style>
 </head>
 <body class="bg-surface font-body text-on-surface flex flex-col min-h-screen">
 
-<!-- ================= TOP APP BAR ================= -->
+<!-- Top App Bar -->
 <header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl flex items-center justify-between px-4 h-16 shadow-sm">
   <div class="flex items-center gap-3">
     <button onclick="goBack()" class="p-2 hover:bg-primary-container/30 transition-colors rounded-full text-primary">
@@ -108,7 +115,7 @@
   </div>
 </header>
 
-<!-- ================= SUB-HEADER (user details with flag) ================= -->
+<!-- Sub-header (user details) -->
 <div id="subHeader" class="fixed top-16 w-full z-40 bg-white/40 backdrop-blur-md px-6 py-3 flex flex-col gap-1 border-b border-outline-variant/20">
   <div class="flex items-center gap-4 text-xs font-medium text-on-surface-variant">
     <div id="userCountry" class="flex items-center gap-1 bg-surface-container-lowest px-2 py-1 rounded-full shadow-sm">🌍 Loading...</div>
@@ -121,19 +128,17 @@
   </div>
 </div>
 
-<!-- ================= CHAT MESSAGES AREA ================= -->
+<!-- Chat Messages -->
 <main id="messagesContainer" class="messages-container flex-1 mt-36 px-4 overflow-y-auto space-y-6 pt-4"></main>
 
-<!-- ================= BOTTOM BAR (input + actions) ================= -->
+<!-- Bottom Input Bar -->
 <div class="fixed bottom-0 left-0 w-full z-50 bg-white/90 backdrop-blur-lg rounded-t-2xl shadow-[0_-8px_30px_rgb(0,0,0,0.04)]">
-  <!-- Quick Replies -->
   <div class="flex gap-2 px-4 overflow-x-auto py-2 no-scrollbar">
     <button onclick="sendQuickReply('Down for a game?')" class="shrink-0 bg-surface-container-low text-primary-dim px-3 py-1.5 rounded-full text-[11px] font-medium hover:bg-primary-container/20">Down for a game?</button>
     <button onclick="sendQuickReply('So proud of you')" class="shrink-0 bg-surface-container-low text-primary-dim px-3 py-1.5 rounded-full text-[11px] font-medium hover:bg-primary-container/20">So proud of you</button>
     <button onclick="sendQuickReply('Hello! 👋')" class="shrink-0 bg-surface-container-low text-primary-dim px-3 py-1.5 rounded-full text-[11px] font-medium hover:bg-primary-container/20">Hello! 👋</button>
     <button onclick="sendQuickReply('Tell me more')" class="shrink-0 bg-surface-container-low text-primary-dim px-3 py-1.5 rounded-full text-[11px] font-medium hover:bg-primary-container/20">Tell me more</button>
   </div>
-  <!-- Input Row -->
   <div class="px-4 pt-1 pb-2 flex items-center gap-2">
     <div class="flex-1 bg-surface-container-low rounded-full px-3 py-2 flex items-center gap-1">
       <input id="messageInput" type="text" class="bg-transparent border-none focus:ring-0 text-sm w-full font-body placeholder:text-outline-variant" placeholder="Say something...">
@@ -142,7 +147,6 @@
       <span class="material-symbols-outlined text-xl">send</span>
     </button>
   </div>
-  <!-- Action Buttons -->
   <div class="flex justify-around items-center px-4 pb-4 pt-1">
     <button onclick="pickImage()" class="text-slate-400 p-2 hover:scale-110 transition">
       <span class="material-symbols-outlined text-xl">image</span>
@@ -157,13 +161,13 @@
         <span>0.1</span>
       </div>
     </button>
-    <button onclick="sendGift()" class="text-slate-400 p-2 hover:scale-110 transition">
+    <button onclick="openGiftPanel()" class="text-slate-400 p-2 hover:scale-110 transition">
       <span class="material-symbols-outlined text-xl">redeem</span>
     </button>
   </div>
 </div>
 
-<!-- ================= MODAL: MENU ================= -->
+<!-- Menu Modal -->
 <div id="menuModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] hidden items-end justify-center" onclick="closeMenu()">
   <div class="bg-surface-container-lowest w-full rounded-t-2xl p-6 max-w-md mx-auto" onclick="event.stopPropagation()">
     <div class="flex flex-col gap-4">
@@ -175,7 +179,7 @@
   </div>
 </div>
 
-<!-- ================= IMAGE PREVIEW MODAL ================= -->
+<!-- Image Preview Modal -->
 <div id="previewModal" class="fixed inset-0 bg-black/90 z-[70] hidden flex-col items-center justify-center gap-6" onclick="closePreview()">
   <img id="previewImage" class="max-w-[90%] max-h-[70vh] rounded-xl object-contain">
   <div class="flex gap-4" onclick="event.stopPropagation()">
@@ -184,36 +188,65 @@
   </div>
 </div>
 
-<!-- ================= FULLSCREEN IMAGE VIEWER ================= -->
+<!-- Fullscreen Image Viewer -->
 <div id="viewerModal" class="fixed inset-0 bg-black/95 z-[80] hidden flex-col items-center justify-center" onclick="closeViewer()">
   <img id="viewerImage" class="max-w-[90%] max-h-[80vh] rounded-lg object-contain">
   <a id="downloadLink" class="absolute bottom-10 right-6 bg-primary text-white px-4 py-2 rounded-full text-sm" download>Save Image</a>
 </div>
 
-<!-- ================= TOAST & LOADING ================= -->
+<!-- Toast & Loading -->
 <div id="toast" class="fixed bottom-28 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-full text-sm z-[90] hidden"></div>
 <div id="loadingOverlay" class="loading-overlay hidden">
   <div class="spinner"></div>
 </div>
-<!-- GIFT MODAL -->
-<div id="giftModal" class="fixed inset-0 bg-black/40 z-[100] hidden items-end justify-center">
-  <div class="bg-white w-full max-w-md rounded-t-3xl p-4">
-    
-    <h2 class="text-center font-bold text-lg mb-4">🎁 Send Gift</h2>
-    
-    <div id="giftList" class="grid grid-cols-3 gap-4">
-      <!-- Gifts load here -->
-    </div>
 
-    <button onclick="closeGift()" class="w-full mt-4 py-2 bg-gray-200 rounded-full">
-      Close
-    </button>
-    
+<!-- ================= NEW GIFT PANEL (Glass, half‑screen) ================= -->
+<div id="giftPanel" class="fixed inset-0 z-[100] hidden items-end justify-center">
+  <div class="glass-panel w-full max-w-md rounded-t-3xl flex flex-col" style="height: 62%;">
+    <!-- Drag handle -->
+    <div class="w-full flex justify-center py-3">
+      <div class="w-12 h-1.5 bg-white/20 rounded-full"></div>
+    </div>
+    <!-- Top banner -->
+    <div class="px-4 pb-2">
+      <div class="w-full py-2.5 px-4 bg-gradient-to-r from-primary to-primary-dim rounded-xl flex items-center justify-between shadow-lg shadow-primary/20">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-secondary-fixed text-lg" style="font-variation-settings:'FILL'1">filter_vintage</span>
+          <p class="text-[11px] font-headline font-bold text-white tracking-wide">Lucky Gifts - Have chances to win the 1000x jackpot</p>
+        </div>
+        <span class="material-symbols-outlined text-white/70 text-sm">chevron_right</span>
+      </div>
+    </div>
+    <!-- Tab Navigation -->
+    <div class="flex items-center justify-between px-6 py-3 border-b border-white/5">
+      <div class="flex items-center gap-6">
+        <button id="tabHot" class="text-sm font-headline font-semibold text-white/50">Hot</button>
+        <button id="TabLucky" class="text-sm font-headline font-semibold text-white/50">Lucky</button>
+        <div class="relative py-2">
+          <button id="tabLuxury" class="text-sm font-headline font-bold text-primary-fixed">Luxury</button>
+          <div class="absolute bottom-0 left-0 w-full h-0.5 bg-primary-fixed rounded-full"></div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 bg-white/5 py-1.5 px-3 rounded-full border border-white/10">
+        <span class="material-symbols-outlined text-secondary-fixed text-sm" style="font-variation-settings:'FILL'1">monetization_on</span>
+        <span id="giftUserCoins" class="text-xs font-bold text-white font-headline">0</span>
+        <span class="material-symbols-outlined text-white/30 text-sm">add_circle</span>
+      </div>
+    </div>
+    <!-- Gift Grid -->
+    <div class="flex-1 overflow-y-auto px-4 py-4 scrollbar-hide">
+      <div id="giftGrid" class="grid grid-cols-4 gap-3">
+        <!-- Gifts loaded dynamically -->
+      </div>
+    </div>
+    <!-- Footer (close) -->
+    <div class="h-20 flex items-center justify-center border-t border-white/5">
+      <button onclick="closeGiftPanel()" class="px-6 py-2 bg-white/10 rounded-full text-white text-sm">Close</button>
+    </div>
   </div>
 </div>
-  
+
 <script type="module">
-  // ==================== FIREBASE INIT ====================
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
   import { getFirestore, collection, addDoc, getDocs, query, orderBy, onSnapshot, doc, getDoc, setDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
   import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
@@ -227,7 +260,7 @@
   const db = getFirestore(app);
   const storage = getStorage(app);
 
-  // ==================== CHECK LOGIN ====================
+  // User check
   const currentUser = JSON.parse(localStorage.getItem("user"));
   if (!currentUser || !currentUser.userId) {
     alert("Please login first");
@@ -242,7 +275,7 @@
   }
   const chatId = [myUserId, otherUserId].sort().join("_");
 
-  // ==================== DOM ELEMENTS ====================
+  // DOM elements
   const messagesDiv = document.getElementById("messagesContainer");
   const messageInput = document.getElementById("messageInput");
   const chatNameSpan = document.getElementById("chatName");
@@ -251,11 +284,14 @@
   const blockBtn = document.getElementById("blockBtn");
   const toast = document.getElementById("toast");
   const loadingOverlay = document.getElementById("loadingOverlay");
+  const giftPanel = document.getElementById("giftPanel");
+  const giftGrid = document.getElementById("giftGrid");
+  const giftUserCoinsSpan = document.getElementById("giftUserCoins");
 
   let selectedImageFile = null;
   let userScrolledUp = false;
-  
-  // Detect if user manually scrolls up
+  let userCoins = 0;
+
   messagesDiv.addEventListener("scroll", () => {
     const isNearBottom = messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight < 50;
     userScrolledUp = !isNearBottom;
@@ -267,7 +303,7 @@
     setTimeout(() => toast.classList.add("hidden"), 2000);
   }
 
-  // ==================== LOAD OTHER USER'S INFO ====================
+  // Load other user info
   async function loadOtherUser() {
     const userDoc = await getDoc(doc(db, "users", otherUserId));
     if (!userDoc.exists()) return;
@@ -304,7 +340,82 @@
     return String.fromCodePoint(...codePoints);
   }
 
-  // ==================== REAL-TIME MESSAGES (NO "Delivered" text) ====================
+  // Load user's coins for gift panel
+  async function loadUserCoins() {
+    const userSnap = await getDoc(doc(db, "users", myUserId));
+    if (userSnap.exists()) {
+      userCoins = userSnap.data().coins || 0;
+      giftUserCoinsSpan.innerText = userCoins;
+    }
+  }
+
+  // Gift functions
+  async function loadGifts() {
+    const snapshot = await getDocs(collection(db, "gifts"));
+    giftGrid.innerHTML = "";
+    snapshot.forEach(docSnap => {
+      const g = docSnap.data();
+      const giftDiv = document.createElement("div");
+      giftDiv.className = "flex flex-col items-center gap-1 cursor-pointer hover:scale-105 transition";
+      giftDiv.onclick = () => sendGiftNow(docSnap.id, g.coinPrice, g.name, g.image);
+      giftDiv.innerHTML = `
+        <div class="w-full aspect-square bg-white/5 rounded-2xl flex items-center justify-center gift-gradient border border-white/10 p-2">
+          <img src="${g.image}" class="w-full h-full object-contain">
+        </div>
+        <span class="text-[10px] text-white/80 font-medium">${g.name}</span>
+        <span class="text-[9px] text-secondary-fixed font-bold">🌕 ${g.coinPrice}</span>
+      `;
+      giftGrid.appendChild(giftDiv);
+    });
+  }
+
+  async function sendGiftNow(giftId, price, name, image) {
+    if (userCoins < price) {
+      showToast("Not enough coins!");
+      return;
+    }
+    // Deduct coins optimistically? Better call backend
+    try {
+      const res = await fetch("https://us-central1-galmet-app.cloudfunctions.net/sendGift", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          senderId: myUserId,
+          receiverId: otherUserId,
+          giftId: giftId,
+          quantity: 1
+        })
+      });
+      const data = await res.json();
+      if (data.error) {
+        showToast(data.error);
+      } else {
+        showToast(`🎁 ${name} sent!`);
+        closeGiftPanel();
+        // Update local coins
+        userCoins -= price;
+        giftUserCoinsSpan.innerText = userCoins;
+        // Also update user object in localStorage and Firestore? Backend already did.
+        // The chat message will appear via Firestore trigger.
+      }
+    } catch (err) {
+      showToast("Error sending gift");
+    }
+  }
+
+  function openGiftPanel() {
+    giftPanel.classList.remove("hidden");
+    giftPanel.classList.add("flex");
+    loadUserCoins();
+    loadGifts();
+  }
+  window.closeGiftPanel = () => {
+    giftPanel.classList.add("hidden");
+    giftPanel.classList.remove("flex");
+  };
+  window.openGiftPanel = openGiftPanel;
+
+  // Real-time messages (including gifts)
   function loadMessages() {
     const q = query(collection(db, "chats", chatId, "messages"), orderBy("createdAt", "asc"));
     onSnapshot(q, (snapshot) => {
@@ -328,11 +439,11 @@
           bubbleDiv.innerHTML = `
             <div class="bg-primary-container text-on-surface p-3 rounded-lg chat-bubble-right max-w-[85%] shadow-sm">
               ${msg.type === "gift" ? `
-               <div class="bg-yellow-100 p-3 rounded-lg text-center">
-               <img src="${msg.giftImage}" class="w-16 h-16 mx-auto mb-2">
-               <p class="text-sm font-semibold">🎁 ${msg.giftName} x${msg.quantity}</p>
-            </div>
-           ` : ''}
+                <div class="bg-yellow-100 p-3 rounded-lg text-center">
+                  <img src="${msg.giftImage}" class="w-16 h-16 mx-auto mb-2">
+                  <p class="text-sm font-semibold">🎁 ${msg.giftName} x${msg.quantity}</p>
+                </div>
+              ` : ''}
               ${msg.text ? `<p class="text-sm leading-relaxed">${escapeHtml(msg.text)}</p>` : ''}
               ${msg.image ? `<div class="rounded-md overflow-hidden mt-1"><img src="${msg.image}" class="max-w-[200px] max-h-[200px] rounded-lg cursor-pointer" onclick="openImageViewer('${msg.image}')"></div>` : ''}
             </div>
@@ -345,11 +456,11 @@
             </div>
             <div class="bg-surface-container-lowest text-on-surface p-3 rounded-lg chat-bubble-left shadow-sm">
               ${msg.type === "gift" ? `
-               <div class="bg-yellow-100 p-3 rounded-lg text-center">
-               <img src="${msg.giftImage}" class="w-16 h-16 mx-auto mb-2">
-               <p class="text-sm font-semibold">🎁 ${msg.giftName} x${msg.quantity}</p>
-            </div>
-            ` : ''}
+                <div class="bg-yellow-100 p-3 rounded-lg text-center">
+                  <img src="${msg.giftImage}" class="w-16 h-16 mx-auto mb-2">
+                  <p class="text-sm font-semibold">🎁 ${msg.giftName} x${msg.quantity}</p>
+                </div>
+              ` : ''}
               ${msg.text ? `<p class="text-sm leading-relaxed">${escapeHtml(msg.text)}</p>` : ''}
               ${msg.image ? `<div class="rounded-md overflow-hidden mt-1"><img src="${msg.image}" class="max-w-[200px] max-h-[200px] rounded-lg cursor-pointer" onclick="openImageViewer('${msg.image}')"></div>` : ''}
             </div>
@@ -357,7 +468,6 @@
         }
         messagesDiv.appendChild(bubbleDiv);
       });
-      
       // Auto-scroll logic
       if (wasUserAtBottom || (snapshot.docs.length > 0 && snapshot.docs[snapshot.docs.length-1].data().senderId === myUserId)) {
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
@@ -367,30 +477,10 @@
     });
   }
 
-  // ==================== RESET UNREAD COUNT ====================
   async function resetUnread() {
     await setDoc(doc(db, "userChats", myUserId, "list", otherUserId), { unread: 0 }, { merge: true });
   }
-  // ==================== Gift function ====================
-  async function loadGifts() {
-  const giftList = document.getElementById("giftList");
-  giftList.innerHTML = "";
 
-  const snapshot = await getDocs(collection(db, "gifts"));
-
-  snapshot.forEach(doc => {
-    const g = doc.data();
-
-    giftList.innerHTML += `
-      <div onclick="sendGiftNow('${doc.id}')" class="bg-gray-100 p-3 rounded-xl text-center cursor-pointer hover:scale-105 transition">
-        <img src="${g.image}" class="w-12 h-12 mx-auto mb-1">
-        <p class="text-xs font-semibold">${g.name}</p>
-        <p class="text-[10px] text-gray-500">${g.coinPrice} coins</p>
-      </div>
-    `;
-  });
-}
-  // ==================== UPDATE CHAT LIST ====================
   async function updateChatList(lastMsg) {
     await setDoc(doc(db, "userChats", myUserId, "list", otherUserId), {
       uid: otherUserId,
@@ -410,7 +500,7 @@
     }, { merge: true });
   }
 
-  // ==================== SEND TEXT MESSAGE ====================
+  // Send text
   window.sendMessage = async () => {
     const text = messageInput.value.trim();
     if (!text) return;
@@ -428,7 +518,6 @@
       createdAt: serverTimestamp()
     });
     await updateChatList(text);
-    // Force scroll to bottom after sending
     setTimeout(() => { messagesDiv.scrollTop = messagesDiv.scrollHeight; userScrolledUp = false; }, 50);
   };
 
@@ -437,7 +526,7 @@
     await sendMessage();
   };
 
-  // ==================== IMAGE PICK & SEND (SMOOTH) ====================
+  // Image pick & send
   window.pickImage = () => {
     const input = document.createElement("input");
     input.type = "file";
@@ -513,7 +602,7 @@
     selectedImageFile = null;
   };
 
-  // ==================== CAMERA ====================
+  // Camera
   window.openCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -542,7 +631,7 @@
     }
   };
 
-  // ==================== FOLLOW / BLOCK (REAL-TIME) ====================
+  // Follow/block logic (simplified, same as before)
   function initRealtimeStatus() {
     const followRef = doc(db, "followers", otherUserId, "list", myUserId);
     const blockByMeRef = doc(db, "blocked", myUserId, "list", otherUserId);
@@ -606,13 +695,9 @@
     closeMenu();
   };
 
-  // ==================== NAVIGATION ====================
-  window.goBack = () => {
-    window.history.back();
-  };
-  window.viewProfile = () => {
-    window.location.href = `view.html?id=${otherUserId}`;
-  };
+  // Navigation
+  window.goBack = () => { window.history.back(); };
+  window.viewProfile = () => { window.location.href = `view.html?id=${otherUserId}`; };
   window.openMenu = () => {
     document.getElementById("menuModal").classList.remove("hidden");
     document.getElementById("menuModal").classList.add("flex");
@@ -621,44 +706,7 @@
     document.getElementById("menuModal").classList.add("hidden");
     document.getElementById("menuModal").classList.remove("flex");
   };
-  window.startVideoCall = () => {
-    showToast("Video call costs 0.1 coins (coming soon)");
-  };
-  window.sendGift = async () => {
-  document.getElementById("giftModal").classList.remove("hidden");
-  document.getElementById("giftModal").classList.add("flex");
-  loadGifts();
-};
-
-  window.closeGift = () => {
-  document.getElementById("giftModal").classList.add("hidden");
-};
-  window.sendGiftNow = async (giftId) => {
-  try {
-    const res = await fetch("https://us-central1-galmet-app.cloudfunctions.net/sendGift", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        senderId: myUserId,
-        receiverId: otherUserId,
-        giftId: giftId,
-        quantity: 1
-      })
-    });
-
-    const data = await res.json();
-
-    if (data.error) {
-      showToast(data.error);
-    } else {
-      showToast("🎁 Gift sent!");
-      closeGift();
-    }
-
-  } catch (e) {
-    showToast("Error sending gift");
-  }
-};
+  window.startVideoCall = () => { showToast("Video call costs 0.1 coins (coming soon)"); };
   window.openImageViewer = (url) => {
     const viewer = document.getElementById("viewerModal");
     const viewerImg = document.getElementById("viewerImage");
@@ -667,36 +715,28 @@
     downloadLink.href = url;
     viewer.classList.remove("hidden");
   };
-  window.closeViewer = () => {
-    document.getElementById("viewerModal").classList.add("hidden");
-  };
+  window.closeViewer = () => { document.getElementById("viewerModal").classList.add("hidden"); };
 
   function escapeHtml(str) {
     if (!str) return "";
-    return str.replace(/[&<>]/g, function(m) {
-      if (m === '&') return '&amp;';
-      if (m === '<') return '&lt;';
-      if (m === '>') return '&gt;';
-      return m;
-    });
+    return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m]));
   }
 
-  // ==================== INIT & SCROLL TO BOTTOM ON LOAD ====================
+  // Initialization
   loadOtherUser();
   loadMessages();
   initRealtimeStatus();
   messageInput.addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
-  
-  // Scroll to bottom after messages load (initial)
   setTimeout(() => {
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
     userScrolledUp = false;
   }, 500);
   
-  // Click outside modals
+  // Close modals on outside click
   document.getElementById("menuModal").addEventListener("click", (e) => { if (e.target === document.getElementById("menuModal")) closeMenu(); });
   document.getElementById("previewModal").addEventListener("click", (e) => { if (e.target === document.getElementById("previewModal")) closePreview(); });
   document.getElementById("viewerModal").addEventListener("click", (e) => { if (e.target === document.getElementById("viewerModal")) closeViewer(); });
+  document.getElementById("giftPanel").addEventListener("click", (e) => { if (e.target === document.getElementById("giftPanel")) closeGiftPanel(); });
 </script>
 </body>
 </html>
