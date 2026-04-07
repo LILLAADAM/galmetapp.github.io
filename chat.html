@@ -208,7 +208,7 @@
   <a id="downloadLink" class="absolute bottom-10 right-6 bg-primary text-white px-4 py-2 rounded-full text-sm" download>Save Image</a>
 </div>
 
-<!-- Toast & Loading -->
+<!-- Toast (only for errors, not for gift sent) -->
 <div id="toast" class="fixed bottom-28 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-full text-sm z-[90] hidden"></div>
 <div id="loadingOverlay" class="loading-overlay hidden">
   <div class="spinner"></div>
@@ -278,12 +278,12 @@
   import { getDatabase, ref as dbRef, onChildAdded } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
 
   const app = initializeApp({
-  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
-  authDomain: "galmet-app.firebaseapp.com",
-  projectId: "galmet-app",
-  storageBucket: "galmet-app.firebasestorage.app",
-  databaseURL: "https://galmet-app-default-rtdb.asia-southeast1.firebasedatabase.app"
-});
+    apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+    authDomain: "galmet-app.firebaseapp.com",
+    projectId: "galmet-app",
+    storageBucket: "galmet-app.firebasestorage.app",
+    databaseURL: "https://galmet-app-default-rtdb.asia-southeast1.firebasedatabase.app"
+  });
   const db = getFirestore(app);
   const storage = getStorage(app);
   const rtdb = getDatabase(app);
@@ -322,8 +322,6 @@
   let userCoins = 0;
   let selectedGift = null; // { id, price, name, image }
   let currentQuantity = 1;
-
-  // Gift combo tracking
 
   messagesDiv.addEventListener("scroll", () => {
     const isNearBottom = messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight < 50;
@@ -457,12 +455,12 @@
       if (data.error) {
         showToast(data.error);
       } else {
-        showToast(`🎁 ${selectedGift.name} x${currentQuantity} sent!`);
-        closeGiftPanel();
-        // Update local coins
+        // ✅ NO TOAST – only animation & banner (will be triggered by RTDB event)
+        // Update local coins immediately for UI
         userCoins -= totalPrice;
         giftUserCoinsSpan.innerText = userCoins;
-        // The gift message will appear via Firestore trigger
+        // ✅ Do NOT close gift panel – stay open for more gifts
+        // The RTDB event will trigger animation and banner for sender as well
       }
     } catch (err) {
       showToast("Error sending gift");
@@ -488,11 +486,12 @@
   };
   window.openGiftPanel = openGiftPanel;
 
-  // ========== RTDB Gift Events Listener ==========
+  // ========== RTDB Gift Events Listener (for both sender and receiver) ==========
   function listenGiftEvents() {
     const giftRef = dbRef(rtdb, "giftEvents/" + chatId);
     onChildAdded(giftRef, (snapshot) => {
       const gift = snapshot.val();
+      // Show animation and banner for EVERYONE (including sender)
       showGiftAnimation(gift);
       showGiftBanner(gift);
     });
@@ -581,6 +580,7 @@
         }
         messagesDiv.appendChild(bubbleDiv);
       });
+      // Auto-scroll to bottom if user was at bottom or new message is from me
       if (wasUserAtBottom || (snapshot.docs.length > 0 && snapshot.docs[snapshot.docs.length-1].data().senderId === myUserId)) {
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
         userScrolledUp = false;
