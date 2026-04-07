@@ -11,7 +11,7 @@
   <!-- Material Symbols -->
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-  <script>
+  <script id="tailwind-config">
     tailwind.config = {
       darkMode: "class",
       theme: {
@@ -161,7 +161,6 @@
           Send
         </button>
       </div>
-      <!-- Inline message area for OTP feedback -->
       <div id="otpMessage" class="text-xs mt-2 ml-1 min-h-[20px] message-fade"></div>
     </div>
   </div>
@@ -181,19 +180,7 @@
   </div>
 </main>
 
-<!-- Bottom Navigation (optional, kept for consistency) -->
-<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-8 pb-8 pt-4 bg-slate-50/80 backdrop-blur-xl rounded-t-[2rem] shadow-[0_-4px_24px_rgba(0,0,0,0.04)] md:max-w-md md:left-1/2 md:-translate-x-1/2">
-  <a class="flex flex-col items-center justify-center text-slate-400 px-6 py-2 hover:text-cyan-500 transition-all" href="#">
-    <span class="material-symbols-outlined">help_outline</span>
-    <span class="font-['Plus_Jakarta_Sans'] text-[11px] font-bold uppercase tracking-wider mt-1">Help</span>
-  </a>
-  <a class="flex flex-col items-center justify-center text-slate-400 px-6 py-2 hover:text-cyan-500 transition-all" href="#">
-    <span class="material-symbols-outlined">description</span>
-    <span class="font-['Plus_Jakarta_Sans'] text-[11px] font-bold uppercase tracking-wider mt-1">Terms</span>
-  </a>
-</nav>
-
-<!-- Background effects -->
+<!-- Visual Background Enhancements -->
 <div class="fixed inset-0 pointer-events-none -z-20 overflow-hidden">
   <div class="absolute top-0 right-0 w-full h-[353px] bg-gradient-to-b from-primary-container/10 to-transparent"></div>
 </div>
@@ -207,16 +194,9 @@
   function showMessage(text, isError = false) {
     otpMessageDiv.innerText = text;
     otpMessageDiv.className = `text-xs mt-2 ml-1 message-fade ${isError ? 'text-error' : 'text-primary'}`;
-    // Auto-clear after 5 seconds
     setTimeout(() => {
-      if (otpMessageDiv.innerText === text) {
-        otpMessageDiv.innerText = "";
-      }
+      if (otpMessageDiv.innerText === text) otpMessageDiv.innerText = "";
     }, 5000);
-  }
-
-  function generateUserId() {
-    return Math.floor(10000000 + Math.random() * 90000000);
   }
 
   async function sendOtp() {
@@ -227,7 +207,6 @@
       showMessage("Please enter your email address", true);
       return;
     }
-
     if (sendCooldown > 0) {
       showMessage(`Please wait ${sendCooldown} seconds before requesting another code`, true);
       return;
@@ -245,7 +224,6 @@
         showMessage(`✅ OTP sent to ${email}`, false);
         sendCooldown = 60;
         btn.disabled = true;
-
         timerInterval = setInterval(() => {
           sendCooldown--;
           btn.innerText = sendCooldown + "s";
@@ -286,7 +264,6 @@
         return;
       }
 
-      // OTP is valid – now check user existence
       const checkRes = await fetch(BASE_URL + "/getUserByEmail?email=" + encodeURIComponent(email));
       const checkData = await checkRes.json();
 
@@ -295,27 +272,20 @@
         localStorage.setItem("user", JSON.stringify(user));
 
         // Redirect based on profile completion
-        if (!user.gender) {
-          window.location.href = "gender.html";
-          return;
-        }
-        if (!user.username || !user.country || !user.dob || !user.age) {
-          window.location.href = "username.html";
+        if (!user.gender || !user.username || !user.country || !user.dob || !user.age) {
+          window.location.href = "basic-info.html";
           return;
         }
         if (!user.photoURL || !user.profileCompleted) {
           window.location.href = "setup.html";
           return;
         }
-        // Fully complete profile
         window.location.href = "dashboard.html";
       } else {
-        // New user – create account
-        const userId = generateUserId();
+        // New user – create account then go to basic-info
+        const userId = Math.floor(10000000 + Math.random() * 90000000);
         const urlParams = new URLSearchParams(window.location.search);
-        let referralCode = urlParams.get("ref");
-        if (!referralCode) referralCode = localStorage.getItem("referral");
-
+        let referralCode = urlParams.get("ref") || localStorage.getItem("referral");
         const newUser = {
           email: email,
           userId: userId,
@@ -343,7 +313,7 @@
 
         if (createData.success) {
           localStorage.setItem("user", JSON.stringify(newUser));
-          window.location.href = "gender.html";
+          window.location.href = "basic-info.html";
         } else {
           showMessage("Failed to create account. Please try again.", true);
         }
