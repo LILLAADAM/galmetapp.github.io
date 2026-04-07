@@ -493,7 +493,6 @@
     const giftRef = dbRef(rtdb, "giftEvents/" + chatId);
     onChildAdded(giftRef, (snapshot) => {
       const gift = snapshot.val();
-      if (gift.senderId === myUserId) return; // ignore own gifts
       showGiftAnimation(gift);
       showGiftBanner(gift);
     });
