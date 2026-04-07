@@ -579,7 +579,7 @@
     showToast("Video call costs 0.1 coins (coming soon)");
   };
   window.sendGift = () => {
-    showToast("Gift shop opens soon");
+    window.location.href = "gift.html?uid=" + otherUserId;
   };
   window.openImageViewer = (url) => {
     const viewer = document.getElementById("viewerModal");
