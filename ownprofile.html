@@ -81,14 +81,22 @@
   <!-- User Identity Section -->
   <section class="relative group active:scale-[0.98] transition-transform duration-200">
     <div class="flex items-center gap-3 p-1">
-      <div class="relative cursor-pointer" onclick="goToView()">
-        <div class="w-16 h-16 rounded-full border-2 border-white overflow-hidden shadow-md shadow-primary/5">
-          <img id="profileImg" class="w-full h-full object-cover">
-        </div>
-        <div class="absolute bottom-0 right-0 bg-white p-0.5 rounded-full shadow-sm ring-1 ring-background">
-          <span id="countryFlag" class="text-[14px] leading-none">🌍</span>
-        </div>
-      </div>
+      <div class="relative w-16 h-16 cursor-pointer" onclick="goToView()">
+
+  <!-- USER IMAGE -->
+  <img id="profileImg"
+       class="w-full h-full rounded-full object-cover border-2 border-white">
+
+  <!-- FRAME (NEW) -->
+  <img id="avatarFrame"
+       class="absolute top-0 left-0 w-full h-full pointer-events-none">
+
+  <!-- FLAG -->
+  <div class="absolute bottom-0 right-0 bg-white p-0.5 rounded-full shadow-sm">
+    <span id="countryFlag" class="text-[14px]">🌍</span>
+  </div>
+
+</div>
       <div class="flex-1 cursor-pointer" onclick="goToView()">
         <h2 id="username" class="font-headline font-extrabold text-2xl"></h2>
         <p id="userIdText" class="text-sm text-outline"></p>
@@ -344,6 +352,32 @@
     document.getElementById("coins").innerText = user.coins || 0;
     document.getElementById("gems").innerText = user.gems || 0;
 
+    // 🎯 FRAME SYSTEM
+const frameImg = document.getElementById("avatarFrame");
+
+function getFrame(level) {
+  const frames = {
+    0: "",
+    1: "https://i.imgur.com/1.png",
+    2: "https://i.imgur.com/2.png",
+    3: "https://i.imgur.com/3.png",
+    4: "https://firebasestorage.googleapis.com/v0/b/galmet-app.firebasestorage.app/o/wealthlevelframes%2Ftest%20wealth%20level%204.png?alt=media&token=5e9eaa05-c1b6-418c-b595-d12bd824b385", // 👈 YOUR IMAGE HERE
+    5: "https://i.imgur.com/5.png",
+    6: "https://i.imgur.com/6.png",
+    7: "https://i.imgur.com/7.png",
+    8: "https://i.imgur.com/8.png",
+    9: "https://i.imgur.com/9.png",
+    10:"https://i.imgur.com/10.png"
+  };
+
+  return frames[level] || "";
+}
+
+// APPLY FRAME
+const level = user.wealthLevel || 0;
+
+frameImg.src = getFrame(level);
+    
     // Country flag (using country name)
     let countryName = "Unknown";
     if (user.country) {
