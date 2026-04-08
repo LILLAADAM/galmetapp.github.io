@@ -85,6 +85,30 @@
       display: none;
       white-space: nowrap;
     }
+    /* Wealth & Charm level gradients */
+    .wealth-level-0 { background: linear-gradient(135deg, #9ca3af, #6b7280); }
+    .wealth-level-1 { background: linear-gradient(135deg, #84cc16, #65a30d); }
+    .wealth-level-2 { background: linear-gradient(135deg, #14b8a6, #0d9488); }
+    .wealth-level-3 { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+    .wealth-level-4 { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+    .wealth-level-5 { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+    .wealth-level-6 { background: linear-gradient(135deg, #ec4899, #db2777); }
+    .wealth-level-7 { background: linear-gradient(135deg, #f43f5e, #e11d48); }
+    .wealth-level-8 { background: linear-gradient(135deg, #f97316, #ea580c); }
+    .wealth-level-9 { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .wealth-level-10 { background: linear-gradient(135deg, #eab308, #ca8a04); }
+
+    .charm-level-0 { background: linear-gradient(135deg, #9ca3af, #6b7280); }
+    .charm-level-1 { background: linear-gradient(135deg, #a7f3d0, #34d399); }
+    .charm-level-2 { background: linear-gradient(135deg, #99f6e4, #2dd4bf); }
+    .charm-level-3 { background: linear-gradient(135deg, #93c5fd, #3b82f6); }
+    .charm-level-4 { background: linear-gradient(135deg, #c4b5fd, #8b5cf6); }
+    .charm-level-5 { background: linear-gradient(135deg, #f0abfc, #d946ef); }
+    .charm-level-6 { background: linear-gradient(135deg, #fbcfe8, #f472b6); }
+    .charm-level-7 { background: linear-gradient(135deg, #fecaca, #ef4444); }
+    .charm-level-8 { background: linear-gradient(135deg, #fed7aa, #f97316); }
+    .charm-level-9 { background: linear-gradient(135deg, #fde68a, #f59e0b); }
+    .charm-level-10 { background: linear-gradient(135deg, #fef08a, #eab308); }
   </style>
 </head>
 <body class="bg-surface font-body text-on-surface min-h-screen pb-32">
@@ -105,7 +129,7 @@
 </nav>
 
 <main class="relative w-full overflow-x-hidden pt-16">
-  <!-- Profile Identity (no cover photo) -->
+  <!-- Profile Identity -->
   <section class="px-6">
     <div class="flex items-end gap-4 mb-4">
       <div class="relative">
@@ -149,7 +173,7 @@
       </div>
     </div>
 
-    <!-- Info Chips (one line) -->
+    <!-- Info Chips -->
     <div class="flex flex-wrap items-center gap-2 mb-6">
       <div class="px-3 py-1.5 bg-surface-container-lowest rounded-full flex items-center gap-1 shadow-sm border border-outline-variant/10">
         <span class="font-label text-xs font-bold text-on-surface-variant">ID: <span id="userIdSpan">---</span></span>
@@ -165,37 +189,32 @@
       </div>
     </div>
 
-    <!-- Level Cards -->
+    <!-- Level Cards (dynamic classes) -->
     <div class="grid grid-cols-2 gap-4 mb-8">
-      <div class="p-4 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700 text-white shadow-md">
+      <div id="wealthCard" class="p-4 rounded-2xl text-white shadow-md wealth-level-0">
         <div class="flex justify-between items-start mb-2">
           <span class="material-symbols-outlined text-2xl">military_tech</span>
-          <span id="wealthLevel" class="font-headline font-bold">Lv.1</span>
+          <span id="wealthLevel" class="font-headline font-bold">Lv.0</span>
         </div>
         <p class="font-label text-xs font-bold uppercase">Wealth Level</p>
-        <div class="w-full h-1.5 bg-white/30 rounded-full mt-2">
-          <div id="wealthBar" class="h-full bg-white rounded-full" style="width: 0%"></div>
-        </div>
       </div>
-      <div class="p-4 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-md">
+      <div id="charmCard" class="p-4 rounded-2xl text-white shadow-md charm-level-0">
         <div class="flex justify-between items-start mb-2">
           <span class="material-symbols-outlined text-2xl">auto_awesome</span>
-          <span id="charmLevel" class="font-headline font-bold">Lv.1</span>
+          <span id="charmLevel" class="font-headline font-bold">Lv.0</span>
         </div>
         <p class="font-label text-xs font-bold uppercase">Charm Level</p>
-        <div class="w-full h-1.5 bg-white/30 rounded-full mt-2">
-          <div id="charmBar" class="h-full bg-white rounded-full" style="width: 0%"></div>
-        </div>
       </div>
     </div>
 
-    <!-- Gifts Section -->
+    <!-- Gifts Section (static icons + dynamic gift history) -->
     <div class="mb-8">
       <div class="flex justify-between items-center mb-3">
         <h2 class="font-headline font-semibold text-lg">Gifts</h2>
         <span id="totalGiftsSpan" class="px-2 py-1 bg-surface-container text-on-surface-variant rounded text-[10px] font-bold">0 Total</span>
       </div>
-      <div class="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
+      <!-- Static gift icons (popular ones) -->
+      <div class="flex gap-4 overflow-x-auto pb-2 no-scrollbar mb-4">
         <div class="flex-shrink-0 flex flex-col items-center gap-1">
           <div class="w-16 h-16 bg-white rounded-xl p-2 shadow-sm flex items-center justify-center border border-outline-variant/10">
             <span class="material-symbols-outlined text-4xl text-rose-400" style="font-variation-settings:'FILL'1">favorite</span>
@@ -227,11 +246,18 @@
           <span class="font-label text-[10px] font-bold text-on-surface-variant">x0</span>
         </div>
       </div>
+      <!-- Gift History (real) -->
+      <div>
+        <h3 class="font-label text-xs font-bold text-outline uppercase tracking-wider mb-2">Recent Gifts</h3>
+        <div id="giftHistoryList" class="space-y-2 max-h-40 overflow-y-auto">
+          <p class="text-xs text-outline text-center">Loading gifts...</p>
+        </div>
+      </div>
     </div>
   </section>
 </main>
 
-<!-- Bottom Action Bar (only for other profiles) -->
+<!-- Bottom Action Bar (for others) -->
 <div id="bottomActions" class="fixed bottom-0 left-0 w-full z-50 p-4 hidden">
   <div class="glass-card rounded-full p-2 flex items-center gap-2 shadow-2xl">
     <button id="giftBtn" class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center text-primary active:scale-95 transition">
@@ -250,14 +276,14 @@
   </div>
 </div>
 
-<!-- Floating Action Button (Follow/Edit) - only visible if not following (for others) -->
+<!-- Floating Action Button (Follow/Edit) -->
 <div id="floatingAction" class="fixed bottom-24 right-6 z-20 hidden">
   <button id="actionBtn" class="w-12 h-12 bg-primary-fixed rounded-full flex items-center justify-center shadow-lg active:scale-90 transition">
     <span id="actionIcon" class="material-symbols-outlined text-on-primary-fixed">add</span>
   </button>
 </div>
 
-<!-- Popup Menu (for follow/unfollow/block) -->
+<!-- Popup Menu -->
 <div id="popupMenu" class="popup-menu">
   <div id="popupFollow" class="popup-item">Follow</div>
   <div id="popupBlock" class="popup-item">Block</div>
@@ -269,7 +295,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-  import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
   const app = initializeApp({
     apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
@@ -308,9 +334,10 @@
   const languageSpan = document.getElementById("languageSpan");
   const wealthLevelSpan = document.getElementById("wealthLevel");
   const charmLevelSpan = document.getElementById("charmLevel");
-  const wealthBar = document.getElementById("wealthBar");
-  const charmBar = document.getElementById("charmBar");
+  const wealthCard = document.getElementById("wealthCard");
+  const charmCard = document.getElementById("charmCard");
   const totalGiftsSpan = document.getElementById("totalGiftsSpan");
+  const giftHistoryList = document.getElementById("giftHistoryList");
   const floatingAction = document.getElementById("floatingAction");
   const bottomActions = document.getElementById("bottomActions");
   const actionBtn = document.getElementById("actionBtn");
@@ -345,6 +372,18 @@
     return String.fromCodePoint(...codePoints);
   }
 
+  // Apply level gradient classes
+  function setLevelCard(card, level, type) {
+    const classes = type === 'wealth' 
+      ? ['wealth-level-0','wealth-level-1','wealth-level-2','wealth-level-3','wealth-level-4','wealth-level-5','wealth-level-6','wealth-level-7','wealth-level-8','wealth-level-9','wealth-level-10']
+      : ['charm-level-0','charm-level-1','charm-level-2','charm-level-3','charm-level-4','charm-level-5','charm-level-6','charm-level-7','charm-level-8','charm-level-9','charm-level-10'];
+    for (let i = 0; i <= 10; i++) {
+      card.classList.remove(classes[i]);
+    }
+    const idx = Math.min(level, 10);
+    card.classList.add(classes[idx]);
+  }
+
   // Load user data
   async function loadUserData() {
     const userDoc = await getDoc(doc(db, "users", targetUserId));
@@ -359,42 +398,26 @@
     displayName.innerText = targetUserData.username || targetUserData.email || "User";
     userIdSpan.innerText = targetUserData.userId || targetUserId;
     
-    // Country flag from country.code or country name
-let countryCode = null;
-let countryName = "Unknown";
-
-if (targetUserData.country) {
-  if (typeof targetUserData.country === "object") {
-
-    // ✅ FIX HERE
-    countryCode = targetUserData.country.flag;
-
-    countryName = targetUserData.country.name || countryCode;
-
-  } else {
-    countryCode = targetUserData.country;
-    countryName = targetUserData.country;
-  }
-}
-
-const code = (countryCode || "").toLowerCase();
-
-// 🌍 fallback
-const flagUrl = code
-  ? `https://flagcdn.com/w40/${code}.png`
-  : null;
-
-// Profile small flag
-if (flagUrl) {
-  countryFlagSpan.innerHTML = `<img src="${flagUrl}" style="width:20px;height:14px;border-radius:2px;">`;
-} else {
-  countryFlagSpan.innerText = "🌍";
-}
-
-// Location line
-locationSpan.innerHTML = flagUrl
-  ? `${countryName} <img src="${flagUrl}" style="width:16px;height:12px;display:inline;margin-left:4px;">`
-  : `${countryName} 🌍`;
+    // Flag (using country.flag)
+    let countryCode = null;
+    let countryName = "Unknown";
+    if (targetUserData.country) {
+      if (typeof targetUserData.country === "object") {
+        countryCode = targetUserData.country.flag; // two-letter code
+        countryName = targetUserData.country.name || countryCode;
+      } else {
+        countryCode = targetUserData.country;
+        countryName = targetUserData.country;
+      }
+    }
+    if (countryCode && countryCode.length === 2) {
+      const flagEmoji = getFlagEmoji(countryCode);
+      countryFlagSpan.innerText = flagEmoji;
+      locationSpan.innerHTML = `${countryName} ${flagEmoji}`;
+    } else {
+      countryFlagSpan.innerText = "🌍";
+      locationSpan.innerHTML = `${countryName} 🌍`;
+    }
     
     // Gender & Age
     const gender = targetUserData.gender;
@@ -403,7 +426,6 @@ locationSpan.innerHTML = flagUrl
     genderAgeSpan.innerHTML = `<span class="material-symbols-outlined text-[12px]">${genderIcon}</span> ${age}`;
     ageValueSpan.innerText = age;
     
-    // Language (default)
     languageSpan.innerText = targetUserData.language || "English";
     
     // Online status
@@ -416,19 +438,18 @@ locationSpan.innerHTML = flagUrl
       onlineText.classList.add("hidden");
     }
     
-    // Wealth level based on coins
-    const coins = targetUserData.coins || 0;
-    const wealth = Math.floor(coins / 500) + 1;
-    wealthLevelSpan.innerText = `Lv.${wealth}`;
-    const wealthPercent = (coins % 500) / 5;
-    wealthBar.style.width = Math.min(100, wealthPercent) + "%";
+    // Wealth Level (0-10)
+    const wealthLvl = targetUserData.wealthLevel ?? 0;
+    wealthLevelSpan.innerText = `Lv.${wealthLvl}`;
+    setLevelCard(wealthCard, wealthLvl, 'wealth');
     
-    // Charm level based on total gifts
+    // Charm Level (0-10)
+    const charmLvl = targetUserData.charmLevel ?? 0;
+    charmLevelSpan.innerText = `Lv.${charmLvl}`;
+    setLevelCard(charmCard, charmLvl, 'charm');
+    
+    // Total gifts count (optional, from transactions)
     const totalGifts = targetUserData.totalGifts || 0;
-    const charm = Math.floor(totalGifts / 100) + 1;
-    charmLevelSpan.innerText = `Lv.${charm}`;
-    const charmPercent = (totalGifts % 100);
-    charmBar.style.width = Math.min(100, charmPercent) + "%";
     totalGiftsSpan.innerText = `${totalGifts} Total`;
   }
 
@@ -445,7 +466,45 @@ locationSpan.innerHTML = flagUrl
     });
   }
 
-  // Real-time follow/block state and UI visibility
+  // Load gift history (last 5 sent/received)
+  async function loadGiftHistory() {
+    const q = query(collection(db, "transactions"), orderBy("createdAt", "desc"), limit(20));
+    const snapshot = await getDocs(q);
+    const gifts = [];
+    snapshot.forEach(docSnap => {
+      const tx = docSnap.data();
+      if (tx.type === "gift" && (tx.senderId === targetUserId || tx.receiverId === targetUserId)) {
+        gifts.push(tx);
+      }
+    });
+    const recentGifts = gifts.slice(0, 5);
+    if (recentGifts.length === 0) {
+      giftHistoryList.innerHTML = '<p class="text-xs text-outline text-center">No gifts yet</p>';
+      return;
+    }
+    giftHistoryList.innerHTML = "";
+    for (const g of recentGifts) {
+      const isSent = g.senderId === targetUserId;
+      const otherUserId = isSent ? g.receiverId : g.senderId;
+      let otherName = "User";
+      try {
+        const otherSnap = await getDoc(doc(db, "users", otherUserId));
+        if (otherSnap.exists()) otherName = otherSnap.data().username || "User";
+      } catch(e) {}
+      const div = document.createElement("div");
+      div.className = "bg-surface-container-lowest p-2 rounded-lg text-xs flex justify-between items-center";
+      div.innerHTML = `
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-primary text-base">${isSent ? 'send' : 'redeem'}</span>
+          <span><span class="font-bold">${otherName}</span> ${isSent ? 'received' : 'sent'} ${g.giftName || 'a gift'}</span>
+        </div>
+        <span class="text-[10px] text-outline">${new Date(g.createdAt?.seconds * 1000).toLocaleDateString()}</span>
+      `;
+      giftHistoryList.appendChild(div);
+    }
+  }
+
+  // Real-time follow/block state
   function listenRelationship() {
     if (isOwnProfile) return;
     const followRef = doc(db, "followers", targetUserId, "list", myUserId);
@@ -468,14 +527,12 @@ locationSpan.innerHTML = flagUrl
       floatingAction.classList.add("hidden");
       bottomActions.classList.add("hidden");
     } else {
-      // Show floating action button only if NOT following
       if (!isFollowing) {
         floatingAction.classList.remove("hidden");
         actionIcon.innerText = "add";
       } else {
         floatingAction.classList.add("hidden");
       }
-      // Bottom actions always visible for others (unless blocked)
       bottomActions.classList.remove("hidden");
     }
   }
@@ -539,12 +596,10 @@ locationSpan.innerHTML = flagUrl
     closePopup();
   }
 
-  // Edit profile (redirect to profile.html)
   function editProfile() {
     window.location.href = "profile.html";
   }
 
-  // Follow/unfollow from floating action button
   async function actionButtonClick() {
     if (isOwnProfile) {
       editProfile();
@@ -553,20 +608,17 @@ locationSpan.innerHTML = flagUrl
     }
   }
 
-  // Chat
   function startChat() {
     window.location.href = `chat.html?id=${targetUserId}`;
   }
 
-  // Gift / Video call placeholders
   function sendGift() {
-    showToast("Gift shop coming soon");
+    window.location.href = `gifts.html?uid=${targetUserId}`;
   }
   function startVideoCall() {
     showToast("Video call costs 5,000 coins/min (coming soon)");
   }
 
-  // Popup menu control
   function openPopup() {
     popupMenu.classList.add("show");
   }
@@ -579,20 +631,16 @@ locationSpan.innerHTML = flagUrl
     }
   });
 
-  // Set up UI based on own profile or other
   function setupUI() {
     if (isOwnProfile) {
-      // Own profile: no floating action, no bottom actions, no menu button
       floatingAction.classList.add("hidden");
       bottomActions.classList.add("hidden");
       document.getElementById("menuButton").style.display = "none";
     } else {
-      // Other profile: show menu button, set up popup
       document.getElementById("menuButton").onclick = openPopup;
       popupFollow.onclick = toggleFollow;
       popupBlock.onclick = toggleBlock;
       listenRelationship();
-      // Bottom actions will be shown by listener (if not blocked)
     }
     actionBtn.onclick = actionButtonClick;
     chatBtn.onclick = startChat;
@@ -603,6 +651,7 @@ locationSpan.innerHTML = flagUrl
   // Init
   await loadUserData();
   listenStats();
+  await loadGiftHistory();
   setupUI();
 </script>
 </body>
