@@ -16,69 +16,19 @@
       theme: {
         extend: {
           colors: {
-            "surface-container-low": "#ecf1f6",
-            "background": "#f3f7fb",
-            "outline-variant": "#a9aeb1",
-            "primary-fixed-dim": "#00d4ec",
-            "surface-container-high": "#dde3e8",
-            "secondary": "#755700",
-            "on-tertiary-fixed": "#380014",
-            "on-error-container": "#570008",
-            "on-primary-fixed": "#003840",
-            "on-secondary-fixed": "#443100",
-            "on-primary-container": "#004d57",
-            "on-secondary-fixed-variant": "#674c00",
-            "primary": "#006571",
-            "on-surface-variant": "#575c60",
-            "on-background": "#2a2f32",
-            "error-container": "#fb5151",
-            "primary-container": "#00e3fd",
-            "on-tertiary-fixed-variant": "#770033",
-            "secondary-container": "#ffca4d",
-            "primary-dim": "#005863",
-            "surface-variant": "#d7dee3",
-            "secondary-fixed": "#ffca4d",
-            "surface-container": "#e3e9ee",
-            "tertiary-container": "#ff8fa9",
-            "tertiary-fixed-dim": "#ff769b",
-            "surface-bright": "#f3f7fb",
-            "on-error": "#ffefee",
-            "outline": "#73777b",
-            "surface-dim": "#ced5db",
-            "tertiary": "#b60051",
-            "tertiary-fixed": "#ff8fa9",
-            "inverse-primary": "#00e3fd",
-            "on-tertiary-container": "#66002b",
-            "surface-container-highest": "#d7dee3",
-            "primary-fixed": "#00e3fd",
-            "inverse-on-surface": "#999da1",
-            "secondary-fixed-dim": "#f7ba00",
-            "on-tertiary": "#ffeff0",
-            "inverse-surface": "#0a0f12",
-            "surface-container-lowest": "#ffffff",
-            "surface-tint": "#006571",
-            "error": "#b31b25",
-            "secondary-dim": "#664b00",
-            "on-secondary-container": "#5c4400",
-            "error-dim": "#9f0519",
-            "surface": "#f3f7fb",
-            "on-secondary": "#fff1db",
-            "on-primary": "#d8f8ff",
-            "tertiary-dim": "#a00047",
-            "on-primary-fixed-variant": "#005762",
-            "on-surface": "#2a2f32"
-          },
-          borderRadius: {
-            "DEFAULT": "1rem",
-            "lg": "1.5rem",
-            "xl": "2.5rem",
-            "full": "9999px"
+            "surface": "#f3f7fb", "surface-container-low": "#ecf1f6",
+            "surface-container-lowest": "#ffffff", "on-surface": "#2a2f32",
+            "on-surface-variant": "#575c60", "primary": "#006571",
+            "primary-container": "#00e3fd", "primary-dim": "#005863",
+            "secondary": "#755700", "tertiary": "#b60051",
+            "outline": "#73777b", "outline-variant": "#a9aeb1"
           },
           fontFamily: {
             "headline": ["Plus Jakarta Sans"],
             "body": ["Be Vietnam Pro"],
             "label": ["Plus Jakarta Sans"]
-          }
+          },
+          borderRadius: { DEFAULT: "1rem", lg: "2rem", xl: "3rem", full: "9999px" }
         }
       }
     }
@@ -95,6 +45,34 @@
     h1, h2, h3, .font-headline {
       font-family: 'Plus Jakarta Sans', sans-serif;
     }
+    /* Gender chip colours */
+    .gender-chip-male { background: #3b82f6; color: white; }
+    .gender-chip-female { background: #ec4899; color: white; }
+    .gender-chip-other { background: #9ca3af; color: white; }
+    /* Level card gradients (same as view.html) */
+    .wealth-level-0 { background: linear-gradient(135deg, #9ca3af, #6b7280); }
+    .wealth-level-1 { background: linear-gradient(135deg, #84cc16, #65a30d); }
+    .wealth-level-2 { background: linear-gradient(135deg, #14b8a6, #0d9488); }
+    .wealth-level-3 { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+    .wealth-level-4 { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+    .wealth-level-5 { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+    .wealth-level-6 { background: linear-gradient(135deg, #ec4899, #db2777); }
+    .wealth-level-7 { background: linear-gradient(135deg, #f43f5e, #e11d48); }
+    .wealth-level-8 { background: linear-gradient(135deg, #f97316, #ea580c); }
+    .wealth-level-9 { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .wealth-level-10 { background: linear-gradient(135deg, #eab308, #ca8a04); }
+
+    .charm-level-0 { background: linear-gradient(135deg, #9ca3af, #6b7280); }
+    .charm-level-1 { background: linear-gradient(135deg, #a7f3d0, #34d399); }
+    .charm-level-2 { background: linear-gradient(135deg, #99f6e4, #2dd4bf); }
+    .charm-level-3 { background: linear-gradient(135deg, #93c5fd, #3b82f6); }
+    .charm-level-4 { background: linear-gradient(135deg, #c4b5fd, #8b5cf6); }
+    .charm-level-5 { background: linear-gradient(135deg, #f0abfc, #d946ef); }
+    .charm-level-6 { background: linear-gradient(135deg, #fbcfe8, #f472b6); }
+    .charm-level-7 { background: linear-gradient(135deg, #fecaca, #ef4444); }
+    .charm-level-8 { background: linear-gradient(135deg, #fed7aa, #f97316); }
+    .charm-level-9 { background: linear-gradient(135deg, #fde68a, #f59e0b); }
+    .charm-level-10 { background: linear-gradient(135deg, #fef08a, #eab308); }
   </style>
 </head>
 <body class="text-on-surface min-h-screen">
@@ -103,7 +81,6 @@
   <!-- User Identity Section -->
   <section class="relative group active:scale-[0.98] transition-transform duration-200">
     <div class="flex items-center gap-3 p-1">
-      <!-- Avatar + flag badge – clickable to view.html -->
       <div class="relative cursor-pointer" onclick="goToView()">
         <div class="w-16 h-16 rounded-full border-2 border-white overflow-hidden shadow-md shadow-primary/5">
           <img id="profileImg" class="w-full h-full object-cover">
@@ -116,7 +93,6 @@
         <h2 id="username" class="font-headline font-extrabold text-2xl"></h2>
         <p id="userIdText" class="text-sm text-outline"></p>
       </div>
-      <!-- Chevron (edit profile) -->
       <span onclick="goToEditProfile()" class="material-symbols-outlined cursor-pointer text-primary">chevron_right</span>
     </div>
   </section>
@@ -139,16 +115,16 @@
     </button>
   </section>
 
-  <!-- Level Card -->
-  <section class="bg-primary p-3 rounded-lg shadow-md relative overflow-hidden flex items-center justify-between cursor-pointer active:scale-[0.99] transition-transform">
+  <!-- Level Card (dynamic: Wealth for male, Charm for female) -->
+  <section id="levelCard" class="p-3 rounded-lg shadow-md relative overflow-hidden flex items-center justify-between cursor-pointer active:scale-[0.99] transition-transform wealth-level-0">
     <div class="absolute -top-6 -right-6 w-20 h-20 bg-white/10 rounded-full blur-xl"></div>
     <div class="relative z-10 flex items-center gap-3">
       <div class="bg-primary-container/30 backdrop-blur-md p-2 rounded-full flex items-center justify-center">
-        <span class="material-symbols-outlined text-white text-xl">military_tech</span>
+        <span id="levelIcon" class="material-symbols-outlined text-white text-xl">military_tech</span>
       </div>
       <div>
-        <p class="text-white/70 text-[9px] font-bold uppercase tracking-widest leading-none mb-1">Global Rank</p>
-        <h3 id="userLevel" class="font-headline text-xl font-black text-white leading-none">Lv.1</h3>
+        <p id="levelLabel" class="text-white/70 text-[9px] font-bold uppercase tracking-widest leading-none mb-1">Wealth Level</p>
+        <h3 id="levelValue" class="font-headline text-xl font-black text-white leading-none">Lv.0</h3>
       </div>
     </div>
     <div class="bg-white/20 p-1 rounded-full text-white">
@@ -156,7 +132,7 @@
     </div>
   </section>
 
-  <!-- Currencies Row (clickable) -->
+  <!-- Currencies Row -->
   <section class="grid grid-cols-2 gap-2">
     <div id="coinsCard" class="bg-secondary-container/20 p-2.5 rounded-lg flex items-center gap-2.5 border border-secondary/10 cursor-pointer active:scale-95 transition-transform">
       <div class="bg-secondary-container w-9 h-9 rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
@@ -187,7 +163,7 @@
         </div>
         <span class="text-[10px] font-bold text-on-surface-variant">Store</span>
       </button>
-      <button class="flex flex-col items-center gap-1.5 group" onclick="inviteFriend()">
+      <button id="inviteBtn" class="flex flex-col items-center gap-1.5 group">
         <div class="w-11 h-11 bg-white rounded-xl flex items-center justify-center shadow-sm group-hover:bg-secondary group-hover:text-white transition-all">
           <span class="material-symbols-outlined text-secondary group-hover:text-white text-xl">person_add</span>
         </div>
@@ -199,7 +175,7 @@
         </div>
         <span class="text-[10px] font-bold text-on-surface-variant">Tasks</span>
       </button>
-      <button class="flex flex-col items-center gap-1.5 group" onclick="alert('Agent support coming soon')">
+      <button id="agentBtn" class="flex flex-col items-center gap-1.5 group">
         <div class="w-11 h-11 bg-white rounded-xl flex items-center justify-center shadow-sm group-hover:bg-primary-dim group-hover:text-white transition-all">
           <span class="material-symbols-outlined text-on-primary-fixed-variant group-hover:text-white text-xl">support_agent</span>
         </div>
@@ -268,67 +244,161 @@
   const myUserId = currentUser.userId.toString();
   const userRef = doc(db, "users", myUserId);
 
-  // Flag logic (exactly as you provided)
-  function getFlagEmoji(country) {
-    if (!country) return "🌍";
+  // Country list for flag mapping
+  const COUNTRIES = [
+    { name: "Afghanistan", flag: "🇦🇫" }, { name: "Albania", flag: "🇦🇱" }, { name: "Algeria", flag: "🇩🇿" },
+    { name: "Andorra", flag: "🇦🇩" }, { name: "Angola", flag: "🇦🇴" }, { name: "Antigua and Barbuda", flag: "🇦🇬" },
+    { name: "Argentina", flag: "🇦🇷" }, { name: "Armenia", flag: "🇦🇲" }, { name: "Australia", flag: "🇦🇺" },
+    { name: "Austria", flag: "🇦🇹" }, { name: "Azerbaijan", flag: "🇦🇿" }, { name: "Bahamas", flag: "🇧🇸" },
+    { name: "Bahrain", flag: "🇧🇭" }, { name: "Bangladesh", flag: "🇧🇩" }, { name: "Barbados", flag: "🇧🇧" },
+    { name: "Belarus", flag: "🇧🇾" }, { name: "Belgium", flag: "🇧🇪" }, { name: "Belize", flag: "🇧🇿" },
+    { name: "Benin", flag: "🇧🇯" }, { name: "Bhutan", flag: "🇧🇹" }, { name: "Bolivia", flag: "🇧🇴" },
+    { name: "Bosnia and Herzegovina", flag: "🇧🇦" }, { name: "Botswana", flag: "🇧🇼" }, { name: "Brazil", flag: "🇧🇷" },
+    { name: "Brunei", flag: "🇧🇳" }, { name: "Bulgaria", flag: "🇧🇬" }, { name: "Burkina Faso", flag: "🇧🇫" },
+    { name: "Burundi", flag: "🇧🇮" }, { name: "Cambodia", flag: "🇰🇭" }, { name: "Cameroon", flag: "🇨🇲" },
+    { name: "Canada", flag: "🇨🇦" }, { name: "Cape Verde", flag: "🇨🇻" }, { name: "Central African Republic", flag: "🇨🇫" },
+    { name: "Chad", flag: "🇹🇩" }, { name: "Chile", flag: "🇨🇱" }, { name: "China", flag: "🇨🇳" },
+    { name: "Colombia", flag: "🇨🇴" }, { name: "Comoros", flag: "🇰🇲" }, { name: "Congo", flag: "🇨🇬" },
+    { name: "Costa Rica", flag: "🇨🇷" }, { name: "Croatia", flag: "🇭🇷" }, { name: "Cuba", flag: "🇨🇺" },
+    { name: "Cyprus", flag: "🇨🇾" }, { name: "Czechia", flag: "🇨🇿" }, { name: "Denmark", flag: "🇩🇰" },
+    { name: "Djibouti", flag: "🇩🇯" }, { name: "Dominica", flag: "🇩🇲" }, { name: "Dominican Republic", flag: "🇩🇴" },
+    { name: "Ecuador", flag: "🇪🇨" }, { name: "Egypt", flag: "🇪🇬" }, { name: "El Salvador", flag: "🇸🇻" },
+    { name: "Equatorial Guinea", flag: "🇬🇶" }, { name: "Eritrea", flag: "🇪🇷" }, { name: "Estonia", flag: "🇪🇪" },
+    { name: "Eswatini", flag: "🇸🇿" }, { name: "Ethiopia", flag: "🇪🇹" }, { name: "Fiji", flag: "🇫🇯" },
+    { name: "Finland", flag: "🇫🇮" }, { name: "France", flag: "🇫🇷" }, { name: "Gabon", flag: "🇬🇦" },
+    { name: "Gambia", flag: "🇬🇲" }, { name: "Georgia", flag: "🇬🇪" }, { name: "Germany", flag: "🇩🇪" },
+    { name: "Ghana", flag: "🇬🇭" }, { name: "Greece", flag: "🇬🇷" }, { name: "Grenada", flag: "🇬🇩" },
+    { name: "Guatemala", flag: "🇬🇹" }, { name: "Guinea", flag: "🇬🇳" }, { name: "Guinea-Bissau", flag: "🇬🇼" },
+    { name: "Guyana", flag: "🇬🇾" }, { name: "Haiti", flag: "🇭🇹" }, { name: "Honduras", flag: "🇭🇳" },
+    { name: "Hungary", flag: "🇭🇺" }, { name: "Iceland", flag: "🇮🇸" }, { name: "India", flag: "🇮🇳" },
+    { name: "Indonesia", flag: "🇮🇩" }, { name: "Iran", flag: "🇮🇷" }, { name: "Iraq", flag: "🇮🇶" },
+    { name: "Ireland", flag: "🇮🇪" }, { name: "Israel", flag: "🇮🇱" }, { name: "Italy", flag: "🇮🇹" },
+    { name: "Jamaica", flag: "🇯🇲" }, { name: "Japan", flag: "🇯🇵" }, { name: "Jordan", flag: "🇯🇴" },
+    { name: "Kazakhstan", flag: "🇰🇿" }, { name: "Kenya", flag: "🇰🇪" }, { name: "Kiribati", flag: "🇰🇮" },
+    { name: "Kuwait", flag: "🇰🇼" }, { name: "Kyrgyzstan", flag: "🇰🇬" }, { name: "Laos", flag: "🇱🇦" },
+    { name: "Latvia", flag: "🇱🇻" }, { name: "Lebanon", flag: "🇱🇧" }, { name: "Lesotho", flag: "🇱🇸" },
+    { name: "Liberia", flag: "🇱🇷" }, { name: "Libya", flag: "🇱🇾" }, { name: "Liechtenstein", flag: "🇱🇮" },
+    { name: "Lithuania", flag: "🇱🇹" }, { name: "Luxembourg", flag: "🇱🇺" }, { name: "Madagascar", flag: "🇲🇬" },
+    { name: "Malawi", flag: "🇲🇼" }, { name: "Malaysia", flag: "🇲🇾" }, { name: "Maldives", flag: "🇲🇻" },
+    { name: "Mali", flag: "🇲🇱" }, { name: "Malta", flag: "🇲🇹" }, { name: "Marshall Islands", flag: "🇲🇭" },
+    { name: "Mauritania", flag: "🇲🇷" }, { name: "Mauritius", flag: "🇲🇺" }, { name: "Mexico", flag: "🇲🇽" },
+    { name: "Micronesia", flag: "🇫🇲" }, { name: "Moldova", flag: "🇲🇩" }, { name: "Monaco", flag: "🇲🇨" },
+    { name: "Mongolia", flag: "🇲🇳" }, { name: "Montenegro", flag: "🇲🇪" }, { name: "Morocco", flag: "🇲🇦" },
+    { name: "Mozambique", flag: "🇲🇿" }, { name: "Myanmar", flag: "🇲🇲" }, { name: "Namibia", flag: "🇳🇦" },
+    { name: "Nauru", flag: "🇳🇷" }, { name: "Nepal", flag: "🇳🇵" }, { name: "Netherlands", flag: "🇳🇱" },
+    { name: "New Zealand", flag: "🇳🇿" }, { name: "Nicaragua", flag: "🇳🇮" }, { name: "Niger", flag: "🇳🇪" },
+    { name: "Nigeria", flag: "🇳🇬" }, { name: "North Korea", flag: "🇰🇵" }, { name: "North Macedonia", flag: "🇲🇰" },
+    { name: "Norway", flag: "🇳🇴" }, { name: "Oman", flag: "🇴🇲" }, { name: "Pakistan", flag: "🇵🇰" },
+    { name: "Palau", flag: "🇵🇼" }, { name: "Palestine", flag: "🇵🇸" }, { name: "Panama", flag: "🇵🇦" },
+    { name: "Papua New Guinea", flag: "🇵🇬" }, { name: "Paraguay", flag: "🇵🇾" }, { name: "Peru", flag: "🇵🇪" },
+    { name: "Philippines", flag: "🇵🇭" }, { name: "Poland", flag: "🇵🇱" }, { name: "Portugal", flag: "🇵🇹" },
+    { name: "Qatar", flag: "🇶🇦" }, { name: "Romania", flag: "🇷🇴" }, { name: "Russia", flag: "🇷🇺" },
+    { name: "Rwanda", flag: "🇷🇼" }, { name: "Saint Kitts and Nevis", flag: "🇰🇳" }, { name: "Saint Lucia", flag: "🇱🇨" },
+    { name: "Samoa", flag: "🇼🇸" }, { name: "San Marino", flag: "🇸🇲" }, { name: "Saudi Arabia", flag: "🇸🇦" },
+    { name: "Senegal", flag: "🇸🇳" }, { name: "Serbia", flag: "🇷🇸" }, { name: "Seychelles", flag: "🇸🇨" },
+    { name: "Sierra Leone", flag: "🇸🇱" }, { name: "Singapore", flag: "🇸🇬" }, { name: "Slovakia", flag: "🇸🇰" },
+    { name: "Slovenia", flag: "🇸🇮" }, { name: "Solomon Islands", flag: "🇸🇧" }, { name: "Somalia", flag: "🇸🇴" },
+    { name: "South Africa", flag: "🇿🇦" }, { name: "South Korea", flag: "🇰🇷" }, { name: "South Sudan", flag: "🇸🇸" },
+    { name: "Spain", flag: "🇪🇸" }, { name: "Sri Lanka", flag: "🇱🇰" }, { name: "Sudan", flag: "🇸🇩" },
+    { name: "Suriname", flag: "🇸🇷" }, { name: "Sweden", flag: "🇸🇪" }, { name: "Switzerland", flag: "🇨🇭" },
+    { name: "Syria", flag: "🇸🇾" }, { name: "Taiwan", flag: "🇹🇼" }, { name: "Tajikistan", flag: "🇹🇯" },
+    { name: "Tanzania", flag: "🇹🇿" }, { name: "Thailand", flag: "🇹🇭" }, { name: "Timor-Leste", flag: "🇹🇱" },
+    { name: "Togo", flag: "🇹🇬" }, { name: "Tonga", flag: "🇹🇴" }, { name: "Trinidad and Tobago", flag: "🇹🇹" },
+    { name: "Tunisia", flag: "🇹🇳" }, { name: "Turkey", flag: "🇹🇷" }, { name: "Turkmenistan", flag: "🇹🇲" },
+    { name: "Tuvalu", flag: "🇹🇻" }, { name: "Uganda", flag: "🇺🇬" }, { name: "Ukraine", flag: "🇺🇦" },
+    { name: "UAE", flag: "🇦🇪" }, { name: "United Kingdom", flag: "🇬🇧" }, { name: "United States", flag: "🇺🇸" },
+    { name: "Uruguay", flag: "🇺🇾" }, { name: "Uzbekistan", flag: "🇺🇿" }, { name: "Vanuatu", flag: "🇻🇺" },
+    { name: "Vatican City", flag: "🇻🇦" }, { name: "Venezuela", flag: "🇻🇪" }, { name: "Vietnam", flag: "🇻🇳" },
+    { name: "Yemen", flag: "🇾🇪" }, { name: "Zambia", flag: "🇿🇲" }, { name: "Zimbabwe", flag: "🇿🇼" }
+  ];
 
-    let code = null;
-
-    // object case
-    if (typeof country === "object") {
-      code = country.flag || country.code;
-    }
-
-    // string case
-    if (typeof country === "string") {
-      const map = {
-        pakistan: "PK",
-        india: "IN",
-        usa: "US",
-        uk: "GB",
-        philippines: "PH",
-        indonesia: "ID",
-        malaysia: "MY",
-        uae: "AE",
-        angola: "AO"
-      };
-      code = map[country.toLowerCase()];
-    }
-
-    if (!code || code.length !== 2) return "🌍";
-
-    return code
-      .toUpperCase()
-      .split("")
-      .map(c => String.fromCodePoint(127397 + c.charCodeAt()))
-      .join("");
+  function getFlagFromCountryName(countryName) {
+    if (!countryName) return "🌍";
+    const match = COUNTRIES.find(c => c.name.toLowerCase() === countryName.toLowerCase());
+    return match ? match.flag : "🌍";
   }
 
-  // Real‑time user data (coins, gems, level, flag)
+  // Apply level card gradient
+  function setLevelCard(card, level, type) {
+    const classes = type === 'wealth' 
+      ? ['wealth-level-0','wealth-level-1','wealth-level-2','wealth-level-3','wealth-level-4','wealth-level-5','wealth-level-6','wealth-level-7','wealth-level-8','wealth-level-9','wealth-level-10']
+      : ['charm-level-0','charm-level-1','charm-level-2','charm-level-3','charm-level-4','charm-level-5','charm-level-6','charm-level-7','charm-level-8','charm-level-9','charm-level-10'];
+    for (let i = 0; i <= 10; i++) {
+      card.classList.remove(classes[i]);
+    }
+    const idx = Math.min(level, 10);
+    card.classList.add(classes[idx]);
+  }
+
+  // Real‑time user data
   onSnapshot(userRef, (snap) => {
     if (!snap.exists()) return;
     const user = snap.data();
 
-    // Update display name & ID
+    // Display name & ID
     document.getElementById("username").innerText = user.username || user.email || "User";
     document.getElementById("userIdText").innerText = "ID: " + (user.userId || myUserId);
     document.getElementById("profileImg").src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username || "User")}&background=006571&color=fff`;
 
-    // Coins & Gems (using user.gems, not diamonds)
+    // Coins & Gems
     document.getElementById("coins").innerText = user.coins || 0;
     document.getElementById("gems").innerText = user.gems || 0;
 
-    // Level (simple)
-    let level = 1;
-    if (user.coins >= 10000) level = 5;
-    else if (user.coins >= 5000) level = 4;
-    else if (user.coins >= 2000) level = 3;
-    else if (user.coins >= 500) level = 2;
-    document.getElementById("userLevel").innerText = `Lv.${level}`;
-
-    // Country flag using the provided function
-    const flagEmoji = getFlagEmoji(user.country);
+    // Country flag (using country name)
+    let countryName = "Unknown";
+    if (user.country) {
+      if (typeof user.country === "object") countryName = user.country.name || "Unknown";
+      else countryName = user.country;
+    }
+    const flagEmoji = getFlagFromCountryName(countryName);
     document.getElementById("countryFlag").innerText = flagEmoji;
+
+    // Gender & Age chip
+    const gender = user.gender;
+    const age = user.age || "?";
+    const genderIcon = gender === "male" ? "male" : (gender === "female" ? "female" : "transgender");
+    // Update the gender/age display – we need a separate chip in the profile. Actually the profile page doesn't have a gender/age chip originally, but the user asked to show age next to ID? Let's add a small chip next to the username or below? To keep consistent with view.html, we'll add a chip after the user ID or in the info section. However, the current profile doesn't have that space. I'll add it below the user ID line.
+    // But the requirement says "next to user ID:2838382. Show age real like view.html same colour". I'll add a chip right after the user ID line.
+    const userIdLine = document.getElementById("userIdText");
+    if (userIdLine && !document.getElementById("ageChip")) {
+      const ageChip = document.createElement("span");
+      ageChip.id = "ageChip";
+      ageChip.className = `ml-2 px-2 py-0.5 rounded-full text-[10px] font-bold ${gender === 'male' ? 'gender-chip-male' : (gender === 'female' ? 'gender-chip-female' : 'gender-chip-other')}`;
+      ageChip.innerHTML = `${genderIcon} ${age}`;
+      userIdLine.parentNode.appendChild(ageChip);
+    } else {
+      const ageChip = document.getElementById("ageChip");
+      if (ageChip) {
+        ageChip.className = `ml-2 px-2 py-0.5 rounded-full text-[10px] font-bold ${gender === 'male' ? 'gender-chip-male' : (gender === 'female' ? 'gender-chip-female' : 'gender-chip-other')}`;
+        ageChip.innerHTML = `${genderIcon} ${age}`;
+      }
+    }
+
+    // Level Card (Wealth for male, Charm for female)
+    const levelCard = document.getElementById("levelCard");
+    const levelLabel = document.getElementById("levelLabel");
+    const levelValueSpan = document.getElementById("levelValue");
+    const levelIcon = document.getElementById("levelIcon");
+    let levelType = 'wealth';
+    let levelNumber = 0;
+    if (gender === 'male') {
+      levelType = 'wealth';
+      levelNumber = user.wealthLevel ?? 0;
+      levelLabel.innerText = "Wealth Level";
+      levelIcon.innerText = "military_tech";
+    } else {
+      levelType = 'charm';
+      levelNumber = user.charmLevel ?? 0;
+      levelLabel.innerText = "Charm Level";
+      levelIcon.innerText = "auto_awesome";
+    }
+    levelValueSpan.innerText = `Lv.${levelNumber}`;
+    setLevelCard(levelCard, levelNumber, levelType);
+    // Redirect on click
+    levelCard.onclick = () => {
+      if (levelType === 'wealth') window.location.href = "wealthlevelrules.html";
+      else window.location.href = "charmlevelrules.html";
+    };
   });
 
   // Real‑time stats (followers, following, friends)
@@ -342,24 +412,22 @@
     document.getElementById("friendsCount").innerText = snap.size;
   });
 
-  // ==================== NAVIGATION FUNCTIONS ====================
+  // ==================== NAVIGATION ====================
   window.goToView = () => {
     window.location.href = `view.html?id=${myUserId}`;
   };
   window.goToEditProfile = () => {
-    window.location.href = "profile.html"; // can be changed to edit-profile.html later
+    window.location.href = "profile.html"; // edit profile page (same for now)
   };
   window.goSettings = () => {
     window.location.href = "settings.html";
   };
-  window.inviteFriend = () => {
-    const inviteCode = currentUser.inviteCode || myUserId;
-    const link = `https://lillaadam.github.io/galmetapp.github.io/?ref=${inviteCode}`;
-    navigator.clipboard.writeText(link);
-    alert("Invite link copied: " + link);
+  document.getElementById("inviteBtn").onclick = () => {
+    window.location.href = "invitesrank.html";
   };
-
-  // Coins & Gems click handlers
+  document.getElementById("agentBtn").onclick = () => {
+    window.location.href = "agentinvitepanel.html";
+  };
   document.getElementById("coinsCard").onclick = () => {
     window.location.href = "coins.html";
   };
