@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Invite & Rank - Galmet</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface": "#f3f7fb", "surface-container-low": "#ecf1f6",
+            "surface-container-lowest": "#ffffff", "on-surface": "#2a2f32",
+            "on-surface-variant": "#575c60", "primary": "#006571",
+            "primary-container": "#00e3fd", "primary-dim": "#005863",
+            "secondary": "#755700", "tertiary": "#b60051",
+            "outline": "#73777b", "outline-variant": "#a9aeb1"
+          },
+          fontFamily: {
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Be Vietnam Pro"],
+            "label": ["Plus Jakarta Sans"]
+          },
+          borderRadius: { DEFAULT: "1rem", lg: "2rem", xl: "3rem", full: "9999px" }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background: white;
+      border-radius: 1.5rem;
+      max-width: 90%;
+      width: 320px;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .dark .modal-content {
+      background: #1f2937;
+      color: #e2e8f0;
+    }
+    .toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: black;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 14px;
+      z-index: 300;
+      display: none;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body class="bg-surface font-body text-on-surface overflow-x-hidden pb-32">
+
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl flex justify-between items-center px-6 py-4">
+  <div class="flex items-center gap-3">
+    <button onclick="window.location.href='dashboard.html'" class="text-primary p-2 hover:bg-primary-container/30 rounded-full transition">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h1 class="text-2xl font-bold tracking-tighter text-primary font-headline">Galmet</h1>
+  </div>
+  <button id="contactBtn" class="bg-primary text-on-primary px-5 py-2 rounded-full font-headline font-bold text-sm shadow-lg flex items-center gap-2 active:scale-95 transition">
+    Contact Us
+    <span class="material-symbols-outlined text-[18px]">support_agent</span>
+  </button>
+</header>
+
+<main class="mt-20 px-4 max-w-md mx-auto">
+  <!-- Hero Section: Become Agent -->
+  <section class="mt-8 mb-10 relative">
+    <div class="bg-gradient-to-br from-primary via-primary-dim to-surface-container-high rounded-xl p-8 overflow-hidden relative min-h-[240px] flex flex-col justify-center">
+      <div class="absolute -top-12 -right-12 w-48 h-48 bg-primary-fixed/20 rounded-full blur-3xl"></div>
+      <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-secondary-fixed/20 rounded-full blur-2xl"></div>
+      <h2 class="text-3xl font-headline font-extrabold text-white leading-tight relative z-10">
+        Become agent on Galmet <br/><span class="text-primary-fixed">To be a Rich</span>
+      </h2>
+      <p class="mt-4 text-primary-container font-medium max-w-[200px] relative z-10 leading-relaxed">Join our high-earning ecosystem and scale your success.</p>
+      <div class="absolute right-0 bottom-4 w-32 h-32 opacity-80">
+        <img class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDntDuY3KCUjBsG3nDBR88caS_KxOMcp3NxGZi3wj5ZmeLVI3OILFKvSC37-8LMelrsFRxPmedOJgnUkPGNofkHj4w5POHjvc9kMiuWVclHZlDhL9n1f39O6p2o9-yS5BuqUKPyeNezz44e4RAdK3PTjfr1V_UPw0xYlWsfy5xDSpr9cZb_uVkR2fbXz5wvlK0lOBbnY-qR-tsJw5hWuC5aNUu6xiqi4WrMtyLpeLYVWFyR1mn56SdAs1lwIryfcPtt7koS-QanLzR4">
+      </div>
+    </div>
+  </section>
+
+  <!-- Invite Section -->
+  <section class="mb-10">
+    <div class="flex items-center justify-between mb-6">
+      <h3 class="text-2xl font-headline font-bold text-on-surface">Invite Friends and earn</h3>
+      <span class="bg-secondary-container text-on-secondary-fixed px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Top Rewards</span>
+    </div>
+
+    <div class="space-y-4">
+      <!-- Rule 1: New friends -->
+      <button id="newFriendRuleBtn" class="w-full text-left bg-surface-container-lowest p-5 rounded-lg flex items-center justify-between transition-all active:scale-[0.98] group">
+        <div class="flex items-center gap-4">
+          <div class="bg-primary/10 p-3 rounded-full">
+            <span class="material-symbols-outlined text-primary" style="font-variation-settings:'FILL'1">person_add</span>
+          </div>
+          <div>
+            <p class="font-headline font-bold text-on-surface">New friends: 1000 coins</p>
+            <p class="text-xs text-on-surface-variant">On first topup of your invitee</p>
+          </div>
+        </div>
+        <span class="material-symbols-outlined text-outline-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+      </button>
+
+      <!-- Task Rewards -->
+      <div class="bg-surface-container-low p-6 rounded-lg">
+        <div class="flex items-center gap-4 mb-4">
+          <div class="bg-tertiary/10 p-3 rounded-full">
+            <span class="material-symbols-outlined text-tertiary" style="font-variation-settings:'FILL'1">task_alt</span>
+          </div>
+          <h4 class="font-headline font-bold text-on-surface">Task Rewards</h4>
+        </div>
+        <ul class="space-y-4 ml-2">
+          <li class="flex gap-3 items-start">
+            <div class="w-1.5 h-1.5 rounded-full bg-tertiary mt-2"></div>
+            <p class="text-sm text-on-surface-variant leading-relaxed">Complete face verification get remaining rewards</p>
+          </li>
+          <li class="flex gap-3 items-start">
+            <div class="w-1.5 h-1.5 rounded-full bg-tertiary mt-2"></div>
+            <p class="text-sm text-on-surface-variant leading-relaxed">If your friends complete tasks, you get up to <span class="text-tertiary font-bold">20,000 coins</span></p>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Withdrawal Rewards -->
+      <div class="bg-surface-container-lowest p-6 rounded-lg">
+        <h4 class="font-headline font-bold text-on-surface mb-5 flex items-center gap-2">
+          <span class="material-symbols-outlined text-secondary" style="font-variation-settings:'FILL'1">payments</span>
+          Withdrawal Rewards
+        </h4>
+        <div class="grid grid-cols-1 gap-3">
+          <div class="flex items-center justify-between p-3 bg-surface-bright rounded-md">
+            <span class="text-sm text-on-surface-variant">Topup 50,000 coins</span>
+            <span class="bg-secondary/10 text-on-secondary-fixed-variant font-bold text-sm px-3 py-1 rounded-full">Get 5000</span>
+          </div>
+          <div class="flex items-center justify-between p-3 bg-surface-bright rounded-md">
+            <span class="text-sm text-on-surface-variant">Invite 5 friends</span>
+            <span class="bg-secondary/10 text-on-secondary-fixed-variant font-bold text-sm px-3 py-1 rounded-full">Get 5000</span>
+          </div>
+          <div class="flex items-center justify-between p-3 bg-surface-bright rounded-md">
+            <span class="text-sm text-on-surface-variant">Each invite User</span>
+            <span class="bg-secondary/10 text-on-secondary-fixed-variant font-bold text-sm px-3 py-1 rounded-full">Get 2000</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Commission -->
+      <div class="bg-gradient-to-r from-cyan-600 to-cyan-500 p-5 rounded-lg text-white flex justify-between items-center">
+        <div>
+          <p class="font-headline font-bold text-lg">Up to 20% Commission</p>
+          <p class="text-xs text-white/80">For Topup and earn gems</p>
+        </div>
+        <div class="bg-white/20 p-3 rounded-full">
+          <span class="material-symbols-outlined text-white text-3xl">trending_up</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Invitation Button -->
+  <div class="mb-12">
+    <button id="inviteFriendBtn" class="w-full py-5 bg-gradient-to-r from-primary to-primary-fixed-dim rounded-full font-headline font-extrabold text-on-primary text-lg shadow-xl shadow-primary/20 flex items-center justify-center gap-3 active:scale-95 transition-all">
+      <span class="material-symbols-outlined">share</span>
+      Invite your friend
+    </button>
+  </div>
+
+  <!-- Rank Section -->
+  <section class="mb-20">
+    <div class="flex items-center justify-between mb-6">
+      <h3 class="text-xl font-headline font-bold text-on-surface">Invite Rewards Rank</h3>
+      <span class="text-primary font-bold text-xs">Top 20 Rewards</span>
+    </div>
+    <div id="rankList" class="space-y-2 max-h-[500px] overflow-y-auto no-scrollbar pr-1">
+      <!-- Ranks will be injected via JS -->
+      <div class="text-center py-4 text-outline">Loading ranks...</div>
+    </div>
+  </section>
+</main>
+
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-end pb-4 px-2 bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl rounded-t-2xl z-50 shadow-[0_-8px_30px_rgb(0,0,0,0.04)]">
+  <button onclick="location.href='dashboard.html'" class="flex flex-col items-center justify-center text-slate-400 p-2 hover:text-primary transition">
+    <span class="material-symbols-outlined">home</span>
+    <span class="text-[10px] font-headline font-bold mt-1">Home</span>
+  </button>
+  <button onclick="location.href='invitesrank.html'" class="flex flex-col items-center justify-center bg-primary text-white rounded-full p-3 mb-2 shadow-lg active:scale-110 transition">
+    <span class="material-symbols-outlined" style="font-variation-settings:'FILL'1">group_add</span>
+    <span class="text-[10px] font-headline font-bold mt-1">Agent</span>
+  </button>
+  <button onclick="location.href='leaderboard.html'" class="flex flex-col items-center justify-center text-slate-400 p-2 hover:text-primary transition">
+    <span class="material-symbols-outlined">emoji_events</span>
+    <span class="text-[10px] font-headline font-bold mt-1">Leaderboard</span>
+  </button>
+  <button onclick="location.href='profile.html'" class="flex flex-col items-center justify-center text-slate-400 p-2 hover:text-primary transition">
+    <span class="material-symbols-outlined">account_circle</span>
+    <span class="text-[10px] font-headline font-bold mt-1">Profile</span>
+  </button>
+</nav>
+
+<!-- ================= MODALS ================= -->
+<!-- Contact Modal -->
+<div id="contactModal" class="modal">
+  <div class="modal-content">
+    <span class="material-symbols-outlined text-primary text-5xl mb-4">group_add</span>
+    <h5 class="text-xl font-headline font-extrabold text-on-surface mb-2">Connect Us To be Agent</h5>
+    <p id="telegramLink" class="text-primary font-bold mb-6 select-all">https://t.me/Galmet_Adam</p>
+    <button class="close-modal w-full py-3 bg-primary text-white rounded-full font-headline font-bold active:scale-95 transition">Confirm</button>
+  </div>
+</div>
+
+<!-- Invite Rule Detail Modal (New friends) -->
+<div id="ruleDetailModal" class="modal">
+  <div class="modal-content">
+    <h5 class="text-lg font-headline font-bold text-on-surface mb-2">🎁 New Friend Reward</h5>
+    <p class="text-on-surface-variant text-sm mb-4">When your invited friend makes their first top‑up, you receive <span class="font-bold text-primary">1,000 coins</span> instantly!</p>
+    <button class="close-modal w-full py-2 bg-primary text-white rounded-full font-bold active:scale-95 transition">Got it</button>
+  </div>
+</div>
+
+<!-- Invite Link Modal -->
+<div id="inviteLinkModal" class="modal">
+  <div class="modal-content">
+    <span class="material-symbols-outlined text-primary text-4xl mb-2">link</span>
+    <h5 class="text-lg font-headline font-bold text-on-surface mb-2">Your Invite Link</h5>
+    <div class="bg-surface-container-low p-3 rounded-lg mb-4 break-all text-sm" id="inviteLinkDisplay"></div>
+    <div class="flex gap-3">
+      <button id="copyInviteBtn" class="flex-1 py-2 bg-primary text-white rounded-full font-bold active:scale-95 transition">Copy Link</button>
+      <button class="close-modal flex-1 py-2 bg-surface-container-low text-on-surface-variant rounded-full font-bold active:scale-95 transition">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+  import { getFirestore } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+  const app = initializeApp({
+    apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+    authDomain: "galmet-app.firebaseapp.com",
+    projectId: "galmet-app",
+    storageBucket: "galmet-app.firebasestorage.app"
+  });
+  const db = getFirestore(app);
+
+  // Current user
+  const currentUser = JSON.parse(localStorage.getItem("user"));
+  if (!currentUser || !currentUser.userId) {
+    window.location.replace("login.html");
+  }
+  const myUserId = currentUser.userId.toString();
+  const inviteCode = currentUser.inviteCode || myUserId;
+  const inviteLink = `https://lillaadam.github.io/galmetapp.github.io/?ref=${inviteCode}`;
+
+  // Helper toast
+  function showToast(msg) {
+    const toast = document.getElementById("toast");
+    toast.innerText = msg;
+    toast.style.display = "block";
+    setTimeout(() => toast.style.display = "none", 2000);
+  }
+
+  // Modal handling
+  const modals = document.querySelectorAll(".modal");
+  function openModal(modalId) {
+    document.getElementById(modalId).style.display = "flex";
+  }
+  function closeModal(modal) {
+    modal.style.display = "none";
+  }
+  document.querySelectorAll(".close-modal").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const modal = btn.closest(".modal");
+      closeModal(modal);
+    });
+  });
+  window.addEventListener("click", (e) => {
+    modals.forEach(modal => {
+      if (e.target === modal) closeModal(modal);
+    });
+  });
+
+  // Contact button
+  document.getElementById("contactBtn").addEventListener("click", () => openModal("contactModal"));
+
+  // New friend rule detail
+  document.getElementById("newFriendRuleBtn").addEventListener("click", () => openModal("ruleDetailModal"));
+
+  // Invite friend button
+  const inviteBtn = document.getElementById("inviteFriendBtn");
+  const inviteLinkDisplay = document.getElementById("inviteLinkDisplay");
+  inviteBtn.addEventListener("click", () => {
+    inviteLinkDisplay.innerText = inviteLink;
+    openModal("inviteLinkModal");
+  });
+  document.getElementById("copyInviteBtn").addEventListener("click", async () => {
+    await navigator.clipboard.writeText(inviteLink);
+    showToast("Invite link copied!");
+    closeModal(document.getElementById("inviteLinkModal"));
+  });
+
+  // Generate fake rank data (top 20)
+  const fakeRanks = [
+    { rank: 1, name: "Alex River", invited: 420, coins: 850000, vip: true, avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuB6qwVx-BUNEPnF9S0YN6cZbEAXoZweqCw9R3HTTE32Tu4csMS9HtwsR_1kAS8_yCBY53zdTIS3rWe8u386TeSH3n3Fj5rfuP11cXN0NdUWIhWQnHj1yDW1j-5vI9-1jp8tbOYiXxOdWISAPw4JOaZFxMNZnSE_ZSZK54S2lcpUl8lE7AqLsMkmL1qxmG5p38av_ZnRr_oglHZbCD7dre40Y8eLQQWxMfX7G6H5lVRzl5hl5CirvjSsRXHD3lLetvcOAk41feprm0XL" },
+    { rank: 2, name: "Sarah Chen", invited: 315, coins: 720000, vip: false, avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuAyaalGa9obrDkiNmymRMgVCUi7qbCLotFAMSaWxVQQ2m5DXtsdW2EGrAwIcrkUD7N-swS51gkc0SgZtbjmgekGr0ZDh6xepdlVXuKwIb3eWnOD_AH3lwhnE-3YkvQVtWCNRDUKDhOgCYm4XZU8VFobCqBwSUgzt0rxL5QS4pcIl-a2HgMKpjuxlCSy1nYIm6siqcOmwZ15pJiCQWQBdF_T4m-GmB1OcRkd9pwmgdjWnnXmzFoQuShPojOC8KyZLxIaZJri5PRj57tA" },
+    { rank: 3, name: "Marcus Knight", invited: 298, coins: 690000, vip: false, avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuB8j6OgkvZSO_OcRQCFyqM3CgGNWt56QtRPoKxmLQ3r007YeSH_kYu23hheMPOl8hpZ1eIXtJEeBAP6aPeJyFCgFVCq8r5cVA-DhAOeMsgLPzO-Tx3GneMuuhzYzdHGnvAMnkvExQnqOjgmQ6D2zGNo_9M1-xNPMeC8EfFNByOaOa4QZxjV_9CzZ3g_XWZozqwv1aXxZetr_XsPekYp9BMYlOTXsFCGY3naoykmNmNvy-0jnZ6KbxOtc22k3YzGsdnKr9QnpvqgBo7s" },
+    { rank: 4, name: "Leo Messi", invited: 255, coins: 550000, vip: false, avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuBnbQ5bWn4kh76EjrQBLhcwwrRghouOY0Wy8PH2hERgSYSTUcIQY0TVOXID1Ia7fZO56jaUBg6GGKwXQWLnxXg1lXGhnODOv3TC5ZtGq4xoS6U4JH3nVf-yJ3rDNNPegYNJh0OJwl8nQvg2wdVmtSv6QsHGrp36VMSYY_ix5t743DZvEzuLFlmbbPpBuO5k-pT6XvlUvzBzuoaZXq4HLdNNQgZO7uwYwyzjTGocuztJ2DbsReUIcVKneWl68fHLo6xEysHYAkncs0Zs" },
+    { rank: 5, name: "Diana Prince", invited: 210, coins: 480000, vip: false, avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuDqus5x9fyx1qCxpp2G5DCdyZe3U40_iaQ-ldkMNTIqOzpnxHTcOhzQKv5exPQyrInD14J8gcJGLTfWvwlxpzQQQFfG7uf-eK4x-LNoMRKVUk92KlhE5jfg0yGLY3exaojaJU6EngyGES1U_-2U4P5oBY4rxmw6ldLh0eHJ9zPQYj0kz2_N6qXSPhL0W5J9Hwq5ijzP-5iHbQDgMxiR5CeHeqZ8p_iWZWjsGIo3ht7BtUZ5uSIcs_yB0hATWhoGCMfmYonrAJTourlp" },
+    { rank: 6, name: "Oliver Queen", invited: 189, coins: 420000, vip: false, avatar: "https://ui-avatars.com/api/?name=Oliver&background=006571&color=fff" },
+    { rank: 7, name: "Natasha Romanoff", invited: 167, coins: 380000, vip: false, avatar: "https://ui-avatars.com/api/?name=Natasha&background=006571&color=fff" },
+    { rank: 8, name: "Bruce Wayne", invited: 150, coins: 350000, vip: false, avatar: "https://ui-avatars.com/api/?name=Bruce&background=006571&color=fff" },
+    { rank: 9, name: "Clark Kent", invited: 132, coins: 310000, vip: false, avatar: "https://ui-avatars.com/api/?name=Clark&background=006571&color=fff" },
+    { rank: 10, name: "Diana Troy", invited: 120, coins: 290000, vip: false, avatar: "https://ui-avatars.com/api/?name=Diana&background=006571&color=fff" },
+    { rank: 11, name: "Barry Allen", invited: 108, coins: 260000, vip: false, avatar: "https://ui-avatars.com/api/?name=Barry&background=006571&color=fff" },
+    { rank: 12, name: "Arthur Curry", invited: 95, coins: 230000, vip: false, avatar: "https://ui-avatars.com/api/?name=Arthur&background=006571&color=fff" },
+    { rank: 13, name: "Peter Parker", invited: 84, coins: 200000, vip: false, avatar: "https://ui-avatars.com/api/?name=Peter&background=006571&color=fff" },
+    { rank: 14, name: "Tony Stark", invited: 72, coins: 180000, vip: false, avatar: "https://ui-avatars.com/api/?name=Tony&background=006571&color=fff" },
+    { rank: 15, name: "Steve Rogers", invited: 65, coins: 160000, vip: false, avatar: "https://ui-avatars.com/api/?name=Steve&background=006571&color=fff" },
+    { rank: 16, name: "Wanda Maximoff", invited: 58, coins: 145000, vip: false, avatar: "https://ui-avatars.com/api/?name=Wanda&background=006571&color=fff" },
+    { rank: 17, name: "Thor Odinson", invited: 50, coins: 130000, vip: false, avatar: "https://ui-avatars.com/api/?name=Thor&background=006571&color=fff" },
+    { rank: 18, name: "Loki Laufeyson", invited: 44, coins: 115000, vip: false, avatar: "https://ui-avatars.com/api/?name=Loki&background=006571&color=fff" },
+    { rank: 19, name: "Scott Lang", invited: 38, coins: 100000, vip: false, avatar: "https://ui-avatars.com/api/?name=Scott&background=006571&color=fff" },
+    { rank: 20, name: "Hope Van Dyne", invited: 32, coins: 90000, vip: false, avatar: "https://ui-avatars.com/api/?name=Hope&background=006571&color=fff" }
+  ];
+
+  function renderRanks() {
+    const container = document.getElementById("rankList");
+    container.innerHTML = "";
+    fakeRanks.forEach(r => {
+      const div = document.createElement("div");
+      div.className = `bg-surface-container-lowest p-4 rounded-lg flex items-center gap-4 ${r.rank <= 3 ? 'relative overflow-hidden' : ''}`;
+      if (r.rank === 1) {
+        div.classList.add("bg-secondary-container/20");
+        const trophy = document.createElement("div");
+        trophy.className = "absolute right-0 top-0 opacity-10";
+        trophy.innerHTML = '<span class="material-symbols-outlined text-6xl">emoji_events</span>';
+        div.appendChild(trophy);
+      }
+      div.innerHTML = `
+        <span class="font-headline font-extrabold text-secondary italic text-lg w-6">${r.rank}</span>
+        <img class="w-10 h-10 rounded-lg object-cover ring-2 ${r.rank === 1 ? 'ring-secondary-fixed' : 'ring-outline-variant/30'}" src="${r.avatar}">
+        <div class="flex-1">
+          <p class="font-headline font-bold text-on-surface">${r.name}</p>
+          <p class="text-[10px] text-on-surface-variant font-medium">Invited ${r.invited} friends</p>
+        </div>
+        <div class="text-right">
+          <p class="font-headline font-extrabold text-primary">${r.coins.toLocaleString()}</p>
+          <p class="text-[10px] font-bold text-secondary uppercase">Coins</p>
+        </div>
+      `;
+      if (r.rank === 1 && r.vip) {
+        const vipBadge = document.createElement("div");
+        vipBadge.className = "absolute -top-2 -right-2 bg-secondary text-[8px] font-bold text-white p-1 rounded-full";
+        vipBadge.innerText = "VIP";
+        div.appendChild(vipBadge);
+      }
+      container.appendChild(div);
+    });
+  }
+
+  renderRanks();
+</script>
+</body>
+</html>
