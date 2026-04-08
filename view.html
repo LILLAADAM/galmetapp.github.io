@@ -113,19 +113,14 @@
 </head>
 <body class="bg-surface font-body text-on-surface min-h-screen pb-32">
 
-<!-- Top App Bar -->
-<nav class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 py-4 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/20">
-  <div class="flex items-center gap-3">
-    <button onclick="history.back()" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low active:scale-95 transition">
-      <span class="material-symbols-outlined text-primary">arrow_back</span>
-    </button>
-    <span class="font-headline font-bold text-lg text-primary">Galmet</span>
-  </div>
-  <div class="flex items-center gap-2">
-    <button id="menuButton" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low active:scale-95 transition">
-      <span class="material-symbols-outlined text-on-surface-variant">more_vert</span>
-    </button>
-  </div>
+<!-- Top App Bar – no background, only back button + menu (for others) -->
+<nav class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 py-4">
+  <button onclick="history.back()" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low active:scale-95 transition">
+    <span class="material-symbols-outlined text-primary">arrow_back</span>
+  </button>
+  <button id="menuButton" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low active:scale-95 transition hidden">
+    <span class="material-symbols-outlined text-on-surface-variant">more_vert</span>
+  </button>
 </nav>
 
 <main class="relative w-full overflow-x-hidden pt-16">
@@ -276,10 +271,10 @@
   </div>
 </div>
 
-<!-- Floating Action Button (Follow/Edit) -->
-<div id="floatingAction" class="fixed bottom-24 right-6 z-20 hidden">
+<!-- Floating Action Button (Edit for own profile / Follow for others) -->
+<div id="floatingAction" class="fixed bottom-24 right-6 z-20">
   <button id="actionBtn" class="w-12 h-12 bg-primary-fixed rounded-full flex items-center justify-center shadow-lg active:scale-90 transition">
-    <span id="actionIcon" class="material-symbols-outlined text-on-primary-fixed">add</span>
+    <span id="actionIcon" class="material-symbols-outlined text-on-primary-fixed">edit</span>
   </button>
 </div>
 
@@ -295,7 +290,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-  import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, onSnapshot, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
   const app = initializeApp({
     apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
@@ -349,6 +344,7 @@
   const popupFollow = document.getElementById("popupFollow");
   const popupBlock = document.getElementById("popupBlock");
   const toast = document.getElementById("toast");
+  const menuButton = document.getElementById("menuButton");
 
   let targetUserData = null;
   let isFollowing = false;
@@ -626,20 +622,23 @@
     popupMenu.classList.remove("show");
   };
   window.addEventListener("click", (e) => {
-    if (!popupMenu.contains(e.target) && e.target !== document.getElementById("menuButton") && !document.getElementById("menuButton")?.contains(e.target)) {
+    if (!popupMenu.contains(e.target) && e.target !== menuButton && !menuButton?.contains(e.target)) {
       closePopup();
     }
   });
 
   function setupUI() {
     if (isOwnProfile) {
-      floatingAction.classList.add("hidden");
+      // Own profile: no menu button, show pencil icon in floating action
+      menuButton.classList.add("hidden");
+      floatingAction.classList.remove("hidden");
+      actionIcon.innerText = "edit";
       bottomActions.classList.add("hidden");
-      document.getElementById("menuButton").style.display = "none";
     } else {
-      document.getElementById("menuButton").onclick = openPopup;
-      popupFollow.onclick = toggleFollow;
-      popupBlock.onclick = toggleBlock;
+      // Other profile: show menu button, floating action follows follow state
+      menuButton.classList.remove("hidden");
+      // floatingAction visibility will be controlled by updateUIForFollowState
+      // initially hidden, will be shown if not following
       listenRelationship();
     }
     actionBtn.onclick = actionButtonClick;
