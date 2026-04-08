@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Galmet - Dashboard</title>
-  <!-- Tailwind + Fonts + Material Icons (same as other pages) -->
+  <!-- Tailwind + Fonts + Material Icons -->
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Be+Vietnam+Pro:wght@400;500;600&amp;display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
@@ -52,34 +52,19 @@
       min-height: 100dvh;
       background: #f3f7fb;
     }
-    /* Hide scrollbar for cleaner look */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
 <body class="bg-surface text-on-surface font-body antialiased">
 
-  <!-- ========== HEADER (Galmet style) ========== -->
+  <!-- ========== SIMPLE HEADER (logo only) ========== -->
   <header class="fixed top-0 left-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/20">
     <div class="flex items-center justify-between px-6 h-16 max-w-md mx-auto">
       <div class="flex items-center gap-2">
         <span class="text-2xl font-black bg-gradient-to-r from-cyan-600 to-cyan-400 bg-clip-text text-transparent font-headline">Galmet</span>
       </div>
-      <div class="flex items-center gap-3">
-        <button onclick="goSearch()" class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high transition">
-          <span class="material-symbols-outlined">search</span>
-        </button>
-        <button onclick="goChats()" class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high transition">
-          <span class="material-symbols-outlined">chat</span>
-        </button>
-        <button onclick="openParty()" class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high transition">
-          <span class="material-symbols-outlined">sports_esports</span>
-        </button>
-        <button onclick="openSettings()" class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-high transition">
-          <span class="material-symbols-outlined">settings</span>
-        </button>
-        <img id="profilePic" onclick="openProfile()" class="w-9 h-9 rounded-full object-cover border-2 border-primary cursor-pointer" src="https://ui-avatars.com/api/?name=User">
-      </div>
+      <!-- No action buttons – all navigation moved to bottom bar -->
     </div>
   </header>
 
@@ -98,14 +83,9 @@
       </div>
     </div>
 
-    <!-- Coins Card -->
-    <div class="bg-gradient-to-br from-primary to-primary-dim rounded-2xl p-5 text-white shadow-lg">
-      <div class="flex justify-between items-center">
-        <span class="font-label text-xs uppercase tracking-wider opacity-80">Your Balance</span>
-        <span class="material-symbols-outlined text-2xl">currency_bitcoin</span>
-      </div>
-      <div class="text-4xl font-black mt-2" id="coins">0</div>
-      <div id="coinValue" class="text-xs opacity-80 mt-1">≈ 0 USDT</div>
+    <!-- Balance Card (conditional: male = coins, female = gems) -->
+    <div id="balanceCard" class="rounded-2xl p-5 text-white shadow-lg">
+      <!-- Dynamic content injected via JS -->
     </div>
 
     <!-- Invite & Earn Card -->
@@ -184,137 +164,167 @@
     </div>
   </main>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getFirestore, doc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+  <!-- ========== BOTTOM NAVIGATION (same as profile/chats) ========== -->
+  <nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-3 bg-white/80 backdrop-blur-xl rounded-t-2xl shadow-[0_-4px_24px_rgba(0,101,113,0.06)]">
+    <button id="navHome" class="flex flex-col items-center text-primary transition">
+      <span class="material-symbols-outlined" style="font-variation-settings:'FILL'1">home</span>
+      <span class="text-[10px] font-label font-bold">Home</span>
+    </button>
+    <button onclick="location.href='party.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
+      <span class="material-symbols-outlined">sports_esports</span>
+      <span class="text-[10px] font-label">Party</span>
+    </button>
+    <button onclick="location.href='chats.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
+      <span class="material-symbols-outlined">chat_bubble</span>
+      <span class="text-[10px] font-label">Chats</span>
+    </button>
+    <button onclick="location.href='profile.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
+      <span class="material-symbols-outlined">person</span>
+      <span class="text-[10px] font-label">Profile</span>
+    </button>
+  </nav>
 
-// 🔥 FIREBASE INIT
-const app = initializeApp({
-  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
-  authDomain: "galmet-app.firebaseapp.com",
-  projectId: "galmet-app"
-});
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+    import { getFirestore, doc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-const db = getFirestore(app);
+    // 🔥 FIREBASE INIT
+    const app = initializeApp({
+      apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+      authDomain: "galmet-app.firebaseapp.com",
+      projectId: "galmet-app"
+    });
 
-// 🔐 GET USER FROM LOCALSTORAGE
-const localUser = JSON.parse(localStorage.getItem("user"));
+    const db = getFirestore(app);
 
-if (!localUser || !localUser.userId) {
-  console.error("❌ No user → login");
-  window.location.replace("login.html");
-}
-
-const userIdStr = localUser.userId.toString();
-const userRef = doc(db, "users", userIdStr);
-
-let unsubscribeSnapshot = null;
-
-console.log("✅ Dashboard loaded — no redirect system");
-
-// 🚀 START REALTIME DIRECTLY
-startRealtimeDashboard();
-
-// 📡 REALTIME DASHBOARD
-function startRealtimeDashboard() {
-
-  // ✅ SET ONLINE
-  updateDoc(userRef, { online: true }).catch(() => {});
-
-  unsubscribeSnapshot = onSnapshot(userRef, (snap) => {
-
-    if (!snap.exists()) {
-      console.error("❌ User not found");
-      return;
+    // 🔐 GET USER FROM LOCALSTORAGE
+    const localUser = JSON.parse(localStorage.getItem("user"));
+    if (!localUser || !localUser.userId) {
+      console.error("❌ No user → login");
+      window.location.replace("login.html");
     }
 
-    const d = snap.data();
+    const userIdStr = localUser.userId.toString();
+    const userRef = doc(db, "users", userIdStr);
+    let unsubscribeSnapshot = null;
 
-    console.log("👤 Live data:", d);
+    console.log("✅ Dashboard loaded — conditional coins/gems");
 
-    // ✅ UI UPDATE
-document.getElementById("email").innerText = d.email || "";
-document.getElementById("coins").innerText = d.coins ?? 0;
-document.getElementById("inviteCode").innerText = d.inviteCode || "---";
-document.getElementById("userId").innerText = d.userId || "---";
-document.getElementById("totalInvites").innerText = d.totalInvites ?? 0;
-document.getElementById("totalEarned").innerText = d.totalEarned ?? 0;
+    // 🚀 START REALTIME
+    startRealtimeDashboard();
 
-// 💰 ADD THIS HERE (INSIDE SNAPSHOT)
-const coins = d.coins ?? 0;
-const usdt = coins / 5000;
+    function startRealtimeDashboard() {
+      updateDoc(userRef, { online: true }).catch(() => {});
 
-document.getElementById("coinValue").innerText =
-  "≈ " + usdt.toFixed(2) + " USDT";
+      unsubscribeSnapshot = onSnapshot(userRef, (snap) => {
+        if (!snap.exists()) return;
+        const d = snap.data();
+        console.log("👤 Live data:", d);
 
-    const profileImg = document.getElementById("profilePic");
+        // Update static fields
+        document.getElementById("email").innerText = d.email || "";
+        document.getElementById("inviteCode").innerText = d.inviteCode || "---";
+        document.getElementById("userId").innerText = d.userId || "---";
+        document.getElementById("totalInvites").innerText = d.totalInvites ?? 0;
+        document.getElementById("totalEarned").innerText = d.totalEarned ?? 0;
 
-    if (d.photoURL) {
-      profileImg.src = d.photoURL;
-    } else {
-      profileImg.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(d.email || "User")}`;
+        // Gender: male → show coins, female → show gems
+        const gender = d.gender;
+        const balanceCard = document.getElementById("balanceCard");
+        const coinsVal = d.coins ?? 0;
+        const gemsVal = d.gems ?? 0;
+
+        if (gender === 'male') {
+          const usdt = coinsVal / 5000;
+          balanceCard.innerHTML = `
+            <div class="flex justify-between items-center">
+              <span class="font-label text-xs uppercase tracking-wider opacity-80">Your Balance</span>
+              <span class="material-symbols-outlined text-2xl">currency_bitcoin</span>
+            </div>
+            <div class="text-4xl font-black mt-2" id="coinsDisplay">${coinsVal.toLocaleString()}</div>
+            <div class="text-xs opacity-80 mt-1">≈ ${usdt.toFixed(2)} USDT</div>
+          `;
+        } else if (gender === 'female') {
+          balanceCard.innerHTML = `
+            <div class="flex justify-between items-center">
+              <span class="font-label text-xs uppercase tracking-wider opacity-80">Your Gems</span>
+              <span class="material-symbols-outlined text-2xl text-red-400" style="font-variation-settings:'FILL'1">diamond</span>
+            </div>
+            <div class="text-4xl font-black mt-2" id="gemsDisplay">${gemsVal.toLocaleString()}</div>
+            <div class="text-xs opacity-80 mt-1">✨ Precious gems</div>
+          `;
+        } else {
+          // fallback: show coins
+          const usdt = coinsVal / 5000;
+          balanceCard.innerHTML = `
+            <div class="flex justify-between items-center">
+              <span class="font-label text-xs uppercase tracking-wider opacity-80">Your Balance</span>
+              <span class="material-symbols-outlined text-2xl">currency_bitcoin</span>
+            </div>
+            <div class="text-4xl font-black mt-2" id="coinsDisplay">${coinsVal.toLocaleString()}</div>
+            <div class="text-xs opacity-80 mt-1">≈ ${usdt.toFixed(2)} USDT</div>
+          `;
+        }
+
+        // Apply gradient background (same as before)
+        balanceCard.classList.add("bg-gradient-to-br", "from-primary", "to-primary-dim");
+      });
     }
 
-  });
-}
-  
-// 🔴 OFFLINE WHEN LEAVE
-window.addEventListener("beforeunload", () => {
-  if (unsubscribeSnapshot) unsubscribeSnapshot();
-  updateDoc(userRef, { online: false }).catch(() => {});
-});
+    // 🔴 OFFLINE WHEN LEAVE
+    window.addEventListener("beforeunload", () => {
+      if (unsubscribeSnapshot) unsubscribeSnapshot();
+      updateDoc(userRef, { online: false }).catch(() => {});
+    });
 
-// 🔓 LOGOUT
-window.logout = () => {
-  if (unsubscribeSnapshot) unsubscribeSnapshot();
-  localStorage.removeItem("user");
-  window.location.replace("login.html");
-};
+    // 🔓 LOGOUT
+    window.logout = () => {
+      if (unsubscribeSnapshot) unsubscribeSnapshot();
+      localStorage.removeItem("user");
+      window.location.replace("login.html");
+    };
 
-// 📋 COPY REFERRAL
-window.copyCode = async () => {
-  const code = document.getElementById("inviteCode").innerText;
-  const link = `https://lillaadam.github.io/galmetapp.github.io/?ref=${code}`;
+    // 📋 COPY REFERRAL
+    window.copyCode = async () => {
+      const code = document.getElementById("inviteCode").innerText;
+      const link = `https://lillaadam.github.io/galmetapp.github.io/?ref=${code}`;
+      try {
+        await navigator.clipboard.writeText(link);
+        alert("✅ Invite link copied:\n" + link);
+      } catch {
+        alert("❌ Copy failed");
+      }
+    };
 
-  try {
-    await navigator.clipboard.writeText(link);
-    alert("✅ Invite link copied:\n" + link);
-  } catch {
-    alert("❌ Copy failed");
-  }
-};
+    // 🎮 NAVIGATION (games)
+    window.goGame = (page) => window.location.href = page;
 
-// 🎮 NAVIGATION
-window.goGame = (page) => window.location.href = page;
-window.goSearch = () => window.location.href = "search.html";
-window.goChats = () => window.location.href = "chats.html";
-window.openSettings = () => window.location.href = "settings.html";
-window.openProfile = () => window.location.href = "ownprofile.html";
-window.openParty = () => window.location.href = "party.html";
+    // 💸 WITHDRAW UI
+    window.toggleWithdraw = () => {
+      document.getElementById("withdrawPanel").classList.toggle("hidden");
+    };
+    window.submitWithdraw = () => {
+      const amount = document.getElementById("withdrawAmount").value;
+      const wallet = document.getElementById("withdrawWallet").value;
+      if (!amount || amount < 65000) {
+        alert("Minimum withdraw is 65,000 coins");
+        return;
+      }
+      if (!wallet.startsWith("T") || wallet.length < 30) {
+        alert("Invalid TRC20 wallet");
+        return;
+      }
+      alert(`Withdraw request for ${amount} coins sent`);
+    };
+    window.loadWithdrawHistory = () => {
+      document.getElementById("withdrawHistory").innerHTML = "📜 Coming soon...";
+    };
 
-// 💸 WITHDRAW UI
-window.toggleWithdraw = () => {
-  document.getElementById("withdrawPanel").classList.toggle("hidden");
-};
-
-window.submitWithdraw = () => {
-  const amount = document.getElementById("withdrawAmount").value;
-  const wallet = document.getElementById("withdrawWallet").value;
-
-  if (!amount || amount < 65000) {
-    alert("Minimum withdraw is 65,000 coins");
-    return;
-  }
-
-  if (!wallet.startsWith("T") || wallet.length < 30) {
-    alert("Invalid TRC20 wallet");
-    return;
-  }
-
-  alert(`Withdraw request for ${amount} coins sent`);
-};
-
-window.loadWithdrawHistory = () => {
-  document.getElementById("withdrawHistory").innerHTML = "📜 Coming soon...";
-};
-</script>
+    // Highlight active home button
+    document.getElementById("navHome").classList.add("text-primary");
+    document.getElementById("navHome").classList.remove("text-slate-400");
+    const homeIcon = document.getElementById("navHome").querySelector(".material-symbols-outlined");
+    if (homeIcon) homeIcon.style.fontVariationSettings = "'FILL' 1";
+  </script>
+</body>
+</html>
