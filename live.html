@@ -13,13 +13,12 @@
     body { margin: 0; overflow: hidden; font-family: 'Be Vietnam Pro', sans-serif; background: black; }
     #video-container { position: relative; width: 100vw; height: 100vh; background: black; }
     .agora-video-player { width: 100% !important; height: 100% !important; object-fit: cover; }
-    /* Glass overlay for UI elements (not chat) */
     .glass-panel {
       background: rgba(0, 0, 0, 0.4);
       backdrop-filter: blur(12px);
       border: 1px solid rgba(255,255,255,0.1);
     }
-    /* Chat messages – no background, white text only */
+    /* Chat messages – NO BACKGROUND, white text only */
     .chat-message {
       animation: fadeInUp 0.2s ease;
       padding: 2px 0;
@@ -36,11 +35,9 @@
       cursor: pointer;
     }
     .chat-message .sender:hover { text-decoration: underline; }
-    /* Scrollbar for chat (invisible) */
     .chat-scroll::-webkit-scrollbar { width: 3px; }
     .chat-scroll::-webkit-scrollbar-track { background: transparent; }
     .chat-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
-    /* Profile preview popup */
     .preview-popup {
       position: fixed;
       bottom: 120px;
@@ -63,7 +60,6 @@
       from { opacity: 0; transform: translateX(-20px); }
       to { opacity: 1; transform: translateX(0); }
     }
-    /* Host summary overlay */
     .summary-overlay {
       position: fixed;
       inset: 0;
@@ -79,7 +75,6 @@
       from { opacity: 0; }
       to { opacity: 1; }
     }
-    /* Custom exit confirm modal */
     .confirm-modal {
       position: fixed;
       inset: 0;
@@ -97,7 +92,6 @@
       width: 280px;
       text-align: center;
     }
-    /* Level badge gradients (same as profile) */
     .level-badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 9px; font-weight: bold; margin-left: 6px; color: white; }
     .level-0 { background: linear-gradient(135deg, #9ca3af, #6b7280); }
     .level-1 { background: linear-gradient(135deg, #84cc16, #65a30d); }
@@ -147,10 +141,9 @@
     </div>
   </div>
 
-  <!-- Chat messages – NO BACKGROUND, floats on video -->
+  <!-- Chat messages – NO BACKGROUND -->
   <div class="absolute bottom-24 left-4 w-72 max-w-[calc(100%-2rem)] pointer-events-auto">
     <div id="chatMessages" class="h-80 overflow-y-auto flex flex-col gap-1 chat-scroll"></div>
-    <!-- Chat input with minimal glass -->
     <div class="glass-panel rounded-full mt-2 flex items-center gap-2 p-1 pl-4">
       <input id="chatInput" type="text" class="flex-1 bg-transparent border-none text-white text-sm placeholder-white/50 focus:outline-none" placeholder="Say something...">
       <button id="sendChatBtn" class="bg-primary/80 rounded-full w-8 h-8 flex items-center justify-center text-white active:scale-95">
@@ -162,13 +155,13 @@
     </div>
   </div>
 
-  <!-- Control buttons (bottom center for host, bottom right for viewer's call) -->
+  <!-- Host controls (bottom center) -->
   <div id="hostControls" class="absolute bottom-6 left-0 right-0 flex justify-center gap-4 pointer-events-auto">
     <button id="micBtn" class="glass-panel rounded-full w-12 h-12 flex items-center justify-center text-white active:scale-95">
       <span class="material-symbols-outlined">mic</span>
     </button>
     <button id="cameraBtn" class="glass-panel rounded-full w-12 h-12 flex items-center justify-center text-white active:scale-95">
-      <span class="material-symbols-outlined">cameraswitch</span>
+      <span class="material-symbols-outlined">videocam</span>
     </button>
     <button id="mirrorBtn" class="glass-panel rounded-full w-12 h-12 flex items-center justify-center text-white active:scale-95">
       <span class="material-symbols-outlined">flip</span>
@@ -182,7 +175,7 @@
     </button>
   </div>
 
-  <!-- Viewer call button (bottom right, only for viewers) -->
+  <!-- Viewer call button (bottom right) -->
   <div id="viewerCallBtn" class="absolute bottom-6 right-6 pointer-events-auto hidden">
     <button id="callBtn" class="glass-panel rounded-full w-12 h-12 flex items-center justify-center text-white active:scale-95">
       <span class="material-symbols-outlined">video_call</span>
@@ -211,7 +204,7 @@
   </div>
 </div>
 
-<!-- Custom exit confirm modal -->
+<!-- Exit confirm modal -->
 <div id="exitConfirmModal" class="confirm-modal hidden">
   <div class="modal-box">
     <p class="text-white text-lg mb-4">Exit live stream?</p>
@@ -238,7 +231,6 @@
   if (!currentUser || !currentUser.userId) window.location.replace("login.html");
   const myUserId = currentUser.userId.toString();
   const myUsername = currentUser.username || "User";
-  // Get charm level (or wealth) for badge
   const myCharmLevel = currentUser.charmLevel ?? currentUser.wealthLevel ?? 1;
 
   const urlParams = new URLSearchParams(window.location.search);
@@ -254,7 +246,11 @@
   let localVideoTrack = null;
   let isMuted = false;
   let cameraFront = true;
-  let isMirrored = false;
+  let cameraEnabled = true; // camera track enabled/disabled
+
+  // Load saved camera state
+  const savedCam = localStorage.getItem("camEnabled");
+  if (savedCam !== null) cameraEnabled = savedCam === "true";
 
   // DOM elements
   const hostAvatar = document.getElementById("hostAvatar");
@@ -290,10 +286,11 @@
   let hostUserId = null;
   let hostData = null;
   let liveStartTime = Date.now();
-  let totalLiveGems = 0; // gems earned during this live session
+  let totalLiveGems = 0;
   let currentViewerCount = 0;
   let profileTimeout = null;
   let privateMode = false;
+  let privateOverlay = null;
 
   // Helper: get level gradient class
   function getLevelClass(level) {
@@ -318,7 +315,7 @@
     return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m]));
   }
 
-  // Load host info and charm level
+  // Load host info
   async function loadHostInfo() {
     const livesSnap = await getDocs(collection(db, "lives"));
     let hostId = null;
@@ -389,7 +386,6 @@
         }
         chatMessagesDiv.appendChild(div);
       });
-      // Attach click to usernames
       document.querySelectorAll('.sender').forEach(el => {
         el.addEventListener('click', async (e) => {
           e.stopPropagation();
@@ -413,7 +409,7 @@
     chatInput.value = "";
   }
 
-  // Gift System (prevent self-gift, update live gems)
+  // Gift System
   async function loadGifts() {
     const snapshot = await getDocs(collection(db, "gifts"));
     giftGrid.innerHTML = "";
@@ -439,8 +435,7 @@
     if (userCoins < price) { alert("Not enough coins!"); return; }
     await updateDoc(doc(db, "users", myUserId), { coins: increment(-price) });
     if (hostUserId) {
-      const hostRef = doc(db, "users", hostUserId);
-      await updateDoc(hostRef, { gems: increment(price) });
+      await updateDoc(doc(db, "users", hostUserId), { gems: increment(price) });
       totalLiveGems += price;
       liveGemsSpan.innerText = totalLiveGems;
     }
@@ -448,7 +443,6 @@
       type: "gift", senderId: myUserId, senderName: myUsername,
       giftName: giftName, giftImage: giftImage, quantity: 1, timestamp: serverTimestamp()
     });
-    // Animation
     const anim = document.createElement("div");
     anim.className = "fixed bottom-40 right-10 z-50 animate-bounce";
     anim.innerHTML = `<img src="${giftImage}" class="w-16 h-16 drop-shadow-xl">`;
@@ -456,13 +450,26 @@
     setTimeout(() => anim.remove(), 2000);
   }
 
+  // Permission check
+  async function checkPermissions() {
+    try {
+      await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    } catch (e) {
+      alert("Please allow camera & microphone permission to join the live.");
+      throw e;
+    }
+  }
+
   // Agora Live
   async function startAgora() {
+    await checkPermissions();
     client = AgoraRTC.createClient({ mode: "live", codec: "vp8" });
     await client.setClientRole(isHost ? "host" : "audience");
     await client.join(APP_ID, roomId, TOKEN, null);
     if (isHost) {
       [localAudioTrack, localVideoTrack] = await AgoraRTC.createMicrophoneAndCameraTracks();
+      // Apply saved camera enabled state
+      if (!cameraEnabled) await localVideoTrack.setEnabled(false);
       const localPlayer = document.createElement("div");
       localPlayer.id = "local-player";
       localPlayer.style.width = "100%";
@@ -470,6 +477,7 @@
       document.getElementById("video-container").appendChild(localPlayer);
       localVideoTrack.play("local-player");
       await client.publish([localAudioTrack, localVideoTrack]);
+      applyMirror(); // mirror based on cameraFront
     }
     client.on("user-published", async (user, mediaType) => {
       await client.subscribe(user, mediaType);
@@ -480,10 +488,6 @@
         playerDiv.style.height = "100%";
         document.getElementById("video-container").appendChild(playerDiv);
         user.videoTrack.play(playerDiv);
-        // Apply mirror to remote video if host has mirror enabled (optional)
-        if (isHost && isMirrored) {
-          playerDiv.style.transform = "scaleX(-1)";
-        }
       }
       if (mediaType === "audio") user.audioTrack.play();
     });
@@ -493,19 +497,26 @@
     });
   }
 
-  // Controls (only for host)
+  // Controls
   async function toggleMic() {
     if (!localAudioTrack) return;
-    if (isMuted) {
-      await localAudioTrack.setEnabled(true);
-      micBtn.innerHTML = '<span class="material-symbols-outlined">mic</span>';
-      isMuted = false;
-    } else {
-      await localAudioTrack.setEnabled(false);
-      micBtn.innerHTML = '<span class="material-symbols-outlined">mic_off</span>';
-      isMuted = true;
-    }
+    isMuted = !isMuted;
+    await localAudioTrack.setEnabled(!isMuted);
+    micBtn.innerHTML = isMuted
+      ? '<span class="material-symbols-outlined">mic_off</span>'
+      : '<span class="material-symbols-outlined">mic</span>';
   }
+
+  async function toggleCamera() {
+    if (!localVideoTrack) return;
+    cameraEnabled = !cameraEnabled;
+    await localVideoTrack.setEnabled(cameraEnabled);
+    localStorage.setItem("camEnabled", cameraEnabled);
+    cameraBtn.innerHTML = cameraEnabled
+      ? '<span class="material-symbols-outlined">videocam</span>'
+      : '<span class="material-symbols-outlined">videocam_off</span>';
+  }
+
   async function switchCamera() {
     if (!localVideoTrack) return;
     cameraFront = !cameraFront;
@@ -518,15 +529,19 @@
     localVideoTrack = newTrack;
     await client.publish(localVideoTrack);
     localVideoTrack.play("local-player");
+    applyMirror();
   }
-  function toggleMirror() {
+
+  function applyMirror() {
     const player = document.getElementById("local-player");
     if (!player) return;
-    isMirrored = !isMirrored;
-    player.style.transform = isMirrored ? "scaleX(-1)" : "scaleX(1)";
-    // Note: This mirror affects local preview only. To show mirrored to viewers,
-    // you would need to apply transform to remote players. For simplicity, we keep local only.
+    if (cameraFront) {
+      player.style.transform = "scaleX(-1)";
+    } else {
+      player.style.transform = "scaleX(1)";
+    }
   }
+
   function toggleFullscreen() {
     if (!document.fullscreenElement) document.documentElement.requestFullscreen();
     else document.exitFullscreen();
@@ -536,6 +551,13 @@
   async function requestCall() {
     if (myUserId === hostUserId) return;
     if (privateMode) { alert("Already in a call"); return; }
+    // Check permissions
+    try {
+      await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    } catch {
+      alert("Camera permission required for video call");
+      return;
+    }
     const userSnap = await getDoc(doc(db, "users", myUserId));
     const coins = userSnap.data()?.coins || 0;
     if (coins < 1000) { alert("Need 1000 coins for video call"); return; }
@@ -566,22 +588,26 @@
 
   function enterPrivateMode(otherUserId, otherUserName) {
     privateMode = true;
-    document.getElementById("video-container").innerHTML = `
-      <div class="flex flex-col items-center justify-center h-full text-white">
+    // Create overlay instead of destroying video container
+    privateOverlay = document.createElement("div");
+    privateOverlay.className = "absolute inset-0 flex items-center justify-center bg-black z-50 flex-col";
+    privateOverlay.innerHTML = `
+      <div class="text-center text-white">
         <span class="material-symbols-outlined text-6xl mb-4">videocam_off</span>
         <p class="text-xl font-bold">Private video call</p>
         <p class="text-sm opacity-70">with ${escapeHtml(otherUserName)}</p>
         <button id="endCallBtn" class="mt-6 bg-red-500 px-6 py-2 rounded-full">End Call</button>
       </div>
     `;
-    document.getElementById("endCallBtn")?.addEventListener("click", () => {
+    document.getElementById("video-container").appendChild(privateOverlay);
+    const endCallBtn = privateOverlay.querySelector("#endCallBtn");
+    endCallBtn.addEventListener("click", () => {
+      privateOverlay.remove();
       privateMode = false;
-      window.location.reload();
+      // For host, also delete the call document so others go back
+      if (isHost) deleteDoc(doc(db, "calls", roomId)).catch(console.error);
+      // For viewers, they will see live again
     });
-    // Hide chat input and controls
-    document.querySelector(".glass-panel.rounded-full.mt-2")?.remove();
-    document.querySelector(".absolute.bottom-6.left-0.right-0")?.remove();
-    chatMessagesDiv.innerHTML = '<div class="text-white text-center mt-20">Come back later</div>';
   }
 
   // End Live (Host only)
@@ -616,7 +642,7 @@
     if (!isHost) window.location.href = "dashboard.html";
   }
 
-  // Exit button with custom modal
+  // Exit button with modal
   function showExitConfirm() {
     exitConfirmModal.classList.remove("hidden");
   }
@@ -648,24 +674,31 @@
     sendChatBtn.onclick = () => sendChatMessage(chatInput.value);
     chatInput.addEventListener("keypress", (e) => { if (e.key === "Enter") sendChatMessage(chatInput.value); });
     micBtn.onclick = toggleMic;
+    cameraBtn.onclick = toggleCamera;
+    mirrorBtn.onclick = switchCamera; // Actually mirror flips local preview, but switchCamera is for front/back. We'll keep separate: mirrorBtn should call toggleMirror? But requirement was mirror = horizontal flip. Let's reuse: mirrorBtn triggers switchCamera? No, mirrorBtn should toggle local transform. Let's create a separate toggleMirror that only flips local video.
+    // Fix: mirrorBtn should toggle local mirror without changing camera direction
+    function toggleMirrorOnly() {
+      const player = document.getElementById("local-player");
+      if (!player) return;
+      const isFlipped = player.style.transform === "scaleX(-1)";
+      player.style.transform = isFlipped ? "scaleX(1)" : "scaleX(-1)";
+    }
+    mirrorBtn.onclick = toggleMirrorOnly;
+    // Reassign cameraBtn to switchCamera (front/back)
     cameraBtn.onclick = switchCamera;
-    mirrorBtn.onclick = toggleMirror;
     fullscreenBtn.onclick = toggleFullscreen;
     if (isHost) {
       endLiveBtn.onclick = endLive;
       exitBtn.onclick = showExitConfirm;
-      callBtn.style.display = "none"; // host doesn't need call button
       hostControlsDiv.style.display = "flex";
       viewerCallDiv.classList.add("hidden");
     } else {
-      // Viewers: hide host controls, show call button
       hostControlsDiv.style.display = "none";
       viewerCallDiv.classList.remove("hidden");
       callBtn.onclick = requestCall;
       exitBtn.onclick = showExitConfirm;
     }
 
-    // Host name/avatar clickable
     hostNameSpan.addEventListener("click", () => {
       if (hostUserId) showProfilePreview(hostUserId, hostData?.username || "Host", hostData?.photoURL, hostData?.age, hostData?.country?.name);
     });
@@ -675,6 +708,11 @@
 
     giftPanelBtn.onclick = openGiftPanel;
     closeGiftPanel.onclick = closeGiftPanelFn;
+
+    // Set initial camera button icon
+    cameraBtn.innerHTML = cameraEnabled
+      ? '<span class="material-symbols-outlined">videocam</span>'
+      : '<span class="material-symbols-outlined">videocam_off</span>';
   }
   init();
 
