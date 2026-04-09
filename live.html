@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Galmet – Live</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
+  <style>
+    body { margin: 0; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
+    #video-container { width: 100vw; height: 100vh; background: black; position: relative; }
+    .control-bar {
+      position: fixed;
+      bottom: 30px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      z-index: 100;
+    }
+    .end-btn {
+      background: #ef4444;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 40px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      transition: transform 0.2s;
+    }
+    .end-btn:active { transform: scale(0.95); }
+    .live-badge {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(8px);
+      padding: 6px 12px;
+      border-radius: 30px;
+      color: white;
+      font-size: 12px;
+      font-weight: bold;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .live-dot {
+      width: 10px;
+      height: 10px;
+      background: #ef4444;
+      border-radius: 50%;
+      animation: pulse 1s infinite;
+    }
+    @keyframes pulse {
+      0% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0.3; transform: scale(1.2); }
+    }
+  </style>
+</head>
+<body>
+
+<div id="video-container"></div>
+
+<div class="live-badge">
+  <div class="live-dot"></div>
+  <span>LIVE</span>
+</div>
+
+<div class="control-bar">
+  <button class="end-btn" onclick="stopLive()">END LIVE</button>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+  import { getFirestore, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+  const app = initializeApp({
+    apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+    authDomain: "galmet-app.firebaseapp.com",
+    projectId: "galmet-app"
+  });
+  const db = getFirestore(app);
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const roomId = urlParams.get("room");
+  const isHost = urlParams.get("host") === "true";
+
+  if (!roomId) {
+    alert("Invalid room");
+    window.location.href = "dashboard.html";
+  }
+
+  const appId = "873172a9b2064b1ca97b4f45ee6ed9b5";
+  let client = null;
+  let localAudioTrack = null;
+  let localVideoTrack = null;
+
+  async function startLive() {
+    client = AgoraRTC.createClient({ mode: "live", codec: "vp8" });
+    
+    if (isHost) {
+      await client.setClientRole("host");
+    } else {
+      await client.setClientRole("audience");
+    }
+
+    await client.join(appId, roomId, null, null);
+
+    if (isHost) {
+      // Create local tracks
+      [localAudioTrack, localVideoTrack] = await AgoraRTC.createMicrophoneAndCameraTracks();
+      
+      // Create container for local video
+      const localPlayer = document.createElement("div");
+      localPlayer.id = "local-player";
+      localPlayer.style.width = "100%";
+      localPlayer.style.height = "100%";
+      document.getElementById("video-container").appendChild(localPlayer);
+      
+      localVideoTrack.play("local-player");
+      
+      await client.publish([localAudioTrack, localVideoTrack]);
+    }
+
+    // Handle remote users
+    client.on("user-published", async (user, mediaType) => {
+      await client.subscribe(user, mediaType);
+      
+      if (mediaType === "video") {
+        const playerDiv = document.createElement("div");
+        playerDiv.id = user.uid;
+        playerDiv.style.width = "100%";
+        playerDiv.style.height = "100%";
+        document.getElementById("video-container").appendChild(playerDiv);
+        user.videoTrack.play(playerDiv);
+      }
+      
+      if (mediaType === "audio") {
+        user.audioTrack.play();
+      }
+    });
+
+    client.on("user-unpublished", (user) => {
+      const playerDiv = document.getElementById(user.uid);
+      if (playerDiv) playerDiv.remove();
+    });
+  }
+
+  // Stop live (host only)
+  window.stopLive = async () => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user) return;
+    
+    // Remove from Firestore
+    try {
+      await deleteDoc(doc(db, "lives", user.userId.toString()));
+    } catch(e) { console.error("Error deleting live doc", e); }
+    
+    // Leave Agora channel
+    if (client) {
+      if (localAudioTrack) localAudioTrack.close();
+      if (localVideoTrack) localVideoTrack.close();
+      await client.leave();
+    }
+    
+    window.location.href = "dashboard.html";
+  };
+
+  startLive();
+</script>
+</body>
+</html>
