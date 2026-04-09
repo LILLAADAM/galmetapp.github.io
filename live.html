@@ -13,22 +13,34 @@
     body { margin: 0; overflow: hidden; font-family: 'Be Vietnam Pro', sans-serif; background: black; }
     #video-container { position: relative; width: 100vw; height: 100vh; background: black; }
     .agora-video-player { width: 100% !important; height: 100% !important; object-fit: cover; }
+    /* Glass overlay for UI elements (not chat) */
     .glass-panel {
       background: rgba(0, 0, 0, 0.4);
       backdrop-filter: blur(12px);
       border: 1px solid rgba(255,255,255,0.1);
     }
+    /* Chat messages – no background, white text only */
     .chat-message {
       animation: fadeInUp 0.2s ease;
       padding: 2px 0;
+      color: white;
+      text-shadow: 0 0 2px black;
     }
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
+    .chat-message .sender {
+      font-weight: bold;
+      color: #00e3fd;
+      cursor: pointer;
+    }
+    .chat-message .sender:hover { text-decoration: underline; }
+    /* Scrollbar for chat (invisible) */
     .chat-scroll::-webkit-scrollbar { width: 3px; }
     .chat-scroll::-webkit-scrollbar-track { background: transparent; }
     .chat-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
+    /* Profile preview popup */
     .preview-popup {
       position: fixed;
       bottom: 120px;
@@ -51,6 +63,7 @@
       from { opacity: 0; transform: translateX(-20px); }
       to { opacity: 1; transform: translateX(0); }
     }
+    /* Host summary overlay */
     .summary-overlay {
       position: fixed;
       inset: 0;
@@ -66,17 +79,37 @@
       from { opacity: 0; }
       to { opacity: 1; }
     }
-    /* Clean chat – no background, just white text */
-    .chat-message span {
-      color: white;
+    /* Custom exit confirm modal */
+    .confirm-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 400;
     }
-    .chat-message .sender {
-      font-weight: bold;
-      color: #00e3fd;
+    .confirm-modal .modal-box {
+      background: #1f2937;
+      border-radius: 24px;
+      padding: 24px;
+      width: 280px;
+      text-align: center;
     }
-    .chat-message .text {
-      color: white;
-    }
+    /* Level badge gradients (same as profile) */
+    .level-badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 9px; font-weight: bold; margin-left: 6px; color: white; }
+    .level-0 { background: linear-gradient(135deg, #9ca3af, #6b7280); }
+    .level-1 { background: linear-gradient(135deg, #84cc16, #65a30d); }
+    .level-2 { background: linear-gradient(135deg, #14b8a6, #0d9488); }
+    .level-3 { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+    .level-4 { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+    .level-5 { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+    .level-6 { background: linear-gradient(135deg, #ec4899, #db2777); }
+    .level-7 { background: linear-gradient(135deg, #f43f5e, #e11d48); }
+    .level-8 { background: linear-gradient(135deg, #f97316, #ea580c); }
+    .level-9 { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .level-10 { background: linear-gradient(135deg, #eab308, #ca8a04); }
   </style>
 </head>
 <body>
@@ -90,11 +123,16 @@
     <div class="glass-panel rounded-full flex items-center gap-2 pr-3">
       <img id="hostAvatar" class="w-10 h-10 rounded-full border-2 border-primary-fixed object-cover" src="https://ui-avatars.com/api/?name=Host">
       <div>
-        <p id="hostName" class="text-white font-headline font-bold text-sm">Loading...</p>
-        <div class="flex items-center gap-2">
-          <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-          <span class="text-white/70 text-[10px] font-bold">LIVE</span>
-          <span class="text-white/70 text-[10px]">💎 <span id="hostGems">0</span> gems</span>
+        <div class="flex items-center gap-1">
+          <p id="hostName" class="text-white font-headline font-bold text-sm">Loading...</p>
+          <span id="hostLevelBadge" class="level-badge level-0">Lv1</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-1">
+            <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+            <span class="text-white/70 text-[10px] font-bold">LIVE</span>
+          </div>
+          <span class="text-white/70 text-[10px]">💎 <span id="liveGems">0</span> gems (live)</span>
         </div>
       </div>
     </div>
@@ -109,9 +147,10 @@
     </div>
   </div>
 
-  <!-- Chat panel (bottom left) – clean, no background -->
+  <!-- Chat messages – NO BACKGROUND, floats on video -->
   <div class="absolute bottom-24 left-4 w-72 max-w-[calc(100%-2rem)] pointer-events-auto">
-    <div id="chatMessages" class="bg-black/50 rounded-2xl p-3 h-80 overflow-y-auto flex flex-col gap-1 chat-scroll" style="background: rgba(0,0,0,0.5);"></div>
+    <div id="chatMessages" class="h-80 overflow-y-auto flex flex-col gap-1 chat-scroll"></div>
+    <!-- Chat input with minimal glass -->
     <div class="glass-panel rounded-full mt-2 flex items-center gap-2 p-1 pl-4">
       <input id="chatInput" type="text" class="flex-1 bg-transparent border-none text-white text-sm placeholder-white/50 focus:outline-none" placeholder="Say something...">
       <button id="sendChatBtn" class="bg-primary/80 rounded-full w-8 h-8 flex items-center justify-center text-white active:scale-95">
@@ -123,8 +162,8 @@
     </div>
   </div>
 
-  <!-- Control buttons (bottom center) – some hidden for viewers -->
-  <div class="absolute bottom-6 left-0 right-0 flex justify-center gap-4 pointer-events-auto">
+  <!-- Control buttons (bottom center for host, bottom right for viewer's call) -->
+  <div id="hostControls" class="absolute bottom-6 left-0 right-0 flex justify-center gap-4 pointer-events-auto">
     <button id="micBtn" class="glass-panel rounded-full w-12 h-12 flex items-center justify-center text-white active:scale-95">
       <span class="material-symbols-outlined">mic</span>
     </button>
@@ -137,12 +176,16 @@
     <button id="fullscreenBtn" class="glass-panel rounded-full w-12 h-12 flex items-center justify-center text-white active:scale-95">
       <span class="material-symbols-outlined">fullscreen</span>
     </button>
-    <button id="callBtn" class="glass-panel rounded-full w-12 h-12 flex items-center justify-center text-white active:scale-95">
-      <span class="material-symbols-outlined">video_call</span>
-    </button>
     <button id="endLiveBtn" class="glass-panel rounded-full px-5 py-2 bg-red-500/80 text-white font-bold flex items-center gap-1 active:scale-95">
       <span class="material-symbols-outlined">call_end</span>
       <span>End</span>
+    </button>
+  </div>
+
+  <!-- Viewer call button (bottom right, only for viewers) -->
+  <div id="viewerCallBtn" class="absolute bottom-6 right-6 pointer-events-auto hidden">
+    <button id="callBtn" class="glass-panel rounded-full w-12 h-12 flex items-center justify-center text-white active:scale-95">
+      <span class="material-symbols-outlined">video_call</span>
     </button>
   </div>
 </div>
@@ -168,6 +211,17 @@
   </div>
 </div>
 
+<!-- Custom exit confirm modal -->
+<div id="exitConfirmModal" class="confirm-modal hidden">
+  <div class="modal-box">
+    <p class="text-white text-lg mb-4">Exit live stream?</p>
+    <div class="flex gap-3 justify-center">
+      <button id="confirmExit" class="bg-red-500 px-4 py-2 rounded-full text-white">Exit</button>
+      <button id="cancelExit" class="bg-gray-500 px-4 py-2 rounded-full text-white">Stay</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
   import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, onSnapshot, addDoc, serverTimestamp, query, orderBy, limit, increment, updateDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
@@ -184,7 +238,8 @@
   if (!currentUser || !currentUser.userId) window.location.replace("login.html");
   const myUserId = currentUser.userId.toString();
   const myUsername = currentUser.username || "User";
-  const myLevel = currentUser.wealthLevel || currentUser.charmLevel || 1;
+  // Get charm level (or wealth) for badge
+  const myCharmLevel = currentUser.charmLevel ?? currentUser.wealthLevel ?? 1;
 
   const urlParams = new URLSearchParams(window.location.search);
   const roomId = urlParams.get("room");
@@ -204,7 +259,8 @@
   // DOM elements
   const hostAvatar = document.getElementById("hostAvatar");
   const hostNameSpan = document.getElementById("hostName");
-  const hostGemsSpan = document.getElementById("hostGems");
+  const hostLevelBadge = document.getElementById("hostLevelBadge");
+  const liveGemsSpan = document.getElementById("liveGems");
   const viewerCountSpan = document.getElementById("viewerCount");
   const chatMessagesDiv = document.getElementById("chatMessages");
   const chatInput = document.getElementById("chatInput");
@@ -225,16 +281,27 @@
   const previewName = document.getElementById("previewName");
   const previewAge = document.getElementById("previewAge");
   const previewCountry = document.getElementById("previewCountry");
+  const hostControlsDiv = document.getElementById("hostControls");
+  const viewerCallDiv = document.getElementById("viewerCallBtn");
+  const exitConfirmModal = document.getElementById("exitConfirmModal");
+  const confirmExitBtn = document.getElementById("confirmExit");
+  const cancelExitBtn = document.getElementById("cancelExit");
 
   let hostUserId = null;
   let hostData = null;
   let liveStartTime = Date.now();
-  let totalGemsReceived = 0;
+  let totalLiveGems = 0; // gems earned during this live session
   let currentViewerCount = 0;
   let profileTimeout = null;
-  let privateMode = false; // when call is accepted, hide live
+  let privateMode = false;
 
-  // Helper: show profile preview
+  // Helper: get level gradient class
+  function getLevelClass(level) {
+    const lvl = Math.min(Math.max(level, 0), 10);
+    return `level-${lvl}`;
+  }
+
+  // Show profile preview
   function showProfilePreview(userId, userName, avatar, age, country) {
     previewAvatar.src = avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=006571&color=fff`;
     previewName.innerText = userName;
@@ -251,7 +318,7 @@
     return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m]));
   }
 
-  // ---------- Load host info & real-time gems ----------
+  // Load host info and charm level
   async function loadHostInfo() {
     const livesSnap = await getDocs(collection(db, "lives"));
     let hostId = null;
@@ -265,25 +332,22 @@
         hostData = userSnap.data();
         hostNameSpan.innerText = hostData.username || "Host";
         hostAvatar.src = hostData.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(hostData.username || "Host")}&background=006571&color=fff`;
-        hostGemsSpan.innerText = hostData.gems || 0;
+        const hostLevel = hostData.charmLevel ?? hostData.wealthLevel ?? 1;
+        hostLevelBadge.className = `level-badge ${getLevelClass(hostLevel)}`;
+        hostLevelBadge.innerText = `Lv${hostLevel}`;
       }
-      // Real-time host gems update
-      onSnapshot(doc(db, "users", hostUserId), (snap) => {
-        if (snap.exists()) hostGemsSpan.innerText = snap.data().gems || 0;
-      });
     } else if (isHost) {
       hostUserId = myUserId;
       hostNameSpan.innerText = myUsername;
       hostAvatar.src = currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(myUsername)}&background=006571&color=fff`;
-      hostGemsSpan.innerText = currentUser.gems || 0;
-      onSnapshot(doc(db, "users", myUserId), (snap) => {
-        if (snap.exists()) hostGemsSpan.innerText = snap.data().gems || 0;
-      });
+      const hostLevel = currentUser.charmLevel ?? currentUser.wealthLevel ?? 1;
+      hostLevelBadge.className = `level-badge ${getLevelClass(hostLevel)}`;
+      hostLevelBadge.innerText = `Lv${hostLevel}`;
     }
   }
   loadHostInfo();
 
-  // ---------- Viewer count ----------
+  // Viewer count
   async function addViewer() {
     if (isHost) return;
     await setDoc(doc(db, "liveViewers", roomId, "viewers", myUserId), {
@@ -291,7 +355,7 @@
     });
     await addDoc(collection(db, "liveChat", roomId, "messages"), {
       type: "join", senderId: myUserId, senderName: myUsername,
-      text: `${myUsername} joined`, timestamp: serverTimestamp(), level: myLevel
+      text: `${myUsername} joined`, timestamp: serverTimestamp(), level: myCharmLevel
     });
   }
   async function removeViewer() {
@@ -305,7 +369,7 @@
     });
   }
 
-  // ---------- Live Chat (clean, no background) ----------
+  // Live Chat – NO BACKGROUND
   function listenChat() {
     const q = query(collection(db, "liveChat", roomId, "messages"), orderBy("timestamp", "desc"), limit(50));
     onSnapshot(q, (snap) => {
@@ -321,7 +385,7 @@
         } else if (msg.type === 'gift') {
           div.innerHTML = `<span class="text-amber-400 text-xs">🎁 ${escapeHtml(msg.senderName)} sent ${escapeHtml(msg.giftName)}</span>`;
         } else {
-          div.innerHTML = `<span class="sender cursor-pointer hover:underline" data-userid="${msg.senderId}">${escapeHtml(msg.senderName)}:</span> <span class="text">${escapeHtml(msg.text)}</span>`;
+          div.innerHTML = `<span class="sender" data-userid="${msg.senderId}">${escapeHtml(msg.senderName)}:</span> <span>${escapeHtml(msg.text)}</span>`;
         }
         chatMessagesDiv.appendChild(div);
       });
@@ -349,7 +413,7 @@
     chatInput.value = "";
   }
 
-  // ---------- Gift System (prevent self-gift) ----------
+  // Gift System (prevent self-gift, update live gems)
   async function loadGifts() {
     const snapshot = await getDocs(collection(db, "gifts"));
     giftGrid.innerHTML = "";
@@ -376,15 +440,15 @@
     await updateDoc(doc(db, "users", myUserId), { coins: increment(-price) });
     if (hostUserId) {
       const hostRef = doc(db, "users", hostUserId);
-      const hostSnap = await getDoc(hostRef);
-      const currentGems = hostSnap.data()?.gems || 0;
-      await updateDoc(hostRef, { gems: currentGems + price });
-      totalGemsReceived += price;
+      await updateDoc(hostRef, { gems: increment(price) });
+      totalLiveGems += price;
+      liveGemsSpan.innerText = totalLiveGems;
     }
     await addDoc(collection(db, "liveChat", roomId, "messages"), {
       type: "gift", senderId: myUserId, senderName: myUsername,
       giftName: giftName, giftImage: giftImage, quantity: 1, timestamp: serverTimestamp()
     });
+    // Animation
     const anim = document.createElement("div");
     anim.className = "fixed bottom-40 right-10 z-50 animate-bounce";
     anim.innerHTML = `<img src="${giftImage}" class="w-16 h-16 drop-shadow-xl">`;
@@ -392,7 +456,7 @@
     setTimeout(() => anim.remove(), 2000);
   }
 
-  // ---------- Agora Live ----------
+  // Agora Live
   async function startAgora() {
     client = AgoraRTC.createClient({ mode: "live", codec: "vp8" });
     await client.setClientRole(isHost ? "host" : "audience");
@@ -416,6 +480,10 @@
         playerDiv.style.height = "100%";
         document.getElementById("video-container").appendChild(playerDiv);
         user.videoTrack.play(playerDiv);
+        // Apply mirror to remote video if host has mirror enabled (optional)
+        if (isHost && isMirrored) {
+          playerDiv.style.transform = "scaleX(-1)";
+        }
       }
       if (mediaType === "audio") user.audioTrack.play();
     });
@@ -425,7 +493,7 @@
     });
   }
 
-  // ---------- Controls ----------
+  // Controls (only for host)
   async function toggleMic() {
     if (!localAudioTrack) return;
     if (isMuted) {
@@ -456,20 +524,21 @@
     if (!player) return;
     isMirrored = !isMirrored;
     player.style.transform = isMirrored ? "scaleX(-1)" : "scaleX(1)";
+    // Note: This mirror affects local preview only. To show mirrored to viewers,
+    // you would need to apply transform to remote players. For simplicity, we keep local only.
   }
   function toggleFullscreen() {
     if (!document.fullscreenElement) document.documentElement.requestFullscreen();
     else document.exitFullscreen();
   }
 
-  // ---------- Video Call System ----------
+  // Video Call System
   async function requestCall() {
     if (myUserId === hostUserId) return;
     if (privateMode) { alert("Already in a call"); return; }
     const userSnap = await getDoc(doc(db, "users", myUserId));
     const coins = userSnap.data()?.coins || 0;
     if (coins < 1000) { alert("Need 1000 coins for video call"); return; }
-    // Deduct coins immediately? Or later. We'll deduct on acceptance? For simplicity, deduct now.
     await updateDoc(doc(db, "users", myUserId), { coins: increment(-1000) });
     await setDoc(doc(db, "calls", roomId), {
       callerId: myUserId, callerName: myUsername, status: "waiting", timestamp: serverTimestamp()
@@ -488,7 +557,6 @@
           enterPrivateMode(call.callerId, call.callerName);
         } else {
           await deleteDoc(doc(db, "calls", roomId));
-          // Refund? Not implemented for simplicity
         }
       } else if (call.status === "accepted" && !isHost && call.callerId === myUserId) {
         enterPrivateMode(hostUserId, hostData?.username || "Host");
@@ -498,7 +566,6 @@
 
   function enterPrivateMode(otherUserId, otherUserName) {
     privateMode = true;
-    // Hide live video container, show placeholder
     document.getElementById("video-container").innerHTML = `
       <div class="flex flex-col items-center justify-center h-full text-white">
         <span class="material-symbols-outlined text-6xl mb-4">videocam_off</span>
@@ -509,7 +576,7 @@
     `;
     document.getElementById("endCallBtn")?.addEventListener("click", () => {
       privateMode = false;
-      window.location.reload(); // simple reset
+      window.location.reload();
     });
     // Hide chat input and controls
     document.querySelector(".glass-panel.rounded-full.mt-2")?.remove();
@@ -517,7 +584,7 @@
     chatMessagesDiv.innerHTML = '<div class="text-white text-center mt-20">Come back later</div>';
   }
 
-  // ---------- End Live (Host only) ----------
+  // End Live (Host only)
   async function endLive() {
     if (isHost) {
       const duration = Date.now() - liveStartTime;
@@ -528,7 +595,7 @@
           <span class="material-symbols-outlined text-5xl text-primary-fixed">celebration</span>
           <h2 class="text-white font-headline text-xl mt-2">Live Ended</h2>
           <p class="text-white/80 text-sm mt-1">Duration: ${Math.floor(duration/60000)}m ${Math.floor((duration%60000)/1000)}s</p>
-          <p class="text-amber-400 font-bold text-lg mt-2">💎 ${totalGemsReceived} gems received</p>
+          <p class="text-amber-400 font-bold text-lg mt-2">💎 ${totalLiveGems} gems received</p>
           <p class="text-white/70 text-xs">👥 ${currentViewerCount} viewers joined</p>
           <button id="closeSummary" class="mt-4 bg-primary px-6 py-2 rounded-full text-white">Close</button>
         </div>
@@ -549,19 +616,28 @@
     if (!isHost) window.location.href = "dashboard.html";
   }
 
+  // Exit button with custom modal
+  function showExitConfirm() {
+    exitConfirmModal.classList.remove("hidden");
+  }
+  confirmExitBtn.onclick = () => {
+    exitConfirmModal.classList.add("hidden");
+    exitLive();
+  };
+  cancelExitBtn.onclick = () => {
+    exitConfirmModal.classList.add("hidden");
+  };
   function exitLive() {
-    if (confirm("Exit the live stream?")) {
-      removeViewer();
-      if (client) client.leave();
-      window.location.href = document.referrer || "dashboard.html";
-    }
+    removeViewer();
+    if (client) client.leave();
+    window.location.href = document.referrer || "dashboard.html";
   }
 
-  // ---------- Gift panel UI ----------
+  // Gift panel UI
   function openGiftPanel() { giftPanel.style.transform = "translateY(0)"; loadGifts(); }
   function closeGiftPanelFn() { giftPanel.style.transform = "translateY(100%)"; }
 
-  // ---------- Initialize ----------
+  // Initialize
   async function init() {
     await startAgora();
     if (!isHost) await addViewer();
@@ -575,29 +651,30 @@
     cameraBtn.onclick = switchCamera;
     mirrorBtn.onclick = toggleMirror;
     fullscreenBtn.onclick = toggleFullscreen;
-    callBtn.onclick = requestCall;
-    endLiveBtn.onclick = endLive;
-    exitBtn.onclick = exitLive;
-    giftPanelBtn.onclick = openGiftPanel;
-    closeGiftPanel.onclick = closeGiftPanelFn;
-
-    // Hide viewer controls if not host
-    if (!isHost) {
-      micBtn.style.display = "none";
-      cameraBtn.style.display = "none";
-      mirrorBtn.style.display = "none";
-      fullscreenBtn.style.display = "none";
-      endLiveBtn.style.display = "none";
-    } else {
+    if (isHost) {
+      endLiveBtn.onclick = endLive;
+      exitBtn.onclick = showExitConfirm;
       callBtn.style.display = "none"; // host doesn't need call button
+      hostControlsDiv.style.display = "flex";
+      viewerCallDiv.classList.add("hidden");
+    } else {
+      // Viewers: hide host controls, show call button
+      hostControlsDiv.style.display = "none";
+      viewerCallDiv.classList.remove("hidden");
+      callBtn.onclick = requestCall;
+      exitBtn.onclick = showExitConfirm;
     }
 
+    // Host name/avatar clickable
     hostNameSpan.addEventListener("click", () => {
       if (hostUserId) showProfilePreview(hostUserId, hostData?.username || "Host", hostData?.photoURL, hostData?.age, hostData?.country?.name);
     });
     hostAvatar.addEventListener("click", () => {
       if (hostUserId) showProfilePreview(hostUserId, hostData?.username || "Host", hostData?.photoURL, hostData?.age, hostData?.country?.name);
     });
+
+    giftPanelBtn.onclick = openGiftPanel;
+    closeGiftPanel.onclick = closeGiftPanelFn;
   }
   init();
 
