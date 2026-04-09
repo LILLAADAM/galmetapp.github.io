@@ -67,14 +67,15 @@
     <button onclick="alert('Calendar coming soon')" class="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container-high/40 hover:bg-surface-container-high/60 transition-colors">
       <span class="material-symbols-outlined text-primary text-lg">calendar_today</span>
     </button>
-    <button onclick="window.location.href='topup.html'" class="w-8 h-8 flex items-center justify-center rounded-full bg-primary text-on-primary shadow-sm active:scale-95 transition-transform ml-0.5">
+    <!-- CREATE BUTTON (replaces topup) -->
+    <button onclick="openCreateOptions()" class="w-8 h-8 flex items-center justify-center rounded-full bg-primary text-on-primary shadow-sm active:scale-95 transition-transform ml-0.5">
       <span class="material-symbols-outlined text-lg">add</span>
     </button>
   </div>
 </header>
 
 <main class="pt-14 pb-28 px-0 max-w-2xl mx-auto">
-  <!-- Filter Tabs (static) -->
+  <!-- Filter Tabs -->
   <div class="flex gap-6 px-4 py-2 sticky top-12.5 z-40 bg-background/90 backdrop-blur-md overflow-x-auto hide-scrollbar border-b border-surface-container">
     <button class="font-headline font-bold text-slate-400 text-[13px] whitespace-nowrap">New</button>
     <button class="font-headline font-bold text-primary dark:text-primary-fixed text-[13px] border-b-2 border-primary pb-0.5 whitespace-nowrap">Popular</button>
@@ -94,7 +95,7 @@
     </div>
   </div>
 
-  <!-- Banner (static) -->
+  <!-- Banner -->
   <div class="overflow-x-auto hide-scrollbar flex snap-x snap-mandatory mb-4">
     <div class="min-w-full h-24 relative overflow-hidden snap-center flex-shrink-0">
       <img alt="Promo Banner" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGQy2tG8boynppF4-SdmUIA6Jbd5zPAxfMopCDz0A67AZmZC6LXfZh7iXVnmk6YuvYzmoF2pM96uKY9IquY62hJzzoc8692ayS1qEkw0OW9NUJRYBVoTd2uNL6kEI0zXIj3RUaRnVxuDVuC61qYCgY8PIYm1CFDf_h3lqCUDLik-hjT6FpDwZlrlxuNiBAHJeVAjUlVsXRih6qfEsRKPtTGROVrFChcE-eSv8fw1ORRHmYGWI8IpyASfrGvJgupjhfpOTcgBWEPraZ">
@@ -136,7 +137,7 @@
     </div>
   </section>
 
-  <!-- Regional Filters (static) -->
+  <!-- Regional Filters -->
   <div class="flex gap-2 overflow-x-auto hide-scrollbar mb-3.5 px-4">
     <button class="px-5 py-1.5 bg-primary text-on-primary font-bold text-[10px] tracking-[0.1em] rounded-none">ALL</button>
     <button class="px-4 py-1.5 bg-surface-container-high text-on-surface-variant font-bold text-[10px] tracking-[0.1em] flex items-center gap-1.5 rounded-none"><span class="text-xs">🇦🇪</span> UAE</button>
@@ -147,7 +148,7 @@
 
   <!-- Feed Grid (static cards) -->
   <div class="grid grid-cols-2 gap-[1px] px-0 bg-surface-container-highest">
-    <!-- card example (same as before) -->
+    <!-- card example -->
     <div class="relative aspect-[3/4] bg-surface-container-low overflow-hidden">
       <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDeiwZHX_SH8tl8GR_az1X1NokmS1OCUAbd1zMVHHvaObMWwYGbXMi6WTuew0l4SeeANt5gnRwK1emFKe0u_IAjaXnJDax1licPKkrGfr0N849VQ3VoXasWhJn_XDcS4X3xYtpUKpEV624VKZJQlFfmgrnsQVpmbHSKmJcz3ivF2WfD6mkDWa3EGNFlHnYH0Jxk2RHlhCIbZGocxz1YuLq8Redfw_RXxj_MeywJrv42fdqKoe0JGRTDdqXtUoO9fdx_YyTtIcbQWcfN">
       <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20"></div>
@@ -210,6 +211,17 @@
   <button onclick="loadWithdrawHistory()" class="w-full text-primary font-bold text-sm mt-3 underline">View Withdraw History</button>
   <div id="withdrawHistory" class="mt-3 text-sm text-on-surface-variant"></div>
   <button onclick="toggleWithdraw()" class="w-full mt-2 text-error text-sm font-bold">Close</button>
+</div>
+
+<!-- ================= CREATE MODAL ================= -->
+<div id="createOptions" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
+  <div class="bg-surface-container-lowest rounded-2xl p-6 w-[90%] max-w-sm text-center shadow-2xl border border-outline-variant/20">
+    <h2 class="font-headline font-bold text-xl text-on-surface mb-4">Create</h2>
+    <button onclick="createLive()" class="w-full bg-gradient-to-r from-red-500 to-pink-500 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 mb-3 active:scale-95 transition">
+      <span class="material-symbols-outlined">fiber_manual_record</span> Go Live
+    </button>
+    <button onclick="closeCreateOptions()" class="mt-2 text-sm text-outline hover:text-primary transition">Cancel</button>
+  </div>
 </div>
 
 <script type="module">
@@ -331,6 +343,16 @@
   // ==================== JOIN LIVE ====================
   window.joinLive = (roomId) => {
     window.location.href = `live.html?room=${roomId}`;
+  };
+
+  // ==================== CREATE MODAL CONTROLS ====================
+  window.openCreateOptions = () => {
+    document.getElementById("createOptions").classList.remove("hidden");
+    document.getElementById("createOptions").classList.add("flex");
+  };
+  window.closeCreateOptions = () => {
+    document.getElementById("createOptions").classList.add("hidden");
+    document.getElementById("createOptions").classList.remove("flex");
   };
 
   // ==================== OTHER FUNCTIONS ====================
