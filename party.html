@@ -171,11 +171,11 @@
     </div>
   </section>
 
-  <!-- Rooms Grid (dynamically populated) -->
-  <section id="roomsGrid" class="grid grid-cols-2 gap-3"></section>
+  <!-- Rooms Grid (dynamically populated, smaller cards) -->
+  <section id="roomsGrid" class="grid grid-cols-2 gap-2"></section>
 </main>
 
-<!-- Floating Action Button -->
+<!-- Floating Action Button (redirect to CreateParty) -->
 <div class="fixed bottom-24 right-4 z-40">
   <button id="createRoomFAB" class="bg-gradient-to-r from-primary to-primary-fixed-dim text-white rounded-full px-5 py-3 flex items-center gap-2 shadow-xl shadow-primary/30 transition-all active:scale-95">
     <span class="material-symbols-outlined text-xl">add_circle</span>
@@ -205,7 +205,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+  import { getFirestore, collection, onSnapshot, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
   const app = initializeApp({
     apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
@@ -221,41 +221,34 @@
     window.location.replace("login.html");
   }
   const myUserId = currentUser.userId.toString();
-  const myUsername = currentUser.username || "User";
-  const myPhoto = currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(myUsername)}&background=006571&color=fff`;
+  const gender = currentUser.gender;
 
   // ==================== GENDER-BASED CURRENCY DISPLAY ====================
-  const gender = currentUser.gender;
   const balanceValueSpan = document.getElementById("balanceValue");
   const balanceIconSpan = document.getElementById("balanceIcon");
-
-  if (gender === 'male') {
-    balanceValueSpan.innerText = (currentUser.coins || 0).toLocaleString();
-    balanceIconSpan.innerText = "monetization_on";
-  } else if (gender === 'female') {
-    balanceValueSpan.innerText = (currentUser.gems || 0).toLocaleString();
-    balanceIconSpan.innerText = "diamond";
-    balanceIconSpan.classList.add("text-red-400");
-  } else {
-    balanceValueSpan.innerText = (currentUser.coins || 0).toLocaleString();
-    balanceIconSpan.innerText = "monetization_on";
-  }
-
-  // Real-time balance update (optional)
-  import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
   const userRef = doc(db, "users", myUserId);
-  onSnapshot(userRef, (snap) => {
+
+  async function updateBalance() {
+    const snap = await getDoc(userRef);
     if (snap.exists()) {
       const data = snap.data();
       if (gender === 'male') {
         balanceValueSpan.innerText = (data.coins || 0).toLocaleString();
+        balanceIconSpan.innerText = "monetization_on";
       } else if (gender === 'female') {
         balanceValueSpan.innerText = (data.gems || 0).toLocaleString();
+        balanceIconSpan.innerText = "diamond";
+        balanceIconSpan.classList.add("text-red-400");
       } else {
         balanceValueSpan.innerText = (data.coins || 0).toLocaleString();
+        balanceIconSpan.innerText = "monetization_on";
       }
     }
-  });
+  }
+  updateBalance();
+  // listen to realtime changes
+  import { onSnapshot } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+  onSnapshot(userRef, () => updateBalance());
 
   // ==================== LOAD ROOMS (REALTIME) ====================
   const roomsRef = collection(db, "rooms");
@@ -268,8 +261,7 @@
       const roomId = docSnap.id;
       const roomName = room.name || "Unnamed Room";
       const userCount = room.users || 1;
-      // Random image for demo – you can replace with room.coverPhoto if available
-      const imgUrl = `https://picsum.photos/400/400?random=${roomId}`;
+      const coverPhoto = room.coverPhoto || room.hostPhoto || `https://ui-avatars.com/api/?name=${encodeURIComponent(room.hostName || "Party")}&background=006571&color=fff`;
       
       const card = document.createElement("div");
       card.className = "bg-surface-container-lowest straight-corners overflow-hidden shadow-sm flex flex-col group cursor-pointer";
@@ -277,7 +269,7 @@
       
       card.innerHTML = `
         <div class="relative aspect-square">
-          <img class="w-full h-full object-cover straight-corners" src="${imgUrl}" alt="${roomName}">
+          <img class="w-full h-full object-cover straight-corners" src="${coverPhoto}" alt="${roomName}">
           <div class="absolute top-1.5 left-1.5 flex items-center gap-1 px-1.5 py-0.5 bg-black/50 backdrop-blur-md rounded-full">
             <div class="w-1 h-1 bg-primary-fixed rounded-full animate-pulse"></div>
             <span class="text-[9px] text-white font-bold">${userCount}</span>
@@ -309,34 +301,12 @@
     }
   });
 
-  // ==================== CREATE ROOM ====================
-  async function createRoom() {
-    try {
-      const roomRef = await addDoc(collection(db, "rooms"), {
-        name: `${myUsername}'s Room`,
-        hostId: myUserId,
-        hostName: myUsername,
-        hostPhoto: myPhoto,
-        users: 1,
-        createdAt: serverTimestamp(),
-        rewards: 0
-      });
-      // Add host as member
-      await setDoc(doc(db, "rooms", roomRef.id, "members", myUserId), {
-        uid: myUserId,
-        role: "host",
-        joinedAt: serverTimestamp()
-      });
-      location.href = `room.html?id=${roomRef.id}`;
-    } catch (err) {
-      console.error("Create room error:", err);
-      alert("Failed to create room. Please try again.");
-    }
+  // ==================== CREATE ROOM BUTTONS ====================
+  function goToCreateParty() {
+    window.location.href = "CreateParty.html";
   }
-
-  // Attach create room to both buttons
-  document.getElementById("createRoomBtn").onclick = createRoom;
-  document.getElementById("createRoomFAB").onclick = createRoom;
+  document.getElementById("createRoomBtn").onclick = goToCreateParty;
+  document.getElementById("createRoomFAB").onclick = goToCreateParty;
 
   // Helper
   function escapeHtml(str) {
