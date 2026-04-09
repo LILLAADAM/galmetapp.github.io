@@ -1,453 +1,348 @@
 <!DOCTYPE html>
-
-<html class="light" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Galmet Party - Azure Social</title>
-<!-- Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Be+Vietnam+Pro:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
-<!-- Icons -->
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "inverse-primary": "#00e3fd",
-                        "on-tertiary-fixed-variant": "#770033",
-                        "error-container": "#fb5151",
-                        "tertiary-fixed": "#ff8fa9",
-                        "on-error-container": "#570008",
-                        "tertiary-fixed-dim": "#ff769b",
-                        "on-primary-fixed": "#003840",
-                        "on-tertiary": "#ffeff0",
-                        "outline": "#73777b",
-                        "background": "#f3f7fb",
-                        "surface-tint": "#006571",
-                        "primary-fixed-dim": "#00d4ec",
-                        "primary-container": "#00e3fd",
-                        "inverse-surface": "#0a0f12",
-                        "surface-variant": "#d7dee3",
-                        "surface-container-high": "#dde3e8",
-                        "on-secondary-fixed-variant": "#674c00",
-                        "outline-variant": "#a9aeb1",
-                        "primary-dim": "#005863",
-                        "surface-container": "#e3e9ee",
-                        "on-tertiary-fixed": "#380014",
-                        "surface-bright": "#f3f7fb",
-                        "on-primary-fixed-variant": "#005762",
-                        "on-primary": "#d8f8ff",
-                        "on-surface": "#2a2f32",
-                        "tertiary-container": "#ff8fa9",
-                        "primary-fixed": "#00e3fd",
-                        "on-error": "#ffefee",
-                        "surface": "#f3f7fb",
-                        "secondary-container": "#ffca4d",
-                        "on-primary-container": "#004d57",
-                        "tertiary": "#b60051",
-                        "on-surface-variant": "#575c60",
-                        "secondary-dim": "#664b00",
-                        "surface-container-low": "#ecf1f6",
-                        "on-secondary-fixed": "#443100",
-                        "secondary": "#755700",
-                        "on-tertiary-container": "#66002b",
-                        "inverse-on-surface": "#999da1",
-                        "primary": "#006571",
-                        "secondary-fixed": "#ffca4d",
-                        "on-secondary-container": "#5c4400",
-                        "on-secondary": "#fff1db",
-                        "secondary-fixed-dim": "#f7ba00",
-                        "error": "#b31b25",
-                        "error-dim": "#9f0519",
-                        "surface-container-highest": "#d7dee3",
-                        "surface-container-lowest": "#ffffff",
-                        "on-background": "#2a2f32",
-                        "tertiary-dim": "#a00047",
-                        "surface-dim": "#ced5db"
-                    },
-                    fontFamily: {
-                        "headline": ["Plus Jakarta Sans"],
-                        "body": ["Be Vietnam Pro"],
-                        "label": ["Plus Jakarta Sans"]
-                    },
-                    borderRadius: { "DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px" },
-                },
-            },
-        }
-    </script>
-<style>
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .glass-header { backdrop-filter: blur(20px); }
-        .straight-corners { border-radius: 0px !important; }
-    </style>
-<style>
-        body {
-            min-height: max(884px, 100dvh);
-        }
-    </style>
+<html class="light" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Galmet Party - Azure Social</title>
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <!-- Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "inverse-primary": "#00e3fd",
+            "on-tertiary-fixed-variant": "#770033",
+            "error-container": "#fb5151",
+            "tertiary-fixed": "#ff8fa9",
+            "on-error-container": "#570008",
+            "tertiary-fixed-dim": "#ff769b",
+            "on-primary-fixed": "#003840",
+            "on-tertiary": "#ffeff0",
+            "outline": "#73777b",
+            "background": "#f3f7fb",
+            "surface-tint": "#006571",
+            "primary-fixed-dim": "#00d4ec",
+            "primary-container": "#00e3fd",
+            "inverse-surface": "#0a0f12",
+            "surface-variant": "#d7dee3",
+            "surface-container-high": "#dde3e8",
+            "on-secondary-fixed-variant": "#674c00",
+            "outline-variant": "#a9aeb1",
+            "primary-dim": "#005863",
+            "surface-container": "#e3e9ee",
+            "on-tertiary-fixed": "#380014",
+            "surface-bright": "#f3f7fb",
+            "on-primary-fixed-variant": "#005762",
+            "on-primary": "#d8f8ff",
+            "on-surface": "#2a2f32",
+            "tertiary-container": "#ff8fa9",
+            "primary-fixed": "#00e3fd",
+            "on-error": "#ffefee",
+            "surface": "#f3f7fb",
+            "secondary-container": "#ffca4d",
+            "on-primary-container": "#004d57",
+            "tertiary": "#b60051",
+            "on-surface-variant": "#575c60",
+            "secondary-dim": "#664b00",
+            "surface-container-low": "#ecf1f6",
+            "on-secondary-fixed": "#443100",
+            "secondary": "#755700",
+            "on-tertiary-container": "#66002b",
+            "inverse-on-surface": "#999da1",
+            "primary": "#006571",
+            "secondary-fixed": "#ffca4d",
+            "on-secondary-container": "#5c4400",
+            "on-secondary": "#fff1db",
+            "secondary-fixed-dim": "#f7ba00",
+            "error": "#b31b25",
+            "error-dim": "#9f0519",
+            "surface-container-highest": "#d7dee3",
+            "surface-container-lowest": "#ffffff",
+            "on-background": "#2a2f32",
+            "tertiary-dim": "#a00047",
+            "surface-dim": "#ced5db"
+          },
+          fontFamily: {
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Be Vietnam Pro"],
+            "label": ["Plus Jakarta Sans"]
+          },
+          borderRadius: { "DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px" },
+        },
+      },
+    }
+  </script>
+  <style>
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .glass-header { backdrop-filter: blur(20px); }
+    .straight-corners { border-radius: 0px !important; }
+  </style>
 </head>
 <body class="bg-background font-body text-on-surface">
-<!-- TopAppBar Execution -->
-<header class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-surface-variant/30 transition-all duration-300">
-<div class="flex justify-between items-center px-4 h-14 w-full">
-<div class="flex items-center gap-2">
-<button class="transition-all duration-300 active:scale-95 text-primary">
-<span class="material-symbols-outlined text-2xl font-bold" data-icon="add">add</span>
-</button>
-<h1 class="font-headline font-bold text-base text-on-surface">Party</h1>
-</div>
-<div class="flex items-center gap-3">
-<!-- Currency Section -->
-<div class="bg-secondary-container/20 px-2 py-1 rounded-full flex items-center gap-2 border border-secondary-container/30">
-<div class="flex items-center gap-1">
-<span class="text-[10px] font-label font-bold text-secondary">70</span>
-<span class="material-symbols-outlined text-xs text-secondary" data-icon="monetization_on">monetization_on</span>
-</div>
-<div class="w-[1px] h-2.5 bg-secondary/30"></div>
-<div class="flex items-center gap-1">
-<span class="text-[10px] font-label font-bold text-tertiary">120</span>
-<span class="material-symbols-outlined text-xs text-tertiary" data-icon="diamond" style="font-variation-settings: 'FILL' 1;">diamond</span>
-</div>
-</div>
-<div class="flex gap-0.5">
-<button class="p-1.5 text-on-surface-variant hover:bg-slate-100/50 rounded-full transition-all">
-<span class="material-symbols-outlined text-xl" data-icon="emoji_events">emoji_events</span>
-</button>
-<button class="p-1.5 text-on-surface-variant hover:bg-slate-100/50 rounded-full transition-all">
-<span class="material-symbols-outlined text-xl" data-icon="calendar_today">calendar_today</span>
-</button>
-</div>
-</div>
-</div>
+
+<!-- TopAppBar with gender‑based currency -->
+<header class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-surface-variant/30">
+  <div class="flex justify-between items-center px-4 h-14 w-full max-w-md mx-auto">
+    <div class="flex items-center gap-2">
+      <button id="createRoomBtn" class="transition-all duration-300 active:scale-95 text-primary">
+        <span class="material-symbols-outlined text-2xl font-bold">add</span>
+      </button>
+      <h1 class="font-headline font-bold text-base text-on-surface">Party</h1>
+    </div>
+    <div class="flex items-center gap-3">
+      <!-- Currency Section (dynamic: Coins for male, Gems for female) -->
+      <div id="currencyPill" class="bg-secondary-container/20 px-2 py-1 rounded-full flex items-center gap-2 border border-secondary-container/30">
+        <div class="flex items-center gap-1">
+          <span id="balanceValue" class="text-[10px] font-label font-bold text-secondary">0</span>
+          <span id="balanceIcon" class="material-symbols-outlined text-xs text-secondary">monetization_on</span>
+        </div>
+        <div class="w-[1px] h-2.5 bg-secondary/30"></div>
+        <div class="flex items-center gap-1">
+          <span class="text-[10px] font-label font-bold text-tertiary">0</span>
+          <span class="material-symbols-outlined text-xs text-tertiary" style="font-variation-settings:'FILL'1">diamond</span>
+        </div>
+      </div>
+      <div class="flex gap-0.5">
+        <button class="p-1.5 text-on-surface-variant hover:bg-slate-100/50 rounded-full">
+          <span class="material-symbols-outlined text-xl">emoji_events</span>
+        </button>
+        <button class="p-1.5 text-on-surface-variant hover:bg-slate-100/50 rounded-full">
+          <span class="material-symbols-outlined text-xl">calendar_today</span>
+        </button>
+      </div>
+    </div>
+  </div>
 </header>
+
 <main class="pt-16 pb-24 px-3 max-w-2xl mx-auto">
-<!-- Promo Banners Section - Smaller height ~100px -->
-<section class="mb-4">
-<div class="flex overflow-x-auto gap-3 no-scrollbar snap-x snap-mandatory">
-<div class="min-w-[80%] h-[100px] bg-primary relative straight-corners overflow-hidden snap-start shadow-sm">
-<img class="absolute inset-0 w-full h-full object-cover opacity-50" data-alt="Modern office interior" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBp3Ur3gLthpF6X6M2MkGwKlSsWvvhYG30UF733e7_t1xz4nK34guJyEeVTkyk-oFPTmosUlCsS-nNwF-nPtm4EyL1vaIhPOXNoRxFplG7-KP0GNZ2DeGdwjPIj65prE7OJncTd27Qzrki_KMbgjFJkIT85m1YRe26rPql2c2OTeiTNmZHqbID60THArDVKkAySKHKnDD6lY7NgQmUazgISiTSpdS39MEnuekuf_ZMdjVL19q4eee4_F9nDlN6oYnXjj0UnjIYmvJIe"/>
-<div class="absolute inset-0 bg-gradient-to-r from-primary/80 to-transparent flex flex-col justify-center p-4">
-<span class="text-[8px] font-label uppercase tracking-widest text-primary-container mb-0.5 font-bold">Partnership</span>
-<h2 class="text-sm font-headline font-extrabold text-on-primary leading-tight">To be Agent</h2>
-<button class="mt-2 w-fit px-3 py-1 bg-primary-container text-on-primary-container text-[9px] font-bold straight-corners">Apply Now</button>
-</div>
-</div>
-<div class="min-w-[80%] h-[100px] bg-tertiary relative straight-corners overflow-hidden snap-start shadow-sm">
-<img class="absolute inset-0 w-full h-full object-cover opacity-50" data-alt="Summer festival" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgU5HCic5LkvoOCJ8P_y7L9megl4rq4Ey2AdCCbmtoh-B0NiceaowE98b3Ar2lDW4ZQBLnpyu9rZl_S_ARd59C7tZExfKPgIyONw2Eoj_R8iMvuOa_6pvkQ3K00oj-Jbg_B7j6-Q1B_xX8UJbym91WFWI_oxZU8C_Zr5Q_pIz5Pn9aHByCD-SQSSB_KakBvUnKWQazYcmofhU-_zJ2pY3o7-rQFLwlLuNM7PcAaFhSbSDiPOEmQNSMut2QCCg1X-ej07kxTEpKxOxD"/>
-<div class="absolute inset-0 bg-gradient-to-r from-tertiary/80 to-transparent flex flex-col justify-center p-4">
-<span class="text-[8px] font-label uppercase tracking-widest text-tertiary-fixed mb-0.5 font-bold">Limited Time</span>
-<h2 class="text-sm font-headline font-extrabold text-white leading-tight">Summer Carnival</h2>
-<button class="mt-2 w-fit px-3 py-1 bg-secondary-fixed text-on-secondary-fixed text-[9px] font-bold straight-corners">Join Fest</button>
-</div>
-</div>
-</div>
-</section>
-<!-- Play Games Section - Scaled down -->
-<section class="mb-4">
-<div class="flex items-center justify-between mb-2">
-<h3 class="font-headline text-sm font-bold flex items-center gap-1.5">
-                    Play Games <span class="text-base">🎮</span>
-</h3>
-<span class="text-primary text-[10px] font-bold font-label">View All</span>
-</div>
-<div class="flex overflow-x-auto gap-3 no-scrollbar pb-1">
-<!-- Game Card 1 -->
-<div class="flex-shrink-0 w-16 flex flex-col items-center gap-1">
-<div class="w-16 h-16 bg-surface-container rounded-xl flex items-center justify-center shadow-sm relative overflow-hidden">
-<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDHAgFQDCC1hsuxZB3g9V8SsP27RJmGmCfl_HG9UUolc9qs9_iUNJUoY4spfcjotZykjQ1gfCofImWmKJIVzID-eiLU3qgD8EYBxbbcoU-vJwwjB0_kwmIpNOH9vzmGZuVF5PcDZjth4NMiCXFdGrNm6q-GwIa8UA5uUWshtw1u0EWQ7r6xz_MD_0Q7cEmrcFmFOGQAIZa4dJBuOPXFdCE-h1oooeHfEiTTbgy0QQYzgMRB5fQhAlkmqXOogkv0sVJg4u7vAVROidPJ"/>
-</div>
-<span class="text-[9px] font-label font-bold text-center leading-tight truncate w-full">Lucky Car</span>
-</div>
-<!-- Game Card 2 -->
-<div class="flex-shrink-0 w-16 flex flex-col items-center gap-1">
-<div class="w-16 h-16 bg-surface-container rounded-xl flex items-center justify-center shadow-sm relative overflow-hidden">
-<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBsCnPRul8LNbMkd01yCdFb2emqhhe4QvVZzfWZ3Y5z63zfUdy10gFykvlok7muiGxigCr552Br8CcMX2q-YZg3qa_lG8C4fZh0BF90YQEMK0zNo5IA1q4OxOkXA7Pw39Rr3gMM3Qi9RsICUYwVHd_nCZn5XE-AXve8Gnkn4B1I1Tgalviro2th_xO-3BYayRpVEi0eeVPwVb-9d9oACbS403rJklhQmHjwxwqx7I3_EgHZz8NCJpIbxA-c4OD87K1UO1J1R787Nk83"/>
-</div>
-<span class="text-[9px] font-label font-bold text-center leading-tight truncate w-full">Lucky Wheel</span>
-</div>
-<!-- Game Card 3 -->
-<div class="flex-shrink-0 w-16 flex flex-col items-center gap-1">
-<div class="w-16 h-16 bg-surface-container rounded-xl flex items-center justify-center shadow-sm relative overflow-hidden">
-<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAP9YTXwIVSN8rKJKoqISYBk0NmZyB3whPCP2K2xofR7PzOdyhj9zVl3ufDUYpvjl-xs_v1NDCqLHPmVydhk-fEEJuAtIL5xwCRpofythLr6MTeqGchRquT_jTml7KeHAAVVUSfIDctnwQkiRnxN6YFq6lvj3kPYykXd6L8cUjlhyWDqUedK3QSMACD4JyoHTZDw8TY0NmYWe_m0vQ4_bnTeRidJhulDdl4arpRn4vulU0sgHPesCIZWM30el2M-t_AX3XqT7V8vsLQ"/>
-</div>
-<span class="text-[9px] font-label font-bold text-center leading-tight truncate w-full">Lucky Fly</span>
-</div>
-<!-- Game Card 4 -->
-<div class="flex-shrink-0 w-16 flex flex-col items-center gap-1">
-<div class="w-16 h-16 bg-surface-container rounded-xl flex items-center justify-center shadow-sm relative overflow-hidden">
-<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUhDzaseWBEll8Q7eFWK3m_VwcebTB484k-v0zeAzatAZPc55NcDIxpaPWVyiLtQoBHVPW9jfG3GL0fd4wGXD5AMO4OQd4g_80IaQEhq6mN9DBaRfvM0NNwHrmiDSM-NqGSe9bQ_h1_BQ0I5Ri5p5HcMg98tJuk4vS1hhba1nNmOELfiUvLI_ECrnDqdggEXlLq_hKCwd5pfAlCgs57jthR8YWMkI21LLudwy7EXF28M9BGnDCn6NeiUo_9FLYZ9Yxfq_t6HQr0ssE"/>
-</div>
-<span class="text-[9px] font-label font-bold text-center leading-tight truncate w-full">Poker Pro</span>
-</div>
-<!-- Game Card 5 -->
-<div class="flex-shrink-0 w-16 flex flex-col items-center gap-1">
-<div class="w-16 h-16 bg-surface-container rounded-xl flex items-center justify-center shadow-sm relative overflow-hidden">
-<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKAbmTID1-93eBMOre79xH-8mPihn3a6inFjjFyipIf7aUjyJZnF5kqLxncOj7GKRnJ_Prq1gkgR7ImOQrU7B-8ENIvqwU8R9OuMWR6vsLdod1jZzqOt9WBXlEzKhgRVvB4dDgmh6yhwv_FmREQy6p8YwDijDIpdr-cQ3WtIY4BweakLOi0H850-dTRG9duYw_MOBii75dy_dHDSF_GJZlrCrQXkVa9z6WW-I8Jw5IdeOIDnxzaHG3ejmh4ZpHciKnoArsQ7AaA8Kh"/>
-</div>
-<span class="text-[9px] font-label font-bold text-center leading-tight truncate w-full">Slots</span>
-</div>
-</div>
-</section>
-<!-- Filter Tabs -->
-<section class="mb-4 sticky top-14 bg-background/90 backdrop-blur-md z-40 py-1">
-<div class="flex items-center justify-between border-b border-outline-variant/10">
-<div class="flex gap-6">
-<button class="pb-2 text-[13px] font-label font-bold text-on-surface-variant relative transition-colors">New</button>
-<button class="pb-2 text-[13px] font-label font-bold text-primary relative transition-colors">
-                        Popular
-                        <div class="absolute bottom-0 left-0 w-full h-0.5 bg-primary"></div>
-</button>
-<button class="pb-2 text-[13px] font-label font-bold text-on-surface-variant relative transition-colors">Follow</button>
-</div>
-<button class="p-1.5 text-on-surface-variant hover:bg-surface-container rounded-lg transition-all">
-<span class="material-symbols-outlined text-xl" data-icon="apps">apps</span>
-</button>
-</div>
-</section>
-<!-- Room Grid - Straight corners, 2 columns, high density -->
-<section id="roomsGrid" class="grid grid-cols-2 gap-3"></section>
-<!-- Room Item 1 -->
-<div class="bg-surface-container-lowest straight-corners overflow-hidden shadow-sm flex flex-col group">
-<div class="relative aspect-square">
-<img class="w-full h-full object-cover straight-corners" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjjL8h5iLUsnV_ODjF_s8rLeXESfyqLF0i6eLPvKWe5ePqhWUU_L6lMAPyNq2pP_TKFeF-9vWFcqeR5kp6jXPkfOcYYW-EAVYRs6aZQj6oSBg9tpeKONO02gHlTtXypSPp0XQK3yJt9iEaDS3XUlF6zlZNyThlP-Ojnjz7L_74C2miSHrlARsxlsN1GsZEIDJF38V8ZxVyldxj081cItRD7zgHj3a0ySxAybnWFchBBVLDhuQtUWyqmNiDVBSFVMDZpoG0YFvp-Dc3"/>
-<div class="absolute top-1.5 left-1.5 flex items-center gap-1 px-1.5 py-0.5 bg-black/50 backdrop-blur-md rounded-full">
-<div class="w-1 h-1 bg-primary-fixed rounded-full animate-pulse"></div>
-<span class="text-[9px] text-white font-bold">1.2k</span>
-</div>
-<div class="absolute bottom-1.5 left-1.5 right-1.5 flex justify-between items-center">
-<div class="flex items-center gap-1 bg-black/30 backdrop-blur-md px-1.5 py-0.5 rounded-full">
-<span class="text-[11px]">🇺🇸</span>
-</div>
-<div class="flex items-center gap-1 bg-primary/90 backdrop-blur-md px-1.5 py-0.5 rounded-full">
-<span class="material-symbols-outlined text-[10px] text-white" data-icon="equalizer">equalizer</span>
-</div>
-</div>
-</div>
-<div class="p-2">
-<h4 class="font-headline text-[12px] font-bold truncate text-on-surface">Alex Party Room</h4>
-<div class="flex items-center justify-between mt-1">
-<span class="text-[9px] text-on-surface-variant font-medium">@alex_vibe</span>
-<div class="flex items-center gap-0.5">
-<span class="material-symbols-outlined text-[10px] text-tertiary" data-icon="diamond" style="font-variation-settings: 'FILL' 1;">diamond</span>
-<span class="text-[9px] font-bold text-tertiary">42.5k</span>
-</div>
-</div>
-</div>
-</div>
-<!-- Room Item 2 -->
-<div class="bg-surface-container-lowest straight-corners overflow-hidden shadow-sm flex flex-col group">
-<div class="relative aspect-square">
-<img class="w-full h-full object-cover straight-corners" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKAbmTID1-93eBMOre79xH-8mPihn3a6inFjjFyipIf7aUjyJZnF5kqLxncOj7GKRnJ_Prq1gkgR7ImOQrU7B-8ENIvqwU8R9OuMWR6vsLdod1jZzqOt9WBXlEzKhgRVvB4dDgmh6yhwv_FmREQy6p8YwDijDIpdr-cQ3WtIY4BweakLOi0H850-dTRG9duYw_MOBii75dy_dHDSF_GJZlrCrQXkVa9z6WW-I8Jw5IdeOIDnxzaHG3ejmh4ZpHciKnoArsQ7AaA8Kh"/>
-<div class="absolute top-1.5 left-1.5 flex items-center gap-1 px-1.5 py-0.5 bg-black/50 backdrop-blur-md rounded-full">
-<div class="w-1 h-1 bg-primary-fixed rounded-full animate-pulse"></div>
-<span class="text-[9px] text-white font-bold">856</span>
-</div>
-<div class="absolute bottom-1.5 left-1.5 right-1.5 flex justify-between items-center">
-<div class="flex items-center gap-1 bg-black/30 backdrop-blur-md px-1.5 py-0.5 rounded-full">
-<span class="text-[11px]">🇨🇦</span>
-</div>
-<div class="flex items-center gap-1 bg-tertiary/90 backdrop-blur-md px-1.5 py-0.5 rounded-full">
-<span class="material-symbols-outlined text-[10px] text-white" data-icon="graphic_eq">graphic_eq</span>
-</div>
-</div>
-</div>
-<div class="p-2">
-<h4 class="font-headline text-[12px] font-bold truncate text-on-surface">Sarah's Lounge</h4>
-<div class="flex items-center justify-between mt-1">
-<span class="text-[9px] text-on-surface-variant font-medium">@sarah_games</span>
-<div class="flex items-center gap-0.5">
-<span class="material-symbols-outlined text-[10px] text-tertiary" data-icon="diamond" style="font-variation-settings: 'FILL' 1;">diamond</span>
-<span class="text-[9px] font-bold text-tertiary">12.8k</span>
-</div>
-</div>
-</div>
-</div>
-<!-- Room Item 3 -->
-<div class="bg-surface-container-lowest straight-corners overflow-hidden shadow-sm flex flex-col group">
-<div class="relative aspect-square">
-<img class="w-full h-full object-cover straight-corners" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmQkTYiUklpwyC99rbO2H3mSQOOFbdRjL8CRLnAYqr6UVJXl2KRCZTRUgB8kZEcVN_x26b30lrg3t0sm7kb52FbB1ZmRGVffgDA8RZeVM9HaDIVbCWFFscbqjp1lW-HF91fxZd04Lp_f8onLPzQjJGusLsH7Wmt2Ph5AWyToqBgb2FzXABUYKE927_E-XqBFoBWwR6NU5LhF1H6z4QiiemjbxeGXw2zjVOCNk3UHc8cVK22P6AG9d3JXNxUapuFklzJ0HGVfhqVywC"/>
-<div class="absolute top-1.5 left-1.5 flex items-center gap-1 px-1.5 py-0.5 bg-black/50 backdrop-blur-md rounded-full">
-<div class="w-1 h-1 bg-primary-fixed rounded-full animate-pulse"></div>
-<span class="text-[9px] text-white font-bold">2.4k</span>
-</div>
-<div class="absolute bottom-1.5 left-1.5 right-1.5 flex justify-between items-center">
-<div class="flex items-center gap-1 bg-black/30 backdrop-blur-md px-1.5 py-0.5 rounded-full">
-<span class="text-[11px]">🇬🇧</span>
-</div>
-<div class="flex items-center gap-1 bg-primary/90 backdrop-blur-md px-1.5 py-0.5 rounded-full">
-<span class="material-symbols-outlined text-[10px] text-white" data-icon="music_note">music_note</span>
-</div>
-</div>
-</div>
-<div class="p-2">
-<h4 class="font-headline text-[12px] font-bold truncate text-on-surface">Late Night Beats</h4>
-<div class="flex items-center justify-between mt-1">
-<span class="text-[9px] text-on-surface-variant font-medium">@dj_mark</span>
-<div class="flex items-center gap-0.5">
-<span class="material-symbols-outlined text-[10px] text-tertiary" data-icon="diamond" style="font-variation-settings: 'FILL' 1;">diamond</span>
-<span class="text-[9px] font-bold text-tertiary">89.1k</span>
-</div>
-</div>
-</div>
-</div>
-<!-- Room Item 4 -->
-<div class="bg-surface-container-lowest straight-corners overflow-hidden shadow-sm flex flex-col group">
-<div class="relative aspect-square">
-<img class="w-full h-full object-cover straight-corners" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAilPh9FN2Pf8NtG6ngDyK4vav_gDolVZWXa-HIjP7z9y_JBuCcqTIrVT2ZZSuG7GxHTS9O5Fn-i9-bzeTQv_mCRKhjjuQ80P7ic3PvAI0U-iuyUwEHfJ-u8RfhcjHTs_MJK7RWKdgabrHUN5l2oQE3HLb5I7A32TxdqaJj11av07ArqJUi8W9SVqTMVTJ73fF6tfgHMMrofz_HfujJaUYMILaHk2i8tKNpJjEZ7m6WEjlFgFb3eIQwmjT5fXZ9Cipcr7vPW6e-_A6p"/>
-<div class="absolute top-1.5 left-1.5 flex items-center gap-1 px-1.5 py-0.5 bg-black/50 backdrop-blur-md rounded-full">
-<div class="w-1 h-1 bg-primary-fixed rounded-full animate-pulse"></div>
-<span class="text-[9px] text-white font-bold">542</span>
-</div>
-<div class="absolute bottom-1.5 left-1.5 right-1.5 flex justify-between items-center">
-<div class="flex items-center gap-1 bg-black/30 backdrop-blur-md px-1.5 py-0.5 rounded-full">
-<span class="text-[11px]">🇦🇺</span>
-</div>
-<div class="flex items-center gap-1 bg-secondary/90 backdrop-blur-md px-1.5 py-0.5 rounded-full">
-<span class="material-symbols-outlined text-[10px] text-white" data-icon="celebration">celebration</span>
-</div>
-</div>
-</div>
-<div class="p-2">
-<h4 class="font-headline text-[12px] font-bold truncate text-on-surface">Club Azure 🎉</h4>
-<div class="flex items-center justify-between mt-1">
-<span class="text-[9px] text-on-surface-variant font-medium">@lily_rose</span>
-<div class="flex items-center gap-0.5">
-<span class="material-symbols-outlined text-[10px] text-tertiary" data-icon="diamond" style="font-variation-settings: 'FILL' 1;">diamond</span>
-<span class="text-[9px] font-bold text-tertiary">5.2k</span>
-</div>
-</div>
-</div>
-</div>
-</section>
+  <!-- Promo Banners (unchanged) -->
+  <section class="mb-4">
+    <div class="flex overflow-x-auto gap-3 no-scrollbar snap-x snap-mandatory">
+      <div class="min-w-[80%] h-[100px] bg-primary relative straight-corners overflow-hidden snap-start shadow-sm">
+        <img class="absolute inset-0 w-full h-full object-cover opacity-50" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBp3Ur3gLthpF6X6M2MkGwKlSsWvvhYG30UF733e7_t1xz4nK34guJyEeVTkyk-oFPTmosUlCsS-nNwF-nPtm4EyL1vaIhPOXNoRxFplG7-KP0GNZ2DeGdwjPIj65prE7OJncTd27Qzrki_KMbgjFJkIT85m1YRe26rPql2c2OTeiTNmZHqbID60THArDVKkAySKHKnDD6lY7NgQmUazgISiTSpdS39MEnuekuf_ZMdjVL19q4eee4_F9nDlN6oYnXjj0UnjIYmvJIe">
+        <div class="absolute inset-0 bg-gradient-to-r from-primary/80 to-transparent flex flex-col justify-center p-4">
+          <span class="text-[8px] font-label uppercase tracking-widest text-primary-container mb-0.5 font-bold">Partnership</span>
+          <h2 class="text-sm font-headline font-extrabold text-on-primary leading-tight">To be Agent</h2>
+          <button class="mt-2 w-fit px-3 py-1 bg-primary-container text-on-primary-container text-[9px] font-bold straight-corners">Apply Now</button>
+        </div>
+      </div>
+      <div class="min-w-[80%] h-[100px] bg-tertiary relative straight-corners overflow-hidden snap-start shadow-sm">
+        <img class="absolute inset-0 w-full h-full object-cover opacity-50" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgU5HCic5LkvoOCJ8P_y7L9megl4rq4Ey2AdCCbmtoh-B0NiceaowE98b3Ar2lDW4ZQBLnpyu9rZl_S_ARd59C7tZExfKPgIyONw2Eoj_R8iMvuOa_6pvkQ3K00oj-Jbg_B7j6-Q1B_xX8UJbym91WFWI_oxZU8C_Zr5Q_pIz5Pn9aHByCD-SQSSB_KakBvUnKWQazYcmofhU-_zJ2pY3o7-rQFLwlLuNM7PcAaFhSbSDiPOEmQNSMut2QCCg1X-ej07kxTEpKxOxD">
+        <div class="absolute inset-0 bg-gradient-to-r from-tertiary/80 to-transparent flex flex-col justify-center p-4">
+          <span class="text-[8px] font-label uppercase tracking-widest text-tertiary-fixed mb-0.5 font-bold">Limited Time</span>
+          <h2 class="text-sm font-headline font-extrabold text-white leading-tight">Summer Carnival</h2>
+          <button class="mt-2 w-fit px-3 py-1 bg-secondary-fixed text-on-secondary-fixed text-[9px] font-bold straight-corners">Join Fest</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Games Section (unchanged) -->
+  <section class="mb-4">
+    <div class="flex items-center justify-between mb-2">
+      <h3 class="font-headline text-sm font-bold flex items-center gap-1.5">Play Games <span class="text-base">🎮</span></h3>
+      <span class="text-primary text-[10px] font-bold font-label">View All</span>
+    </div>
+    <div class="flex overflow-x-auto gap-3 no-scrollbar pb-1">
+      <!-- Game cards (same as before) -->
+      <div class="flex-shrink-0 w-16 flex flex-col items-center gap-1"><div class="w-16 h-16 bg-surface-container rounded-xl flex items-center justify-center shadow-sm relative overflow-hidden"><img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDHAgFQDCC1hsuxZB3g9V8SsP27RJmGmCfl_HG9UUolc9qs9_iUNJUoY4spfcjotZykjQ1gfCofImWmKJIVzID-eiLU3qgD8EYBxbbcoU-vJwwjB0_kwmIpNOH9vzmGZuVF5PcDZjth4NMiCXFdGrNm6q-GwIa8UA5uUWshtw1u0EWQ7r6xz_MD_0Q7cEmrcFmFOGQAIZa4dJBuOPXFdCE-h1oooeHfEiTTbgy0QQYzgMRB5fQhAlkmqXOogkv0sVJg4u7vAVROidPJ"/></div><span class="text-[9px] font-label font-bold text-center truncate w-full">Lucky Car</span></div>
+      <div class="flex-shrink-0 w-16 flex flex-col items-center gap-1"><div class="w-16 h-16 bg-surface-container rounded-xl flex items-center justify-center shadow-sm relative overflow-hidden"><img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBsCnPRul8LNbMkd01yCdFb2emqhhe4QvVZzfWZ3Y5z63zfUdy10gFykvlok7muiGxigCr552Br8CcMX2q-YZg3qa_lG8C4fZh0BF90YQEMK0zNo5IA1q4OxOkXA7Pw39Rr3gMM3Qi9RsICUYwVHd_nCZn5XE-AXve8Gnkn4B1I1Tgalviro2th_xO-3BYayRpVEi0eeVPwVb-9d9oACbS403rJklhQmHjwxwqx7I3_EgHZz8NCJpIbxA-c4OD87K1UO1J1R787Nk83"/></div><span class="text-[9px] font-label font-bold text-center truncate w-full">Lucky Wheel</span></div>
+      <div class="flex-shrink-0 w-16 flex flex-col items-center gap-1"><div class="w-16 h-16 bg-surface-container rounded-xl flex items-center justify-center shadow-sm relative overflow-hidden"><img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAP9YTXwIVSN8rKJKoqISYBk0NmZyB3whPCP2K2xofR7PzOdyhj9zVl3ufDUYpvjl-xs_v1NDCqLHPmVydhk-fEEJuAtIL5xwCRpofythLr6MTeqGchRquT_jTml7KeHAAVVUSfIDctnwQkiRnxN6YFq6lvj3kPYykXd6L8cUjlhyWDqUedK3QSMACD4JyoHTZDw8TY0NmYWe_m0vQ4_bnTeRidJhulDdl4arpRn4vulU0sgHPesCIZWM30el2M-t_AX3XqT7V8vsLQ"/></div><span class="text-[9px] font-label font-bold text-center truncate w-full">Lucky Fly</span></div>
+      <div class="flex-shrink-0 w-16 flex flex-col items-center gap-1"><div class="w-16 h-16 bg-surface-container rounded-xl flex items-center justify-center shadow-sm relative overflow-hidden"><img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUhDzaseWBEll8Q7eFWK3m_VwcebTB484k-v0zeAzatAZPc55NcDIxpaPWVyiLtQoBHVPW9jfG3GL0fd4wGXD5AMO4OQd4g_80IaQEhq6mN9DBaRfvM0NNwHrmiDSM-NqGSe9bQ_h1_BQ0I5Ri5p5HcMg98tJuk4vS1hhba1nNmOELfiUvLI_ECrnDqdggEXlLq_hKCwd5pfAlCgs57jthR8YWMkI21LLudwy7EXF28M9BGnDCn6NeiUo_9FLYZ9Yxfq_t6HQr0ssE"/></div><span class="text-[9px] font-label font-bold text-center truncate w-full">Poker Pro</span></div>
+      <div class="flex-shrink-0 w-16 flex flex-col items-center gap-1"><div class="w-16 h-16 bg-surface-container rounded-xl flex items-center justify-center shadow-sm relative overflow-hidden"><img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKAbmTID1-93eBMOre79xH-8mPihn3a6inFjjFyipIf7aUjyJZnF5kqLxncOj7GKRnJ_Prq1gkgR7ImOQrU7B-8ENIvqwU8R9OuMWR6vsLdod1jZzqOt9WBXlEzKhgRVvB4dDgmh6yhwv_FmREQy6p8YwDijDIpdr-cQ3WtIY4BweakLOi0H850-dTRG9duYw_MOBii75dy_dHDSF_GJZlrCrQXkVa9z6WW-I8Jw5IdeOIDnxzaHG3ejmh4ZpHciKnoArsQ7AaA8Kh"/></div><span class="text-[9px] font-label font-bold text-center truncate w-full">Slots</span></div>
+    </div>
+  </section>
+
+  <!-- Filter Tabs (unchanged) -->
+  <section class="mb-4 sticky top-14 bg-background/90 backdrop-blur-md z-40 py-1">
+    <div class="flex items-center justify-between border-b border-outline-variant/10">
+      <div class="flex gap-6">
+        <button class="pb-2 text-[13px] font-label font-bold text-on-surface-variant relative transition-colors">New</button>
+        <button class="pb-2 text-[13px] font-label font-bold text-primary relative transition-colors">Popular<div class="absolute bottom-0 left-0 w-full h-0.5 bg-primary"></div></button>
+        <button class="pb-2 text-[13px] font-label font-bold text-on-surface-variant relative transition-colors">Follow</button>
+      </div>
+      <button class="p-1.5 text-on-surface-variant hover:bg-surface-container rounded-lg"><span class="material-symbols-outlined text-xl">apps</span></button>
+    </div>
+  </section>
+
+  <!-- Rooms Grid (dynamically populated) -->
+  <section id="roomsGrid" class="grid grid-cols-2 gap-3"></section>
 </main>
-<!-- Floating Action Button - Scaled down naturally -->
+
+<!-- Floating Action Button -->
 <div class="fixed bottom-24 right-4 z-40">
-<button id="createRoomBtn" class="bg-gradient-to-r from-primary to-primary-fixed-dim text-white rounded-full px-5 py-3 flex items-center gap-2 shadow-xl shadow-primary/30 transition-all active:scale-95">
-<span class="material-symbols-outlined text-xl" data-icon="add_circle">add_circle</span>
-<span class="font-label font-bold text-xs">Let's Party</span>
-</button>
+  <button id="createRoomFAB" class="bg-gradient-to-r from-primary to-primary-fixed-dim text-white rounded-full px-5 py-3 flex items-center gap-2 shadow-xl shadow-primary/30 transition-all active:scale-95">
+    <span class="material-symbols-outlined text-xl">add_circle</span>
+    <span class="font-label font-bold text-xs">Let's Party</span>
+  </button>
 </div>
-<!-- BottomNavBar Execution -->
-<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-4 pt-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl rounded-t-xl shadow-[0_-2px_15px_rgba(0,0,0,0.05)] border-t border-surface-variant/20">
-<button class="flex items-center justify-center text-slate-400 p-2 hover:text-primary transition-colors">
-<span class="material-symbols-outlined text-2xl" data-icon="videocam">videocam</span>
-</button>
-<!-- Active 'Party' Tab -->
-<button class="flex items-center justify-center bg-primary text-white rounded-full p-3 shadow-lg shadow-primary/30 transition-transform duration-200">
-<span class="material-symbols-outlined text-2xl" data-icon="groups">groups</span>
-</button>
-<button class="flex items-center justify-center text-slate-400 p-2 hover:text-primary transition-colors">
-<span class="material-symbols-outlined text-2xl" data-icon="auto_awesome">auto_awesome</span>
-</button>
-<button class="flex items-center justify-center text-slate-400 p-2 hover:text-primary transition-colors relative">
-<span class="material-symbols-outlined text-2xl" data-icon="chat_bubble">chat_bubble</span>
-<span class="absolute top-1 right-1 bg-tertiary text-white text-[8px] font-bold px-1 rounded-full min-w-[14px] h-[14px] flex items-center justify-center border border-white">99+</span>
-</button>
-<button class="flex items-center justify-center text-slate-400 p-2 hover:text-primary transition-colors">
-<span class="material-symbols-outlined text-2xl" data-icon="person">person</span>
-</button>
+
+<!-- Bottom Navigation Bar (consistent with dashboard, chats, profile) -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-3 bg-white/80 backdrop-blur-xl rounded-t-2xl shadow-[0_-4px_24px_rgba(0,101,113,0.06)]">
+  <button onclick="location.href='dashboard.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
+    <span class="material-symbols-outlined">home</span>
+    <span class="text-[10px] font-label">Home</span>
+  </button>
+  <button class="flex flex-col items-center text-primary">
+    <span class="material-symbols-outlined" style="font-variation-settings:'FILL'1">sports_esports</span>
+    <span class="text-[10px] font-label font-bold">Party</span>
+  </button>
+  <button onclick="location.href='chats.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
+    <span class="material-symbols-outlined">chat_bubble</span>
+    <span class="text-[10px] font-label">Chats</span>
+  </button>
+  <button onclick="location.href='profile.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
+    <span class="material-symbols-outlined">person</span>
+    <span class="text-[10px] font-label">Profile</span>
+  </button>
 </nav>
 
 <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-import { db } from "./firebase.js";
-import {
-  collection,
-  addDoc,
-  onSnapshot,
-  doc,
-  setDoc,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-
-// 🔐 USER (temporary login system)
-let user = JSON.parse(localStorage.getItem("user"));
-
-if (!user) {
-  user = {
-    uid: "user_" + Math.random().toString(36).slice(2),
-    username: "User" + Math.floor(Math.random() * 999)
-  };
-  localStorage.setItem("user", JSON.stringify(user));
-}
-
-const grid = document.getElementById("roomsGrid");
-
-// 🔥 LOAD ROOMS (REALTIME)
-onSnapshot(collection(db, "rooms"), (snapshot) => {
-
-  grid.innerHTML = "";
-
-  snapshot.forEach(docSnap => {
-
-    const r = docSnap.data();
-
-    const card = document.createElement("div");
-    card.className = "relative bg-white shadow-sm aspect-square cursor-pointer";
-
-    card.innerHTML = `
-      <img class="w-full h-full object-cover" src="https://picsum.photos/400?random=${docSnap.id}">
-      
-      <div class="absolute inset-0 bg-black/10"></div>
-
-      <div class="absolute bottom-2 left-2 right-2 flex justify-between items-center">
-        <p class="text-white text-[11px] font-bold truncate">${r.name}</p>
-
-        <div class="flex items-center text-white text-[11px] font-bold">
-          👥 ${r.users || 1}
-        </div>
-      </div>
-    `;
-
-    // 👉 OPEN ROOM
-    card.onclick = () => {
-      location.href = "room.html?id=" + docSnap.id;
-    };
-
-    grid.appendChild(card);
-
+  const app = initializeApp({
+    apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+    authDomain: "galmet-app.firebaseapp.com",
+    projectId: "galmet-app",
+    storageBucket: "galmet-app.firebasestorage.app"
   });
+  const db = getFirestore(app);
 
-});
-
-
-// 🚀 CREATE ROOM FUNCTION
-async function createRoom() {
-
-  const userData = JSON.parse(localStorage.getItem("user"));
-
-  const ref = await addDoc(collection(db, "rooms"), {
-    name: userData.username + " Room",
-    hostId: userData.uid,
-    hostName: userData.username,
-    hostPhoto: userData.photoURL || "",
-    users: 1,
-    createdAt: serverTimestamp()
-  });
-
-  await setDoc(doc(db, "rooms", ref.id, "members", userData.uid), {
-    uid: userData.uid,
-    role: "host"
-  });
-
-  location.href = "room.html?id=" + ref.id;
-}
-        
-// 🎯 BUTTONS CONNECT
-
-document.getElementById("createRoomBtn").onclick = createRoom;
-
-document.querySelector('[data-icon="add"]').onclick = createRoom;
-
-// 2. Top + icon (add_home)
-document.querySelectorAll(".material-symbols-outlined").forEach(icon => {
-  if (icon.textContent.trim() === "add_home") {
-    icon.style.cursor = "pointer";
-    icon.onclick = createRoom;
+  // ==================== USER LOGIN SYSTEM (USING userId) ====================
+  const currentUser = JSON.parse(localStorage.getItem("user"));
+  if (!currentUser || !currentUser.userId) {
+    window.location.replace("login.html");
   }
-});
+  const myUserId = currentUser.userId.toString();
+  const myUsername = currentUser.username || "User";
+  const myPhoto = currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(myUsername)}&background=006571&color=fff`;
 
+  // ==================== GENDER-BASED CURRENCY DISPLAY ====================
+  const gender = currentUser.gender;
+  const balanceValueSpan = document.getElementById("balanceValue");
+  const balanceIconSpan = document.getElementById("balanceIcon");
+
+  if (gender === 'male') {
+    balanceValueSpan.innerText = (currentUser.coins || 0).toLocaleString();
+    balanceIconSpan.innerText = "monetization_on";
+  } else if (gender === 'female') {
+    balanceValueSpan.innerText = (currentUser.gems || 0).toLocaleString();
+    balanceIconSpan.innerText = "diamond";
+    balanceIconSpan.classList.add("text-red-400");
+  } else {
+    balanceValueSpan.innerText = (currentUser.coins || 0).toLocaleString();
+    balanceIconSpan.innerText = "monetization_on";
+  }
+
+  // Real-time balance update (optional)
+  import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+  const userRef = doc(db, "users", myUserId);
+  onSnapshot(userRef, (snap) => {
+    if (snap.exists()) {
+      const data = snap.data();
+      if (gender === 'male') {
+        balanceValueSpan.innerText = (data.coins || 0).toLocaleString();
+      } else if (gender === 'female') {
+        balanceValueSpan.innerText = (data.gems || 0).toLocaleString();
+      } else {
+        balanceValueSpan.innerText = (data.coins || 0).toLocaleString();
+      }
+    }
+  });
+
+  // ==================== LOAD ROOMS (REALTIME) ====================
+  const roomsRef = collection(db, "rooms");
+  const roomsGrid = document.getElementById("roomsGrid");
+
+  onSnapshot(roomsRef, (snapshot) => {
+    roomsGrid.innerHTML = "";
+    snapshot.forEach((docSnap) => {
+      const room = docSnap.data();
+      const roomId = docSnap.id;
+      const roomName = room.name || "Unnamed Room";
+      const userCount = room.users || 1;
+      // Random image for demo – you can replace with room.coverPhoto if available
+      const imgUrl = `https://picsum.photos/400/400?random=${roomId}`;
+      
+      const card = document.createElement("div");
+      card.className = "bg-surface-container-lowest straight-corners overflow-hidden shadow-sm flex flex-col group cursor-pointer";
+      card.onclick = () => location.href = `room.html?id=${roomId}`;
+      
+      card.innerHTML = `
+        <div class="relative aspect-square">
+          <img class="w-full h-full object-cover straight-corners" src="${imgUrl}" alt="${roomName}">
+          <div class="absolute top-1.5 left-1.5 flex items-center gap-1 px-1.5 py-0.5 bg-black/50 backdrop-blur-md rounded-full">
+            <div class="w-1 h-1 bg-primary-fixed rounded-full animate-pulse"></div>
+            <span class="text-[9px] text-white font-bold">${userCount}</span>
+          </div>
+          <div class="absolute bottom-1.5 left-1.5 right-1.5 flex justify-between items-center">
+            <div class="flex items-center gap-1 bg-black/30 backdrop-blur-md px-1.5 py-0.5 rounded-full">
+              <span class="text-[11px]">🌍</span>
+            </div>
+            <div class="flex items-center gap-1 bg-primary/90 backdrop-blur-md px-1.5 py-0.5 rounded-full">
+              <span class="material-symbols-outlined text-[10px] text-white">equalizer</span>
+            </div>
+          </div>
+        </div>
+        <div class="p-2">
+          <h4 class="font-headline text-[12px] font-bold truncate text-on-surface">${escapeHtml(roomName)}</h4>
+          <div class="flex items-center justify-between mt-1">
+            <span class="text-[9px] text-on-surface-variant font-medium">@${escapeHtml(room.hostName || "host")}</span>
+            <div class="flex items-center gap-0.5">
+              <span class="material-symbols-outlined text-[10px] text-tertiary" style="font-variation-settings: 'FILL' 1;">diamond</span>
+              <span class="text-[9px] font-bold text-tertiary">${room.rewards || 0}</span>
+            </div>
+          </div>
+        </div>
+      `;
+      roomsGrid.appendChild(card);
+    });
+    if (snapshot.empty) {
+      roomsGrid.innerHTML = `<div class="col-span-2 text-center py-10 text-outline">No parties yet. Create the first one!</div>`;
+    }
+  });
+
+  // ==================== CREATE ROOM ====================
+  async function createRoom() {
+    try {
+      const roomRef = await addDoc(collection(db, "rooms"), {
+        name: `${myUsername}'s Room`,
+        hostId: myUserId,
+        hostName: myUsername,
+        hostPhoto: myPhoto,
+        users: 1,
+        createdAt: serverTimestamp(),
+        rewards: 0
+      });
+      // Add host as member
+      await setDoc(doc(db, "rooms", roomRef.id, "members", myUserId), {
+        uid: myUserId,
+        role: "host",
+        joinedAt: serverTimestamp()
+      });
+      location.href = `room.html?id=${roomRef.id}`;
+    } catch (err) {
+      console.error("Create room error:", err);
+      alert("Failed to create room. Please try again.");
+    }
+  }
+
+  // Attach create room to both buttons
+  document.getElementById("createRoomBtn").onclick = createRoom;
+  document.getElementById("createRoomFAB").onclick = createRoom;
+
+  // Helper
+  function escapeHtml(str) {
+    if (!str) return "";
+    return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m]));
+  }
 </script>
+</body>
+</html>
