@@ -82,10 +82,6 @@
     <button id="changeBtn" class="bg-surface-container-highest text-primary text-[10px] px-2 py-1 rounded-full font-bold active:scale-95 transition">Change</button>
   </div>
 
-  <!-- Level Restriction Message (compact) -->
-  <div id="restrictionMsg" class="bg-error-container/20 text-error p-2 rounded-lg text-center text-[11px] font-medium hidden">
-    ⚠️ Top‑up only for Wealth Level 3 or higher. Keep playing!
-  </div>
 
   <!-- Tabs (smaller) -->
   <div class="flex p-0.5 bg-surface-container-high/50 backdrop-blur-md rounded-full w-fit mx-auto">
@@ -189,9 +185,6 @@
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
         const usdt = parseInt(btn.dataset.usdt);
-        if (userLevel < 3) {
-          alert("Top‑up is only available for Wealth Level 3 or higher.");
-          return;
         }
         window.location.href = `topup.html?amount=${usdt}`;
       });
