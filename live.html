@@ -99,16 +99,23 @@
   let localAudioTrack = null;
   let localVideoTrack = null;
 
-  async function startLive() {
-    client = AgoraRTC.createClient({ mode: "live", codec: "vp8" });
-    
-    if (isHost) {
-      await client.setClientRole("host");
-    } else {
-      await client.setClientRole("audience");
-    }
+const APP_ID = "873172a9b2064b1ca97b4f45ee6ed9b5";
+const TOKEN = "007eJxTYFi/RlWhlvmWwRLpv3J+huvuC8VV79+/wD6bceYkMYfJPckKDBbmxobmRomWSUYGZiZJhsmJluZJJmkmpqmpZqkplkmmIV7XMxsCGRmaYt6yMDJAIIjPy1CUn58bb2RhZGphaGHEwAAAziIf8w==";
 
-    await client.join(appId, roomId, null, null);
+let client;
+let localAudioTrack;
+let localVideoTrack;
+
+async function startLive() {
+  client = AgoraRTC.createClient({ mode: "live", codec: "vp8" });
+
+  if (isHost) {
+    await client.setClientRole("host");
+  } else {
+    await client.setClientRole("audience");
+  }
+
+  await client.join(APP_ID, roomId, TOKEN, null);
 
     if (isHost) {
       // Create local tracks
