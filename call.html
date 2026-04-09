@@ -1,251 +1,364 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Galmet – Pro Call</title>
-
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
-
-<style>
-body { margin:0; background:black; overflow:hidden; }
-
-/* Video Layout */
-.video-wrapper {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-}
-
-.video-box {
-  width: 50%;
-  height: 100%;
-  position: relative;
-}
-
-.video-box video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* Top Info */
-.top-bar {
-  position:absolute;
-  top:15px;
-  left:0;
-  right:0;
-  display:flex;
-  justify-content:space-between;
-  padding:0 20px;
-  z-index:50;
-  color:white;
-}
-
-/* Controls */
-.controls {
-  position:absolute;
-  bottom:25px;
-  left:0;
-  right:0;
-  display:flex;
-  justify-content:center;
-  gap:20px;
-  z-index:50;
-}
-
-.btn {
-  width:55px;
-  height:55px;
-  border-radius:50%;
-  background:rgba(0,0,0,0.6);
-  color:white;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:20px;
-}
-
-.end {
-  background:red;
-  padding:0 25px;
-  border-radius:40px;
-}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Galmet – Call</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; overflow: hidden; font-family: 'Be Vietnam Pro', sans-serif; background: #0a0a0a; }
+    #video-container { position: relative; width: 100vw; height: 100vh; background: #000; }
+    .remote-video { width: 100% !important; height: 100% !important; object-fit: cover; }
+    .local-video {
+      position: absolute;
+      bottom: 100px;
+      right: 20px;
+      width: 130px;
+      height: 180px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 2px solid rgba(255,255,255,0.4);
+      z-index: 20;
+      background: #1e1e2e;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+      cursor: move;
+    }
+    .glass-panel {
+      background: rgba(20, 20, 30, 0.5);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .control-btn {
+      background: rgba(30,30,40,0.7);
+      backdrop-filter: blur(8px);
+      border: none;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .control-btn:hover { background: rgba(60,60,80,0.8); transform: scale(1.05); }
+    .end-btn {
+      background: #ef4444;
+      width: auto;
+      padding: 0 24px;
+      border-radius: 40px;
+      gap: 8px;
+    }
+    .end-btn:hover { background: #dc2626; }
+    .timer {
+      position: absolute;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(8px);
+      padding: 8px 20px;
+      border-radius: 40px;
+      color: white;
+      font-size: 20px;
+      font-weight: 700;
+      font-family: 'Plus Jakarta Sans', monospace;
+      z-index: 30;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .user-label {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(8px);
+      padding: 6px 16px;
+      border-radius: 40px;
+      color: white;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 25;
+    }
+  </style>
 </head>
-
 <body>
 
-<div class="video-wrapper">
-  <div id="localBox" class="video-box"></div>
-  <div id="remoteBox" class="video-box"></div>
+<div id="video-container"></div>
+
+<div class="timer" id="timer">00:00</div>
+
+<!-- Remote user info -->
+<div class="user-label" id="remoteUserLabel">
+  <img id="remoteAvatar" class="w-8 h-8 rounded-full" src="">
+  <span id="remoteName">Connecting...</span>
 </div>
 
-<!-- TOP -->
-<div class="top-bar">
-  <div id="myName">You</div>
-  <div id="timer">00:00</div>
-  <div id="otherName">User</div>
+<!-- Controls -->
+<div class="fixed bottom-8 left-0 right-0 flex justify-center gap-4 z-40">
+  <button id="micBtn" class="control-btn">
+    <span class="material-symbols-outlined">mic</span>
+  </button>
+  <button id="cameraBtn" class="control-btn">
+    <span class="material-symbols-outlined">videocam</span>
+  </button>
+  <button id="endCallBtn" class="control-btn end-btn">
+    <span class="material-symbols-outlined">call_end</span>
+    <span class="font-semibold">End</span>
+  </button>
 </div>
 
-<!-- CONTROLS -->
-<div class="controls">
-  <div id="micBtn" class="btn">🎤</div>
-  <div id="camBtn" class="btn">📷</div>
-  <div id="flipBtn" class="btn">🔄</div>
-  <div id="endBtn" class="btn end">END</div>
+<!-- Coin balance warning -->
+<div id="coinWarning" class="fixed top-20 left-1/2 -translate-x-1/2 bg-red-500/90 text-white px-4 py-2 rounded-full text-sm font-medium hidden z-50">
+  Low balance! Add coins to continue.
 </div>
 
 <script type="module">
-import { 
-  initializeApp 
-} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+  import { getFirestore, doc, getDoc, updateDoc, increment, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-import { 
-  getFirestore, doc, getDoc, updateDoc, increment, deleteDoc, onSnapshot 
-} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+  const firebaseConfig = {
+    apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+    authDomain: "galmet-app.firebaseapp.com",
+    projectId: "galmet-app",
+    storageBucket: "galmet-app.firebasestorage.app"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-/* Firebase */
-const app = initializeApp({
-  apiKey: "AIzaSy...",
-  authDomain: "galmet-app.firebaseapp.com",
-  projectId: "galmet-app"
-});
-const db = getFirestore(app);
+  const currentUser = JSON.parse(localStorage.getItem("user"));
+  if (!currentUser?.userId) window.location.replace("login.html");
+  const myUserId = currentUser.userId.toString();
+  const myName = currentUser.username || "Me";
+  const myAvatar = currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(myName)}&background=006571&color=fff`;
 
-/* User */
-const user = JSON.parse(localStorage.getItem("user"));
-const myId = user.userId.toString();
-const myName = user.username;
+  const urlParams = new URLSearchParams(window.location.search);
+  const roomId = urlParams.get("room");
+  const callerId = urlParams.get("callerId");
+  const hostId = urlParams.get("hostId");
 
-/* Params */
-const url = new URLSearchParams(window.location.search);
-const roomId = url.get("room");
-const callerId = url.get("callerId");
-const hostId = url.get("hostId");
+  if (!roomId || !callerId || !hostId) {
+    alert("Invalid call");
+    window.location.href = "dashboard.html";
+  }
 
-const isCaller = myId === callerId;
-const otherId = isCaller ? hostId : callerId;
+  const isCaller = (myUserId === callerId);
+  const peerId = isCaller ? hostId : callerId;
+  let peerData = null;
 
-/* UI */
-document.getElementById("myName").innerText = myName;
+  // Agora
+  const APP_ID = "873172a9b2064b1ca97b4f45ee6ed9b5";
+  const TOKEN = "007eJxTYNBZOltE3KbDv+GwmZzfwXnCs1Y/3BXGfPfEqYDHO+VqY9YrMFiYGxuaGyVaJhkZmJkkGSYnWponmaSZmKammqWmWCaZWvhez2wIZGSYyfeGlZEBAkF8Xoai/PzceFMzE0sDc3MLBgYAMJ4hIQ==";
+  let client = null;
+  let localAudioTrack = null;
+  let localVideoTrack = null;
+  let isMuted = false;
+  let cameraEnabled = true;
+  let callActive = true;
+  let startTime = Date.now();
+  let timerInterval = null;
+  let lastDeductionTime = startTime;
+  const COST_PER_MINUTE = 1000;
+  let coinWarningTimeout = null;
 
-/* Agora */
-const APP_ID = "873172a9b2064b1ca97b4f45ee6ed9b5";
-const TOKEN = "YOUR_TOKEN";
+  // DOM
+  const timerEl = document.getElementById("timer");
+  const micBtn = document.getElementById("micBtn");
+  const cameraBtn = document.getElementById("cameraBtn");
+  const endCallBtn = document.getElementById("endCallBtn");
+  const remoteUserLabel = document.getElementById("remoteUserLabel");
+  const remoteAvatar = document.getElementById("remoteAvatar");
+  const remoteNameSpan = document.getElementById("remoteName");
+  const coinWarning = document.getElementById("coinWarning");
 
-let client, localTracks;
-let micOn = true;
-let camOn = true;
-let frontCam = true;
-
-/* PERMISSION */
-async function checkPermissions() {
-  await navigator.mediaDevices.getUserMedia({ video:true, audio:true });
-}
-
-/* START */
-async function startCall() {
-
-  await checkPermissions();
-
-  client = AgoraRTC.createClient({ mode:"rtc", codec:"vp8" });
-
-  await client.join(APP_ID, roomId, TOKEN, myId);
-
-  localTracks = await AgoraRTC.createMicrophoneAndCameraTracks();
-
-  const localDiv = document.createElement("div");
-  document.getElementById("localBox").appendChild(localDiv);
-  localTracks[1].play(localDiv);
-
-  await client.publish(localTracks);
-
-  client.on("user-published", async (user, type) => {
-    await client.subscribe(user, type);
-
-    if (type === "video") {
-      const remoteDiv = document.createElement("div");
-      document.getElementById("remoteBox").innerHTML = "";
-      document.getElementById("remoteBox").appendChild(remoteDiv);
-      user.videoTrack.play(remoteDiv);
+  // Load peer info
+  async function loadPeerInfo() {
+    const snap = await getDoc(doc(db, "users", peerId));
+    if (snap.exists()) {
+      peerData = snap.data();
+      remoteAvatar.src = peerData.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(peerData.username)}`;
+      remoteNameSpan.innerText = peerData.username || "User";
     }
+  }
+  loadPeerInfo();
 
-    if (type === "audio") user.audioTrack.play();
-  });
-}
+  // Coin deduction
+  async function deductCoins(amount) {
+    if (!isCaller) return true;
+    const userRef = doc(db, "users", myUserId);
+    const userSnap = await getDoc(userRef);
+    const currentCoins = userSnap.data()?.coins || 0;
+    if (currentCoins < amount) {
+      coinWarning.classList.remove("hidden");
+      if (coinWarningTimeout) clearTimeout(coinWarningTimeout);
+      coinWarningTimeout = setTimeout(() => coinWarning.classList.add("hidden"), 3000);
+      return false;
+    }
+    await updateDoc(userRef, { coins: increment(-amount) });
+    // Add to host's gems? Optional
+    if (hostId) {
+      await updateDoc(doc(db, "users", hostId), { gems: increment(amount), totalGemsEarned: increment(amount) });
+    }
+    return true;
+  }
 
-/* TIMER + COINS */
-let start = Date.now();
+  function updateTimer() {
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    const mins = Math.floor(elapsed / 60).toString().padStart(2,'0');
+    const secs = (elapsed % 60).toString().padStart(2,'0');
+    timerEl.innerText = `${mins}:${secs}`;
 
-setInterval(async () => {
-  const sec = Math.floor((Date.now() - start)/1000);
-  document.getElementById("timer").innerText =
-    String(Math.floor(sec/60)).padStart(2,'0') + ":" +
-    String(sec%60).padStart(2,'0');
-
-  if (isCaller && sec % 60 === 0) {
-    const ref = doc(db,"users",myId);
-    const snap = await getDoc(ref);
-    if (snap.data().coins < 1000) {
-      alert("Coins finished");
-      endCall();
-    } else {
-      await updateDoc(ref,{ coins: increment(-1000) });
+    const now = Date.now();
+    const minsSince = Math.floor((now - lastDeductionTime) / 60000);
+    if (minsSince >= 1 && isCaller) {
+      deductCoins(COST_PER_MINUTE).then(success => {
+        if (success) {
+          lastDeductionTime = now;
+        } else {
+          // Insufficient coins -> end call
+          if (callActive) endCall(true);
+        }
+      });
     }
   }
 
-},1000);
+  async function endCall(insufficientCoins = false) {
+    if (!callActive) return;
+    callActive = false;
+    if (timerInterval) clearInterval(timerInterval);
+    // Update call doc
+    const callRef = doc(db, "calls", roomId);
+    const callSnap = await getDoc(callRef);
+    if (callSnap.exists()) {
+      const duration = Math.floor((Date.now() - startTime) / 1000);
+      await updateDoc(callRef, {
+        status: "ended",
+        endedAt: new Date(),
+        duration: duration,
+        coinsSpent: isCaller ? Math.floor(duration / 60) * COST_PER_MINUTE : 0
+      });
+    }
+    await deleteDoc(callRef).catch(()=>{});
+    if (client) {
+      if (localAudioTrack) localAudioTrack.close();
+      if (localVideoTrack) localVideoTrack.close();
+      await client.leave();
+    }
+    if (insufficientCoins) alert("Call ended due to insufficient coins.");
+    // Redirect
+    if (isCaller) {
+      window.location.href = "dashboard.html";
+    } else {
+      window.location.href = `live.html?room=${roomId}&host=true`;
+    }
+  }
 
-/* CONTROLS */
+  // Agora
+  async function startCall() {
+    try {
+      client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
+      await client.join(APP_ID, roomId, TOKEN, null);
+      [localAudioTrack, localVideoTrack] = await AgoraRTC.createMicrophoneAndCameraTracks();
+      // Local video PiP
+      const localDiv = document.createElement("div");
+      localDiv.id = "local-player";
+      localDiv.className = "local-video";
+      document.getElementById("video-container").appendChild(localDiv);
+      localVideoTrack.play("local-player");
+      // Make local video draggable
+      makeDraggable(localDiv);
+      await client.publish([localAudioTrack, localVideoTrack]);
 
-document.getElementById("micBtn").onclick = async () => {
-  micOn = !micOn;
-  await localTracks[0].setEnabled(micOn);
-};
+      client.on("user-published", async (user, mediaType) => {
+        await client.subscribe(user, mediaType);
+        if (mediaType === "video") {
+          const remoteDiv = document.createElement("div");
+          remoteDiv.id = user.uid;
+          remoteDiv.style.width = "100%";
+          remoteDiv.style.height = "100%";
+          remoteDiv.className = "remote-video";
+          document.getElementById("video-container").appendChild(remoteDiv);
+          user.videoTrack.play(remoteDiv);
+        }
+        if (mediaType === "audio") user.audioTrack.play();
+      });
 
-document.getElementById("camBtn").onclick = async () => {
-  camOn = !camOn;
-  await localTracks[1].setEnabled(camOn);
-};
+      // Timer start when remote user joins? We'll start immediately.
+      timerInterval = setInterval(updateTimer, 1000);
+    } catch (e) {
+      alert("Failed to start call: " + e.message);
+      window.location.href = isCaller ? "dashboard.html" : `live.html?room=${roomId}&host=true`;
+    }
+  }
 
-document.getElementById("flipBtn").onclick = async () => {
-  frontCam = !frontCam;
+  // Draggable local video
+  function makeDraggable(el) {
+    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    el.onmousedown = dragMouseDown;
+    function dragMouseDown(e) {
+      e.preventDefault();
+      pos3 = e.clientX;
+      pos4 = e.clientY;
+      document.onmouseup = closeDragElement;
+      document.onmousemove = elementDrag;
+    }
+    function elementDrag(e) {
+      e.preventDefault();
+      pos1 = pos3 - e.clientX;
+      pos2 = pos4 - e.clientY;
+      pos3 = e.clientX;
+      pos4 = e.clientY;
+      el.style.top = (el.offsetTop - pos2) + "px";
+      el.style.left = (el.offsetLeft - pos1) + "px";
+      el.style.bottom = "auto";
+      el.style.right = "auto";
+    }
+    function closeDragElement() {
+      document.onmouseup = null;
+      document.onmousemove = null;
+    }
+  }
 
-  const newTrack = await AgoraRTC.createCameraVideoTrack({
-    facingMode: frontCam ? "user" : "environment"
+  // Controls
+  async function toggleMic() {
+    if (!localAudioTrack) return;
+    isMuted = !isMuted;
+    await localAudioTrack.setEnabled(!isMuted);
+    micBtn.innerHTML = isMuted ? '<span class="material-symbols-outlined">mic_off</span>' : '<span class="material-symbols-outlined">mic</span>';
+  }
+  async function toggleCamera() {
+    if (!localVideoTrack) return;
+    cameraEnabled = !cameraEnabled;
+    await localVideoTrack.setEnabled(cameraEnabled);
+    cameraBtn.innerHTML = cameraEnabled ? '<span class="material-symbols-outlined">videocam</span>' : '<span class="material-symbols-outlined">videocam_off</span>';
+  }
+
+  // Listen for call deletion (other side ended)
+  onSnapshot(doc(db, "calls", roomId), (snap) => {
+    if (!snap.exists() && callActive) {
+      alert("The other user ended the call.");
+      endCall();
+    }
   });
 
-  await client.unpublish(localTracks[1]);
-  localTracks[1].close();
+  // Start
+  (async () => {
+    await startCall();
+    micBtn.onclick = toggleMic;
+    cameraBtn.onclick = toggleCamera;
+    endCallBtn.onclick = () => endCall();
+  })();
 
-  localTracks[1] = newTrack;
-
-  await client.publish(localTracks[1]);
-
-  document.getElementById("localBox").innerHTML = "";
-  const div = document.createElement("div");
-  document.getElementById("localBox").appendChild(div);
-  newTrack.play(div);
-};
-
-async function endCall() {
-  await deleteDoc(doc(db,"calls",roomId)).catch(()=>{});
-  await client.leave();
-  window.location.href = "dashboard.html";
-}
-
-document.getElementById("endBtn").onclick = endCall;
-
-/* SYNC END */
-onSnapshot(doc(db,"calls",roomId),(snap)=>{
-  if(!snap.exists()) endCall();
-});
-
-startCall();
+  window.addEventListener("beforeunload", () => {
+    if (callActive) endCall();
+  });
 </script>
-
 </body>
 </html>
