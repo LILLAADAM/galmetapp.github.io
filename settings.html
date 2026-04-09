@@ -1,157 +1,175 @@
 <!DOCTYPE html>
-<html>
+<html class="light" lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Settings</title>
-
-<style>
-body {
-  margin:0;
-  font-family: 'Segoe UI', sans-serif;
-  background:#f5f5f5;
-}
-
-.top {
-  background:#4CAF50;
-  color:white;
-  padding:15px;
-  font-size:18px;
-  display:flex;
-  align-items:center;
-}
-
-.back {
-  margin-right:10px;
-  cursor:pointer;
-}
-
-.box {
-  background:white;
-  margin:10px;
-  padding:15px;
-  border-radius:10px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  cursor:pointer;
-}
-
-.sub {
-  font-size:12px;
-  color:gray;
-  margin-top:5px;
-}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Settings - Galmet</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface": "#f3f7fb",
+            "surface-container-low": "#ecf1f6",
+            "surface-container-lowest": "#ffffff",
+            "on-surface": "#2a2f32",
+            "on-surface-variant": "#575c60",
+            "primary": "#006571",
+            "primary-container": "#00e3fd",
+            "primary-dim": "#005863",
+            "secondary": "#755700",
+            "tertiary": "#b60051",
+            "outline": "#73777b",
+            "outline-variant": "#a9aeb1",
+            "error": "#b31b25"
+          },
+          fontFamily: {
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Be Vietnam Pro"],
+            "label": ["Plus Jakarta Sans"]
+          },
+          borderRadius: { DEFAULT: "1rem", lg: "2rem", xl: "3rem", full: "9999px" }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+  </style>
 </head>
+<body class="bg-surface font-body text-on-surface min-h-screen pb-24">
 
-<body>
-
-<div class="top">
-  <span class="back" onclick="history.back()">⬅️</span>
-  Settings
-</div>
-
-<!-- ACCOUNT -->
-<div class="box" onclick="openAccount()">
-  <div>
-    <div>Account</div>
-    <div class="sub" id="accountInfo">Loading...</div>
+<!-- Top App Bar (same as other pages) -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/20">
+  <div class="flex items-center justify-between px-4 h-14 max-w-md mx-auto">
+    <button onclick="window.history.back()" class="p-2 rounded-full hover:bg-primary-container/30 transition-colors active:scale-95">
+      <span class="material-symbols-outlined text-primary">arrow_back</span>
+    </button>
+    <h1 class="font-headline font-semibold text-lg text-primary">Settings</h1>
+    <div class="w-8"></div> <!-- placeholder for symmetry -->
   </div>
-  <div>›</div>
-</div>
+</header>
 
-<!-- PRIVACY -->
-<div class="box" onclick="openPrivacy()">
-  <div>
-    <div>Privacy</div>
-    <div class="sub">Control who can see your data</div>
+<main class="max-w-md mx-auto px-4 pt-20 pb-8 space-y-3">
+  <!-- Account Card -->
+  <div class="bg-surface-container-lowest rounded-xl p-4 flex items-center justify-between cursor-pointer active:scale-[0.98] transition-all" onclick="openAccount()">
+    <div>
+      <p class="font-headline font-semibold text-on-surface">Account</p>
+      <p id="accountInfo" class="text-xs text-outline mt-0.5">Loading...</p>
+    </div>
+    <span class="material-symbols-outlined text-outline-variant">chevron_right</span>
   </div>
-  <div>›</div>
-</div>
 
-<!-- BLOCKED USERS -->
-<div class="box" onclick="openBlocked()">
-  <div>
-    <div>Blocked Users</div>
-    <div class="sub">Manage blocked users</div>
+  <!-- Privacy Card -->
+  <div class="bg-surface-container-lowest rounded-xl p-4 flex items-center justify-between cursor-pointer active:scale-[0.98] transition-all" onclick="openPrivacy()">
+    <div>
+      <p class="font-headline font-semibold text-on-surface">Privacy</p>
+      <p class="text-xs text-outline mt-0.5">Control who can see your data</p>
+    </div>
+    <span class="material-symbols-outlined text-outline-variant">chevron_right</span>
   </div>
-  <div>›</div>
-</div>
 
-<!-- LOGOUT -->
-<div class="box" onclick="logout()" style="color:red;">
-  Logout
-</div>
+  <!-- Blocked Users Card -->
+  <div class="bg-surface-container-lowest rounded-xl p-4 flex items-center justify-between cursor-pointer active:scale-[0.98] transition-all" onclick="openBlocked()">
+    <div>
+      <p class="font-headline font-semibold text-on-surface">Blocked Users</p>
+      <p class="text-xs text-outline mt-0.5">Manage blocked users</p>
+    </div>
+    <span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+  </div>
+
+  <!-- Logout Card -->
+  <div class="bg-error-container/10 rounded-xl p-4 flex items-center justify-between cursor-pointer active:scale-[0.98] transition-all" onclick="logout()">
+    <div>
+      <p class="font-headline font-semibold text-error">Logout</p>
+      <p class="text-xs text-outline mt-0.5">Sign out of your account</p>
+    </div>
+    <span class="material-symbols-outlined text-error">logout</span>
+  </div>
+</main>
+
+<!-- Bottom Navigation (optional, consistent with dashboard) -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-3 bg-white/80 backdrop-blur-xl rounded-t-2xl shadow-[0_-4px_24px_rgba(0,101,113,0.06)]">
+  <button onclick="location.href='dashboard.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
+    <span class="material-symbols-outlined">home</span>
+    <span class="text-[10px] font-label">Home</span>
+  </button>
+  <button onclick="location.href='party.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
+    <span class="material-symbols-outlined">sports_esports</span>
+    <span class="text-[10px] font-label">Party</span>
+  </button>
+  <button onclick="location.href='chats.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
+    <span class="material-symbols-outlined">chat_bubble</span>
+    <span class="text-[10px] font-label">Chats</span>
+  </button>
+  <button onclick="location.href='profile.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
+    <span class="material-symbols-outlined">person</span>
+    <span class="text-[10px] font-label">Profile</span>
+  </button>
+</nav>
 
 <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } 
-from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-import { getFirestore, doc, getDoc } 
-from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+  const app = initializeApp({
+    apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+    authDomain: "galmet-app.firebaseapp.com",
+    projectId: "galmet-app",
+    storageBucket: "galmet-app.firebasestorage.app"
+  });
+  const db = getFirestore(app);
 
-/* SAME CONFIG AS DASHBOARD */
-const app = initializeApp({
-  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
-  authDomain: "galmet-app.firebaseapp.com",
-  projectId: "galmet-app"
-});
+  // ==================== LOGIN CHECK (using userId from localStorage) ====================
+  const currentUser = JSON.parse(localStorage.getItem("user"));
+  if (!currentUser || !currentUser.userId) {
+    window.location.replace("login.html");
+  }
+  const userId = currentUser.userId.toString();
+  const userRef = doc(db, "users", userId);
 
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-/* 🔥 MASK EMAIL */
-function maskEmail(email) {
-  if (!email) return "Unknown";
-
-  const [name, domain] = email.split("@");
-  return `Email: ${name.substring(0,3)}***@${domain}`;
-}
-
-/* LOAD USER */
-onAuthStateChanged(auth, async (user) => {
-
-  if (!user) {
-    location = "index.html";
-    return;
+  // Mask email (show first 3 characters + *** + domain)
+  function maskEmail(email) {
+    if (!email) return "Email not set";
+    const [localPart, domain] = email.split('@');
+    if (localPart.length <= 3) return `***@${domain}`;
+    return `${localPart.substring(0, 3)}***@${domain}`;
   }
 
-  const snap = await getDoc(doc(db, "users", user.uid));
-
-  if (!snap.exists()) {
-    document.getElementById("accountInfo").innerText = "No data";
-    return;
+  // Load account info (email)
+  async function loadAccountInfo() {
+    const snap = await getDoc(userRef);
+    if (snap.exists()) {
+      const email = snap.data().email || currentUser.email || "Not set";
+      document.getElementById("accountInfo").innerText = maskEmail(email);
+    } else {
+      document.getElementById("accountInfo").innerText = "Account info unavailable";
+    }
   }
+  loadAccountInfo();
 
-  const data = snap.data();
+  // ==================== NAVIGATION ====================
+  window.openAccount = () => {
+    alert("Account settings coming soon");
+  };
+  window.openPrivacy = () => {
+    alert("Privacy settings coming soon");
+  };
+  window.openBlocked = () => {
+    window.location.href = "blocked.html";
+  };
 
-  // ✅ USE SAME EMAIL AS DASHBOARD
-  document.getElementById("accountInfo").innerText =
-    maskEmail(data.email || user.email);
-});
-
-/* NAVIGATION */
-window.openAccount = () => {
-  alert("Next: Account page");
-};
-
-window.openPrivacy = () => {
-  location.href = "privacy.html";
-};
-
-window.openBlocked = () => {
-  location.href = "blocked.html";
-};
-
-/* LOGOUT */
-window.logout = async () => {
-  await signOut(auth);
-  localStorage.removeItem("user");
-  location.href = "index.html";
-};
-
+  // ==================== LOGOUT ====================
+  window.logout = () => {
+    localStorage.removeItem("user");
+    window.location.replace("login.html");
+  };
 </script>
-
 </body>
 </html>
