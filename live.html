@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html class="light" lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -8,226 +8,95 @@
   <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface": "#f3f7fb", "surface-container-low": "#ecf1f6",
+            "surface-container-lowest": "#ffffff", "on-surface": "#2a2f32",
+            "on-surface-variant": "#575c60", "primary": "#006571",
+            "primary-container": "#00e3fd", "primary-dim": "#005863",
+            "secondary": "#755700", "tertiary": "#b60051",
+            "outline": "#73777b", "outline-variant": "#a9aeb1",
+            "error": "#b31b25"
+          },
+          fontFamily: {
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Be Vietnam Pro"],
+            "label": ["Plus Jakarta Sans"]
+          },
+          borderRadius: { DEFAULT: "1rem", lg: "2rem", xl: "3rem", full: "9999px" }
+        }
+      }
+    }
+  </script>
   <style>
     * { box-sizing: border-box; }
-    body { margin: 0; overflow: hidden; font-family: 'Be Vietnam Pro', sans-serif; }
+    body { margin: 0; overflow: hidden; font-family: 'Be Vietnam Pro', sans-serif; background: black; }
     #video-container { position: relative; width: 100vw; height: 100vh; background: black; }
     .agora-video-player { width: 100% !important; height: 100% !important; object-fit: cover; }
-    /* Overlay UI */
-    .live-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      pointer-events: none;
-      z-index: 20;
-    }
-    .live-overlay button, .live-overlay .interactive {
-      pointer-events: auto;
-    }
-    .top-bar {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      right: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .host-info {
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(8px);
-      border-radius: 50px;
-      padding: 6px 12px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .host-avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid white;
-    }
-    .host-name {
-      color: white;
-      font-weight: bold;
-      font-size: 14px;
-    }
-    .viewer-count {
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(8px);
-      border-radius: 50px;
-      padding: 6px 12px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: white;
-      font-size: 12px;
-    }
-    .live-badge {
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(8px);
-      border-radius: 50px;
-      padding: 6px 12px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: white;
-      font-weight: bold;
-      font-size: 12px;
-    }
-    .live-dot {
-      width: 8px;
-      height: 8px;
-      background: #ef4444;
-      border-radius: 50%;
-      animation: pulse 1s infinite;
-    }
-    @keyframes pulse {
-      0% { opacity: 1; transform: scale(1); }
-      100% { opacity: 0.3; transform: scale(1.2); }
-    }
-    .control-buttons {
-      position: absolute;
-      bottom: 30px;
-      left: 0;
-      right: 0;
-      display: flex;
-      justify-content: center;
-      gap: 16px;
-      z-index: 30;
-    }
-    .ctrl-btn {
-      background: rgba(0,0,0,0.7);
-      backdrop-filter: blur(8px);
-      border: none;
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-    .ctrl-btn:active { transform: scale(0.9); }
-    .ctrl-btn.end {
-      background: #ef4444;
-      width: auto;
-      padding: 0 20px;
-      border-radius: 40px;
-      gap: 8px;
-    }
-    /* Chat Panel */
-    .chat-panel {
-      position: absolute;
-      bottom: 100px;
-      right: 16px;
-      width: 280px;
-      max-height: 400px;
-      background: rgba(0,0,0,0.75);
+    /* Glass overlay */
+    .glass-panel {
+      background: rgba(0, 0, 0, 0.4);
       backdrop-filter: blur(12px);
-      border-radius: 20px;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      pointer-events: auto;
-      border: 1px solid rgba(255,255,255,0.2);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.1);
     }
-    .chat-messages {
-      flex: 1;
-      padding: 12px;
-      overflow-y: auto;
-      max-height: 300px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+    .glass-panel-dark {
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(12px);
     }
     .chat-message {
-      color: white;
-      font-size: 12px;
-      word-break: break-word;
+      animation: fadeInUp 0.2s ease;
     }
-    .chat-message .sender {
-      font-weight: bold;
-      color: #00e3fd;
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-    .chat-input-area {
+    /* Scrollbar for chat */
+    .chat-scroll::-webkit-scrollbar { width: 3px; }
+    .chat-scroll::-webkit-scrollbar-track { background: transparent; }
+    .chat-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
+    /* Small profile preview */
+    .preview-popup {
+      position: fixed;
+      bottom: 120px;
+      left: 20px;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(16px);
+      border-radius: 60px;
+      padding: 8px 16px;
       display: flex;
-      border-top: 1px solid rgba(255,255,255,0.2);
-      padding: 8px;
-      gap: 8px;
+      align-items: center;
+      gap: 12px;
+      z-index: 200;
+      border: 1px solid rgba(255,255,255,0.2);
+      cursor: pointer;
+      transition: 0.2s;
+      animation: slideInLeft 0.2s ease;
     }
-    .chat-input {
-      flex: 1;
-      background: rgba(255,255,255,0.15);
-      border: none;
-      border-radius: 20px;
-      padding: 8px 12px;
-      color: white;
-      font-size: 12px;
-      outline: none;
+    .preview-popup:active { transform: scale(0.97); }
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
     }
-    .chat-input::placeholder { color: rgba(255,255,255,0.6); }
-    .chat-send {
-      background: #006571;
-      border: none;
-      border-radius: 20px;
-      width: 32px;
-      height: 32px;
+    /* Host summary overlay */
+    .summary-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(20px);
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
+      z-index: 300;
+      animation: fadeIn 0.3s;
     }
-    .gift-btn {
-      background: #f59e0b;
-    }
-    /* Gift panel (reuse style from chat.html) */
-    .gift-panel {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(0,0,0,0.9);
-      backdrop-filter: blur(20px);
-      border-radius: 20px 20px 0 0;
-      padding: 16px;
-      display: none;
-      flex-direction: column;
-      gap: 12px;
-      z-index: 50;
-      pointer-events: auto;
-      max-height: 60%;
-      overflow-y: auto;
-    }
-    .gift-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-    }
-    .gift-item {
-      background: rgba(255,255,255,0.1);
-      border-radius: 12px;
-      padding: 8px;
-      text-align: center;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .gift-item:active { transform: scale(0.95); }
-    .gift-item img { width: 50px; height: 50px; object-fit: contain; margin-bottom: 4px; }
-    .gift-name { font-size: 10px; color: white; }
-    .gift-price { font-size: 9px; color: #f59e0b; }
-    .close-gift {
-      background: rgba(255,255,255,0.2);
-      border: none;
-      padding: 8px;
-      border-radius: 30px;
-      color: white;
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
   </style>
 </head>
@@ -235,71 +104,87 @@
 
 <div id="video-container"></div>
 
-<!-- Overlay UI -->
-<div class="live-overlay">
-  <div class="top-bar">
-    <div class="host-info">
-      <img id="hostAvatar" class="host-avatar" src="https://ui-avatars.com/api/?name=Host">
-      <span id="hostName" class="host-name">Loading...</span>
+<!-- Overlay UI (glassmorphism) -->
+<div class="fixed inset-0 pointer-events-none z-10">
+  <!-- Top bar -->
+  <div class="absolute top-4 left-4 right-4 flex justify-between items-center pointer-events-auto">
+    <div class="glass-panel rounded-full flex items-center gap-2 pr-3">
+      <img id="hostAvatar" class="w-10 h-10 rounded-full border-2 border-primary-fixed object-cover" src="https://ui-avatars.com/api/?name=Host">
+      <div>
+        <p id="hostName" class="text-white font-headline font-bold text-sm">Loading...</p>
+        <div class="flex items-center gap-1">
+          <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+          <span class="text-white/70 text-[10px] font-bold">LIVE</span>
+        </div>
+      </div>
     </div>
     <div class="flex gap-2">
-      <div class="viewer-count">
-        <span class="material-symbols-outlined text-sm">visibility</span>
-        <span id="viewerCount">0</span>
+      <div class="glass-panel rounded-full px-3 py-1.5 flex items-center gap-1">
+        <span class="material-symbols-outlined text-white text-sm">visibility</span>
+        <span id="viewerCount" class="text-white text-sm font-bold">0</span>
       </div>
-      <div class="live-badge">
-        <div class="live-dot"></div>
-        <span>LIVE</span>
-      </div>
+      <button id="exitBtn" class="glass-panel rounded-full w-9 h-9 flex items-center justify-center text-white">
+        <span class="material-symbols-outlined">close</span>
+      </button>
     </div>
   </div>
 
-  <!-- Chat Panel -->
-  <div class="chat-panel">
-    <div id="chatMessages" class="chat-messages"></div>
-    <div class="chat-input-area">
-      <input type="text" id="chatInput" class="chat-input" placeholder="Say something...">
-      <button id="sendChatBtn" class="chat-send">
+  <!-- Chat panel (bottom left) -->
+  <div class="absolute bottom-24 left-4 w-72 max-w-[calc(100%-2rem)] pointer-events-auto">
+    <div id="chatMessages" class="glass-panel-dark rounded-2xl p-3 h-80 overflow-y-auto flex flex-col gap-2 chat-scroll"></div>
+    <div class="glass-panel rounded-full mt-2 flex items-center gap-2 p-1 pl-4">
+      <input id="chatInput" type="text" class="flex-1 bg-transparent border-none text-white text-sm placeholder-white/50 focus:outline-none" placeholder="Say something...">
+      <button id="sendChatBtn" class="bg-primary/80 rounded-full w-8 h-8 flex items-center justify-center text-white active:scale-95">
         <span class="material-symbols-outlined text-sm">send</span>
       </button>
-      <button id="giftPanelBtn" class="chat-send gift-btn">
+      <button id="giftPanelBtn" class="bg-amber-500/80 rounded-full w-8 h-8 flex items-center justify-center text-white active:scale-95">
         <span class="material-symbols-outlined text-sm">redeem</span>
       </button>
     </div>
   </div>
 
-  <!-- Control Buttons -->
-  <div class="control-buttons">
-    <button id="micBtn" class="ctrl-btn">
+  <!-- Control buttons (bottom center) -->
+  <div class="absolute bottom-6 left-0 right-0 flex justify-center gap-4 pointer-events-auto">
+    <button id="micBtn" class="glass-panel rounded-full w-12 h-12 flex items-center justify-center text-white active:scale-95">
       <span class="material-symbols-outlined">mic</span>
     </button>
-    <button id="cameraBtn" class="ctrl-btn">
+    <button id="cameraBtn" class="glass-panel rounded-full w-12 h-12 flex items-center justify-center text-white active:scale-95">
       <span class="material-symbols-outlined">cameraswitch</span>
     </button>
-    <button id="fullscreenBtn" class="ctrl-btn">
+    <button id="fullscreenBtn" class="glass-panel rounded-full w-12 h-12 flex items-center justify-center text-white active:scale-95">
       <span class="material-symbols-outlined">fullscreen</span>
     </button>
-    <button id="endLiveBtn" class="ctrl-btn end">
+    <button id="endLiveBtn" class="glass-panel rounded-full px-5 py-2 bg-red-500/80 text-white font-bold flex items-center gap-1 active:scale-95">
       <span class="material-symbols-outlined">call_end</span>
-      <span>End Live</span>
+      <span>End</span>
     </button>
   </div>
+</div>
 
-  <!-- Gift Panel (hidden initially) -->
-  <div id="giftPanel" class="gift-panel">
-    <div class="flex justify-between items-center mb-2">
-      <h3 class="text-white font-bold">Send a Gift</h3>
-      <button id="closeGiftPanel" class="close-gift">✕</button>
-    </div>
-    <div id="giftGrid" class="gift-grid">
-      <!-- gifts will be loaded here -->
+<!-- Gift panel (hidden) -->
+<div id="giftPanel" class="fixed inset-x-0 bottom-0 z-50 glass-panel-dark rounded-t-3xl p-4 transform transition-transform duration-300 translate-y-full pointer-events-auto" style="max-height: 60%; overflow-y: auto;">
+  <div class="flex justify-between items-center mb-4">
+    <h3 class="text-white font-headline font-bold">Send a Gift</h3>
+    <button id="closeGiftPanel" class="text-white/70"><span class="material-symbols-outlined">close</span></button>
+  </div>
+  <div id="giftGrid" class="grid grid-cols-4 gap-3"></div>
+</div>
+
+<!-- Profile preview popup (hidden) -->
+<div id="profilePreview" class="preview-popup hidden">
+  <img id="previewAvatar" class="w-12 h-12 rounded-full object-cover">
+  <div>
+    <p id="previewName" class="text-white font-bold text-sm"></p>
+    <div class="flex gap-2 text-xs text-white/80">
+      <span id="previewAge"></span>
+      <span id="previewCountry"></span>
     </div>
   </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-  import { getFirestore, doc, getDoc, getDocs, setDoc, deleteDoc, collection, onSnapshot, addDoc, serverTimestamp, query, orderBy, limit, increment, updateDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, onSnapshot, addDoc, serverTimestamp, query, orderBy, limit, increment, updateDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
   // Firebase config
   const app = initializeApp({
@@ -310,28 +195,22 @@
   });
   const db = getFirestore(app);
 
-  // Get user
+  // User
   const currentUser = JSON.parse(localStorage.getItem("user"));
-  if (!currentUser || !currentUser.userId) {
-    window.location.replace("login.html");
-  }
+  if (!currentUser || !currentUser.userId) window.location.replace("login.html");
   const myUserId = currentUser.userId.toString();
   const myUsername = currentUser.username || "User";
+  const myLevel = currentUser.wealthLevel || currentUser.charmLevel || 1;
 
   // URL params
   const urlParams = new URLSearchParams(window.location.search);
   const roomId = urlParams.get("room");
   const isHost = urlParams.get("host") === "true";
-
-  if (!roomId) {
-    alert("Invalid room");
-    window.location.href = "dashboard.html";
-  }
+  if (!roomId) { alert("Invalid room"); window.location.href = "dashboard.html"; }
 
   // Agora
   const APP_ID = "873172a9b2064b1ca97b4f45ee6ed9b5";
   const TOKEN = "007eJxTYNBZOltE3KbDv+GwmZzfwXnCs1Y/3BXGfPfEqYDHO+VqY9YrMFiYGxuaGyVaJhkZmJkkGSYnWponmaSZmKammqWmWCaZWvhez2wIZGSYyfeGlZEBAkF8Xoai/PzceFMzE0sDc3MLBgYAMJ4hIQ==";
-
   let client = null;
   let localAudioTrack = null;
   let localVideoTrack = null;
@@ -339,7 +218,7 @@
   let cameraFront = true;
 
   // DOM elements
-  const hostAvatarImg = document.getElementById("hostAvatar");
+  const hostAvatar = document.getElementById("hostAvatar");
   const hostNameSpan = document.getElementById("hostName");
   const viewerCountSpan = document.getElementById("viewerCount");
   const chatMessagesDiv = document.getElementById("chatMessages");
@@ -349,25 +228,58 @@
   const cameraBtn = document.getElementById("cameraBtn");
   const fullscreenBtn = document.getElementById("fullscreenBtn");
   const endLiveBtn = document.getElementById("endLiveBtn");
+  const exitBtn = document.getElementById("exitBtn");
   const giftPanelBtn = document.getElementById("giftPanelBtn");
   const giftPanel = document.getElementById("giftPanel");
   const closeGiftPanel = document.getElementById("closeGiftPanel");
   const giftGrid = document.getElementById("giftGrid");
+  const profilePreview = document.getElementById("profilePreview");
+  const previewAvatar = document.getElementById("previewAvatar");
+  const previewName = document.getElementById("previewName");
+  const previewAge = document.getElementById("previewAge");
+  const previewCountry = document.getElementById("previewCountry");
 
   let hostUserId = null;
   let hostData = null;
+  let liveStartTime = Date.now();
+  let totalGemsReceived = 0;
+  let currentViewerCount = 0;
+  let profileTimeout = null;
+
+  // ---------- Helper functions ----------
+  function escapeHtml(str) {
+    if (!str) return "";
+    return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m]));
+  }
+
+  function formatDuration(ms) {
+    const minutes = Math.floor(ms / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
+    return `${minutes}m ${seconds}s`;
+  }
+
+  // Show small profile preview (bottom left)
+  function showProfilePreview(userId, userName, avatar, age, country, clickCallback) {
+    previewAvatar.src = avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=006571&color=fff`;
+    previewName.innerText = userName;
+    previewAge.innerText = age ? `Age: ${age}` : "";
+    previewCountry.innerText = country ? `📍 ${country}` : "";
+    profilePreview.classList.remove("hidden");
+    profilePreview.onclick = () => {
+      window.location.href = `view.html?id=${userId}`;
+    };
+    if (profileTimeout) clearTimeout(profileTimeout);
+    profileTimeout = setTimeout(() => {
+      profilePreview.classList.add("hidden");
+    }, 3000);
+  }
 
   // ---------- 1. Load host info ----------
   async function loadHostInfo() {
-    // For viewers, we need to get host userId from the 'lives' document.
-    // The lives document uses userId as document ID.
-    // We can query lives collection where roomId == roomId.
     const livesSnap = await getDocs(collection(db, "lives"));
     let hostId = null;
     livesSnap.forEach(docSnap => {
-      if (docSnap.data().roomId === roomId) {
-        hostId = docSnap.id;
-      }
+      if (docSnap.data().roomId === roomId) hostId = docSnap.id;
     });
     if (hostId) {
       hostUserId = hostId;
@@ -375,66 +287,91 @@
       if (userSnap.exists()) {
         hostData = userSnap.data();
         hostNameSpan.innerText = hostData.username || "Host";
-        hostAvatarImg.src = hostData.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(hostData.username || "Host")}&background=006571&color=fff`;
+        hostAvatar.src = hostData.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(hostData.username || "Host")}&background=006571&color=fff`;
       }
     } else if (isHost) {
       hostUserId = myUserId;
       hostNameSpan.innerText = myUsername;
-      hostAvatarImg.src = currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(myUsername)}&background=006571&color=fff`;
+      hostAvatar.src = currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(myUsername)}&background=006571&color=fff`;
     }
   }
   loadHostInfo();
 
-  // ---------- 2. Viewer count (track using liveViewers subcollection) ----------
-  // Each viewer adds a document under `liveViewers/{roomId}/viewers/{userId}` when they join, removes on leave.
+  // ---------- 2. Viewer count (liveViewers subcollection) ----------
   async function addViewer() {
-    if (isHost) return; // host is not counted as viewer
+    if (isHost) return;
     await setDoc(doc(db, "liveViewers", roomId, "viewers", myUserId), {
       userId: myUserId,
       username: myUsername,
       joinedAt: serverTimestamp()
+    });
+    // Send join notification in chat
+    await addDoc(collection(db, "liveChat", roomId, "messages"), {
+      type: "join",
+      senderId: myUserId,
+      senderName: myUsername,
+      text: `${myUsername} joined the live`,
+      timestamp: serverTimestamp(),
+      level: myLevel
     });
   }
   async function removeViewer() {
     if (isHost) return;
     await deleteDoc(doc(db, "liveViewers", roomId, "viewers", myUserId));
   }
-  // Listen to viewer count
   function listenViewerCount() {
     onSnapshot(collection(db, "liveViewers", roomId, "viewers"), (snap) => {
-      viewerCountSpan.innerText = snap.size;
+      currentViewerCount = snap.size;
+      viewerCountSpan.innerText = currentViewerCount;
     });
   }
 
-  // ---------- 3. Live Chat ----------
-  async function sendChatMessage(text) {
-    if (!text.trim()) return;
-    await addDoc(collection(db, "liveChat", roomId, "messages"), {
-      senderId: myUserId,
-      senderName: myUsername,
-      text: text,
-      timestamp: serverTimestamp(),
-      isGift: false
-    });
-    chatInput.value = "";
-  }
-
+  // ---------- 3. Live Chat (last 5 messages) ----------
   function listenChat() {
-    const q = query(collection(db, "liveChat", roomId, "messages"), orderBy("timestamp", "asc"));
+    const q = query(collection(db, "liveChat", roomId, "messages"), orderBy("timestamp", "desc"), limit(50));
     onSnapshot(q, (snap) => {
+      const messages = [];
+      snap.forEach(docSnap => messages.push({ id: docSnap.id, ...docSnap.data() }));
+      messages.reverse(); // oldest first
       chatMessagesDiv.innerHTML = "";
-      snap.forEach(docSnap => {
-        const msg = docSnap.data();
+      messages.slice(-5).forEach(msg => {
         const div = document.createElement("div");
-        div.className = "chat-message";
-        div.innerHTML = `<span class="sender">${escapeHtml(msg.senderName)}:</span> ${escapeHtml(msg.text)}`;
-        if (msg.isGift) {
-          div.classList.add("bg-yellow-500/20", "p-1", "rounded");
+        div.className = `chat-message ${msg.type === 'join' ? 'text-center' : ''}`;
+        if (msg.type === 'join') {
+          div.innerHTML = `<div class="glass-panel inline-block px-3 py-1 rounded-full text-xs text-white/80"><span class="text-primary-fixed">✨ ${escapeHtml(msg.senderName)}</span> joined</div>`;
+        } else if (msg.type === 'gift') {
+          div.innerHTML = `<div class="glass-panel px-3 py-1.5 rounded-2xl rounded-tl-none"><span class="text-amber-400 text-xs font-bold">🎁 ${escapeHtml(msg.senderName)}</span> <span class="text-white text-xs">sent ${escapeHtml(msg.giftName)} x${msg.quantity || 1}</span></div>`;
+        } else {
+          div.innerHTML = `<div class="glass-panel px-3 py-1.5 rounded-2xl rounded-tl-none"><span class="text-primary-fixed text-xs font-bold cursor-pointer hover:underline" data-userid="${msg.senderId}" data-username="${escapeHtml(msg.senderName)}">${escapeHtml(msg.senderName)}</span> <span class="text-white text-sm">${escapeHtml(msg.text)}</span></div>`;
         }
         chatMessagesDiv.appendChild(div);
       });
+      // Attach click handlers to usernames
+      document.querySelectorAll('[data-userid]').forEach(el => {
+        el.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const userId = el.dataset.userid;
+          const userSnap = await getDoc(doc(db, "users", userId));
+          if (userSnap.exists()) {
+            const u = userSnap.data();
+            showProfilePreview(userId, u.username || "User", u.photoURL, u.age, u.country?.name, null);
+          }
+        });
+      });
       chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
     });
+  }
+
+  async function sendChatMessage(text) {
+    if (!text.trim()) return;
+    await addDoc(collection(db, "liveChat", roomId, "messages"), {
+      type: "text",
+      senderId: myUserId,
+      senderName: myUsername,
+      text: text,
+      timestamp: serverTimestamp()
+    });
+    chatInput.value = "";
   }
 
   // ---------- 4. Gift System ----------
@@ -443,71 +380,57 @@
     giftGrid.innerHTML = "";
     snapshot.forEach(docSnap => {
       const g = docSnap.data();
-      const giftDiv = document.createElement("div");
-      giftDiv.className = "gift-item";
-      giftDiv.onclick = () => sendGift(docSnap.id, g.name, g.image, g.coinPrice);
-      giftDiv.innerHTML = `
-        <img src="${g.image}">
-        <div class="gift-name">${g.name}</div>
-        <div class="gift-price">${g.coinPrice} coins</div>
+      const div = document.createElement("div");
+      div.className = "bg-white/10 rounded-xl p-2 text-center cursor-pointer hover:bg-white/20 active:scale-95 transition";
+      div.onclick = () => sendGift(docSnap.id, g.name, g.image, g.coinPrice);
+      div.innerHTML = `
+        <img src="${g.image}" class="w-12 h-12 mx-auto mb-1">
+        <div class="text-white text-[10px]">${g.name}</div>
+        <div class="text-amber-400 text-[9px]">${g.coinPrice} coins</div>
       `;
-      giftGrid.appendChild(giftDiv);
+      giftGrid.appendChild(div);
     });
   }
 
   async function sendGift(giftId, giftName, giftImage, price) {
-    // Check user coins
     const userSnap = await getDoc(doc(db, "users", myUserId));
     const userCoins = userSnap.data()?.coins || 0;
-    if (userCoins < price) {
-      alert("Not enough coins!");
-      return;
-    }
+    if (userCoins < price) { alert("Not enough coins!"); return; }
     // Deduct coins from sender
     await updateDoc(doc(db, "users", myUserId), { coins: increment(-price) });
-    // Add gems to host (if host exists)
+    // Add gems to host (1 coin = 1 gem)
     if (hostUserId) {
       const hostRef = doc(db, "users", hostUserId);
       const hostSnap = await getDoc(hostRef);
       const currentGems = hostSnap.data()?.gems || 0;
-      await updateDoc(hostRef, { gems: currentGems + price }); // 1 coin = 1 gem? Adjust as needed
+      await updateDoc(hostRef, { gems: currentGems + price });
+      totalGemsReceived += price;
     }
-    // Send gift message in chat
+    // Add gift message to chat
     await addDoc(collection(db, "liveChat", roomId, "messages"), {
+      type: "gift",
       senderId: myUserId,
       senderName: myUsername,
-      text: `🎁 sent ${giftName} gift!`,
-      timestamp: serverTimestamp(),
-      isGift: true,
       giftName: giftName,
-      giftImage: giftImage
+      giftImage: giftImage,
+      quantity: 1,
+      timestamp: serverTimestamp()
     });
-    // Optionally show a floating animation (simplified)
-    showGiftAnimation(giftImage);
-  }
-
-  function showGiftAnimation(imageUrl) {
-    const div = document.createElement("div");
-    div.className = "fixed bottom-40 right-10 z-50 animate-bounce";
-    div.innerHTML = `<img src="${imageUrl}" class="w-16 h-16 drop-shadow-xl">`;
-    document.body.appendChild(div);
-    setTimeout(() => div.remove(), 2000);
+    // Show floating animation
+    const anim = document.createElement("div");
+    anim.className = "fixed bottom-40 right-10 z-50 animate-bounce";
+    anim.innerHTML = `<img src="${giftImage}" class="w-16 h-16 drop-shadow-xl">`;
+    document.body.appendChild(anim);
+    setTimeout(() => anim.remove(), 2000);
   }
 
   // ---------- 5. Agora Live ----------
   async function startAgora() {
     client = AgoraRTC.createClient({ mode: "live", codec: "vp8" });
-    if (isHost) {
-      await client.setClientRole("host");
-    } else {
-      await client.setClientRole("audience");
-    }
+    await client.setClientRole(isHost ? "host" : "audience");
     await client.join(APP_ID, roomId, TOKEN, null);
-
     if (isHost) {
-      // Create local tracks
       [localAudioTrack, localVideoTrack] = await AgoraRTC.createMicrophoneAndCameraTracks();
-      // Play local video
       const localPlayer = document.createElement("div");
       localPlayer.id = "local-player";
       localPlayer.style.width = "100%";
@@ -516,8 +439,6 @@
       localVideoTrack.play("local-player");
       await client.publish([localAudioTrack, localVideoTrack]);
     }
-
-    // Handle remote users
     client.on("user-published", async (user, mediaType) => {
       await client.subscribe(user, mediaType);
       if (mediaType === "video") {
@@ -528,18 +449,15 @@
         document.getElementById("video-container").appendChild(playerDiv);
         user.videoTrack.play(playerDiv);
       }
-      if (mediaType === "audio") {
-        user.audioTrack.play();
-      }
+      if (mediaType === "audio") user.audioTrack.play();
     });
-
     client.on("user-unpublished", (user) => {
-      const playerDiv = document.getElementById(user.uid);
-      if (playerDiv) playerDiv.remove();
+      const player = document.getElementById(user.uid);
+      if (player) player.remove();
     });
   }
 
-  // ---------- 6. Control functions ----------
+  // ---------- 6. Controls ----------
   async function toggleMic() {
     if (!localAudioTrack) return;
     if (isMuted) {
@@ -552,11 +470,10 @@
       isMuted = true;
     }
   }
-
   async function switchCamera() {
     if (!localVideoTrack) return;
     cameraFront = !cameraFront;
-    const newTrack = await AgoraRTC.createCameraVideoTrack({ 
+    const newTrack = await AgoraRTC.createCameraVideoTrack({
       cameraId: cameraFront ? "environment" : "user",
       encoderConfig: "720p"
     });
@@ -566,73 +483,97 @@
     await client.publish(localVideoTrack);
     localVideoTrack.play("local-player");
   }
-
   function toggleFullscreen() {
-    const elem = document.documentElement;
-    if (!document.fullscreenElement) {
-      elem.requestFullscreen().catch(err => console.log(err));
-    } else {
-      document.exitFullscreen();
-    }
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
   }
 
+  // ---------- 7. End Live (Host only) ----------
   async function endLive() {
     if (isHost) {
-      // Delete live document from Firestore
+      const duration = Date.now() - liveStartTime;
+      // Show summary for host
+      const summaryDiv = document.createElement("div");
+      summaryDiv.className = "summary-overlay";
+      summaryDiv.innerHTML = `
+        <div class="glass-panel-dark rounded-3xl p-6 text-center max-w-sm mx-4">
+          <span class="material-symbols-outlined text-5xl text-primary-fixed">celebration</span>
+          <h2 class="text-white font-headline text-xl mt-2">Live Ended</h2>
+          <p class="text-white/80 text-sm mt-1">Duration: ${formatDuration(duration)}</p>
+          <p class="text-amber-400 font-bold text-lg mt-2">💎 ${totalGemsReceived} gems received</p>
+          <p class="text-white/70 text-xs">👥 ${currentViewerCount} viewers joined</p>
+          <button id="closeSummary" class="mt-4 bg-primary px-6 py-2 rounded-full text-white">Close</button>
+        </div>
+      `;
+      document.body.appendChild(summaryDiv);
+      document.getElementById("closeSummary").onclick = () => {
+        summaryDiv.remove();
+        window.location.href = "dashboard.html";
+      };
+      // Delete live document
       await deleteDoc(doc(db, "lives", myUserId));
     }
-    // Remove viewer
+    // Remove viewer and leave Agora
     await removeViewer();
-    // Leave Agora
     if (client) {
       if (localAudioTrack) localAudioTrack.close();
       if (localVideoTrack) localVideoTrack.close();
       await client.leave();
     }
-    window.location.href = "dashboard.html";
+    if (!isHost) window.location.href = "dashboard.html";
   }
 
-  // ---------- 7. Gift panel UI ----------
+  // ---------- 8. Exit button (viewers only) ----------
+  function exitLive() {
+    if (confirm("Exit the live stream?")) {
+      removeViewer();
+      if (client) client.leave();
+      window.location.href = document.referrer || "dashboard.html";
+    }
+  }
+
+  // ---------- 9. Gift panel UI ----------
   function openGiftPanel() {
-    giftPanel.style.display = "flex";
+    giftPanel.style.transform = "translateY(0)";
     loadGifts();
   }
   function closeGiftPanelFn() {
-    giftPanel.style.display = "none";
+    giftPanel.style.transform = "translateY(100%)";
   }
 
-  // ---------- 8. Helper ----------
-  function escapeHtml(str) {
-    if (!str) return "";
-    return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m]));
-  }
-
-  // ---------- 9. Initialize ----------
+  // ---------- 10. Initialize ----------
   async function init() {
     await startAgora();
-    if (!isHost) {
-      await addViewer();
-    }
+    if (!isHost) await addViewer();
     listenViewerCount();
     listenChat();
-    // Attach event listeners
     sendChatBtn.onclick = () => sendChatMessage(chatInput.value);
     chatInput.addEventListener("keypress", (e) => { if (e.key === "Enter") sendChatMessage(chatInput.value); });
     micBtn.onclick = toggleMic;
     cameraBtn.onclick = switchCamera;
     fullscreenBtn.onclick = toggleFullscreen;
     endLiveBtn.onclick = endLive;
+    exitBtn.onclick = exitLive;
     giftPanelBtn.onclick = openGiftPanel;
     closeGiftPanel.onclick = closeGiftPanelFn;
+    // For host, hide exit button; for viewers, hide end button
+    if (isHost) {
+      exitBtn.style.display = "none";
+    } else {
+      endLiveBtn.style.display = "none";
+    }
+    // Also, make host name clickable
+    hostNameSpan.addEventListener("click", () => {
+      if (hostUserId) showProfilePreview(hostUserId, hostData?.username || "Host", hostData?.photoURL, hostData?.age, hostData?.country?.name, null);
+    });
+    hostAvatar.addEventListener("click", () => {
+      if (hostUserId) showProfilePreview(hostUserId, hostData?.username || "Host", hostData?.photoURL, hostData?.age, hostData?.country?.name, null);
+    });
   }
-
   init();
 
-  // Clean up on page unload
   window.addEventListener("beforeunload", () => {
-    if (!isHost) {
-      removeViewer();
-    }
+    if (!isHost) removeViewer();
   });
 </script>
 </body>
