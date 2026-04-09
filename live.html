@@ -8,58 +8,27 @@
   <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
-  <script>
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            "surface": "#f3f7fb", "surface-container-low": "#ecf1f6",
-            "surface-container-lowest": "#ffffff", "on-surface": "#2a2f32",
-            "on-surface-variant": "#575c60", "primary": "#006571",
-            "primary-container": "#00e3fd", "primary-dim": "#005863",
-            "secondary": "#755700", "tertiary": "#b60051",
-            "outline": "#73777b", "outline-variant": "#a9aeb1",
-            "error": "#b31b25"
-          },
-          fontFamily: {
-            "headline": ["Plus Jakarta Sans"],
-            "body": ["Be Vietnam Pro"],
-            "label": ["Plus Jakarta Sans"]
-          },
-          borderRadius: { DEFAULT: "1rem", lg: "2rem", xl: "3rem", full: "9999px" }
-        }
-      }
-    }
-  </script>
   <style>
     * { box-sizing: border-box; }
     body { margin: 0; overflow: hidden; font-family: 'Be Vietnam Pro', sans-serif; background: black; }
     #video-container { position: relative; width: 100vw; height: 100vh; background: black; }
     .agora-video-player { width: 100% !important; height: 100% !important; object-fit: cover; }
-    /* Glass overlay */
     .glass-panel {
       background: rgba(0, 0, 0, 0.4);
       backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
       border: 1px solid rgba(255,255,255,0.1);
-    }
-    .glass-panel-dark {
-      background: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(12px);
     }
     .chat-message {
       animation: fadeInUp 0.2s ease;
+      padding: 2px 0;
     }
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    /* Scrollbar for chat */
     .chat-scroll::-webkit-scrollbar { width: 3px; }
     .chat-scroll::-webkit-scrollbar-track { background: transparent; }
     .chat-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
-    /* Small profile preview */
     .preview-popup {
       position: fixed;
       bottom: 120px;
@@ -82,7 +51,6 @@
       from { opacity: 0; transform: translateX(-20px); }
       to { opacity: 1; transform: translateX(0); }
     }
-    /* Host summary overlay */
     .summary-overlay {
       position: fixed;
       inset: 0;
@@ -98,13 +66,24 @@
       from { opacity: 0; }
       to { opacity: 1; }
     }
+    /* Clean chat – no background, just white text */
+    .chat-message span {
+      color: white;
+    }
+    .chat-message .sender {
+      font-weight: bold;
+      color: #00e3fd;
+    }
+    .chat-message .text {
+      color: white;
+    }
   </style>
 </head>
 <body>
 
 <div id="video-container"></div>
 
-<!-- Overlay UI (glassmorphism) -->
+<!-- Overlay UI -->
 <div class="fixed inset-0 pointer-events-none z-10">
   <!-- Top bar -->
   <div class="absolute top-4 left-4 right-4 flex justify-between items-center pointer-events-auto">
@@ -112,9 +91,10 @@
       <img id="hostAvatar" class="w-10 h-10 rounded-full border-2 border-primary-fixed object-cover" src="https://ui-avatars.com/api/?name=Host">
       <div>
         <p id="hostName" class="text-white font-headline font-bold text-sm">Loading...</p>
-        <div class="flex items-center gap-1">
+        <div class="flex items-center gap-2">
           <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
           <span class="text-white/70 text-[10px] font-bold">LIVE</span>
+          <span class="text-white/70 text-[10px]">💎 <span id="hostGems">0</span> gems</span>
         </div>
       </div>
     </div>
@@ -129,9 +109,9 @@
     </div>
   </div>
 
-  <!-- Chat panel (bottom left) -->
+  <!-- Chat panel (bottom left) – clean, no background -->
   <div class="absolute bottom-24 left-4 w-72 max-w-[calc(100%-2rem)] pointer-events-auto">
-    <div id="chatMessages" class="glass-panel-dark rounded-2xl p-3 h-80 overflow-y-auto flex flex-col gap-2 chat-scroll"></div>
+    <div id="chatMessages" class="bg-black/50 rounded-2xl p-3 h-80 overflow-y-auto flex flex-col gap-1 chat-scroll" style="background: rgba(0,0,0,0.5);"></div>
     <div class="glass-panel rounded-full mt-2 flex items-center gap-2 p-1 pl-4">
       <input id="chatInput" type="text" class="flex-1 bg-transparent border-none text-white text-sm placeholder-white/50 focus:outline-none" placeholder="Say something...">
       <button id="sendChatBtn" class="bg-primary/80 rounded-full w-8 h-8 flex items-center justify-center text-white active:scale-95">
@@ -143,7 +123,7 @@
     </div>
   </div>
 
-  <!-- Control buttons (bottom center) -->
+  <!-- Control buttons (bottom center) – some hidden for viewers -->
   <div class="absolute bottom-6 left-0 right-0 flex justify-center gap-4 pointer-events-auto">
     <button id="micBtn" class="glass-panel rounded-full w-12 h-12 flex items-center justify-center text-white active:scale-95">
       <span class="material-symbols-outlined">mic</span>
@@ -151,8 +131,14 @@
     <button id="cameraBtn" class="glass-panel rounded-full w-12 h-12 flex items-center justify-center text-white active:scale-95">
       <span class="material-symbols-outlined">cameraswitch</span>
     </button>
+    <button id="mirrorBtn" class="glass-panel rounded-full w-12 h-12 flex items-center justify-center text-white active:scale-95">
+      <span class="material-symbols-outlined">flip</span>
+    </button>
     <button id="fullscreenBtn" class="glass-panel rounded-full w-12 h-12 flex items-center justify-center text-white active:scale-95">
       <span class="material-symbols-outlined">fullscreen</span>
+    </button>
+    <button id="callBtn" class="glass-panel rounded-full w-12 h-12 flex items-center justify-center text-white active:scale-95">
+      <span class="material-symbols-outlined">video_call</span>
     </button>
     <button id="endLiveBtn" class="glass-panel rounded-full px-5 py-2 bg-red-500/80 text-white font-bold flex items-center gap-1 active:scale-95">
       <span class="material-symbols-outlined">call_end</span>
@@ -161,8 +147,8 @@
   </div>
 </div>
 
-<!-- Gift panel (hidden) -->
-<div id="giftPanel" class="fixed inset-x-0 bottom-0 z-50 glass-panel-dark rounded-t-3xl p-4 transform transition-transform duration-300 translate-y-full pointer-events-auto" style="max-height: 60%; overflow-y: auto;">
+<!-- Gift panel -->
+<div id="giftPanel" class="fixed inset-x-0 bottom-0 z-50 bg-black/80 backdrop-blur-lg rounded-t-3xl p-4 transform transition-transform duration-300 translate-y-full pointer-events-auto" style="max-height: 60%; overflow-y: auto;">
   <div class="flex justify-between items-center mb-4">
     <h3 class="text-white font-headline font-bold">Send a Gift</h3>
     <button id="closeGiftPanel" class="text-white/70"><span class="material-symbols-outlined">close</span></button>
@@ -170,7 +156,7 @@
   <div id="giftGrid" class="grid grid-cols-4 gap-3"></div>
 </div>
 
-<!-- Profile preview popup (hidden) -->
+<!-- Profile preview popup -->
 <div id="profilePreview" class="preview-popup hidden">
   <img id="previewAvatar" class="w-12 h-12 rounded-full object-cover">
   <div>
@@ -186,7 +172,6 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
   import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, onSnapshot, addDoc, serverTimestamp, query, orderBy, limit, increment, updateDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-  // Firebase config
   const app = initializeApp({
     apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
     authDomain: "galmet-app.firebaseapp.com",
@@ -195,14 +180,12 @@
   });
   const db = getFirestore(app);
 
-  // User
   const currentUser = JSON.parse(localStorage.getItem("user"));
   if (!currentUser || !currentUser.userId) window.location.replace("login.html");
   const myUserId = currentUser.userId.toString();
   const myUsername = currentUser.username || "User";
   const myLevel = currentUser.wealthLevel || currentUser.charmLevel || 1;
 
-  // URL params
   const urlParams = new URLSearchParams(window.location.search);
   const roomId = urlParams.get("room");
   const isHost = urlParams.get("host") === "true";
@@ -216,17 +199,21 @@
   let localVideoTrack = null;
   let isMuted = false;
   let cameraFront = true;
+  let isMirrored = false;
 
   // DOM elements
   const hostAvatar = document.getElementById("hostAvatar");
   const hostNameSpan = document.getElementById("hostName");
+  const hostGemsSpan = document.getElementById("hostGems");
   const viewerCountSpan = document.getElementById("viewerCount");
   const chatMessagesDiv = document.getElementById("chatMessages");
   const chatInput = document.getElementById("chatInput");
   const sendChatBtn = document.getElementById("sendChatBtn");
   const micBtn = document.getElementById("micBtn");
   const cameraBtn = document.getElementById("cameraBtn");
+  const mirrorBtn = document.getElementById("mirrorBtn");
   const fullscreenBtn = document.getElementById("fullscreenBtn");
+  const callBtn = document.getElementById("callBtn");
   const endLiveBtn = document.getElementById("endLiveBtn");
   const exitBtn = document.getElementById("exitBtn");
   const giftPanelBtn = document.getElementById("giftPanelBtn");
@@ -245,36 +232,26 @@
   let totalGemsReceived = 0;
   let currentViewerCount = 0;
   let profileTimeout = null;
+  let privateMode = false; // when call is accepted, hide live
 
-  // ---------- Helper functions ----------
-  function escapeHtml(str) {
-    if (!str) return "";
-    return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m]));
-  }
-
-  function formatDuration(ms) {
-    const minutes = Math.floor(ms / 60000);
-    const seconds = Math.floor((ms % 60000) / 1000);
-    return `${minutes}m ${seconds}s`;
-  }
-
-  // Show small profile preview (bottom left)
-  function showProfilePreview(userId, userName, avatar, age, country, clickCallback) {
+  // Helper: show profile preview
+  function showProfilePreview(userId, userName, avatar, age, country) {
     previewAvatar.src = avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=006571&color=fff`;
     previewName.innerText = userName;
     previewAge.innerText = age ? `Age: ${age}` : "";
     previewCountry.innerText = country ? `📍 ${country}` : "";
     profilePreview.classList.remove("hidden");
-    profilePreview.onclick = () => {
-      window.location.href = `view.html?id=${userId}`;
-    };
+    profilePreview.onclick = () => window.location.href = `view.html?id=${userId}`;
     if (profileTimeout) clearTimeout(profileTimeout);
-    profileTimeout = setTimeout(() => {
-      profilePreview.classList.add("hidden");
-    }, 3000);
+    profileTimeout = setTimeout(() => profilePreview.classList.add("hidden"), 3000);
   }
 
-  // ---------- 1. Load host info ----------
+  function escapeHtml(str) {
+    if (!str) return "";
+    return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m]));
+  }
+
+  // ---------- Load host info & real-time gems ----------
   async function loadHostInfo() {
     const livesSnap = await getDocs(collection(db, "lives"));
     let hostId = null;
@@ -288,31 +265,33 @@
         hostData = userSnap.data();
         hostNameSpan.innerText = hostData.username || "Host";
         hostAvatar.src = hostData.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(hostData.username || "Host")}&background=006571&color=fff`;
+        hostGemsSpan.innerText = hostData.gems || 0;
       }
+      // Real-time host gems update
+      onSnapshot(doc(db, "users", hostUserId), (snap) => {
+        if (snap.exists()) hostGemsSpan.innerText = snap.data().gems || 0;
+      });
     } else if (isHost) {
       hostUserId = myUserId;
       hostNameSpan.innerText = myUsername;
       hostAvatar.src = currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(myUsername)}&background=006571&color=fff`;
+      hostGemsSpan.innerText = currentUser.gems || 0;
+      onSnapshot(doc(db, "users", myUserId), (snap) => {
+        if (snap.exists()) hostGemsSpan.innerText = snap.data().gems || 0;
+      });
     }
   }
   loadHostInfo();
 
-  // ---------- 2. Viewer count (liveViewers subcollection) ----------
+  // ---------- Viewer count ----------
   async function addViewer() {
     if (isHost) return;
     await setDoc(doc(db, "liveViewers", roomId, "viewers", myUserId), {
-      userId: myUserId,
-      username: myUsername,
-      joinedAt: serverTimestamp()
+      userId: myUserId, username: myUsername, joinedAt: serverTimestamp()
     });
-    // Send join notification in chat
     await addDoc(collection(db, "liveChat", roomId, "messages"), {
-      type: "join",
-      senderId: myUserId,
-      senderName: myUsername,
-      text: `${myUsername} joined the live`,
-      timestamp: serverTimestamp(),
-      level: myLevel
+      type: "join", senderId: myUserId, senderName: myUsername,
+      text: `${myUsername} joined`, timestamp: serverTimestamp(), level: myLevel
     });
   }
   async function removeViewer() {
@@ -326,35 +305,35 @@
     });
   }
 
-  // ---------- 3. Live Chat (last 5 messages) ----------
+  // ---------- Live Chat (clean, no background) ----------
   function listenChat() {
     const q = query(collection(db, "liveChat", roomId, "messages"), orderBy("timestamp", "desc"), limit(50));
     onSnapshot(q, (snap) => {
       const messages = [];
       snap.forEach(docSnap => messages.push({ id: docSnap.id, ...docSnap.data() }));
-      messages.reverse(); // oldest first
+      messages.reverse();
       chatMessagesDiv.innerHTML = "";
       messages.slice(-5).forEach(msg => {
         const div = document.createElement("div");
-        div.className = `chat-message ${msg.type === 'join' ? 'text-center' : ''}`;
+        div.className = "chat-message";
         if (msg.type === 'join') {
-          div.innerHTML = `<div class="glass-panel inline-block px-3 py-1 rounded-full text-xs text-white/80"><span class="text-primary-fixed">✨ ${escapeHtml(msg.senderName)}</span> joined</div>`;
+          div.innerHTML = `<span class="text-primary-fixed text-xs">✨ ${escapeHtml(msg.senderName)} joined</span>`;
         } else if (msg.type === 'gift') {
-          div.innerHTML = `<div class="glass-panel px-3 py-1.5 rounded-2xl rounded-tl-none"><span class="text-amber-400 text-xs font-bold">🎁 ${escapeHtml(msg.senderName)}</span> <span class="text-white text-xs">sent ${escapeHtml(msg.giftName)} x${msg.quantity || 1}</span></div>`;
+          div.innerHTML = `<span class="text-amber-400 text-xs">🎁 ${escapeHtml(msg.senderName)} sent ${escapeHtml(msg.giftName)}</span>`;
         } else {
-          div.innerHTML = `<div class="glass-panel px-3 py-1.5 rounded-2xl rounded-tl-none"><span class="text-primary-fixed text-xs font-bold cursor-pointer hover:underline" data-userid="${msg.senderId}" data-username="${escapeHtml(msg.senderName)}">${escapeHtml(msg.senderName)}</span> <span class="text-white text-sm">${escapeHtml(msg.text)}</span></div>`;
+          div.innerHTML = `<span class="sender cursor-pointer hover:underline" data-userid="${msg.senderId}">${escapeHtml(msg.senderName)}:</span> <span class="text">${escapeHtml(msg.text)}</span>`;
         }
         chatMessagesDiv.appendChild(div);
       });
-      // Attach click handlers to usernames
-      document.querySelectorAll('[data-userid]').forEach(el => {
+      // Attach click to usernames
+      document.querySelectorAll('.sender').forEach(el => {
         el.addEventListener('click', async (e) => {
           e.stopPropagation();
           const userId = el.dataset.userid;
           const userSnap = await getDoc(doc(db, "users", userId));
           if (userSnap.exists()) {
             const u = userSnap.data();
-            showProfilePreview(userId, u.username || "User", u.photoURL, u.age, u.country?.name, null);
+            showProfilePreview(userId, u.username || "User", u.photoURL, u.age, u.country?.name);
           }
         });
       });
@@ -363,18 +342,14 @@
   }
 
   async function sendChatMessage(text) {
-    if (!text.trim()) return;
+    if (!text.trim() || privateMode) return;
     await addDoc(collection(db, "liveChat", roomId, "messages"), {
-      type: "text",
-      senderId: myUserId,
-      senderName: myUsername,
-      text: text,
-      timestamp: serverTimestamp()
+      type: "text", senderId: myUserId, senderName: myUsername, text: text, timestamp: serverTimestamp()
     });
     chatInput.value = "";
   }
 
-  // ---------- 4. Gift System ----------
+  // ---------- Gift System (prevent self-gift) ----------
   async function loadGifts() {
     const snapshot = await getDocs(collection(db, "gifts"));
     giftGrid.innerHTML = "";
@@ -393,12 +368,12 @@
   }
 
   async function sendGift(giftId, giftName, giftImage, price) {
+    if (myUserId === hostUserId) { alert("You cannot send a gift to yourself"); return; }
+    if (privateMode) { alert("Not available in private mode"); return; }
     const userSnap = await getDoc(doc(db, "users", myUserId));
     const userCoins = userSnap.data()?.coins || 0;
     if (userCoins < price) { alert("Not enough coins!"); return; }
-    // Deduct coins from sender
     await updateDoc(doc(db, "users", myUserId), { coins: increment(-price) });
-    // Add gems to host (1 coin = 1 gem)
     if (hostUserId) {
       const hostRef = doc(db, "users", hostUserId);
       const hostSnap = await getDoc(hostRef);
@@ -406,17 +381,10 @@
       await updateDoc(hostRef, { gems: currentGems + price });
       totalGemsReceived += price;
     }
-    // Add gift message to chat
     await addDoc(collection(db, "liveChat", roomId, "messages"), {
-      type: "gift",
-      senderId: myUserId,
-      senderName: myUsername,
-      giftName: giftName,
-      giftImage: giftImage,
-      quantity: 1,
-      timestamp: serverTimestamp()
+      type: "gift", senderId: myUserId, senderName: myUsername,
+      giftName: giftName, giftImage: giftImage, quantity: 1, timestamp: serverTimestamp()
     });
-    // Show floating animation
     const anim = document.createElement("div");
     anim.className = "fixed bottom-40 right-10 z-50 animate-bounce";
     anim.innerHTML = `<img src="${giftImage}" class="w-16 h-16 drop-shadow-xl">`;
@@ -424,7 +392,7 @@
     setTimeout(() => anim.remove(), 2000);
   }
 
-  // ---------- 5. Agora Live ----------
+  // ---------- Agora Live ----------
   async function startAgora() {
     client = AgoraRTC.createClient({ mode: "live", codec: "vp8" });
     await client.setClientRole(isHost ? "host" : "audience");
@@ -457,7 +425,7 @@
     });
   }
 
-  // ---------- 6. Controls ----------
+  // ---------- Controls ----------
   async function toggleMic() {
     if (!localAudioTrack) return;
     if (isMuted) {
@@ -483,23 +451,83 @@
     await client.publish(localVideoTrack);
     localVideoTrack.play("local-player");
   }
+  function toggleMirror() {
+    const player = document.getElementById("local-player");
+    if (!player) return;
+    isMirrored = !isMirrored;
+    player.style.transform = isMirrored ? "scaleX(-1)" : "scaleX(1)";
+  }
   function toggleFullscreen() {
     if (!document.fullscreenElement) document.documentElement.requestFullscreen();
     else document.exitFullscreen();
   }
 
-  // ---------- 7. End Live (Host only) ----------
+  // ---------- Video Call System ----------
+  async function requestCall() {
+    if (myUserId === hostUserId) return;
+    if (privateMode) { alert("Already in a call"); return; }
+    const userSnap = await getDoc(doc(db, "users", myUserId));
+    const coins = userSnap.data()?.coins || 0;
+    if (coins < 1000) { alert("Need 1000 coins for video call"); return; }
+    // Deduct coins immediately? Or later. We'll deduct on acceptance? For simplicity, deduct now.
+    await updateDoc(doc(db, "users", myUserId), { coins: increment(-1000) });
+    await setDoc(doc(db, "calls", roomId), {
+      callerId: myUserId, callerName: myUsername, status: "waiting", timestamp: serverTimestamp()
+    });
+    alert("Call request sent. Waiting for host...");
+  }
+
+  function listenCallRequests() {
+    onSnapshot(doc(db, "calls", roomId), async (snap) => {
+      if (!snap.exists()) return;
+      const call = snap.data();
+      if (call.status === "waiting" && isHost) {
+        const accept = confirm(`${call.callerName} wants to video call (cost 1000 coins). Accept?`);
+        if (accept) {
+          await updateDoc(doc(db, "calls", roomId), { status: "accepted" });
+          enterPrivateMode(call.callerId, call.callerName);
+        } else {
+          await deleteDoc(doc(db, "calls", roomId));
+          // Refund? Not implemented for simplicity
+        }
+      } else if (call.status === "accepted" && !isHost && call.callerId === myUserId) {
+        enterPrivateMode(hostUserId, hostData?.username || "Host");
+      }
+    });
+  }
+
+  function enterPrivateMode(otherUserId, otherUserName) {
+    privateMode = true;
+    // Hide live video container, show placeholder
+    document.getElementById("video-container").innerHTML = `
+      <div class="flex flex-col items-center justify-center h-full text-white">
+        <span class="material-symbols-outlined text-6xl mb-4">videocam_off</span>
+        <p class="text-xl font-bold">Private video call</p>
+        <p class="text-sm opacity-70">with ${escapeHtml(otherUserName)}</p>
+        <button id="endCallBtn" class="mt-6 bg-red-500 px-6 py-2 rounded-full">End Call</button>
+      </div>
+    `;
+    document.getElementById("endCallBtn")?.addEventListener("click", () => {
+      privateMode = false;
+      window.location.reload(); // simple reset
+    });
+    // Hide chat input and controls
+    document.querySelector(".glass-panel.rounded-full.mt-2")?.remove();
+    document.querySelector(".absolute.bottom-6.left-0.right-0")?.remove();
+    chatMessagesDiv.innerHTML = '<div class="text-white text-center mt-20">Come back later</div>';
+  }
+
+  // ---------- End Live (Host only) ----------
   async function endLive() {
     if (isHost) {
       const duration = Date.now() - liveStartTime;
-      // Show summary for host
       const summaryDiv = document.createElement("div");
       summaryDiv.className = "summary-overlay";
       summaryDiv.innerHTML = `
-        <div class="glass-panel-dark rounded-3xl p-6 text-center max-w-sm mx-4">
+        <div class="bg-black/80 rounded-3xl p-6 text-center max-w-sm mx-4">
           <span class="material-symbols-outlined text-5xl text-primary-fixed">celebration</span>
           <h2 class="text-white font-headline text-xl mt-2">Live Ended</h2>
-          <p class="text-white/80 text-sm mt-1">Duration: ${formatDuration(duration)}</p>
+          <p class="text-white/80 text-sm mt-1">Duration: ${Math.floor(duration/60000)}m ${Math.floor((duration%60000)/1000)}s</p>
           <p class="text-amber-400 font-bold text-lg mt-2">💎 ${totalGemsReceived} gems received</p>
           <p class="text-white/70 text-xs">👥 ${currentViewerCount} viewers joined</p>
           <button id="closeSummary" class="mt-4 bg-primary px-6 py-2 rounded-full text-white">Close</button>
@@ -510,10 +538,8 @@
         summaryDiv.remove();
         window.location.href = "dashboard.html";
       };
-      // Delete live document
       await deleteDoc(doc(db, "lives", myUserId));
     }
-    // Remove viewer and leave Agora
     await removeViewer();
     if (client) {
       if (localAudioTrack) localAudioTrack.close();
@@ -523,7 +549,6 @@
     if (!isHost) window.location.href = "dashboard.html";
   }
 
-  // ---------- 8. Exit button (viewers only) ----------
   function exitLive() {
     if (confirm("Exit the live stream?")) {
       removeViewer();
@@ -532,42 +557,46 @@
     }
   }
 
-  // ---------- 9. Gift panel UI ----------
-  function openGiftPanel() {
-    giftPanel.style.transform = "translateY(0)";
-    loadGifts();
-  }
-  function closeGiftPanelFn() {
-    giftPanel.style.transform = "translateY(100%)";
-  }
+  // ---------- Gift panel UI ----------
+  function openGiftPanel() { giftPanel.style.transform = "translateY(0)"; loadGifts(); }
+  function closeGiftPanelFn() { giftPanel.style.transform = "translateY(100%)"; }
 
-  // ---------- 10. Initialize ----------
+  // ---------- Initialize ----------
   async function init() {
     await startAgora();
     if (!isHost) await addViewer();
     listenViewerCount();
     listenChat();
+    listenCallRequests();
+
     sendChatBtn.onclick = () => sendChatMessage(chatInput.value);
     chatInput.addEventListener("keypress", (e) => { if (e.key === "Enter") sendChatMessage(chatInput.value); });
     micBtn.onclick = toggleMic;
     cameraBtn.onclick = switchCamera;
+    mirrorBtn.onclick = toggleMirror;
     fullscreenBtn.onclick = toggleFullscreen;
+    callBtn.onclick = requestCall;
     endLiveBtn.onclick = endLive;
     exitBtn.onclick = exitLive;
     giftPanelBtn.onclick = openGiftPanel;
     closeGiftPanel.onclick = closeGiftPanelFn;
-    // For host, hide exit button; for viewers, hide end button
-    if (isHost) {
-      exitBtn.style.display = "none";
-    } else {
+
+    // Hide viewer controls if not host
+    if (!isHost) {
+      micBtn.style.display = "none";
+      cameraBtn.style.display = "none";
+      mirrorBtn.style.display = "none";
+      fullscreenBtn.style.display = "none";
       endLiveBtn.style.display = "none";
+    } else {
+      callBtn.style.display = "none"; // host doesn't need call button
     }
-    // Also, make host name clickable
+
     hostNameSpan.addEventListener("click", () => {
-      if (hostUserId) showProfilePreview(hostUserId, hostData?.username || "Host", hostData?.photoURL, hostData?.age, hostData?.country?.name, null);
+      if (hostUserId) showProfilePreview(hostUserId, hostData?.username || "Host", hostData?.photoURL, hostData?.age, hostData?.country?.name);
     });
     hostAvatar.addEventListener("click", () => {
-      if (hostUserId) showProfilePreview(hostUserId, hostData?.username || "Host", hostData?.photoURL, hostData?.age, hostData?.country?.name, null);
+      if (hostUserId) showProfilePreview(hostUserId, hostData?.username || "Host", hostData?.photoURL, hostData?.age, hostData?.country?.name);
     });
   }
   init();
