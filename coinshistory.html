@@ -1,154 +1,223 @@
 <!DOCTYPE html>
-<html>
+<html class="light" lang="en">
 <head>
-  <title>Coins History</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Coins History - Galmet</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
   <style>
-    body {
-      margin: 0;
-      font-family: Arial;
-      background: #f5f6fa;
-    }
-
-    .header {
-      padding: 15px;
-      font-size: 18px;
-      font-weight: bold;
-      background: white;
-      border-bottom: 1px solid #ddd;
-    }
-
-    .list {
-      padding: 10px;
-    }
-
-    .item {
-      background: white;
-      padding: 12px;
-      margin-bottom: 10px;
-      border-radius: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .title {
-      font-size: 14px;
-      font-weight: bold;
-    }
-
-    .time {
-      font-size: 12px;
-      color: gray;
-    }
-
-    .amount {
-      font-weight: bold;
-      font-size: 16px;
-    }
-
-    .plus { color: green; }
-    .minus { color: red; }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    body { background: #f3f7fb; font-family: 'Be Vietnam Pro', sans-serif; }
+    .glass-card { background: rgba(255,255,255,0.6); backdrop-filter: blur(12px); border: 1px solid rgba(0,101,113,0.1); }
+    .tx-plus { color: #10b981; }
+    .tx-minus { color: #ef4444; }
   </style>
 </head>
+<body class="bg-surface font-body text-on-surface min-h-screen pb-24">
 
-<body>
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/20">
+  <div class="flex justify-between items-center px-4 h-14 max-w-md mx-auto">
+    <button onclick="window.history.back()" class="p-2 rounded-full hover:bg-primary-container/30 transition-colors active:scale-95">
+      <span class="material-symbols-outlined text-primary">arrow_back</span>
+    </button>
+    <h1 class="font-headline font-semibold text-lg text-primary">Coins History</h1>
+    <div class="w-8"></div>
+  </div>
+</header>
 
-<div class="header">💰 Coins History</div>
-<div id="coinsHistory" class="list"></div>
+<main class="max-w-md mx-auto px-4 pt-20 pb-8">
+  <!-- Summary Card -->
+  <div class="glass-card rounded-2xl p-4 mb-6 flex justify-between items-center">
+    <div>
+      <p class="text-xs text-outline">Total Coins Spent</p>
+      <p id="totalSpent" class="text-2xl font-bold text-on-surface">0</p>
+    </div>
+    <div class="w-px h-10 bg-outline-variant/30"></div>
+    <div>
+      <p class="text-xs text-outline">Total Coins Received</p>
+      <p id="totalReceived" class="text-2xl font-bold text-primary">0</p>
+    </div>
+  </div>
+
+  <!-- Transaction List -->
+  <div id="transactionList" class="space-y-2">
+    <div class="text-center py-8 text-outline">Loading transactions...</div>
+  </div>
+</main>
+
+<!-- Bottom Navigation (consistent with other pages) -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-3 bg-white/80 backdrop-blur-xl rounded-t-2xl shadow-[0_-4px_24px_rgba(0,101,113,0.06)]">
+  <button onclick="location.href='dashboard.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
+    <span class="material-symbols-outlined">home</span>
+    <span class="text-[10px] font-label">Home</span>
+  </button>
+  <button onclick="location.href='party.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
+    <span class="material-symbols-outlined">sports_esports</span>
+    <span class="text-[10px] font-label">Party</span>
+  </button>
+  <button onclick="location.href='chats.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
+    <span class="material-symbols-outlined">chat_bubble</span>
+    <span class="text-[10px] font-label">Chats</span>
+  </button>
+  <button onclick="location.href='profile.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
+    <span class="material-symbols-outlined">person</span>
+    <span class="text-[10px] font-label">Profile</span>
+  </button>
+</nav>
 
 <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+  import { getFirestore, collection, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+  const app = initializeApp({
+    apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+    authDomain: "galmet-app.firebaseapp.com",
+    projectId: "galmet-app",
+    storageBucket: "galmet-app.firebasestorage.app"
+  });
+  const db = getFirestore(app);
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAxNlQ9g2kcDcaiTwPsSZFgsTvtyLyN3oY",
-  authDomain: "galmet-app.firebaseapp.com",
-  projectId: "galmet-app",
-  storageBucket: "galmet-app.firebasestorage.app",
-  messagingSenderId: "900590512024",
-  appId: "1:900590512024:web:16a36a085809a728c92ded"
-};
+  const currentUser = JSON.parse(localStorage.getItem("user"));
+  if (!currentUser || !currentUser.userId) {
+    window.location.replace("login.html");
+  }
+  const userId = currentUser.userId.toString();
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+  // Query all transactions where user is involved (sender, receiver, or userId for topup/withdraw)
+  const q = query(
+    collection(db, "transactions"),
+    orderBy("createdAt", "desc")
+  );
 
-const user = JSON.parse(localStorage.getItem("user"));
-const userId = user.userId.toString();
+  let totalSpent = 0;
+  let totalReceived = 0;
 
-const q = query(
-  collection(db, "transactions"),
-  orderBy("createdAt", "desc")
-);
+  onSnapshot(q, (snapshot) => {
+    const container = document.getElementById("transactionList");
+    container.innerHTML = "";
+    totalSpent = 0;
+    totalReceived = 0;
 
-onSnapshot(q, (snap) => {
-
-  const div = document.getElementById("coinsHistory");
-  div.innerHTML = "";
-
-  snap.forEach(doc => {
-
-    const d = doc.data();
-
-    const isSender = d.senderId === userId;
-    const isReceiver = d.receiverId === userId;
-    const isTopup = d.type === "topup" && d.userId === userId;
-    const isWithdraw = d.type === "withdraw" && d.userId === userId;
-
-    // ❌ Skip unrelated
-    if (!isSender && !isReceiver && !isTopup && !isWithdraw) return;
-
-    // ❌ Skip received gifts (only show sent)
-    if (d.type === "gift" && isReceiver) return;
-
-    let sign = "-";
-    let color = "minus";
-    let title = "Transaction";
-    let amount = d.coins || 0;
-
-    // 🎁 Gift
-    if (d.type === "gift") {
-      title = "Sent Gift 🎁";
+    if (snapshot.empty) {
+      container.innerHTML = '<div class="text-center py-8 text-outline">No transactions yet</div>';
+      document.getElementById("totalSpent").innerText = "0";
+      document.getElementById("totalReceived").innerText = "0";
+      return;
     }
 
-    // 💳 Topup
-    if (d.type === "topup") {
-      sign = "+";
-      color = "plus";
-      title = "Top-up 💳";
-    }
+    snapshot.forEach(docSnap => {
+      const tx = docSnap.data();
+      const isRelevant = (
+        tx.senderId === userId ||
+        tx.receiverId === userId ||
+        tx.userId === userId ||
+        (tx.type === "gift" && (tx.senderId === userId || tx.receiverId === userId))
+      );
+      if (!isRelevant) return;
 
-    // 💸 Withdraw
-    if (d.type === "withdraw") {
-      title = "Withdraw 💸";
-    }
+      let title = "Transaction";
+      let amount = 0;
+      let sign = "";
+      let typeClass = "";
+      let icon = "receipt";
 
-    let time = "Now";
+      // Determine type and amount
+      if (tx.type === "topup") {
+        title = "Top Up";
+        amount = tx.coins || 0;
+        sign = "+";
+        typeClass = "tx-plus";
+        icon = "add_circle";
+        totalReceived += amount;
+      } else if (tx.type === "withdraw") {
+        title = "Withdraw";
+        amount = tx.coins || 0;
+        sign = "-";
+        typeClass = "tx-minus";
+        icon = "remove_circle";
+        totalSpent += amount;
+      } else if (tx.type === "gift") {
+        if (tx.senderId === userId) {
+          title = `Sent Gift: ${tx.giftName || "Gift"}`;
+          amount = tx.coins || 0;
+          sign = "-";
+          typeClass = "tx-minus";
+          icon = "redeem";
+          totalSpent += amount;
+        } else if (tx.receiverId === userId) {
+          title = `Received Gift: ${tx.giftName || "Gift"}`;
+          amount = tx.gems || 0; // For receiver, gems are added
+          sign = "+";
+          typeClass = "tx-plus";
+          icon = "card_giftcard";
+          totalReceived += amount;
+        }
+      } else if (tx.type === "video_call") {
+        if (tx.senderId === userId) {
+          title = "Video Call";
+          amount = tx.coins || 0;
+          sign = "-";
+          typeClass = "tx-minus";
+          icon = "videocam";
+          totalSpent += amount;
+        } else if (tx.receiverId === userId) {
+          title = "Video Call Earnings";
+          amount = tx.gems || 0;
+          sign = "+";
+          typeClass = "tx-plus";
+          icon = "videocam";
+          totalReceived += amount;
+        }
+      } else if (tx.type === "live_gift") {
+        if (tx.senderId === userId) {
+          title = `Live Gift: ${tx.giftName || "Gift"}`;
+          amount = tx.coins || 0;
+          sign = "-";
+          typeClass = "tx-minus";
+          icon = "redeem";
+          totalSpent += amount;
+        } else if (tx.receiverId === userId) {
+          title = `Live Gift Received`;
+          amount = tx.gems || 0;
+          sign = "+";
+          typeClass = "tx-plus";
+          icon = "card_giftcard";
+          totalReceived += amount;
+        }
+      }
 
-    if (d.createdAt?.seconds) {
-      const date = new Date(d.createdAt.seconds * 1000);
-      time = date.toLocaleString();
-    }
+      const time = tx.createdAt?.seconds ? new Date(tx.createdAt.seconds * 1000).toLocaleString() : "Just now";
 
-    div.innerHTML += `
-      <div class="item">
-        <div>
-          <div class="title">${title}</div>
-          <div class="time">${time}</div>
+      const div = document.createElement("div");
+      div.className = "glass-card rounded-xl p-3 flex justify-between items-center";
+      div.innerHTML = `
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center">
+            <span class="material-symbols-outlined text-primary">${icon}</span>
+          </div>
+          <div>
+            <p class="font-headline font-semibold text-sm text-on-surface">${escapeHtml(title)}</p>
+            <p class="text-[10px] text-outline">${time}</p>
+          </div>
         </div>
-        <div class="amount ${color}">
-          ${sign}${amount}
+        <div class="font-bold ${typeClass} text-base">
+          ${sign}${amount.toLocaleString()} ${tx.type === "gift" && tx.receiverId === userId ? '💎' : '🪙'}
         </div>
-      </div>
-    `;
+      `;
+      container.appendChild(div);
+    });
 
+    document.getElementById("totalSpent").innerText = totalSpent.toLocaleString();
+    document.getElementById("totalReceived").innerText = totalReceived.toLocaleString();
   });
 
-});
-
+  function escapeHtml(str) {
+    if (!str) return "";
+    return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m]));
+  }
 </script>
-
 </body>
 </html>
