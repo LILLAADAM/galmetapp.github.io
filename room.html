@@ -16,9 +16,11 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Plus Jakarta Sans'
 .hs{scrollbar-width:none;-ms-overflow-style:none;}.hs::-webkit-scrollbar{display:none;}
 button{border:none;background:none;cursor:pointer;font-family:inherit;}input{outline:none;font-family:inherit;}
 #app{position:fixed;inset:0;display:flex;flex-direction:column;}
+/* BG */
 #bg{position:absolute;inset:0;z-index:0;}
 #bgImg{width:100%;height:100%;object-fit:cover;transition:opacity .4s;}
 #bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.52) 0%,rgba(0,0,0,.1) 35%,rgba(0,0,0,.72) 100%);}
+/* HEADER */
 #hdr{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:max(10px,env(safe-area-inset-top)) 12px 6px;}
 .hpill{display:flex;align-items:center;gap:7px;background:rgba(0,0,0,.42);backdrop-filter:blur(12px);border-radius:30px;padding:4px 10px 4px 4px;cursor:pointer;}
 .hpill img{width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid var(--t2);}
@@ -32,14 +34,17 @@ button{border:none;background:none;cursor:pointer;font-family:inherit;}input{out
 .vpill .vdot{width:7px;height:7px;border-radius:50%;background:var(--red);animation:bl 1.2s infinite;}
 @keyframes bl{0%,100%{opacity:1;}50%{opacity:.3;}}
 .vpill span{color:#fff;font-size:10px;font-weight:800;}
-.ibtn{width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;}
+.ibtn{width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;color:#fff;position:relative;flex-shrink:0;}
+.rbadge{position:absolute;top:-3px;right:-3px;background:var(--red);color:#fff;font-size:8px;font-weight:800;border-radius:10px;padding:1px 4px;min-width:14px;text-align:center;}
+/* SCROLL */
 #scr{position:relative;z-index:5;flex:1;overflow-y:auto;overflow-x:hidden;}
+/* TOP 3 SEATS */
 #topRow{display:grid;grid-template-columns:repeat(3,1fr);}
 .tseat{position:relative;}
-.tseat+.tseat::before{content:'';position:absolute;left:0;top:8%;bottom:8%;width:1px;background:rgba(255,255,255,.12);}
-.cam{position:relative;width:100%;aspect-ratio:1;background:#0c1619;overflow:hidden;border-radius:50%;}
-.cam .av-fill,.cam video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%;}
-.cam .grad{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.72) 0%,transparent 55%);z-index:1;border-radius:50%;}
+.tseat+.tseat::before{content:'';position:absolute;left:0;top:8%;bottom:8%;width:1px;background:rgba(255,255,255,.12);z-index:2;}
+.cam{position:relative;width:100%;aspect-ratio:9/13;background:#0c1619;overflow:hidden;}
+.cam .av-fill,.cam video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.cam .grad{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.72) 0%,transparent 55%);z-index:1;}
 .cam .uname{position:absolute;bottom:5px;left:0;right:0;text-align:center;font-size:9px;font-weight:700;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.9);z-index:2;}
 .cam .hbadge{position:absolute;top:5px;left:5px;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;font-size:7px;font-weight:900;padding:2px 5px;border-radius:10px;z-index:2;}
 .cam .micoff{position:absolute;top:5px;right:5px;background:rgba(239,68,68,.9);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;z-index:2;}
@@ -48,11 +53,12 @@ button{border:none;background:none;cursor:pointer;font-family:inherit;}input{out
 .cam .gtag .ms{font-size:9px;color:var(--red);}
 .cam .gtag span{font-size:8px;font-weight:800;color:#fff;}
 .cam .snum{position:absolute;top:5px;right:5px;background:rgba(0,0,0,.5);color:rgba(255,255,255,.65);font-size:8px;font-weight:700;border-radius:8px;padding:1px 5px;z-index:2;}
-.ecam{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;background:rgba(0,0,0,.25);transition:background .2s;z-index:1;border-radius:50%;}
+.ecam{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;background:rgba(0,0,0,.25);transition:background .2s;z-index:1;}
 .ecam:hover{background:rgba(0,101,113,.3);}
 .ecam .ering{width:44px;height:44px;border-radius:50%;border:2px dashed rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;}
 .ecam .ering .ms{font-size:22px;color:rgba(255,255,255,.5);}
 .ecam .elbl{font-size:9px;color:rgba(255,255,255,.45);font-weight:600;}
+/* BOT 5 */
 #botRow{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:10px 8px 0;}
 .bseat{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;}
 .bseat .ba{position:relative;width:48px;height:48px;}
@@ -65,6 +71,7 @@ button{border:none;background:none;cursor:pointer;font-family:inherit;}input{out
 .bseat .ba .gd span{font-size:6px;color:#fff;font-weight:800;}
 .bseat .bn{font-size:7px;color:rgba(255,255,255,.5);font-weight:600;max-width:50px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;}
 .bseat.be .r2{border-style:dashed;border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.03);display:flex;align-items:center;justify-content:center;}
+/* CHAT */
 #chatWrap{padding:6px 10px;height:130px;overflow-y:auto;display:flex;flex-direction:column;justify-content:flex-end;mask-image:linear-gradient(to top,black 70%,transparent 100%);}
 .cmsg{margin-bottom:4px;line-height:1.4;}
 .cmsg .cn{font-size:11px;font-weight:800;color:var(--t2);cursor:pointer;}
@@ -73,12 +80,14 @@ button{border:none;background:none;cursor:pointer;font-family:inherit;}input{out
 .gmsg{display:flex;align-items:center;gap:6px;background:rgba(245,158,11,.08);border-radius:8px;padding:4px 8px;margin-bottom:4px;cursor:pointer;}
 .gmsg img{width:20px;height:20px;object-fit:contain;}
 .gmsg .gtxt{font-size:10px;color:var(--gold);font-weight:700;}
+/* BOTTOM BAR */
 #bar{position:relative;z-index:10;background:rgba(10,15,20,.95);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.07);padding:8px 12px;padding-bottom:max(8px,env(safe-area-inset-bottom));}
 .brow{display:flex;align-items:center;gap:10px;}
-.cinput{flex:1;display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:30px;padding:0 12px;height:38px;}
+.cinput{flex:1;display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:30px;padding:0 12px;height:38px;cursor:text;}
 .cinput input{flex:1;background:transparent;border:none;color:#fff;font-size:12px;}
 .cinput input::placeholder{color:rgba(255,255,255,.3);}
-.bico{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1);}
+.bico{position:relative;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+/* PANELS */
 .panel{position:fixed;inset:0;z-index:100;display:none;flex-direction:column;justify-content:flex-end;}
 .panel.show{display:flex;}
 .pb{position:absolute;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(5px);}
@@ -88,17 +97,21 @@ button{border:none;background:none;cursor:pointer;font-family:inherit;}input{out
 .ph{display:flex;align-items:center;justify-content:space-between;padding:0 18px 12px;}
 .pt{color:#fff;font-size:15px;font-weight:800;}
 .pc{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;}
+/* Set row */
 .sr{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.06);cursor:pointer;}
+.sr:last-child{border-bottom:none;}
 .sl{display:flex;align-items:center;gap:12px;color:#fff;}
 .sl .ms{font-size:20px;color:rgba(255,255,255,.55);}
 .slbl{font-size:14px;font-weight:600;}
 .sarr{color:rgba(255,255,255,.3);}
+/* Toggle */
 .tog{position:relative;width:44px;height:24px;flex-shrink:0;}
 .tog input{opacity:0;width:0;height:0;}
 .tsl{position:absolute;inset:0;background:rgba(255,255,255,.15);border-radius:24px;cursor:pointer;transition:.25s;}
 .tsl::before{content:'';position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.25s;}
 .tog input:checked+.tsl{background:var(--t2);}
 .tog input:checked+.tsl::before{transform:translateX(20px);}
+/* Gift panel */
 .gtrow{display:flex;gap:8px;padding:0 14px 8px;overflow-x:auto;}
 .gtitem{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;flex-shrink:0;}
 .gtitem img{width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid transparent;}
@@ -108,32 +121,36 @@ button{border:none;background:none;cursor:pointer;font-family:inherit;}input{out
 .gtab{padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;color:rgba(255,255,255,.4);cursor:pointer;white-space:nowrap;}
 .gtab.active{background:rgba(0,101,113,.35);color:var(--t2);}
 .ggrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 14px 12px;}
-.gc{background:rgba(255,255,255,.05);border-radius:12px;padding:8px 5px;text-align:center;cursor:pointer;border:1.5px solid transparent;}
+.gc{background:rgba(255,255,255,.05);border-radius:12px;padding:8px 5px;text-align:center;cursor:pointer;border:1.5px solid transparent;transition:all .18s;}
 .gc:hover{background:rgba(0,101,113,.2);border-color:rgba(0,180,200,.3);}
 .gc.sel{border-color:var(--t2);background:rgba(0,180,200,.1);}
 .gc img{width:44px;height:44px;object-fit:contain;margin:0 auto 3px;display:block;}
 .gc .gn{font-size:9px;color:#fff;font-weight:700;}
 .gc .gp{font-size:8px;color:var(--gold);margin-top:1px;}
 .qrow{display:flex;gap:8px;padding:0 14px 12px;}
-.qc{padding:8px 16px;border-radius:20px;background:rgba(255,255,255,.07);border:1.5px solid transparent;color:#fff;font-size:12px;font-weight:800;cursor:pointer;flex:1;text-align:center;}
+.qc{padding:8px 16px;border-radius:20px;background:rgba(255,255,255,.07);border:1.5px solid transparent;color:#fff;font-size:12px;font-weight:800;cursor:pointer;transition:all .18s;flex:1;text-align:center;}
 .qc.active{background:rgba(0,101,113,.4);border-color:var(--t2);color:#00e3fd;}
 .sgbtn{margin:0 14px 14px;width:calc(100% - 28px);padding:14px;background:linear-gradient(135deg,var(--t),var(--t2));border-radius:14px;color:#fff;font-size:14px;font-weight:800;display:block;}
+/* BG grid */
 .bggrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 14px 14px;}
-.bgo{aspect-ratio:16/9;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid transparent;}
+.bgo{aspect-ratio:16/9;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:all .2s;}
 .bgo:hover{transform:scale(1.03);}
 .bgo.active{border-color:var(--t2);}
 .bgo img{width:100%;height:100%;object-fit:cover;}
+/* Filters grid */
 .fgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:0 14px 14px;}
 .fi{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;}
 .fi .ft{width:58px;height:58px;border-radius:12px;overflow:hidden;border:2px solid transparent;}
 .fi.sel .ft{border-color:var(--t2);}
 .fi .ft img{width:100%;height:100%;object-fit:cover;}
 .fi span{font-size:9px;color:rgba(255,255,255,.55);font-weight:600;text-align:center;}
+/* Invite grid */
 .igrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 14px 14px;}
-.ic{display:flex;flex-direction:column;align-items:center;gap:4px;background:rgba(255,255,255,.04);border-radius:12px;padding:8px 4px;cursor:pointer;border:1.5px solid transparent;}
+.ic{display:flex;flex-direction:column;align-items:center;gap:4px;background:rgba(255,255,255,.04);border-radius:12px;padding:8px 4px;cursor:pointer;border:1.5px solid transparent;transition:all .2s;}
 .ic:hover{background:rgba(0,101,113,.2);border-color:rgba(0,180,200,.3);}
 .ic img{width:38px;height:38px;border-radius:50%;object-fit:cover;}
 .ic span{font-size:9px;color:rgba(255,255,255,.75);font-weight:600;text-align:center;max-width:56px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+/* Req list */
 .rlist{padding:0 14px 14px;}
 .ritem{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);}
 .ritem img{width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.12);}
@@ -141,6 +158,7 @@ button{border:none;background:none;cursor:pointer;font-family:inherit;}input{out
 .ritem .rn{color:#fff;font-size:13px;font-weight:700;}
 .ritem .ru{color:rgba(255,255,255,.35);font-size:10px;}
 .ritem .ra{padding:7px 14px;background:var(--t2);border-radius:20px;color:#fff;font-size:11px;font-weight:800;}
+/* User card */
 #ucard{position:fixed;inset:0;z-index:200;display:none;align-items:flex-end;}
 #ucard.show{display:flex;}
 #ucback{position:absolute;inset:0;}
@@ -154,6 +172,7 @@ button{border:none;background:none;cursor:pointer;font-family:inherit;}input{out
 .ucgems{display:flex;align-items:center;gap:4px;}
 .ucgems .ms{font-size:13px;color:var(--red);}
 .ucgems span{color:#fff;font-size:12px;font-weight:800;}
+/* Host action */
 #hact{position:fixed;inset:0;z-index:250;display:none;align-items:center;justify-content:center;}
 #hact.show{display:flex;}
 #hactbk{position:absolute;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);}
@@ -169,6 +188,7 @@ button{border:none;background:none;cursor:pointer;font-family:inherit;}input{out
 .habtn.danger:hover{background:rgba(239,68,68,.1);}
 .habtn .ms{font-size:18px;width:22px;text-align:center;}
 .hcanc{width:100%;padding:10px;background:transparent;border:1px solid rgba(255,255,255,.12);border-radius:12px;color:rgba(255,255,255,.4);font-size:13px;font-weight:600;cursor:pointer;margin-top:4px;}
+/* Gift popup on screen */
 .gpop{position:fixed;z-index:300;pointer-events:none;animation:gsh 3s ease forwards;}
 @keyframes gsh{0%{opacity:0;transform:translateY(30px) scale(.8);}15%{opacity:1;transform:translateY(0) scale(1);}75%{opacity:1;transform:translateY(-20px);}100%{opacity:0;transform:translateY(-60px) scale(1.1);}}
 .gpi{display:flex;align-items:center;gap:7px;background:rgba(0,0,0,.62);backdrop-filter:blur(12px);border-radius:30px;padding:6px 12px 6px 5px;border:1px solid rgba(255,255,255,.08);}
@@ -178,18 +198,25 @@ button{border:none;background:none;cursor:pointer;font-family:inherit;}input{out
 .gpi .gpt{font-size:9px;color:rgba(255,255,255,.45);}
 .gpi .ggif{width:34px;height:34px;object-fit:contain;}
 .gpi .gx{font-size:15px;font-weight:900;color:var(--gold);}
+/* Toast */
 .toast{position:fixed;top:max(88px,calc(env(safe-area-inset-top)+76px));left:50%;transform:translateX(-50%);background:rgba(0,101,113,.95);backdrop-filter:blur(14px);color:#fff;padding:9px 18px;border-radius:24px;font-size:12px;font-weight:700;z-index:500;border:1px solid rgba(0,180,200,.3);animation:ti .3s ease,to .3s ease 2s forwards;pointer-events:none;white-space:nowrap;}
 @keyframes ti{from{opacity:0;transform:translateX(-50%) translateY(-8px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
 @keyframes to{from{opacity:1;}to{opacity:0;}}
+/* Chat panel full */
+#chatfull{height:320px;overflow-y:auto;padding:0 14px;}
+.cpinput{display:flex;align-items:center;gap:8px;padding:10px 14px 0;}
+.cpinput input{flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:30px;padding:10px 16px;color:#fff;font-size:13px;}
+.cpinput button{background:var(--green);border-radius:30px;padding:10px 20px;color:#fff;font-size:13px;font-weight:800;}
 </style>
 </head>
 <body>
 <div id="app">
 <div id="bg"><img id="bgImg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA20THb-mnLuJuMVVEs5Nco4vurMKZyjwxbe-W-Uf31d7QbNQS_KI_bQplpTqJ7cXu5RI20jhbRkhzOPSwu2XF_T4G3UvgrhRbeXkmUqcrSP-25vpaHrZHNncWyT6Avp8NVLm8lUemyYs9MMXrCHQsBOMi9Tkew5o-4bQooMiqiIB8KooDFbGjXdgoLKX11AxSSueSaxoZivYU5V5lfSTgJ9A_eZkQdsTHMtOGI53wnt1zRQAfhczG_jZdwzgzoSvqPMyyGEr-_aYZ8"></div>
+<!-- HEADER -->
 <div id="hdr">
   <div style="display:flex;align-items:center;gap:8px;">
     <div class="hpill" id="hostPill">
-      <img id="hostAv" src=""><div><div class="hn" id="rnEl"></div><div class="ht" id="levelBadge">LIVE</div></div>
+      <img id="hostAv" src=""><div><div class="hn" id="rnEl"></div><div class="ht" id="riEl">LIVE</div></div>
     </div>
     <div class="gpill"><span class="ms f">payments</span><span id="rwEl">0</span></div>
   </div>
@@ -199,20 +226,43 @@ button{border:none;background:none;cursor:pointer;font-family:inherit;}input{out
     <button class="ibtn" id="leaveBtn"><span class="ms" style="font-size:18px;">close</span></button>
   </div>
 </div>
+<!-- SCROLL -->
 <div id="scr" class="hs">
   <div id="topRow"></div>
   <div id="botRow"></div>
   <div id="chatWrap" class="hs"><div id="chatInner"></div></div>
 </div>
+<!-- BAR -->
 <div id="bar">
   <div class="brow">
-    <div class="cinput"><span class="ms" style="font-size:16px;color:rgba(255,255,255,.3);">chat_bubble</span><input id="cBarIn" placeholder="Say something..."><button id="cBarSend" style="color:var(--t2);"><span class="ms" style="font-size:18px;">send</span></button></div>
-    <button class="bico" id="globalChatBtn"><span class="ms" style="font-size:22px;">chat</span></button>
+    <div class="cinput" id="cTrig"><span class="ms" style="font-size:16px;color:rgba(255,255,255,.3);">chat_bubble</span><input id="cBarIn" placeholder="Say something..." readonly><button id="cBarSend" style="color:var(--t2);"><span class="ms" style="font-size:18px;">send</span></button></div>
+    <button class="bico" id="chatBtn" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);"><span class="ms" style="font-size:22px;color:rgba(255,255,255,.7);">chat</span><span id="undot" style="position:absolute;top:4px;right:4px;width:7px;height:7px;background:var(--red);border-radius:50%;display:none;"></span></button>
     <button class="bico" id="giftBtn" style="background:rgba(245,158,11,.12);border:1.5px solid rgba(245,158,11,.32);"><span class="ms" style="font-size:22px;color:var(--gold);">redeem</span></button>
     <button class="bico" id="dotsBtn" style="background:rgba(0,101,113,.7);border:1.5px solid rgba(0,180,200,.3);"><svg width="14" height="14" viewBox="0 0 14 14"><circle cx="3" cy="3" r="2.5" fill="white"/><circle cx="11" cy="3" r="2.5" fill="white"/><circle cx="3" cy="11" r="2.5" fill="white"/><circle cx="11" cy="11" r="2.5" fill="white"/></svg></button>
   </div>
 </div>
 </div>
+
+<!-- CHAT PANEL -->
+<div id="chatP" class="panel"><div class="pb" id="cpb"></div><div class="ps"><div class="sh"></div><div class="ph"><span class="pt">💬 Chat</span><button class="pc" id="cpc">✕</button></div><div id="chatfull" class="hs"></div><div class="cpinput"><input id="cpIn" placeholder="Type a message..."><button id="cpSend">Send</button></div><div style="height:14px;"></div></div></div>
+
+<!-- GIFT PANEL -->
+<div id="giftP" class="panel"><div class="pb" id="gpb"></div><div class="ps">
+  <div class="sh"></div>
+  <div class="ph"><span class="pt">🎁 Send Gift</span><button class="pc" id="gpc">✕</button></div>
+  <div style="padding:0 14px 4px;font-size:10px;color:rgba(255,255,255,.4);font-weight:700;letter-spacing:.5px;">SEND TO</div>
+  <div class="gtrow hs" id="gtRow"></div>
+  <div class="gtabs hs" id="gtabs">
+    <div class="gtab active" data-c="popular">Popular</div>
+    <div class="gtab" data-c="lucky">Lucky</div>
+    <div class="gtab" data-c="luxury">Luxury</div>
+  </div>
+  <div id="ggrid" class="ggrid"></div>
+  <div style="padding:0 14px 6px;font-size:10px;color:rgba(255,255,255,.4);font-weight:700;letter-spacing:.5px;">QUANTITY</div>
+  <div class="qrow" id="qrow"></div>
+  <button class="sgbtn" id="sgBtn">Send Gift 🎁</button>
+  <div style="height:6px;"></div>
+</div></div>
 
 <!-- SETTINGS PANEL -->
 <div id="setP" class="panel"><div class="pb" id="spb"></div><div class="ps">
@@ -226,7 +276,6 @@ button{border:none;background:none;cursor:pointer;font-family:inherit;}input{out
   <div class="sr" id="invRow" style="display:none;"><div class="sl"><span class="ms">person_add</span><span class="slbl">Invite to Stage</span></div><span class="ms sarr">chevron_right</span></div>
   <div class="sr" id="lockRow" style="display:none;"><div class="sl"><span class="ms" id="lockIco">lock_open</span><span class="slbl" id="lockLbl">Lock Seat</span></div><label class="tog" onclick="event.stopPropagation()"><input type="checkbox" id="lockTog"><div class="tsl"></div></label></div>
   <div class="sr" id="lvRow"><div class="sl"><span class="ms" style="color:var(--red);">logout</span><span class="slbl" style="color:var(--red);" id="lvLbl">Leave Room</span></div><span class="ms sarr">chevron_right</span></div>
-  <div class="sr" id="leaveSeatRow" style="display:none;"><div class="sl"><span class="ms">exit_to_app</span><span class="slbl">Leave Seat</span></div><span class="ms sarr">chevron_right</span></div>
 </div></div>
 
 <!-- FILTERS PANEL -->
@@ -238,29 +287,8 @@ button{border:none;background:none;cursor:pointer;font-family:inherit;}input{out
 <!-- INVITE PANEL -->
 <div id="invP" class="panel"><div class="pb" id="ipb"></div><div class="ps"><div class="sh"></div><div class="ph"><span class="pt">👥 Invite to Stage</span><button class="pc" id="ipc">✕</button></div><div class="igrid" id="igrid"></div><div style="height:10px;"></div></div></div>
 
-<!-- GIFT PANEL (with coin display and no default target) -->
-<div id="giftP" class="panel"><div class="pb" id="gpb"></div><div class="ps">
-  <div class="sh"></div>
-  <div class="ph"><span class="pt">🎁 Send Gift</span><button class="pc" id="gpc">✕</button></div>
-  <div style="padding:0 14px 4px;display:flex;justify-content:space-between;align-items:center;">
-    <span style="font-size:10px;color:rgba(255,255,255,.4);font-weight:700;">SEND TO</span>
-    <span style="font-size:10px;color:var(--gold);"><span class="ms f" style="font-size:12px;">monetization_on</span> <span id="giftUserCoins">0</span> coins</span>
-  </div>
-  <div class="gtrow hs" id="gtRow"></div>
-  <div class="gtabs hs" id="gtabs">
-    <div class="gtab active" data-c="popular">Popular</div>
-    <div class="gtab" data-c="lucky">Lucky</div>
-    <div class="gtab" data-c="luxury">Luxury</div>
-  </div>
-  <div id="ggrid" class="ggrid"></div>
-  <div style="padding:0 14px 6px;font-size:10px;color:rgba(255,255,255,.4);">QUANTITY</div>
-  <div class="qrow" id="qrow"></div>
-  <button class="sgbtn" id="sgBtn">Send Gift 🎁</button>
-  <div style="height:6px;"></div>
-</div></div>
-
-<!-- REQUEST PANEL -->
-<div id="reqP" class="panel"><div class="pb" id="rpb"></div><div class="ps"><div class="sh"></div><div class="ph"><span class="pt">📥 Join Requests</span><button class="pc" id="rpc">✕</button></div><div class="rlist" id="rlist"></div></div></div>
+<!-- JOIN REQUESTS PANEL -->
+<div id="reqP" class="panel"><div class="pb" id="rpb"></div><div class="ps"><div class="sh"></div><div class="ph"><span class="pt">📥 Join Requests</span><button class="pc" id="rpc">✕</button></div><div class="rlist" id="rlist"></div><div style="height:10px;"></div></div></div>
 
 <!-- HOST ACTION -->
 <div id="hact"><div id="hactbk"></div><div class="hcard">
@@ -276,599 +304,444 @@ button{border:none;background:none;cursor:pointer;font-family:inherit;}input{out
   <div class="ucrow"><a id="uclink" href="#">View Profile →</a><div class="ucgems"><span class="ms f">diamond</span><span id="ucgems">0</span><span style="font-size:10px;color:rgba(255,255,255,.4);margin-left:2px;">gems in room</span></div></div>
 </div></div>
 
-<!-- GLOBAL CHAT PANEL (half‑screen with chats list) -->
-<div id="globalChatP" class="panel"><div class="pb" id="gcpb"></div><div class="ps" style="height:70vh;">
-  <div class="sh"></div>
-  <div class="ph"><span class="pt">💬 Chats</span><button class="pc" id="gcpc">✕</button></div>
-  <div id="globalChatList" class="igrid" style="grid-template-columns:1fr; gap:8px; padding:0 14px 14px; overflow-y:auto;"></div>
-  <div style="height:10px;"></div>
-</div></div>
-
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, onSnapshot, addDoc, serverTimestamp, query, orderBy, limit, updateDoc, increment, getDocs } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-import { getDatabase, ref as dbRef, onChildAdded } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
-
-const FB = initializeApp({
-  apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
-  authDomain: "galmet-app.firebaseapp.com",
-  projectId: "galmet-app",
-  storageBucket: "galmet-app.firebasestorage.app"
-});
-const db = getFirestore(FB);
-const rtdb = getDatabase(FB);
-
-const me = JSON.parse(localStorage.getItem("user") || "null");
-if (!me?.userId) { location.replace("login.html"); }
-const myId = me.userId.toString();
-const myName = me.username || "User";
-const myPhoto = me.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(myName)}&background=006571&color=fff`;
-const agoraUID = Number(me.userId);
-
-const urlP = new URLSearchParams(location.search);
-const roomId = urlP.get("id");
-if (!roomId) { alert("Invalid room"); location.href = "party.html"; }
-const roomRef = doc(db, "rooms", roomId);
-const membRef = collection(db, "rooms", roomId, "members");
-const reqRef = collection(db, "rooms", roomId, "requests");
-
-// Agora
-const APP_ID = "873172a9b2064b1ca97b4f45ee6ed9b5";
-const TOKEN = "007eJxTYNgf3zFVVc1vqcmx/X9OXy/PrUgsXmXoeNimROEVu7RPuZACg4W5saG5UaJlkpGBmUmSYXKipXmSSZqJaWqqWWqKZZKp1JQbmQ2BjAyqH/ewMDJAIIgvwpDob5Zu5pQdlBsa4ViZGmQUaplWwsAAACc3I8I=";
-let agoraC = null, audT = null, vidT = null, micOn = true, camOn = true, camF = true;
-const remV = {};
-let roomData = null, hostId = null, isHost = false, members = [], isSeated = false;
-let localChat = [];
-let selGift = null, selQty = 1, selTarget = null, curGiftCat = "popular";
-let curFilt = "none";
-const BGLST = ["https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800","https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800","https://images.unsplash.com/photo-1536240474400-bc3c7eac8f0d?w=800","https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800","https://images.unsplash.com/photo-1500462918059-b1a0cb512f1d?w=800","https://images.unsplash.com/photo-1511884642898-4c92249e20b6?w=800","https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800","https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=800","https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800"];
-const FILTS = [{id:"none",n:"Normal",css:"none",t:"https://images.unsplash.com/photo-1500462918059-b1a0cb512f1d?w=80"},{id:"warm",n:"Warm",css:"sepia(.3) saturate(1.4) brightness(1.1)",t:"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=80"},{id:"cool",n:"Cool",css:"hue-rotate(30deg) saturate(1.3)",t:"https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=80"},{id:"vivid",n:"Vivid",css:"saturate(2) contrast(1.1)",t:"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=80"},{id:"bw",n:"B&W",css:"grayscale(1)",t:"https://images.unsplash.com/photo-1536240474400-bc3c7eac8f0d?w=80"},{id:"beauty",n:"Beauty",css:"brightness(1.12) contrast(.95) saturate(1.2)",t:"https://images.unsplash.com/photo-1511884642898-4c92249e20b6?w=80"},{id:"drama",n:"Drama",css:"contrast(1.4) brightness(.9) saturate(.8)",t:"https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=80"},{id:"glow",n:"Glow",css:"brightness(1.2) saturate(1.5)",t:"https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=80"}];
-const GIFTS = [{id:"rose",n:"Rose",img:"https://cdn-icons-png.flaticon.com/128/2722/2722480.png",p:10,c:"popular"},{id:"heart",n:"Heart",img:"https://cdn-icons-png.flaticon.com/128/833/833472.png",p:25,c:"popular"},{id:"star",n:"Star",img:"https://cdn-icons-png.flaticon.com/128/1828/1828884.png",p:30,c:"popular"},{id:"crown",n:"Crown",img:"https://cdn-icons-png.flaticon.com/128/1827/1827370.png",p:50,c:"popular"},{id:"coin",n:"Coin",img:"https://cdn-icons-png.flaticon.com/128/2933/2933245.png",p:20,c:"popular"},{id:"rocket",n:"Rocket",img:"https://cdn-icons-png.flaticon.com/128/2991/2991501.png",p:100,c:"popular"},{id:"bomb",n:"Bomb",img:"https://cdn-icons-png.flaticon.com/128/2965/2965567.png",p:150,c:"lucky"},{id:"plane",n:"Airplane",img:"https://cdn-icons-png.flaticon.com/128/3124/3124190.png",p:88,c:"lucky"},{id:"lucky",n:"Lucky Box",img:"https://cdn-icons-png.flaticon.com/128/2454/2454286.png",p:77,c:"lucky"},{id:"diamond",n:"Diamond",img:"https://cdn-icons-png.flaticon.com/128/3135/3135706.png",p:500,c:"luxury"},{id:"trophy",n:"Trophy",img:"https://cdn-icons-png.flaticon.com/128/2583/2583344.png",p:200,c:"luxury"},{id:"castle",n:"Castle",img:"https://cdn-icons-png.flaticon.com/128/1433/1433156.png",p:999,c:"luxury"}];
-
-function av(n) { return `https://ui-avatars.com/api/?name=${encodeURIComponent(n)}&background=006571&color=fff&size=128`; }
-function esc(s) { if(!s) return ""; return s.replace(/[&<>]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
-function fn(n) { if(n>=1000) return (n/1000).toFixed(1)+"K"; return n||0; }
-function G(id) { return document.getElementById(id); }
-function sp(id) { G(id).classList.add("show"); }
-function hp(id) { G(id).classList.remove("show"); }
-function toast(msg) { const t=document.createElement("div"); t.className="toast"; t.innerText=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2500); }
+import{initializeApp}from"https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import{getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,addDoc,serverTimestamp,query,orderBy,limit,updateDoc,increment,getDocs}from"https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+const FB=initializeApp({apiKey:"AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",authDomain:"galmet-app.firebaseapp.com",projectId:"galmet-app",storageBucket:"galmet-app.firebasestorage.app"});
+const db=getFirestore(FB);
+const me=JSON.parse(localStorage.getItem("user")||"null");
+if(!me?.userId){location.replace("login.html");}
+const myId=me.userId.toString(),myName=me.username||"User",myPhoto=me.photoURL||av(myName),agoraUID=Number(me.userId);
+const urlP=new URLSearchParams(location.search),roomId=urlP.get("id");
+if(!roomId){toast("Invalid room");setTimeout(()=>location.href="party.html",1500);}
+const roomRef=doc(db,"rooms",roomId),membRef=collection(db,"rooms",roomId,"members"),msgRef=collection(db,"rooms",roomId,"messages"),reqRef=collection(db,"rooms",roomId,"requests");
+const APP_ID="873172a9b2064b1ca97b4f45ee6ed9b5",TOKEN="007eJxTYNgf3zFVVc1vqcmx/X9OXy/PrUgsXmXoeNimROEVu7RPuZACg4W5saG5UaJlkpGBmUmSYXKipXmSSZqJaWqqWWqKZZKp1JQbmQ2BjAyqH/ewMDJAIIgvwpDob5Zu5pQdlBsa4ViZGmQUaplWwsAAACc3I8I=";
+let agoraC=null,audT=null,vidT=null,micOn=true,camOn=true,camF=true,curFilt="none";
+const remV={};
+let roomData=null,hostId=null,isHost=false,members=[],allMsgs=[],selGift=null,selQty=1,selTarget=null,popT=null,seatLocked=false,gCat="popular";
+const BGLST=["https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800","https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800","https://images.unsplash.com/photo-1536240474400-bc3c7eac8f0d?w=800","https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800","https://images.unsplash.com/photo-1500462918059-b1a0cb512f1d?w=800","https://images.unsplash.com/photo-1511884642898-4c92249e20b6?w=800","https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800","https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=800","https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800"];
+const FILTS=[{id:"none",n:"Normal",css:"none",t:"https://images.unsplash.com/photo-1500462918059-b1a0cb512f1d?w=80"},{id:"warm",n:"Warm",css:"sepia(.3) saturate(1.4) brightness(1.1)",t:"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=80"},{id:"cool",n:"Cool",css:"hue-rotate(30deg) saturate(1.3)",t:"https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=80"},{id:"vivid",n:"Vivid",css:"saturate(2) contrast(1.1)",t:"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=80"},{id:"bw",n:"B&W",css:"grayscale(1)",t:"https://images.unsplash.com/photo-1536240474400-bc3c7eac8f0d?w=80"},{id:"beauty",n:"Beauty",css:"brightness(1.12) contrast(.95) saturate(1.2)",t:"https://images.unsplash.com/photo-1511884642898-4c92249e20b6?w=80"},{id:"drama",n:"Drama",css:"contrast(1.4) brightness(.9) saturate(.8)",t:"https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=80"},{id:"glow",n:"Glow",css:"brightness(1.2) saturate(1.5)",t:"https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=80"}];
+const GIFTS=[{id:"rose",n:"Rose",img:"https://cdn-icons-png.flaticon.com/128/2722/2722480.png",p:10,c:"popular"},{id:"heart",n:"Heart",img:"https://cdn-icons-png.flaticon.com/128/833/833472.png",p:25,c:"popular"},{id:"star",n:"Star",img:"https://cdn-icons-png.flaticon.com/128/1828/1828884.png",p:30,c:"popular"},{id:"crown",n:"Crown",img:"https://cdn-icons-png.flaticon.com/128/1827/1827370.png",p:50,c:"popular"},{id:"coin",n:"Coin",img:"https://cdn-icons-png.flaticon.com/128/2933/2933245.png",p:20,c:"popular"},{id:"rocket",n:"Rocket",img:"https://cdn-icons-png.flaticon.com/128/2991/2991501.png",p:100,c:"popular"},{id:"bomb",n:"Bomb",img:"https://cdn-icons-png.flaticon.com/128/2965/2965567.png",p:150,c:"lucky"},{id:"plane",n:"Airplane",img:"https://cdn-icons-png.flaticon.com/128/3124/3124190.png",p:88,c:"lucky"},{id:"lucky",n:"Lucky Box",img:"https://cdn-icons-png.flaticon.com/128/2454/2454286.png",p:77,c:"lucky"},{id:"diamond",n:"Diamond",img:"https://cdn-icons-png.flaticon.com/128/3135/3135706.png",p:500,c:"luxury"},{id:"trophy",n:"Trophy",img:"https://cdn-icons-png.flaticon.com/128/2583/2583344.png",p:200,c:"luxury"},{id:"castle",n:"Castle",img:"https://cdn-icons-png.flaticon.com/128/1433/1433156.png",p:999,c:"luxury"}];
+function av(n){return`https://ui-avatars.com/api/?name=${encodeURIComponent(n)}&background=006571&color=fff&size=128`;}
+function esc(s){if(!s)return"";return s.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));}
+function fn(n){if(n>=1000)return(n/1000).toFixed(1)+"K";return n||0;}
+function G(id){return document.getElementById(id);}
+function sp(id){G(id).classList.add("show");}
+function hp(id){G(id).classList.remove("show");}
+function toast(msg){const t=document.createElement("div");t.className="toast";t.innerText=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2500);}
 
 // Panel close bindings
-[["spb","setP"],["spc","setP"],["fpb","filtP"],["fpc","filtP"],["bpb","bgP"],["bpc","bgP"],["ipb","invP"],["ipc","invP"],["gpb","giftP"],["gpc","giftP"],["rpb","reqP"],["rpc","reqP"],["gcpb","globalChatP"],["gcpc","globalChatP"]].forEach(([t,p])=>G(t).onclick=()=>hp(p));
+[["cpb","chatP"],["cpc","chatP"],["gpb","giftP"],["gpc","giftP"],["spb","setP"],["spc","setP"],["fpb","filtP"],["fpc","filtP"],["bpb","bgP"],["bpc","bgP"],["ipb","invP"],["ipc","invP"],["rpb","reqP"],["rpc","reqP"]].forEach(([t,p])=>G(t).onclick=()=>hp(p));
 G("ucback").onclick=()=>hp("ucard");
 G("hactbk").onclick=()=>hp("hact");
 G("hcanc").onclick=()=>hp("hact");
 
-function getLevelClass(level) {
-  const lvl = Math.min(Math.max(level,0),10);
-  const colors = ["#9ca3af","#84cc16","#14b8a6","#3b82f6","#6366f1","#8b5cf6","#ec4899","#f43f5e","#f97316","#f59e0b","#eab308"];
-  return { color: colors[lvl], text: `Lv${lvl}` };
+// Load room
+async function loadRoom(){
+  const snap=await getDoc(roomRef);
+  if(!snap.exists()){toast("Room not found");setTimeout(()=>location.href="party.html",1500);return;}
+  roomData=snap.data(); hostId=roomData.hostId?.toString(); isHost=myId===hostId;
+  seatLocked=roomData.seatLocked||false;
+  G("rnEl").innerText=roomData.name||"Party Room";
+  G("riEl").innerText=`ID: ${hostId||"?"}`;
+  G("rwEl").innerText=roomData.rewards||0;
+  if(roomData.coverPhoto) G("bgImg").src=roomData.coverPhoto;
+  const hs=await getDoc(doc(db,"users",hostId)).catch(()=>null);
+  G("hostAv").src=hs?.data()?.photoURL||av(roomData.hostName||"Host");
+  G("hostPill").onclick=()=>showUC({uid:hostId,username:roomData.hostName||"Host",photoURL:G("hostAv").src,gems:0});
+  if(isHost){G("bgRow").style.display="flex";G("invRow").style.display="flex";G("lockRow").style.display="flex";G("reqWrap").style.display="flex";G("lvLbl").innerText="End Live";G("lockTog").checked=seatLocked;}
+  G("leaveBtn").onclick=()=>isHost?confirmEnd():confirmLeave();
+  G("lvRow").onclick=()=>{hp("setP");isHost?confirmEnd():confirmLeave();};
+  G("swRow").onclick=switchCam;
+  G("filtRow").onclick=()=>{hp("setP");buildFilts();sp("filtP");};
+  G("bgRow").onclick=()=>{hp("setP");buildBG();sp("bgP");};
+  G("invRow").onclick=()=>{hp("setP");openInvite();};
+  G("lockTog").onchange=async e=>{seatLocked=e.target.checked;await updateDoc(roomRef,{seatLocked}).catch(()=>{});toast(seatLocked?"Seat locked":"Seat open");renderSeats();};
 }
 
-// Load room data
-async function loadRoom() {
-  const snap = await getDoc(roomRef);
-  if(!snap.exists()){ toast("Room not found"); setTimeout(()=>location.href="party.html",1500); return; }
-  roomData = snap.data(); hostId = roomData.hostId?.toString(); isHost = (myId === hostId);
-  G("rnEl").innerText = roomData.name || "Party Room";
-  G("rwEl").innerText = roomData.rewards || 0;
-  if(roomData.coverPhoto) G("bgImg").src = roomData.coverPhoto;
-  const hs = await getDoc(doc(db,"users",hostId)).catch(()=>null);
-  G("hostAv").src = hs?.data()?.photoURL || av(roomData.hostName||"Host");
-  const hostLevel = (hs?.data()?.charmLevel ?? hs?.data()?.wealthLevel ?? 0);
-  const levelInfo = getLevelClass(hostLevel);
-  const badge = G("levelBadge");
-  badge.innerText = levelInfo.text;
-  badge.style.background = levelInfo.color;
-  badge.style.padding = "2px 6px";
-  badge.style.borderRadius = "12px";
-  badge.style.fontSize = "8px";
-  badge.style.fontWeight = "800";
-  badge.style.color = "#fff";
-  badge.style.marginLeft = "6px";
-  G("hostPill").onclick = () => showUC({uid:hostId,username:roomData.hostName||"Host",photoURL:G("hostAv").src,gems:0});
-  if(isHost){
-    G("bgRow").style.display = "flex";
-    G("invRow").style.display = "flex";
-    G("lockRow").style.display = "flex";
-    G("reqWrap").style.display = "flex";
-    G("lvLbl").innerText = "End Live";
-    G("lockTog").checked = roomData.seatLocked || false;
-    G("lockTog").onchange = async e => { await updateDoc(roomRef,{seatLocked:e.target.checked}); toast(e.target.checked?"Seat locked":"Seat open"); renderSeats(); };
-  } else {
-    G("leaveSeatRow").style.display = "flex";
-  }
-  G("leaveBtn").onclick = () => {
-    if(isHost) confirmEnd();
-    else if(isSeated) leaveSeat();
-    else confirmLeave();
-  };
-  G("lvRow").onclick = () => { hp("setP"); if(isHost) confirmEnd(); else if(isSeated) leaveSeat(); else confirmLeave(); };
-  G("leaveSeatRow").onclick = () => { hp("setP"); leaveSeat(); };
-  G("swRow").onclick = switchCam;
-  G("filtRow").onclick = () => { hp("setP"); buildFilts(); sp("filtP"); };
-  G("bgRow").onclick = () => { hp("setP"); buildBG(); sp("bgP"); };
-  G("invRow").onclick = () => { hp("setP"); openInvite(); };
-  G("reqBtn").onclick = openReqPanel;
-  const memSnap = await getDoc(doc(db,"rooms",roomId,"members",myId));
-  isSeated = memSnap.exists();
-  if(!isSeated && !isHost) G("dotsBtn").style.display = "none";
-  else G("dotsBtn").style.display = "flex";
-}
-
-onSnapshot(roomRef, snap => {
-  if(!snap.exists()) return;
-  const d = snap.data();
-  G("rwEl").innerText = d.rewards || 0;
-  if(isHost && G("lockTog")) G("lockTog").checked = d.seatLocked || false;
-  if(d.coverPhoto && G("bgImg").getAttribute("src") !== d.coverPhoto){
-    G("bgImg").style.opacity = ".3";
-    setTimeout(()=>{ G("bgImg").src = d.coverPhoto; G("bgImg").style.opacity = "1"; },350);
-  }
+// Realtime room
+onSnapshot(roomRef,snap=>{
+  if(!snap.exists())return;const d=snap.data();
+  G("rwEl").innerText=d.rewards||0;
+  seatLocked=d.seatLocked||false;
+  if(isHost) G("lockTog").checked=seatLocked;
+  if(d.coverPhoto){const bi=G("bgImg");if(bi.getAttribute("src")!==d.coverPhoto){bi.style.opacity=".3";setTimeout(()=>{bi.src=d.coverPhoto;bi.style.opacity="1";},350);}}
 });
 
-// Members listener
-function listenMembers() {
-  onSnapshot(membRef, async snap => {
-    const list = [];
+// Members
+function listenMembers(){
+  onSnapshot(membRef,async snap=>{
+    const list=[];
     for(const d of snap.docs){
-      const m = d.data(); const uid = m.uid?.toString(); if(!uid) continue;
-      let username = m.username || "User", photoURL = m.photoURL || "";
-      if(!m.username){
-        const us = await getDoc(doc(db,"users",uid)).catch(()=>null);
-        if(us?.exists()){ username = us.data().username || "User"; photoURL = us.data().photoURL || ""; }
-      }
-      list.push({ uid, username, photoURL: photoURL || av(username), micMuted: m.micMuted || false, gems: m.gems || 0 });
+      const m=d.data();const uid=m.uid?.toString();if(!uid)continue;
+      let username=m.username||"User",photoURL=m.photoURL||"";
+      if(!m.username){const us=await getDoc(doc(db,"users",uid)).catch(()=>null);if(us?.exists()){username=us.data().username||"User";photoURL=us.data().photoURL||"";}}
+      list.push({uid,username,photoURL:photoURL||av(username),micMuted:m.micMuted||false,gems:m.gems||0});
     }
-    members = list;
-    G("vwEl").innerText = members.length;
-    renderSeats();
-    const seated = members.some(m => m.uid === myId);
-    if(seated !== isSeated){
-      isSeated = seated;
-      if(!isHost){
-        if(isSeated) G("dotsBtn").style.display = "flex";
-        else G("dotsBtn").style.display = "none";
-      }
-    }
+    members=list; G("vwEl").innerText=members.length; renderSeats();
   });
 }
 
-function renderSeats() {
-  const s = [...members];
-  const hi = s.findIndex(m => m.uid === hostId);
-  if(hi !== -1){ const h = s.splice(hi,1)[0]; s.unshift(h); }
-  const tr = G("topRow"); tr.innerHTML = "";
-  for(let i=0; i<3; i++){
-    const m = s[i]; const seat = document.createElement("div"); seat.className = "tseat";
-    const cam = document.createElement("div"); cam.className = "cam";
+// Render seats
+function renderSeats(){
+  const s=[...members];const hi=s.findIndex(m=>m.uid===hostId);
+  if(hi!==-1){const h=s.splice(hi,1)[0];s.unshift(h);}
+  const tr=G("topRow");tr.innerHTML="";
+  for(let i=0;i<3;i++){
+    const m=s[i];const seat=document.createElement("div");seat.className="tseat";
+    const cam=document.createElement("div");cam.className="cam";
     if(m){
-      const vc = document.createElement("div"); vc.id = `vb-${m.uid}`; vc.style.cssText = "position:absolute;inset:0;z-index:0;border-radius:50%;"; cam.appendChild(vc);
-      const g = document.createElement("div"); g.className = "grad"; cam.appendChild(g);
-      if(m.uid === hostId){ const b = document.createElement("div"); b.className = "hbadge"; b.innerText = "HOST"; cam.appendChild(b); }
-      else{ const gt = document.createElement("div"); gt.className = "gtag"; gt.innerHTML = `<span class="ms f" style="font-size:9px;">diamond</span><span>${fn(m.gems)}</span>`; cam.appendChild(gt); }
-      const sn = document.createElement("div"); sn.className = "snum"; sn.innerText = `#${i+1}`; cam.appendChild(sn);
-      if(m.micMuted){ const mi = document.createElement("div"); mi.className = "micoff"; mi.innerHTML = '<span class="ms">mic_off</span>'; cam.appendChild(mi); }
-      const nm = document.createElement("div"); nm.className = "uname"; nm.innerText = m.username; cam.appendChild(nm);
+      const vc=document.createElement("div");vc.id=`vb-${m.uid}`;vc.style.cssText="position:absolute;inset:0;z-index:0;";cam.appendChild(vc);
+      const g=document.createElement("div");g.className="grad";cam.appendChild(g);
+      if(m.uid===hostId){const b=document.createElement("div");b.className="hbadge";b.innerText="HOST";cam.appendChild(b);}
+      else{const gt=document.createElement("div");gt.className="gtag";gt.innerHTML=`<span class="ms f" style="font-size:9px;">diamond</span><span>${fn(m.gems)}</span>`;cam.appendChild(gt);}
+      const sn=document.createElement("div");sn.className="snum";sn.innerText=`#${i+1}`;cam.appendChild(sn);
+      if(m.micMuted){const mi=document.createElement("div");mi.className="micoff";mi.innerHTML='<span class="ms">mic_off</span>';cam.appendChild(mi);}
+      const nm=document.createElement("div");nm.className="uname";nm.innerText=m.username;cam.appendChild(nm);
       setTimeout(()=>refreshVid(m,`vb-${m.uid}`),80);
-      cam.style.cursor = "pointer";
-      cam.onclick = () => isHost && m.uid !== hostId ? openHA(m) : showUC(m);
+      cam.style.cursor="pointer";cam.onclick=()=>isHost&&m.uid!==hostId?openHA(m):showUC(m);
     } else {
-      const ec = document.createElement("div"); ec.className = "ecam";
-      const locked = roomData?.seatLocked && !isHost;
-      if(locked){ ec.innerHTML = `<div class="ering" style="border-color:rgba(245,158,11,.4);"><span class="ms" style="font-size:22px;color:var(--gold);">lock</span></div><span class="elbl" style="color:rgba(245,158,11,.55);">Locked</span>`; ec.onclick = () => reqJoin(); }
-      else{ ec.innerHTML = `<div class="ering"><span class="ms" style="font-size:22px;">add</span></div><span class="elbl">${isHost?"Invite":"Join"}</span>`; ec.onclick = () => isHost ? openInvite() : joinSeat(); }
+      const ec=document.createElement("div");ec.className="ecam";
+      if(seatLocked&&!isHost){ec.innerHTML=`<div class="ering" style="border-color:rgba(245,158,11,.4);"><span class="ms" style="font-size:22px;color:var(--gold);">lock</span></div><span class="elbl" style="color:rgba(245,158,11,.55);">Locked</span>`;ec.onclick=()=>reqJoin();}
+      else{ec.innerHTML=`<div class="ering"><span class="ms" style="font-size:22px;">add</span></div><span class="elbl">${isHost?"Invite":"Join"}</span>`;ec.onclick=()=>isHost?openInvite():reqJoin();}
       cam.appendChild(ec);
     }
-    seat.appendChild(cam); tr.appendChild(seat);
+    seat.appendChild(cam);tr.appendChild(seat);
   }
-  const br = G("botRow"); br.innerHTML = "";
-  for(let i=0; i<5; i++){
-    const m = s[i+3]; const seat = document.createElement("div");
+  const br=G("botRow");br.innerHTML="";
+  for(let i=0;i<5;i++){
+    const m=s[i+3];const seat=document.createElement("div");
     if(m){
-      seat.className = "bseat";
-      seat.innerHTML = `<div class="ba"><div class="r2"><img src="${m.photoURL||av(m.username)}" loading="lazy"></div>${m.micMuted?'<div class="md"><span class="ms">mic_off</span></div>':''}<div class="gd"><span class="ms f" style="font-size:7px;">diamond</span><span>${fn(m.gems)}</span></div></div><span class="bn">${esc(m.username)}</span>`;
-      seat.onclick = () => isHost && m.uid !== hostId ? openHA(m) : showUC(m);
+      seat.className="bseat";
+      seat.innerHTML=`<div class="ba"><div class="r2"><img src="${m.photoURL||av(m.username)}" loading="lazy"></div>${m.micMuted?'<div class="md"><span class="ms">mic_off</span></div>':''}<div class="gd"><span class="ms f" style="font-size:7px;">diamond</span><span>${fn(m.gems)}</span></div></div><span class="bn">${esc(m.username)}</span>`;
+      seat.onclick=()=>isHost&&m.uid!==hostId?openHA(m):showUC(m);
     } else {
-      seat.className = "bseat be";
-      const locked = roomData?.seatLocked && !isHost;
-      seat.innerHTML = `<div class="ba"><div class="r2" style="display:flex;align-items:center;justify-content:center;"><span class="ms" style="font-size:20px;color:rgba(255,255,255,.22);">${locked?"lock":"add"}</span></div></div><span class="bn" style="color:rgba(255,255,255,.22);">${locked?"Locked":isHost?"Invite":"Join"}</span>`;
-      seat.onclick = () => { if(locked){ reqJoin(); return; } isHost ? openInvite() : joinSeat(); };
+      seat.className="bseat be";
+      seat.innerHTML=`<div class="ba"><div class="r2" style="display:flex;align-items:center;justify-content:center;"><span class="ms" style="font-size:20px;color:rgba(255,255,255,.22);">${seatLocked&&!isHost?"lock":"add"}</span></div></div><span class="bn" style="color:rgba(255,255,255,.22);">${seatLocked&&!isHost?"Locked":isHost?"Invite":"Join"}</span>`;
+      seat.onclick=()=>{if(seatLocked&&!isHost){reqJoin();return;}isHost?openInvite():joinSeat();};
     }
     br.appendChild(seat);
   }
 }
 
-function refreshVid(m, cid) {
-  const c = document.getElementById(cid); if(!c) return;
-  if(m.uid === myId && vidT && camOn){ c.innerHTML = ""; vidT.play(c); applyFilt(c.querySelector("video")); }
-  else if(remV[m.uid]){ c.innerHTML = ""; remV[m.uid].play(c); }
-  else{ c.innerHTML = `<img class="av-fill" src="${m.photoURL||av(m.username)}" style="border-radius:50%;">`; }
+function refreshVid(m,cid){
+  const c=document.getElementById(cid);if(!c)return;
+  if(m.uid===myId&&vidT&&camOn){c.innerHTML="";vidT.play(c);applyFilt(c.querySelector("video"));}
+  else if(remV[m.uid]){c.innerHTML="";remV[m.uid].play(c);}
+  else{c.innerHTML=`<img class="av-fill" src="${m.photoURL||av(m.username)}" loading="lazy">`;}
 }
 
-function applyFilt(v){ if(!v) return; const f=FILTS.find(x=>x.id===curFilt); if(f) v.style.filter=f.css; }
+function applyFilt(v){if(!v)return;const f=FILTS.find(x=>x.id===curFilt);if(f)v.style.filter=f.css;}
 
-async function joinSeat() {
-  const md = doc(db,"rooms",roomId,"members",myId);
-  const ms = await getDoc(md);
-  if(!ms.exists()){
-    await setDoc(md,{ uid:myId, username:myName, photoURL:myPhoto, role:"guest", micMuted:false, gems:0, joinedAt:serverTimestamp() });
-    await updateDoc(roomRef,{ users:increment(1) });
-    toast("You joined the stage!");
-    isSeated = true;
-    if(!isHost) G("dotsBtn").style.display = "flex";
+async function reqJoin(){
+  if(seatLocked){
+    const rd=doc(db,"rooms",roomId,"requests",myId);
+    const rs=await getDoc(rd).catch(()=>null);
+    if(rs?.exists()){toast("Request already sent!");return;}
+    await setDoc(rd,{uid:myId,username:myName,photoURL:myPhoto,requestedAt:serverTimestamp()});
+    toast("Join request sent to host!");
+  } else {await joinSeat();}
+}
+
+async function joinSeat(){
+  const md=doc(db,"rooms",roomId,"members",myId);
+  const ms=await getDoc(md).catch(()=>null);
+  if(!ms?.exists()){
+    await setDoc(md,{uid:myId,username:myName,photoURL:myPhoto,role:"guest",micMuted:false,gems:0,joinedAt:serverTimestamp()});
+    await updateDoc(roomRef,{users:increment(1)}).catch(()=>{});
   }
 }
 
-async function leaveSeat() {
-  await deleteDoc(doc(db,"rooms",roomId,"members",myId));
-  await updateDoc(roomRef,{ users:increment(-1) });
-  toast("You left the stage");
-  isSeated = false;
-  if(!isHost) G("dotsBtn").style.display = "none";
-  renderSeats();
+// Listen requests
+function listenReqs(){
+  if(!isHost)return;
+  onSnapshot(reqRef,snap=>{
+    const c=snap.docs.length;
+    const badge=G("rqc");
+    if(c>0){badge.style.display="flex";badge.innerText=c;}else{badge.style.display="none";}
+  });
 }
 
-async function reqJoin() {
-  if(roomData?.seatLocked){
-    const rd = doc(db,"rooms",roomId,"requests",myId);
-    const rs = await getDoc(rd);
-    if(rs.exists()){ toast("Request already sent!"); return; }
-    await setDoc(rd,{ uid:myId, username:myName, photoURL:myPhoto, requestedAt:serverTimestamp() });
-    toast("Join request sent to host!");
-  } else { await joinSeat(); }
-}
-
-async function openReqPanel() {
-  const snap = await getDocs(reqRef);
-  const rl = G("rlist"); rl.innerHTML = "";
-  if(snap.empty){ rl.innerHTML = '<p style="color:rgba(255,255,255,.4);padding:20px;text-align:center;">No pending requests</p>'; sp("reqP"); return; }
+// Requests panel
+async function openReqPanel(){
+  const snap=await getDocs(reqRef);const rl=G("rlist");rl.innerHTML="";
+  if(snap.empty){rl.innerHTML='<p style="color:rgba(255,255,255,.4);padding:20px;text-align:center;font-size:13px;">No pending requests</p>';sp("reqP");return;}
   snap.forEach(d=>{
-    const u = d.data();
-    const div = document.createElement("div"); div.className = "ritem";
-    div.innerHTML = `<img src="${u.photoURL||av(u.username||"User")}"><div class="ri"><div class="rn">${esc(u.username||"User")}</div><div class="ru">ID: ${u.uid}</div></div><button class="ra" data-uid="${u.uid}" data-nm="${esc(u.username)}" data-ph="${u.photoURL||av(u.username||"User")}">Accept</button>`;
+    const u=d.data();const div=document.createElement("div");div.className="ritem";
+    div.innerHTML=`<img src="${u.photoURL||av(u.username||"User")}"><div class="ri"><div class="rn">${esc(u.username||"User")}</div><div class="ru">ID: ${u.uid}</div></div><button class="ra" data-uid="${u.uid}" data-nm="${esc(u.username)}" data-ph="${u.photoURL||av(u.username||"User")}">Accept</button>`;
     rl.appendChild(div);
   });
   rl.querySelectorAll(".ra").forEach(btn=>{
-    btn.onclick = async()=>{
-      const uid = btn.dataset.uid, nm = btn.dataset.nm, ph = btn.dataset.ph;
-      await setDoc(doc(db,"rooms",roomId,"members",uid),{ uid, username:nm, photoURL:ph, role:"guest", micMuted:false, gems:0, joinedAt:serverTimestamp() });
-      await updateDoc(roomRef,{ users:increment(1) });
+    btn.onclick=async()=>{
+      const uid=btn.dataset.uid,nm=btn.dataset.nm,ph=btn.dataset.ph;
+      await setDoc(doc(db,"rooms",roomId,"members",uid),{uid,username:nm,photoURL:ph,role:"guest",micMuted:false,gems:0,joinedAt:serverTimestamp()});
+      await updateDoc(roomRef,{users:increment(1)}).catch(()=>{});
       await deleteDoc(doc(db,"rooms",roomId,"requests",uid));
-      btn.closest(".ritem").remove(); toast(`${nm} added!`);
+      btn.closest(".ritem").remove();toast(`${nm} added!`);
     };
   });
   sp("reqP");
 }
+G("reqBtn").onclick=openReqPanel;
 
-// Ephemeral room chat (fixed input)
-function addLocalChat(msg){
-  localChat.push(msg);
-  if(localChat.length > 50) localChat.shift();
-  renderChat();
+// Leave/End
+async function confirmEnd(){if(confirm("End live for everyone?")){await deleteDoc(roomRef);location.href="party.html";}}
+async function confirmLeave(){
+  await deleteDoc(doc(db,"rooms",roomId,"members",myId));
+  await updateDoc(roomRef,{users:increment(-1)}).catch(()=>{});
+  try{audT?.close();vidT?.close();await agoraC?.leave();}catch(e){}
+  location.href="party.html";
 }
-function renderChat(){
-  const container = G("chatInner");
-  container.innerHTML = "";
-  localChat.forEach(msg => {
-    if(msg.type === "gift"){
-      const d = document.createElement("div"); d.className = "gmsg";
-      d.innerHTML = `<img src="${msg.img||''}" onerror="this.style.display='none'"><div class="gtxt">🎁 <b>${esc(msg.sender)}</b> → <b>${esc(msg.target)}</b> ×${msg.qty}</div>`;
-      d.onclick = () => showUCbyId(msg.senderId);
-      container.appendChild(d);
-    } else {
-      const d = document.createElement("div"); d.className = "cmsg";
-      const isMe = msg.senderId === myId;
-      d.innerHTML = `<span class="cn${isMe?" me":""}" data-uid="${msg.senderId}">${esc(msg.sender)}:</span> <span class="ct">${esc(msg.text)}</span>`;
-      d.querySelector(".cn").onclick = e=>{ e.stopPropagation(); showUCbyId(msg.senderId); };
-      container.appendChild(d);
-    }
-  });
-  G("chatWrap").scrollTop = G("chatWrap").scrollHeight;
-}
-function sendLocalMessage(text){
-  if(!text.trim()) return;
-  addLocalChat({ type:"text", senderId:myId, sender:myName, text:text });
-}
-function sendLocalGift(senderId, senderName, targetName, gift, qty){
-  addLocalChat({ type:"gift", senderId, sender:senderName, target:targetName, img:gift.img, qty, giftName:gift.n });
-}
-
-// Global chat panel (chats.html style)
-async function loadGlobalChats() {
-  const container = G("globalChatList");
-  container.innerHTML = '<p style="color:rgba(255,255,255,.4);text-align:center;padding:20px;">Loading chats...</p>';
-  const chatsRef = collection(db, "userChats", myId, "list");
-  const q = query(chatsRef, orderBy("updatedAt", "desc"));
-  onSnapshot(q, async (snap) => {
-    container.innerHTML = "";
-    if(snap.empty){
-      container.innerHTML = '<p style="color:rgba(255,255,255,.4);text-align:center;padding:20px;">No conversations yet</p>';
-      return;
-    }
-    for(const docSnap of snap.docs){
-      const chat = docSnap.data();
-      const otherId = chat.uid;
-      if(!otherId) continue;
-      const userSnap = await getDoc(doc(db,"users",otherId));
-      const user = userSnap.exists() ? userSnap.data() : { username: "User", photoURL: "" };
-      const div = document.createElement("div");
-      div.className = "ic";
-      div.style.flexDirection = "row";
-      div.style.gap = "12px";
-      div.style.justifyContent = "flex-start";
-      div.style.padding = "10px";
-      div.innerHTML = `
-        <img src="${user.photoURL || av(user.username || "User")}" style="width:44px;height:44px;">
-        <div style="flex:1;text-align:left;">
-          <div style="font-weight:800;color:#fff;">${esc(user.username || "User")}</div>
-          <div style="font-size:10px;color:rgba(255,255,255,.4);">${chat.lastMessage || "Tap to chat"}</div>
-        </div>
-        <span class="ms" style="color:rgba(255,255,255,.3);">chevron_right</span>
-      `;
-      div.onclick = () => window.location.href = `chat.html?id=${otherId}`;
-      container.appendChild(div);
-    }
-  });
-}
-G("globalChatBtn").onclick = () => { loadGlobalChats(); sp("globalChatP"); };
-
-// Gift panel (no default target)
-async function buildGiftTargets(){
-  const row = G("gtRow"); row.innerHTML = ""; selTarget = null;
-  // "All" option – user must click to select
-  const a = document.createElement("div"); a.className = "gtitem"; a.dataset.uid = "all";
-  a.innerHTML = `<div style="width:38px;height:38px;border-radius:50%;background:rgba(0,101,113,.4);border:2px solid transparent;display:flex;align-items:center;justify-content:center;"><span class="ms" style="font-size:16px;color:var(--t2);">groups</span></div><span>All</span>`;
-  a.onclick = () => { document.querySelectorAll(".gtitem").forEach(x=>x.classList.remove("sel")); a.classList.add("sel"); selTarget = null; };
-  row.appendChild(a);
-  members.filter(m=>m.uid!==myId).forEach(m=>{
-    const d = document.createElement("div"); d.className = "gtitem";
-    d.innerHTML = `<img src="${m.photoURL||av(m.username)}"><span>${esc(m.username.substring(0,8))}</span>`;
-    d.onclick = () => { document.querySelectorAll(".gtitem").forEach(x=>x.classList.remove("sel")); d.classList.add("sel"); selTarget = m; };
-    row.appendChild(d);
-  });
-}
-function buildGiftGrid(cat){
-  const grid = G("ggrid"); grid.innerHTML = "";
-  GIFTS.filter(g=>g.c===cat).forEach(g=>{
-    const d = document.createElement("div"); d.className = "gc";
-    d.innerHTML = `<img src="${g.img}"><div class="gn">${esc(g.n)}</div><div class="gp">${g.p} coins</div>`;
-    d.onclick = () => { document.querySelectorAll(".gc").forEach(x=>x.classList.remove("sel")); d.classList.add("sel"); selGift = {...g}; };
-    grid.appendChild(d);
-  });
-}
-function buildQty(){
-  const row = G("qrow"); row.innerHTML = ""; selQty = 1;
-  [1,17,37,77].forEach(q=>{
-    const b = document.createElement("button"); b.className = "qc"+(q===1?" active":""); b.innerText = q;
-    b.onclick = () => { document.querySelectorAll(".qc").forEach(x=>x.classList.remove("active")); b.classList.add("active"); selQty = q; };
-    row.appendChild(b);
-  });
-}
-async function updateGiftUserCoins(){
-  const us = await getDoc(doc(db,"users",myId));
-  G("giftUserCoins").innerText = us.data()?.coins || 0;
-}
-G("gtabs").onclick = e=>{
-  const t = e.target.closest(".gtab"); if(!t) return;
-  document.querySelectorAll(".gtab").forEach(x=>x.classList.remove("active")); t.classList.add("active");
-  curGiftCat = t.dataset.c; buildGiftGrid(curGiftCat);
-};
-G("giftBtn").onclick = async () => { await updateGiftUserCoins(); buildGiftTargets(); buildGiftGrid(curGiftCat); buildQty(); sp("giftP"); };
-G("sgBtn").onclick = async () => {
-  if(!selGift){ toast("Pick a gift first!"); return; }
-  if(!selTarget && selTarget !== null){ // null means "All" is not selected? Actually "All" target is null, but we must ensure user selected something.
-    if(selTarget === null && !document.querySelector(".gtitem.sel")){
-      toast("Select a recipient (All or specific user)");
-      return;
-    }
-  }
-  if(myId === hostId){ toast("Can't gift yourself"); return; }
-  const price = selGift.p * selQty;
-  const us = await getDoc(doc(db,"users",myId));
-  if((us.data()?.coins||0) < price){ toast("Not enough coins!"); return; }
-  await updateDoc(doc(db,"users",myId),{ coins:increment(-price) });
-  const tId = selTarget ? selTarget.uid : hostId;
-  const tName = selTarget ? selTarget.username : (roomData?.hostName||"Host");
-  const hr = doc(db,"users",tId);
-  const hs = await getDoc(hr);
-  const charm = hs.data()?.charmLevel || 0;
-  const gemsEarned = Math.floor(price * (0.30 + charm*0.01));
-  await updateDoc(hr,{ gems:increment(gemsEarned) });
-  await updateDoc(roomRef,{ rewards:increment(gemsEarned) });
-  const memberRef = doc(db,"rooms",roomId,"members",tId);
-  const memSnap = await getDoc(memberRef);
-  if(memSnap.exists()) await updateDoc(memberRef,{ gems:increment(gemsEarned) });
-  await addDoc(collection(db,"transactions"),{
-    type:"gift", senderId:myId, receiverId:tId, giftName:selGift.n, giftImage:selGift.img,
-    coins:price, gems:gemsEarned, createdAt:serverTimestamp()
-  });
-  sendLocalGift(myId, myName, tName, selGift, selQty);
-  const rtdbRef = dbRef(rtdb, `giftEvents/${roomId}`);
-  await setDoc(doc(rtdbRef), {
-    senderId:myId, senderName:myName, receiverId:tId, giftName:selGift.n, giftImage:selGift.img, quantity:selQty, timestamp:Date.now()
-  });
-  showGiftPop(myName, myPhoto, selGift, selQty, tName);
-  hp("giftP");
-  toast(`Sent ${selGift.n} ×${selQty} 🎁`);
-  selGift = null; document.querySelectorAll(".gc").forEach(x=>x.classList.remove("sel"));
-};
-function showGiftPop(sn, sp2, gift, qty, tn){
-  const d = document.createElement("div"); d.className = "gpop";
-  d.style.cssText = `bottom:${130+Math.random()*60}px;left:${6+Math.random()*35}%;`;
-  d.innerHTML = `<div class="gpi"><img class="sav" src="${sp2}"><div class="gpinf"><div class="gpn">${esc(sn)}</div><div class="gpt">→ ${esc(tn)}</div></div><img class="ggif" src="${gift.img}"><div class="gx">×${qty}</div></div>`;
-  document.body.appendChild(d); setTimeout(()=>d.remove(),3200);
-}
-function listenGiftEvents() {
-  const giftRef = dbRef(rtdb, `giftEvents/${roomId}`);
-  onChildAdded(giftRef, (snapshot) => {
-    const gift = snapshot.val();
-    if(gift.senderId === myId) return;
-    showGiftPop(gift.senderName, "", {img:gift.giftImage}, gift.quantity, gift.receiverId);
-  });
-}
-listenGiftEvents();
 
 // Agora
 async function startAgora(){
-  agoraC = AgoraRTC.createClient({ mode:"rtc", codec:"vp8" });
-  await agoraC.join(APP_ID, roomId, TOKEN, agoraUID);
-  try{ audT = await AgoraRTC.createMicrophoneAudioTrack(); } catch(e){ console.warn(e); }
-  try{ vidT = await AgoraRTC.createCameraVideoTrack({ facingMode:camF?"user":"environment" }); } catch(e){ console.warn(e); }
-  const pub = []; if(audT) pub.push(audT); if(vidT) pub.push(vidT);
-  if(pub.length) await agoraC.publish(pub);
-  agoraC.on("user-published", async (u,mt)=>{
+  agoraC=AgoraRTC.createClient({mode:"rtc",codec:"vp8"});
+  await agoraC.join(APP_ID,roomId,TOKEN,agoraUID);
+  try{audT=await AgoraRTC.createMicrophoneAudioTrack();}catch(e){console.warn("mic",e);}
+  try{vidT=await AgoraRTC.createCameraVideoTrack({facingMode:camF?"user":"environment"});}catch(e){console.warn("cam",e);}
+  const pub=[];if(audT)pub.push(audT);if(vidT)pub.push(vidT);
+  if(pub.length)await agoraC.publish(pub);
+  agoraC.on("user-published",async(u,mt)=>{
     await agoraC.subscribe(u,mt);
-    if(mt==="video"){ remV[u.uid]=u.videoTrack; const c=document.getElementById(`vb-${u.uid}`); if(c){ c.innerHTML=""; u.videoTrack.play(c); applyFilt(c.querySelector("video")); } }
-    if(mt==="audio") u.audioTrack?.play();
+    if(mt==="video"){remV[u.uid]=u.videoTrack;const c=document.getElementById(`vb-${u.uid}`);if(c){c.innerHTML="";u.videoTrack.play(c);}}
+    if(mt==="audio")u.audioTrack?.play();
   });
-  agoraC.on("user-unpublished", (u,mt)=>{
-    if(mt==="video"){ delete remV[u.uid]; const c=document.getElementById(`vb-${u.uid}`); const m=members.find(x=>x.uid==u.uid); if(c&&m) c.innerHTML=`<img class="av-fill" src="${m.photoURL||av(m.username)}" style="border-radius:50%;">`; }
+  agoraC.on("user-unpublished",(u,mt)=>{
+    if(mt==="video"){delete remV[u.uid];const c=document.getElementById(`vb-${u.uid}`);const m=members.find(x=>x.uid==u.uid);if(c&&m)c.innerHTML=`<img class="av-fill" src="${m.photoURL||av(m.username)}">`;}
   });
-  agoraC.on("user-left", async u=>{
+  agoraC.on("user-left",async u=>{
     delete remV[u.uid];
+    // Remove from Firestore when Agora user leaves (connection drop / page close)
     await deleteDoc(doc(db,"rooms",roomId,"members",u.uid.toString())).catch(()=>{});
   });
 }
-G("micTog").onchange = async e => {
-  micOn = e.target.checked; if(audT) await audT.setEnabled(micOn);
-  await updateDoc(doc(db,"rooms",roomId,"members",myId),{ micMuted:!micOn }).catch(()=>{});
+
+// Mic/Cam toggles
+G("micTog").onchange=async e=>{
+  micOn=e.target.checked;if(audT)await audT.setEnabled(micOn);
+  const md=doc(db,"rooms",roomId,"members",myId);const ms=await getDoc(md).catch(()=>null);
+  if(ms?.exists())await updateDoc(md,{micMuted:!micOn});
 };
-G("camTog").onchange = async e => {
-  camOn = e.target.checked; if(vidT) await vidT.setEnabled(camOn);
-  const c = document.getElementById(`vb-${myId}`);
-  if(c){
-    if(camOn && vidT){ c.innerHTML=""; vidT.play(c); applyFilt(c.querySelector("video")); }
-    else{ c.innerHTML = `<img class="av-fill" src="${myPhoto}" style="border-radius:50%;">`; }
+G("camTog").onchange=async e=>{
+  camOn=e.target.checked;if(vidT)await vidT.setEnabled(camOn);
+  const c=document.getElementById(`vb-${myId}`);if(c){
+    if(camOn&&vidT){c.innerHTML="";vidT.play(c);applyFilt(c.querySelector("video"));}
+    else{const m=members.find(x=>x.uid===myId);c.innerHTML=`<img class="av-fill" src="${m?.photoURL||myPhoto}">`;}
   }
 };
+
 async function switchCam(){
-  if(!vidT||!agoraC) return; camF=!camF;
+  if(!vidT||!agoraC)return;camF=!camF;
   try{
-    await agoraC.unpublish(vidT); vidT.close();
-    vidT = await AgoraRTC.createCameraVideoTrack({ facingMode:camF?"user":"environment" });
+    await agoraC.unpublish(vidT);vidT.close();
+    vidT=await AgoraRTC.createCameraVideoTrack({facingMode:camF?"user":"environment"});
     await agoraC.publish(vidT);
-    if(camOn){ const c=document.getElementById(`vb-${myId}`); if(c){ c.innerHTML=""; vidT.play(c); applyFilt(c.querySelector("video")); } }
+    if(camOn){const c=document.getElementById(`vb-${myId}`);if(c){c.innerHTML="";vidT.play(c);applyFilt(c.querySelector("video"));}}
     toast(camF?"Front camera":"Back camera");
-  } catch(e){ toast("Switch failed"); }
+  }catch(e){toast("Switch failed");}
 }
 
-// Chat input (fixed)
-G("cBarIn").addEventListener("keypress", e => {
-  if(e.key === "Enter"){ const txt = G("cBarIn").value.trim(); if(txt){ sendLocalMessage(txt); G("cBarIn").value = ""; } }
-});
-G("cBarSend").onclick = () => { const txt = G("cBarIn").value.trim(); if(txt){ sendLocalMessage(txt); G("cBarIn").value = ""; } };
+// Chat
+function listenChat(){
+  const q=query(msgRef,orderBy("timestamp","desc"),limit(80));
+  onSnapshot(q,snap=>{
+    const msgs=[];snap.forEach(d=>msgs.push({id:d.id,...d.data()}));msgs.reverse();allMsgs=msgs;
+    rdrChat(G("chatInner"),msgs.slice(-15));rdrChat(G("chatfull"),msgs,true);
+  });
+}
 
-// Filters and BG
+function rdrChat(el,msgs,full=false){
+  if(!el)return;el.innerHTML="";
+  msgs.forEach(msg=>{
+    if(msg.type==="gift"){
+      const d=document.createElement("div");d.className="gmsg";
+      d.innerHTML=`<img src="${msg.giftImage||''}" onerror="this.style.display='none'"><div class="gtxt">🎁 <b>${esc(msg.senderName)}</b> → <b>${esc(msg.targetName||"Host")}</b> ×${msg.qty||1}</div>`;
+      d.onclick=()=>showUCbyId(msg.senderId);
+      el.appendChild(d);
+    } else {
+      const d=document.createElement("div");d.className="cmsg";const isMe=msg.senderId===myId;
+      d.innerHTML=`<span class="cn${isMe?" me":""}" data-uid="${msg.senderId}">${esc(msg.senderName)}:</span> <span class="ct">${esc(msg.text)}</span>`;
+      d.querySelector(".cn").onclick=e=>{e.stopPropagation();showUCbyId(msg.senderId);};
+      el.appendChild(d);
+    }
+  });
+  if(full){el.scrollTop=el.scrollHeight;}else{G("chatWrap").scrollTop=G("chatWrap").scrollHeight;}
+}
+
+async function showUCbyId(uid){
+  const m=members.find(x=>x.uid===uid);
+  if(m){showUC(m);return;}
+  const us=await getDoc(doc(db,"users",uid)).catch(()=>null);
+  showUC(us?.exists()?{uid,username:us.data().username||"User",photoURL:us.data().photoURL||av(us.data().username||"User"),gems:0}:{uid,username:"User",photoURL:av("User"),gems:0});
+}
+
+function showUC(m){
+  G("ucav").src=m.photoURL||av(m.username||"User");
+  G("ucnam").innerText=m.username||"User";
+  G("ucuid").innerText=`ID: ${m.uid}`;
+  G("ucgems").innerText=fn(m.gems||0);
+  G("uclink").href=`view.html?id=${m.uid}`;
+  sp("ucard");
+}
+
+async function sendMsg(txt,type="text",gd=null){
+  if(!txt?.trim()&&type!=="gift")return;
+  const msg={senderId:myId,senderName:myName,timestamp:serverTimestamp(),type};
+  if(type==="text")msg.text=txt;
+  if(type==="gift"&&gd){msg.text=`sent ${gd.n}×${gd.qty}`;msg.giftName=gd.n;msg.giftImage=gd.img;msg.qty=gd.qty;msg.targetName=gd.tName;msg.targetId=gd.tId;}
+  await addDoc(msgRef,msg);
+}
+
+// Chat inputs
+G("cTrig").onclick=()=>{sp("chatP");G("cpIn").focus();};
+G("cBarIn").onfocus=()=>{G("cBarIn").blur();sp("chatP");G("cpIn").focus();};
+G("chatBtn").onclick=()=>sp("chatP");
+G("cBarSend").onclick=()=>{const t=G("cBarIn").value.trim();if(t){sendMsg(t);G("cBarIn").value="";}};
+G("cpSend").onclick=()=>{const t=G("cpIn").value.trim();if(t){sendMsg(t);G("cpIn").value="";}};
+G("cpIn").addEventListener("keypress",e=>{if(e.key==="Enter"){G("cpSend").onclick();}});
+
+// Gifts
+G("giftBtn").onclick=()=>{buildGiftTargets();buildGiftGrid(gCat);buildQty();sp("giftP");};
+G("gtabs").onclick=e=>{const t=e.target.closest(".gtab");if(!t)return;document.querySelectorAll(".gtab").forEach(x=>x.classList.remove("active"));t.classList.add("active");gCat=t.dataset.c;buildGiftGrid(gCat);};
+
+function buildGiftTargets(){
+  const row=G("gtRow");row.innerHTML="";selTarget=null;
+  const a=document.createElement("div");a.className="gtitem sel";a.dataset.uid="all";
+  a.innerHTML=`<div style="width:38px;height:38px;border-radius:50%;background:rgba(0,101,113,.4);border:2px solid var(--t2);display:flex;align-items:center;justify-content:center;"><span class="ms" style="font-size:16px;color:var(--t2);">groups</span></div><span>All</span>`;
+  a.onclick=()=>{document.querySelectorAll(".gtitem").forEach(x=>x.classList.remove("sel"));a.classList.add("sel");selTarget=null;};
+  row.appendChild(a);
+  members.filter(m=>m.uid!==myId).forEach(m=>{
+    const d=document.createElement("div");d.className="gtitem";
+    d.innerHTML=`<img src="${m.photoURL||av(m.username)}" loading="lazy"><span>${esc(m.username.substring(0,8))}</span>`;
+    d.onclick=()=>{document.querySelectorAll(".gtitem").forEach(x=>x.classList.remove("sel"));d.classList.add("sel");selTarget=m;};
+    row.appendChild(d);
+  });
+}
+
+function buildGiftGrid(cat){
+  const grid=G("ggrid");grid.innerHTML="";
+  GIFTS.filter(g=>g.c===cat).forEach(g=>{
+    const d=document.createElement("div");d.className="gc";
+    d.innerHTML=`<img src="${g.img}" loading="lazy"><div class="gn">${esc(g.n)}</div><div class="gp">${g.p} coins</div>`;
+    d.onclick=()=>{document.querySelectorAll(".gc").forEach(x=>x.classList.remove("sel"));d.classList.add("sel");selGift={...g};};
+    grid.appendChild(d);
+  });
+}
+
+function buildQty(){
+  const row=G("qrow");row.innerHTML="";selQty=1;
+  [1,17,37,77].forEach(q=>{
+    const b=document.createElement("button");b.className="qc"+(q===1?" active":"");b.innerText=q;
+    b.onclick=()=>{document.querySelectorAll(".qc").forEach(x=>x.classList.remove("active"));b.classList.add("active");selQty=q;};
+    row.appendChild(b);
+  });
+}
+
+G("sgBtn").onclick=async()=>{
+  if(!selGift){toast("Pick a gift first!");return;}
+  if(myId===hostId){toast("Can't gift yourself");return;}
+  const price=selGift.p*selQty;
+  const us=await getDoc(doc(db,"users",myId)).catch(()=>null);
+  if((us?.data()?.coins||0)<price){toast("Not enough coins!");return;}
+  await updateDoc(doc(db,"users",myId),{coins:increment(-price)});
+  const tId=selTarget?selTarget.uid:hostId;
+  const tName=selTarget?selTarget.username:(roomData?.hostName||"Host");
+  if(tId){
+    const hr=doc(db,"users",tId);const hs=await getDoc(hr).catch(()=>null);
+    const charm=hs?.data()?.charmLevel||0;const gems=Math.floor(price*(0.30+charm*0.01));
+    await updateDoc(hr,{gems:increment(gems)}).catch(()=>{});
+    await updateDoc(roomRef,{rewards:increment(gems)}).catch(()=>{});
+    const mr=doc(db,"rooms",roomId,"members",tId);const ms=await getDoc(mr).catch(()=>null);
+    if(ms?.exists())await updateDoc(mr,{gems:increment(gems)}).catch(()=>{});
+  }
+  await sendMsg("","gift",{n:selGift.n,img:selGift.img,qty:selQty,tName,tId});
+  showGiftPop(myName,myPhoto,selGift,selQty,tName);
+  hp("giftP");toast(`Sent ${selGift.n} ×${selQty} 🎁`);
+  selGift=null;document.querySelectorAll(".gc").forEach(x=>x.classList.remove("sel"));
+};
+
+function showGiftPop(sn,sp2,gift,qty,tn){
+  const d=document.createElement("div");d.className="gpop";
+  d.style.cssText=`bottom:${130+Math.random()*60}px;left:${6+Math.random()*35}%;`;
+  d.innerHTML=`<div class="gpi"><img class="sav" src="${sp2}"><div class="gpinf"><div class="gpn">${esc(sn)}</div><div class="gpt">→ ${esc(tn)}</div></div><img class="ggif" src="${gift.img}"><div class="gx">×${qty}</div></div>`;
+  document.body.appendChild(d);setTimeout(()=>d.remove(),3200);
+}
+
+// Dots menu → settings panel
+G("dotsBtn").onclick=()=>sp("setP");
+
+// Filters
 function buildFilts(){
-  const grid = G("fgrid"); grid.innerHTML = "";
+  const grid=G("fgrid");grid.innerHTML="";
   FILTS.forEach(f=>{
-    const d = document.createElement("div"); d.className = "fi"+(f.id===curFilt?" sel":"");
-    d.innerHTML = `<div class="ft"><img src="${f.t}" style="filter:${f.css};"></div><span>${f.n}</span>`;
-    d.onclick = () => {
-      curFilt = f.id; document.querySelectorAll(".fi").forEach(x=>x.classList.remove("sel")); d.classList.add("sel");
-      const c = document.getElementById(`vb-${myId}`); if(c){ const v=c.querySelector("video"); if(v) v.style.filter=f.css; }
+    const d=document.createElement("div");d.className="fi"+(f.id===curFilt?" sel":"");
+    d.innerHTML=`<div class="ft"><img src="${f.t}" style="filter:${f.css};"></div><span>${f.n}</span>`;
+    d.onclick=()=>{
+      curFilt=f.id;document.querySelectorAll(".fi").forEach(x=>x.classList.remove("sel"));d.classList.add("sel");
+      const c=document.getElementById(`vb-${myId}`);if(c){const v=c.querySelector("video");if(v)v.style.filter=f.css;}
       toast(`Filter: ${f.n}`);
     };
     grid.appendChild(d);
   });
 }
+
+// BG
 function buildBG(){
-  const grid = G("bggrid"); grid.innerHTML = "";
+  const grid=G("bggrid");grid.innerHTML="";
   BGLST.forEach(url=>{
-    const d = document.createElement("div"); d.className = "bgo";
-    if(G("bgImg").src === url) d.classList.add("active");
-    d.innerHTML = `<img src="${url}" loading="lazy">`;
-    d.onclick = async () => {
-      G("bgImg").style.opacity = ".3";
-      setTimeout(()=>{ G("bgImg").src = url; G("bgImg").style.opacity = "1"; },350);
-      document.querySelectorAll(".bgo").forEach(x=>x.classList.remove("active")); d.classList.add("active");
-      await updateDoc(roomRef,{ coverPhoto:url }).catch(()=>{});
-      hp("bgP"); toast("Background updated!");
-    };
-    grid.appendChild(d);
-  });
-}
-async function openInvite(){
-  G("igrid").innerHTML = '<p style="color:rgba(255,255,255,.4);text-align:center;padding:20px;">Loading...</p>';
-  sp("invP");
-  const all = await getDocs(collection(db,"users"));
-  const mids = new Set(members.map(m=>m.uid));
-  const avail = [];
-  all.forEach(d=>{ if(d.id!==myId && !mids.has(d.id)) avail.push({uid:d.id,...d.data()}); });
-  const grid = G("igrid"); grid.innerHTML = "";
-  if(!avail.length){ grid.innerHTML = '<p style="color:rgba(255,255,255,.4);grid-column:span 4;text-align:center;padding:16px;">No users</p>'; return; }
-  avail.forEach(u=>{
-    const d = document.createElement("div"); d.className = "ic";
-    d.innerHTML = `<img src="${u.photoURL||av(u.username||"User")}"><span>${esc(u.username||"User")}</span>`;
-    d.onclick = async () => {
-      await setDoc(doc(db,"rooms",roomId,"members",u.uid),{ uid:u.uid, username:u.username||"User", photoURL:u.photoURL||"", role:"guest", micMuted:false, gems:0, joinedAt:serverTimestamp() });
-      await updateDoc(roomRef,{ users:increment(1) });
-      hp("invP"); toast(`${u.username||"User"} invited!`);
+    const d=document.createElement("div");d.className="bgo";const bi=G("bgImg");if(bi.src===url)d.classList.add("active");
+    d.innerHTML=`<img src="${url}" loading="lazy">`;
+    d.onclick=async()=>{
+      bi.style.opacity=".3";setTimeout(()=>{bi.src=url;bi.style.opacity="1";},350);
+      document.querySelectorAll(".bgo").forEach(x=>x.classList.remove("active"));d.classList.add("active");
+      await updateDoc(roomRef,{coverPhoto:url}).catch(()=>{});hp("bgP");toast("Background updated!");
     };
     grid.appendChild(d);
   });
 }
 
-let popT = null;
+// Invite
+async function openInvite(){
+  G("igrid").innerHTML='<p style="color:rgba(255,255,255,.4);text-align:center;padding:20px;font-size:12px;grid-column:span 4;">Loading...</p>';
+  sp("invP");
+  const all=await getDocs(collection(db,"users")).catch(()=>({forEach:()=>{}}));
+  const mids=new Set(members.map(m=>m.uid));const avail=[];
+  all.forEach(d=>{if(d.id!==myId&&!mids.has(d.id))avail.push({uid:d.id,...d.data()});});
+  const grid=G("igrid");grid.innerHTML="";
+  if(!avail.length){grid.innerHTML='<p style="color:rgba(255,255,255,.4);padding:16px;grid-column:span 4;text-align:center;font-size:12px;">No users available</p>';return;}
+  avail.forEach(u=>{
+    const d=document.createElement("div");d.className="ic";
+    d.innerHTML=`<img src="${u.photoURL||av(u.username||"User")}"><span>${esc(u.username||"User")}</span>`;
+    d.onclick=async()=>{
+      await setDoc(doc(db,"rooms",roomId,"members",u.uid),{uid:u.uid,username:u.username||"User",photoURL:u.photoURL||"",role:"guest",micMuted:false,gems:0,joinedAt:serverTimestamp()});
+      await updateDoc(roomRef,{users:increment(1)}).catch(()=>{});
+      hp("invP");toast(`${u.username||"User"} invited!`);
+    };
+    grid.appendChild(d);
+  });
+}
+
+// Host action popup
 function openHA(m){
-  popT = m;
-  G("hav").src = m.photoURL || av(m.username);
-  G("hnam").innerText = m.username;
-  G("huid").innerText = `ID: ${m.uid}`;
-  G("hmuteIco").innerText = m.micMuted ? "mic" : "mic_off";
-  G("hmuteLbl").innerText = m.micMuted ? "Unmute Member" : "Mute Member";
+  popT=m;G("hav").src=m.photoURL||av(m.username);G("hnam").innerText=m.username;G("huid").innerText=`ID: ${m.uid}`;
+  G("hmuteIco").innerText=m.micMuted?"mic":"mic_off";G("hmuteLbl").innerText=m.micMuted?"Unmute Member":"Mute Member";
   sp("hact");
 }
-G("hmuteBtn").onclick = async () => {
-  if(!popT) return;
-  await updateDoc(doc(db,"rooms",roomId,"members",popT.uid),{ micMuted:!popT.micMuted });
-  hp("hact");
-  toast(`${popT.username} ${popT.micMuted?"unmuted":"muted"}`);
+G("hmuteBtn").onclick=async()=>{
+  if(!popT)return;await updateDoc(doc(db,"rooms",roomId,"members",popT.uid),{micMuted:!popT.micMuted}).catch(()=>{});
+  hp("hact");toast(`${popT.username} ${popT.micMuted?"unmuted":"muted"}`);
 };
-G("hremBtn").onclick = async () => {
-  if(!popT) return;
-  await deleteDoc(doc(db,"rooms",roomId,"members",popT.uid));
-  await updateDoc(roomRef,{ users:increment(-1) });
-  hp("hact");
-  toast(`${popT.username} removed`);
+G("hremBtn").onclick=async()=>{
+  if(!popT)return;await deleteDoc(doc(db,"rooms",roomId,"members",popT.uid));await updateDoc(roomRef,{users:increment(-1)}).catch(()=>{});
+  hp("hact");toast(`${popT.username} removed`);
 };
 
-function showUCbyId(uid){
-  const m = members.find(x=>x.uid===uid);
-  if(m){ showUC(m); return; }
-  getDoc(doc(db,"users",uid)).then(us=>{
-    if(us.exists()) showUC({uid, username:us.data().username||"User", photoURL:us.data().photoURL||av(us.data().username||"User"), gems:0 });
-    else showUC({uid, username:"User", photoURL:av("User"), gems:0});
-  });
-}
-function showUC(m){
-  G("ucav").src = m.photoURL || av(m.username||"User");
-  G("ucnam").innerText = m.username||"User";
-  G("ucuid").innerText = `ID: ${m.uid}`;
-  G("ucgems").innerText = fn(m.gems||0);
-  G("uclink").href = `view.html?id=${m.uid}`;
-  sp("ucard");
-}
-
-async function confirmEnd(){
-  if(confirm("End live for everyone?")){
-    await deleteDoc(roomRef);
-    location.href = "party.html";
-  }
-}
-async function confirmLeave(){
-  await deleteDoc(doc(db,"rooms",roomId,"members",myId));
-  await updateDoc(roomRef,{ users:increment(-1) });
-  try{ audT?.close(); vidT?.close(); await agoraC?.leave(); } catch(e){}
-  location.href = "party.html";
-}
-
+// Init
 async function init(){
   await loadRoom();
-  if(isHost) await joinSeat();
-  await startAgora().catch(console.warn);
-  listenMembers();
+  if(isHost)await joinSeat();
+  await startAgora().catch(e=>console.warn("Agora",e));
+  listenMembers();listenChat();listenReqs();
 }
 init();
 </script>
