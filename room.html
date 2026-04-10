@@ -1,1127 +1,749 @@
 <!DOCTYPE html>
-<html class="light" lang="en">
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Galmet – Party Room</title>
-  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-  <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
-  <style>
-    *{box-sizing:border-box;}
-    :root{
-      --primary:#006571;
-      --primary-light:#00b4c8;
-      --gold:#f59e0b;
-      --bg:#0d1117;
-      --surface:rgba(255,255,255,0.06);
-      --border:rgba(255,255,255,0.10);
-    }
-    body{background:#0d1117;font-family:'Plus Jakarta Sans',sans-serif;overflow-x:hidden;}
-    .msymbol{font-family:'Material Symbols Outlined';font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;font-size:inherit;line-height:1;}
-    .msymbol.filled{font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;}
-
-    /* ── Scrollbar ── */
-    ::-webkit-scrollbar{width:3px;height:3px;}
-    ::-webkit-scrollbar-track{background:transparent;}
-    ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.2);border-radius:99px;}
-    .hide-scroll{scrollbar-width:none;-ms-overflow-style:none;}
-    .hide-scroll::-webkit-scrollbar{display:none;}
-
-    /* ── Background ── */
-    #roomBg{position:fixed;inset:0;z-0;}
-    #roomBg img{width:100%;height:100%;object-fit:cover;transition:opacity .5s;}
-    #roomBg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.55) 0%,rgba(0,0,0,.25) 40%,rgba(0,0,0,.70) 100%);}
-
-    /* ── Top Seats (3 big) ── */
-    #topSeatsRow{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:0;
-      margin:0 0 0 0;
-    }
-    .top-seat{
-      position:relative;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-    }
-    .top-seat + .top-seat::before{
-      content:'';
-      position:absolute;
-      left:0; top:8px; bottom:8px;
-      width:1px;
-      background:rgba(255,255,255,0.15);
-    }
-    .cam-box{
-      position:relative;
-      width:100%;
-      aspect-ratio:3/4;
-      background:#111;
-      overflow:hidden;
-    }
-    .cam-box video,.cam-box img.avatar-fill{
-      width:100%;height:100%;object-fit:cover;display:block;
-    }
-    .cam-box .cam-overlay{
-      position:absolute;inset:0;
-      background:linear-gradient(to top,rgba(0,0,0,.6) 0%,transparent 50%);
-    }
-    .cam-box .cam-name{
-      position:absolute;bottom:6px;left:0;right:0;
-      text-align:center;font-size:10px;font-weight:700;
-      color:#fff;letter-spacing:.3px;
-      text-shadow:0 1px 4px rgba(0,0,0,.8);
-    }
-    .cam-box .cam-badge{
-      position:absolute;top:6px;left:6px;
-      background:linear-gradient(135deg,#f59e0b,#ef4444);
-      color:#fff;font-size:8px;font-weight:800;
-      padding:2px 6px;border-radius:20px;
-      letter-spacing:.5px;
-    }
-    .cam-box .cam-mic-off{
-      position:absolute;top:6px;right:6px;
-      background:rgba(239,68,68,.85);
-      border-radius:50%;width:20px;height:20px;
-      display:flex;align-items:center;justify-content:center;
-      font-size:11px;color:#fff;
-    }
-    .cam-box .empty-seat-btn{
-      position:absolute;inset:0;
-      display:flex;flex-direction:column;
-      align-items:center;justify-content:center;
-      gap:4px;cursor:pointer;
-      background:rgba(0,0,0,.35);
-      transition:background .2s;
-    }
-    .cam-box .empty-seat-btn:hover{background:rgba(0,101,113,.35);}
-    .cam-box .empty-seat-btn .plus-ring{
-      width:40px;height:40px;border-radius:50%;
-      border:2px dashed rgba(255,255,255,.4);
-      display:flex;align-items:center;justify-content:center;
-      font-size:20px;color:rgba(255,255,255,.6);
-    }
-    .cam-box .empty-seat-btn span.label{
-      font-size:9px;color:rgba(255,255,255,.5);font-weight:600;
-    }
-
-    /* ── Bottom Seats (5 audio only) ── */
-    #bottomSeatsRow{
-      display:grid;
-      grid-template-columns:repeat(5,1fr);
-      gap:6px;
-      padding:0 8px;
-      margin-top:16px;
-    }
-    .bot-seat{
-      display:flex;flex-direction:column;align-items:center;gap:4px;
-      cursor:pointer;
-    }
-    .bot-seat .ava{
-      width:50px;height:50px;border-radius:50%;
-      overflow:hidden;border:2px solid rgba(255,255,255,.15);
-      position:relative;
-      background:#1a1a2e;
-    }
-    .bot-seat .ava img{width:100%;height:100%;object-fit:cover;}
-    .bot-seat .ava .mic-off-dot{
-      position:absolute;bottom:0;right:0;
-      background:#ef4444;border-radius:50%;
-      width:14px;height:14px;
-      display:flex;align-items:center;justify-content:center;
-      font-size:8px;color:#fff;border:1.5px solid #0d1117;
-    }
-    .bot-seat .bot-name{font-size:8px;color:rgba(255,255,255,.6);font-weight:600;text-align:center;max-width:52px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-    .bot-seat.empty-bot .ava{border-style:dashed;background:transparent;}
-    .bot-seat.empty-bot .plus-icon{font-size:22px;color:rgba(255,255,255,.3);}
-
-    /* ── Chat ── */
-    #chatMessages{
-      display:flex;flex-direction:column;gap:5px;
-    }
-    .chat-mask{mask-image:linear-gradient(to top,black 70%,transparent 100%);}
-
-    /* ── Bottom Bar ── */
-    #bottomBar{
-      position:fixed;bottom:0;left:0;right:0;z-index:60;
-      background:rgba(13,17,23,.92);
-      backdrop-filter:blur(24px);
-      border-top:1px solid rgba(255,255,255,.08);
-      padding:10px 16px;
-      padding-bottom:max(10px, env(safe-area-inset-bottom));
-    }
-
-    /* ── Panels (bottom sheet) ── */
-    .panel{
-      position:fixed;inset:0;z-index:200;
-      display:none;
-    }
-    .panel.open{display:flex;}
-    .panel-backdrop{
-      position:absolute;inset:0;
-      background:rgba(0,0,0,.55);
-      backdrop-filter:blur(4px);
-    }
-    .panel-sheet{
-      position:absolute;bottom:0;left:0;right:0;
-      background:#13181f;
-      border-radius:24px 24px 0 0;
-      padding:0 0 max(24px,env(safe-area-inset-bottom)) 0;
-      max-height:80vh;
-      overflow-y:auto;
-      animation:slideUp .3s cubic-bezier(.22,1,.36,1);
-    }
-    @keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
-    .panel-handle{
-      width:40px;height:4px;background:rgba(255,255,255,.2);
-      border-radius:2px;margin:12px auto 0;
-    }
-    .panel-header{
-      display:flex;align-items:center;justify-content:space-between;
-      padding:16px 20px 12px;
-    }
-    .panel-title{color:#fff;font-size:15px;font-weight:800;letter-spacing:.3px;}
-    .panel-close{
-      width:32px;height:32px;background:rgba(255,255,255,.1);
-      border:none;border-radius:50%;color:#fff;
-      display:flex;align-items:center;justify-content:center;
-      cursor:pointer;font-size:14px;transition:background .2s;
-    }
-    .panel-close:hover{background:rgba(255,255,255,.2);}
-
-    /* Gift Grid */
-    .gift-grid{
-      display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
-      padding:0 16px 16px;
-    }
-    .gift-card{
-      background:rgba(255,255,255,.06);border-radius:14px;
-      padding:10px 6px;text-align:center;cursor:pointer;
-      border:1.5px solid transparent;
-      transition:all .2s;
-    }
-    .gift-card:hover{background:rgba(0,101,113,.25);border-color:rgba(0,180,200,.4);}
-    .gift-card.selected{border-color:#00b4c8;background:rgba(0,180,200,.1);}
-    .gift-card img{width:46px;height:46px;object-fit:contain;margin:0 auto 4px;}
-    .gift-card .g-name{font-size:9px;color:#fff;font-weight:700;}
-    .gift-card .g-price{font-size:8px;color:#f59e0b;margin-top:2px;}
-
-    /* Qty row */
-    .qty-chips{display:flex;gap:8px;padding:0 16px 16px;flex-wrap:wrap;}
-    .qty-chip{
-      padding:8px 18px;border-radius:30px;
-      background:rgba(255,255,255,.08);
-      color:#fff;font-size:12px;font-weight:700;
-      border:1.5px solid transparent;cursor:pointer;transition:all .2s;
-    }
-    .qty-chip.active{background:rgba(0,101,113,.4);border-color:#00b4c8;color:#00e3fd;}
-
-    /* Bg Grid */
-    .bg-grid{
-      display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
-      padding:0 16px 16px;
-    }
-    .bg-card{
-      aspect-ratio:16/9;border-radius:12px;overflow:hidden;
-      cursor:pointer;border:2px solid transparent;transition:all .2s;
-    }
-    .bg-card:hover{transform:scale(1.03);}
-    .bg-card.active{border-color:#00b4c8;}
-    .bg-card img{width:100%;height:100%;object-fit:cover;}
-
-    /* Invite grid */
-    .invite-grid{
-      display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
-      padding:0 16px 16px;
-    }
-    .invite-card{
-      display:flex;flex-direction:column;align-items:center;gap:5px;
-      background:rgba(255,255,255,.05);border-radius:14px;
-      padding:10px 4px;cursor:pointer;border:1.5px solid transparent;
-      transition:all .2s;
-    }
-    .invite-card:hover{background:rgba(0,101,113,.2);border-color:rgba(0,180,200,.4);}
-    .invite-card img{width:40px;height:40px;border-radius:50%;object-fit:cover;}
-    .invite-card span{font-size:9px;color:rgba(255,255,255,.8);font-weight:600;text-align:center;max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-
-    /* Toast */
-    .toast{
-      position:fixed;top:80px;left:50%;transform:translateX(-50%);
-      background:rgba(0,101,113,.95);backdrop-filter:blur(16px);
-      color:#fff;padding:10px 20px;border-radius:30px;
-      font-size:12px;font-weight:700;z-index:999;
-      border:1px solid rgba(0,180,200,.4);
-      animation:toastIn .3s ease, toastOut .3s ease 2s forwards;
-      pointer-events:none;white-space:nowrap;
-    }
-    @keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(-10px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
-    @keyframes toastOut{from{opacity:1;}to{opacity:0;}}
-
-    /* Popup (host actions) */
-    .action-popup{
-      position:fixed;inset:0;z-index:300;display:none;
-      align-items:center;justify-content:center;
-    }
-    .action-popup.open{display:flex;}
-    .action-popup-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);}
-    .action-popup-card{
-      position:relative;background:#161b22;
-      border:1px solid rgba(255,255,255,.1);
-      border-radius:24px;padding:24px;width:280px;
-      animation:popIn .25s cubic-bezier(.22,1,.36,1);
-    }
-    @keyframes popIn{from{opacity:0;transform:scale(.85);}to{opacity:1;transform:scale(1);}}
-    .popup-user{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
-    .popup-user img{width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.15);}
-    .popup-user .pname{font-size:14px;font-weight:800;color:#fff;}
-    .popup-user .prole{font-size:10px;color:rgba(255,255,255,.4);}
-    .popup-actions{display:flex;flex-direction:column;gap:8px;}
-    .popup-action-btn{
-      display:flex;align-items:center;gap:12px;
-      padding:12px 14px;border-radius:14px;
-      background:rgba(255,255,255,.06);border:none;
-      color:#fff;font-size:13px;font-weight:600;
-      cursor:pointer;transition:background .2s;width:100%;text-align:left;
-    }
-    .popup-action-btn:hover{background:rgba(255,255,255,.12);}
-    .popup-action-btn.danger{color:#ef4444;}
-    .popup-action-btn.danger:hover{background:rgba(239,68,68,.12);}
-    .popup-action-btn .icon{font-size:18px;width:24px;text-align:center;}
-    .popup-cancel{
-      margin-top:12px;width:100%;padding:11px;
-      background:transparent;border:1px solid rgba(255,255,255,.15);
-      border-radius:14px;color:rgba(255,255,255,.5);
-      font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;
-    }
-    .popup-cancel:hover{background:rgba(255,255,255,.06);}
-
-    /* Gift anim */
-    .gift-float{
-      position:fixed;bottom:160px;right:20px;z-index:400;
-      animation:floatUp 1.8s ease forwards;pointer-events:none;
-    }
-    @keyframes floatUp{
-      0%{opacity:1;transform:translateY(0) scale(1);}
-      100%{opacity:0;transform:translateY(-120px) scale(1.4);}
-    }
-
-    /* Controls */
-    .ctrl-pill{
-      display:flex;align-items:center;gap:6px;
-      padding:9px 16px;border-radius:30px;
-      background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
-      color:#fff;font-size:11px;font-weight:700;cursor:pointer;
-      transition:all .2s;
-    }
-    .ctrl-pill:hover{background:rgba(255,255,255,.14);}
-    .ctrl-pill.active{background:rgba(239,68,68,.2);border-color:#ef4444;color:#ef4444;}
-    .ctrl-pill .icon{font-size:16px;}
-
-    /* Header */
-    #header{
-      position:fixed;top:0;width:100%;z-index:50;
-      background:rgba(13,17,23,.75);backdrop-filter:blur(20px);
-      border-bottom:1px solid rgba(255,255,255,.07);
-      display:flex;align-items:center;justify-content:space-between;
-      padding:10px 14px;
-    }
-
-    /* 4-dot menu btn */
-    #menuDots{
-      position:fixed;bottom:85px;right:14px;z-index:55;
-      width:44px;height:44px;border-radius:50%;
-      background:rgba(0,101,113,.85);backdrop-filter:blur(12px);
-      border:1.5px solid rgba(0,180,200,.4);
-      display:flex;align-items:center;justify-content:center;
-      cursor:pointer;transition:all .2s;
-      box-shadow:0 4px 20px rgba(0,101,113,.5);
-    }
-    #menuDots:hover{transform:scale(1.08);}
-    .dots-grid{
-      display:grid;grid-template-columns:repeat(2,6px);gap:4px;
-    }
-    .dot{width:6px;height:6px;border-radius:50%;background:#fff;}
-
-    /* Quick menu popup */
-    #quickMenu{
-      position:fixed;bottom:140px;right:14px;z-index:56;
-      background:#161b22;border:1px solid rgba(255,255,255,.1);
-      border-radius:18px;padding:8px;
-      display:none;flex-direction:column;gap:4px;
-      animation:popIn .2s ease;
-      min-width:160px;
-    }
-    #quickMenu.open{display:flex;}
-    .qm-btn{
-      display:flex;align-items:center;gap:10px;
-      padding:10px 14px;border-radius:12px;
-      background:transparent;border:none;
-      color:#fff;font-size:12px;font-weight:600;
-      cursor:pointer;transition:background .2s;white-space:nowrap;
-    }
-    .qm-btn:hover{background:rgba(255,255,255,.08);}
-    .qm-btn .icon{font-size:18px;}
-
-    @media(max-width:480px){
-      .cam-box{aspect-ratio:9/13;}
-      .bot-seat .ava{width:42px;height:42px;}
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
+<title>Galmet – Party Room</title>
+<script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--t:#006571;--t2:#00b4c8;--gold:#f59e0b;--red:#ef4444;--green:#22c55e;--bg:#0a0f14;}
+html,body{width:100%;height:100%;overflow:hidden;font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);}
+.ms{font-family:'Material Symbols Outlined';font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;line-height:1;display:inline-block;vertical-align:middle;}
+.ms.f{font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;}
+.hs{scrollbar-width:none;-ms-overflow-style:none;}.hs::-webkit-scrollbar{display:none;}
+button{border:none;background:none;cursor:pointer;font-family:inherit;}input{outline:none;font-family:inherit;}
+#app{position:fixed;inset:0;display:flex;flex-direction:column;}
+/* BG */
+#bg{position:absolute;inset:0;z-index:0;}
+#bgImg{width:100%;height:100%;object-fit:cover;transition:opacity .4s;}
+#bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.52) 0%,rgba(0,0,0,.1) 35%,rgba(0,0,0,.72) 100%);}
+/* HEADER */
+#hdr{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:max(10px,env(safe-area-inset-top)) 12px 6px;}
+.hpill{display:flex;align-items:center;gap:7px;background:rgba(0,0,0,.42);backdrop-filter:blur(12px);border-radius:30px;padding:4px 10px 4px 4px;cursor:pointer;}
+.hpill img{width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid var(--t2);}
+.hpill .hn{color:#fff;font-size:11px;font-weight:800;line-height:1.2;}
+.hpill .ht{color:rgba(255,255,255,.45);font-size:9px;}
+.gpill{display:flex;align-items:center;gap:4px;background:rgba(0,0,0,.4);border-radius:20px;padding:4px 10px;border:1px solid rgba(245,158,11,.3);}
+.gpill .ms{font-size:13px;color:var(--gold);}
+.gpill span{color:#fff;font-size:10px;font-weight:800;}
+.hright{display:flex;align-items:center;gap:8px;}
+.vpill{display:flex;align-items:center;gap:5px;background:rgba(0,0,0,.4);border-radius:20px;padding:4px 10px;}
+.vpill .vdot{width:7px;height:7px;border-radius:50%;background:var(--red);animation:bl 1.2s infinite;}
+@keyframes bl{0%,100%{opacity:1;}50%{opacity:.3;}}
+.vpill span{color:#fff;font-size:10px;font-weight:800;}
+.ibtn{width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;color:#fff;position:relative;flex-shrink:0;}
+.rbadge{position:absolute;top:-3px;right:-3px;background:var(--red);color:#fff;font-size:8px;font-weight:800;border-radius:10px;padding:1px 4px;min-width:14px;text-align:center;}
+/* SCROLL */
+#scr{position:relative;z-index:5;flex:1;overflow-y:auto;overflow-x:hidden;}
+/* TOP 3 SEATS */
+#topRow{display:grid;grid-template-columns:repeat(3,1fr);}
+.tseat{position:relative;}
+.tseat+.tseat::before{content:'';position:absolute;left:0;top:8%;bottom:8%;width:1px;background:rgba(255,255,255,.12);z-index:2;}
+.cam{position:relative;width:100%;aspect-ratio:9/13;background:#0c1619;overflow:hidden;}
+.cam .av-fill,.cam video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.cam .grad{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.72) 0%,transparent 55%);z-index:1;}
+.cam .uname{position:absolute;bottom:5px;left:0;right:0;text-align:center;font-size:9px;font-weight:700;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.9);z-index:2;}
+.cam .hbadge{position:absolute;top:5px;left:5px;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;font-size:7px;font-weight:900;padding:2px 5px;border-radius:10px;z-index:2;}
+.cam .micoff{position:absolute;top:5px;right:5px;background:rgba(239,68,68,.9);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;z-index:2;}
+.cam .micoff .ms{font-size:10px;color:#fff;}
+.cam .gtag{position:absolute;top:5px;left:5px;display:flex;align-items:center;gap:2px;background:rgba(0,0,0,.5);border-radius:10px;padding:1px 5px;z-index:2;}
+.cam .gtag .ms{font-size:9px;color:var(--red);}
+.cam .gtag span{font-size:8px;font-weight:800;color:#fff;}
+.cam .snum{position:absolute;top:5px;right:5px;background:rgba(0,0,0,.5);color:rgba(255,255,255,.65);font-size:8px;font-weight:700;border-radius:8px;padding:1px 5px;z-index:2;}
+.ecam{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;background:rgba(0,0,0,.25);transition:background .2s;z-index:1;}
+.ecam:hover{background:rgba(0,101,113,.3);}
+.ecam .ering{width:44px;height:44px;border-radius:50%;border:2px dashed rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;}
+.ecam .ering .ms{font-size:22px;color:rgba(255,255,255,.5);}
+.ecam .elbl{font-size:9px;color:rgba(255,255,255,.45);font-weight:600;}
+/* BOT 5 */
+#botRow{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:10px 8px 0;}
+.bseat{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;}
+.bseat .ba{position:relative;width:48px;height:48px;}
+.bseat .ba .r2{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(255,255,255,.15);overflow:hidden;background:#1a2030;}
+.bseat .ba .r2 img{width:100%;height:100%;object-fit:cover;}
+.bseat .ba .md{position:absolute;bottom:0;right:0;width:14px;height:14px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;border:1.5px solid var(--bg);}
+.bseat .ba .md .ms{font-size:8px;color:#fff;}
+.bseat .ba .gd{position:absolute;top:-2px;left:-2px;background:rgba(0,0,0,.6);border-radius:8px;padding:1px 3px;display:flex;align-items:center;gap:1px;}
+.bseat .ba .gd .ms{font-size:7px;color:var(--red);}
+.bseat .ba .gd span{font-size:6px;color:#fff;font-weight:800;}
+.bseat .bn{font-size:7px;color:rgba(255,255,255,.5);font-weight:600;max-width:50px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;}
+.bseat.be .r2{border-style:dashed;border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.03);display:flex;align-items:center;justify-content:center;}
+/* CHAT */
+#chatWrap{padding:6px 10px;height:130px;overflow-y:auto;display:flex;flex-direction:column;justify-content:flex-end;mask-image:linear-gradient(to top,black 70%,transparent 100%);}
+.cmsg{margin-bottom:4px;line-height:1.4;}
+.cmsg .cn{font-size:11px;font-weight:800;color:var(--t2);cursor:pointer;}
+.cmsg .cn.me{color:#a78bfa;}
+.cmsg .ct{font-size:10px;color:rgba(255,255,255,.8);word-break:break-word;}
+.gmsg{display:flex;align-items:center;gap:6px;background:rgba(245,158,11,.08);border-radius:8px;padding:4px 8px;margin-bottom:4px;cursor:pointer;}
+.gmsg img{width:20px;height:20px;object-fit:contain;}
+.gmsg .gtxt{font-size:10px;color:var(--gold);font-weight:700;}
+/* BOTTOM BAR */
+#bar{position:relative;z-index:10;background:rgba(10,15,20,.95);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.07);padding:8px 12px;padding-bottom:max(8px,env(safe-area-inset-bottom));}
+.brow{display:flex;align-items:center;gap:10px;}
+.cinput{flex:1;display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:30px;padding:0 12px;height:38px;cursor:text;}
+.cinput input{flex:1;background:transparent;border:none;color:#fff;font-size:12px;}
+.cinput input::placeholder{color:rgba(255,255,255,.3);}
+.bico{position:relative;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+/* PANELS */
+.panel{position:fixed;inset:0;z-index:100;display:none;flex-direction:column;justify-content:flex-end;}
+.panel.show{display:flex;}
+.pb{position:absolute;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(5px);}
+.ps{position:relative;background:#111820;border-radius:22px 22px 0 0;max-height:85vh;overflow-y:auto;animation:sup .3s cubic-bezier(.22,1,.36,1);}
+@keyframes sup{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.sh{width:38px;height:4px;background:rgba(255,255,255,.18);border-radius:2px;margin:10px auto;}
+.ph{display:flex;align-items:center;justify-content:space-between;padding:0 18px 12px;}
+.pt{color:#fff;font-size:15px;font-weight:800;}
+.pc{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;}
+/* Set row */
+.sr{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.06);cursor:pointer;}
+.sr:last-child{border-bottom:none;}
+.sl{display:flex;align-items:center;gap:12px;color:#fff;}
+.sl .ms{font-size:20px;color:rgba(255,255,255,.55);}
+.slbl{font-size:14px;font-weight:600;}
+.sarr{color:rgba(255,255,255,.3);}
+/* Toggle */
+.tog{position:relative;width:44px;height:24px;flex-shrink:0;}
+.tog input{opacity:0;width:0;height:0;}
+.tsl{position:absolute;inset:0;background:rgba(255,255,255,.15);border-radius:24px;cursor:pointer;transition:.25s;}
+.tsl::before{content:'';position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.25s;}
+.tog input:checked+.tsl{background:var(--t2);}
+.tog input:checked+.tsl::before{transform:translateX(20px);}
+/* Gift panel */
+.gtrow{display:flex;gap:8px;padding:0 14px 8px;overflow-x:auto;}
+.gtitem{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;flex-shrink:0;}
+.gtitem img{width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid transparent;}
+.gtitem.sel img{border-color:var(--t2);}
+.gtitem span{font-size:8px;color:rgba(255,255,255,.6);max-width:42px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;}
+.gtabs{display:flex;gap:0;padding:0 14px 10px;overflow-x:auto;}
+.gtab{padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;color:rgba(255,255,255,.4);cursor:pointer;white-space:nowrap;}
+.gtab.active{background:rgba(0,101,113,.35);color:var(--t2);}
+.ggrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 14px 12px;}
+.gc{background:rgba(255,255,255,.05);border-radius:12px;padding:8px 5px;text-align:center;cursor:pointer;border:1.5px solid transparent;transition:all .18s;}
+.gc:hover{background:rgba(0,101,113,.2);border-color:rgba(0,180,200,.3);}
+.gc.sel{border-color:var(--t2);background:rgba(0,180,200,.1);}
+.gc img{width:44px;height:44px;object-fit:contain;margin:0 auto 3px;display:block;}
+.gc .gn{font-size:9px;color:#fff;font-weight:700;}
+.gc .gp{font-size:8px;color:var(--gold);margin-top:1px;}
+.qrow{display:flex;gap:8px;padding:0 14px 12px;}
+.qc{padding:8px 16px;border-radius:20px;background:rgba(255,255,255,.07);border:1.5px solid transparent;color:#fff;font-size:12px;font-weight:800;cursor:pointer;transition:all .18s;flex:1;text-align:center;}
+.qc.active{background:rgba(0,101,113,.4);border-color:var(--t2);color:#00e3fd;}
+.sgbtn{margin:0 14px 14px;width:calc(100% - 28px);padding:14px;background:linear-gradient(135deg,var(--t),var(--t2));border-radius:14px;color:#fff;font-size:14px;font-weight:800;display:block;}
+/* BG grid */
+.bggrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 14px 14px;}
+.bgo{aspect-ratio:16/9;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:all .2s;}
+.bgo:hover{transform:scale(1.03);}
+.bgo.active{border-color:var(--t2);}
+.bgo img{width:100%;height:100%;object-fit:cover;}
+/* Filters grid */
+.fgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:0 14px 14px;}
+.fi{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;}
+.fi .ft{width:58px;height:58px;border-radius:12px;overflow:hidden;border:2px solid transparent;}
+.fi.sel .ft{border-color:var(--t2);}
+.fi .ft img{width:100%;height:100%;object-fit:cover;}
+.fi span{font-size:9px;color:rgba(255,255,255,.55);font-weight:600;text-align:center;}
+/* Invite grid */
+.igrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 14px 14px;}
+.ic{display:flex;flex-direction:column;align-items:center;gap:4px;background:rgba(255,255,255,.04);border-radius:12px;padding:8px 4px;cursor:pointer;border:1.5px solid transparent;transition:all .2s;}
+.ic:hover{background:rgba(0,101,113,.2);border-color:rgba(0,180,200,.3);}
+.ic img{width:38px;height:38px;border-radius:50%;object-fit:cover;}
+.ic span{font-size:9px;color:rgba(255,255,255,.75);font-weight:600;text-align:center;max-width:56px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+/* Req list */
+.rlist{padding:0 14px 14px;}
+.ritem{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);}
+.ritem img{width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.12);}
+.ritem .ri{flex:1;}
+.ritem .rn{color:#fff;font-size:13px;font-weight:700;}
+.ritem .ru{color:rgba(255,255,255,.35);font-size:10px;}
+.ritem .ra{padding:7px 14px;background:var(--t2);border-radius:20px;color:#fff;font-size:11px;font-weight:800;}
+/* User card */
+#ucard{position:fixed;inset:0;z-index:200;display:none;align-items:flex-end;}
+#ucard.show{display:flex;}
+#ucback{position:absolute;inset:0;}
+#ucinner{position:relative;background:#111820;border-radius:22px 22px 0 0;width:100%;padding:0 0 max(24px,env(safe-area-inset-bottom)) 0;animation:sup .3s ease;}
+.uctop{display:flex;align-items:center;gap:12px;padding:16px 18px 8px;}
+.uctop img{width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid var(--t2);}
+.ucname{color:#fff;font-size:16px;font-weight:800;}
+.ucuid{color:rgba(255,255,255,.4);font-size:10px;margin-top:2px;}
+.ucrow{display:flex;align-items:center;justify-content:space-between;padding:6px 18px 16px;}
+.ucrow a{color:var(--t2);font-size:12px;font-weight:700;text-decoration:none;}
+.ucgems{display:flex;align-items:center;gap:4px;}
+.ucgems .ms{font-size:13px;color:var(--red);}
+.ucgems span{color:#fff;font-size:12px;font-weight:800;}
+/* Host action */
+#hact{position:fixed;inset:0;z-index:250;display:none;align-items:center;justify-content:center;}
+#hact.show{display:flex;}
+#hactbk{position:absolute;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);}
+.hcard{position:relative;background:#161d26;border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:22px;width:270px;animation:pop .25s cubic-bezier(.22,1,.36,1);}
+@keyframes pop{from{opacity:0;transform:scale(.8);}to{opacity:1;transform:scale(1);}}
+.huser{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.huser img{width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.12);}
+.hun{font-size:14px;font-weight:800;color:#fff;}
+.huid2{font-size:10px;color:rgba(255,255,255,.4);}
+.habtn{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:12px;background:rgba(255,255,255,.05);color:#fff;font-size:13px;font-weight:600;cursor:pointer;width:100%;text-align:left;margin-bottom:6px;transition:background .2s;}
+.habtn:hover{background:rgba(255,255,255,.1);}
+.habtn.danger{color:var(--red);}
+.habtn.danger:hover{background:rgba(239,68,68,.1);}
+.habtn .ms{font-size:18px;width:22px;text-align:center;}
+.hcanc{width:100%;padding:10px;background:transparent;border:1px solid rgba(255,255,255,.12);border-radius:12px;color:rgba(255,255,255,.4);font-size:13px;font-weight:600;cursor:pointer;margin-top:4px;}
+/* Gift popup on screen */
+.gpop{position:fixed;z-index:300;pointer-events:none;animation:gsh 3s ease forwards;}
+@keyframes gsh{0%{opacity:0;transform:translateY(30px) scale(.8);}15%{opacity:1;transform:translateY(0) scale(1);}75%{opacity:1;transform:translateY(-20px);}100%{opacity:0;transform:translateY(-60px) scale(1.1);}}
+.gpi{display:flex;align-items:center;gap:7px;background:rgba(0,0,0,.62);backdrop-filter:blur(12px);border-radius:30px;padding:6px 12px 6px 5px;border:1px solid rgba(255,255,255,.08);}
+.gpi .sav{width:30px;height:30px;border-radius:50%;object-fit:cover;border:1.5px solid var(--gold);}
+.gpi .gpinf{display:flex;flex-direction:column;}
+.gpi .gpn{font-size:10px;color:#fff;font-weight:800;line-height:1.2;}
+.gpi .gpt{font-size:9px;color:rgba(255,255,255,.45);}
+.gpi .ggif{width:34px;height:34px;object-fit:contain;}
+.gpi .gx{font-size:15px;font-weight:900;color:var(--gold);}
+/* Toast */
+.toast{position:fixed;top:max(88px,calc(env(safe-area-inset-top)+76px));left:50%;transform:translateX(-50%);background:rgba(0,101,113,.95);backdrop-filter:blur(14px);color:#fff;padding:9px 18px;border-radius:24px;font-size:12px;font-weight:700;z-index:500;border:1px solid rgba(0,180,200,.3);animation:ti .3s ease,to .3s ease 2s forwards;pointer-events:none;white-space:nowrap;}
+@keyframes ti{from{opacity:0;transform:translateX(-50%) translateY(-8px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
+@keyframes to{from{opacity:1;}to{opacity:0;}}
+/* Chat panel full */
+#chatfull{height:320px;overflow-y:auto;padding:0 14px;}
+.cpinput{display:flex;align-items:center;gap:8px;padding:10px 14px 0;}
+.cpinput input{flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:30px;padding:10px 16px;color:#fff;font-size:13px;}
+.cpinput button{background:var(--green);border-radius:30px;padding:10px 20px;color:#fff;font-size:13px;font-weight:800;}
+</style>
 </head>
 <body>
-
-<!-- Background -->
-<div id="roomBg">
-  <img id="roomCoverImg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA20THb-mnLuJuMVVEs5Nco4vurMKZyjwxbe-W-Uf31d7QbNQS_KI_bQplpTqJ7cXu5RI20jhbRkhzOPSwu2XF_T4G3UvgrhRbeXkmUqcrSP-25vpaHrZHNncWyT6Avp8NVLm8lUemyYs9MMXrCHQsBOMi9Tkew5o-4bQooMiqiIB8KooDFbGjXdgoLKX11AxSSueSaxoZivYU5V5lfSTgJ9A_eZkQdsTHMtOGI53wnt1zRQAfhczG_jZdwzgzoSvqPMyyGEr-_aYZ8">
-</div>
-
-<!-- Header -->
-<div id="header">
-  <div style="display:flex;align-items:center;gap:10px;">
-    <button id="leaveBtn" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.1);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;">
-      <span class="msymbol" style="font-size:18px;">arrow_back</span>
-    </button>
-    <div style="display:flex;align-items:center;gap:8px;">
-      <div style="position:relative;">
-        <img id="hostAvatar" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #00b4c8;" src="">
-        <div style="position:absolute;bottom:-2px;right:-2px;background:linear-gradient(135deg,#f59e0b,#ef4444);border-radius:50%;width:14px;height:14px;display:flex;align-items:center;justify-content:center;">
-          <span class="msymbol filled" style="font-size:8px;color:#fff;">star</span>
-        </div>
-      </div>
-      <div>
-        <div id="roomNameSpan" style="color:#00e3fd;font-size:12px;font-weight:800;line-height:1.2;"></div>
-        <div id="roomInfoSpan" style="color:rgba(255,255,255,.45);font-size:9px;font-weight:500;"></div>
-      </div>
-    </div>
-  </div>
+<div id="app">
+<div id="bg"><img id="bgImg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA20THb-mnLuJuMVVEs5Nco4vurMKZyjwxbe-W-Uf31d7QbNQS_KI_bQplpTqJ7cXu5RI20jhbRkhzOPSwu2XF_T4G3UvgrhRbeXkmUqcrSP-25vpaHrZHNncWyT6Avp8NVLm8lUemyYs9MMXrCHQsBOMi9Tkew5o-4bQooMiqiIB8KooDFbGjXdgoLKX11AxSSueSaxoZivYU5V5lfSTgJ9A_eZkQdsTHMtOGI53wnt1zRQAfhczG_jZdwzgzoSvqPMyyGEr-_aYZ8"></div>
+<!-- HEADER -->
+<div id="hdr">
   <div style="display:flex;align-items:center;gap:8px;">
-    <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:30px;padding:4px 10px;display:flex;align-items:center;gap:5px;">
-      <span class="msymbol filled" style="font-size:13px;color:#f59e0b;">payments</span>
-      <span id="rewardSpan" style="color:#fff;font-size:10px;font-weight:800;">0</span>
+    <div class="hpill" id="hostPill">
+      <img id="hostAv" src=""><div><div class="hn" id="rnEl"></div><div class="ht" id="riEl">LIVE</div></div>
     </div>
-    <div style="background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.4);border-radius:30px;padding:4px 10px;display:flex;align-items:center;gap:5px;">
-      <span style="width:6px;height:6px;border-radius:50%;background:#ef4444;animation:pulse 1.5s infinite;"></span>
-      <span id="viewerSpan" style="color:#fff;font-size:10px;font-weight:800;">0</span>
-    </div>
+    <div class="gpill"><span class="ms f">payments</span><span id="rwEl">0</span></div>
+  </div>
+  <div class="hright">
+    <div class="vpill"><div class="vdot"></div><span id="vwEl">0</span></div>
+    <div id="reqWrap" style="display:none;"><button class="ibtn" id="reqBtn"><span class="ms" style="font-size:18px;">how_to_reg</span><span id="rqc" class="rbadge" style="display:none;">0</span></button></div>
+    <button class="ibtn" id="leaveBtn"><span class="ms" style="font-size:18px;">close</span></button>
   </div>
 </div>
-<style>@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}</style>
-
-<!-- Main Content -->
-<div style="padding-top:64px;padding-bottom:160px;min-height:100vh;position:relative;z-index:10;">
-
-  <!-- Top 3 Seats -->
-  <div id="topSeatsRow"></div>
-
-  <!-- Bottom 5 Seats -->
-  <div id="bottomSeatsRow"></div>
-
-  <!-- Announcement -->
-  <div style="padding:14px 16px 0;">
-    <div style="background:rgba(0,101,113,.25);border:1px solid rgba(0,180,200,.2);border-radius:14px;padding:12px 14px;backdrop-filter:blur(8px);">
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
-        <span class="msymbol filled" style="font-size:14px;color:#00b4c8;">info</span>
-        <span id="announceTitle" style="color:#fff;font-size:11px;font-weight:800;">Welcome to the Party</span>
-      </div>
-      <p id="announceText" style="color:rgba(255,255,255,.7);font-size:10px;line-height:1.5;margin:0;"></p>
-      <div style="margin-top:6px;">
-        <span id="categoryTag" style="background:rgba(0,180,200,.15);color:#00b4c8;font-size:8px;font-weight:800;padding:2px 8px;border-radius:20px;">#Party</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Chat Area -->
-  <div style="padding:12px 16px 0;height:130px;overflow-y:auto;" class="hide-scroll chat-mask">
-    <div id="chatMessages"></div>
-  </div>
-
-  <!-- Quick Chat Chips -->
-  <div style="padding:8px 16px;display:flex;gap:6px;overflow-x:auto;" class="hide-scroll">
-    <button class="quick-btn" data-msg="🎵 Let's go!" style="white-space:nowrap;padding:6px 14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.1);border-radius:20px;color:#fff;font-size:10px;font-weight:700;cursor:pointer;">Beat</button>
-    <button class="quick-btn" data-msg="🎲 Bingo!" style="white-space:nowrap;padding:6px 14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.1);border-radius:20px;color:#fff;font-size:10px;font-weight:700;cursor:pointer;">Bingo</button>
-    <button class="quick-btn" data-msg="✨ Blingbling!" style="white-space:nowrap;padding:6px 14px;background:linear-gradient(135deg,#006571,#00b4c8);border:none;border-radius:20px;color:#fff;font-size:10px;font-weight:700;cursor:pointer;">Blingbling</button>
-    <button class="quick-btn" data-msg="👏 Clap clap!" style="white-space:nowrap;padding:6px 14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.1);border-radius:20px;color:#fff;font-size:10px;font-weight:700;cursor:pointer;">Clap</button>
-    <button class="quick-btn" data-msg="🔥 Fire!" style="white-space:nowrap;padding:6px 14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.1);border-radius:20px;color:#fff;font-size:10px;font-weight:700;cursor:pointer;">Fire</button>
+<!-- SCROLL -->
+<div id="scr" class="hs">
+  <div id="topRow"></div>
+  <div id="botRow"></div>
+  <div id="chatWrap" class="hs"><div id="chatInner"></div></div>
+</div>
+<!-- BAR -->
+<div id="bar">
+  <div class="brow">
+    <div class="cinput" id="cTrig"><span class="ms" style="font-size:16px;color:rgba(255,255,255,.3);">chat_bubble</span><input id="cBarIn" placeholder="Say something..." readonly><button id="cBarSend" style="color:var(--t2);"><span class="ms" style="font-size:18px;">send</span></button></div>
+    <button class="bico" id="chatBtn" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);"><span class="ms" style="font-size:22px;color:rgba(255,255,255,.7);">chat</span><span id="undot" style="position:absolute;top:4px;right:4px;width:7px;height:7px;background:var(--red);border-radius:50%;display:none;"></span></button>
+    <button class="bico" id="giftBtn" style="background:rgba(245,158,11,.12);border:1.5px solid rgba(245,158,11,.32);"><span class="ms" style="font-size:22px;color:var(--gold);">redeem</span></button>
+    <button class="bico" id="dotsBtn" style="background:rgba(0,101,113,.7);border:1.5px solid rgba(0,180,200,.3);"><svg width="14" height="14" viewBox="0 0 14 14"><circle cx="3" cy="3" r="2.5" fill="white"/><circle cx="11" cy="3" r="2.5" fill="white"/><circle cx="3" cy="11" r="2.5" fill="white"/><circle cx="11" cy="11" r="2.5" fill="white"/></svg></button>
   </div>
 </div>
-
-<!-- Bottom Bar -->
-<div id="bottomBar">
-  <div style="display:flex;align-items:center;gap:10px;">
-    <!-- My Mic/Cam controls (always visible) -->
-    <div id="myControls" style="display:flex;gap:6px;">
-      <button id="micToggle" class="ctrl-pill">
-        <span class="msymbol icon">mic</span>
-        <span>Mic</span>
-      </button>
-      <button id="camToggle" class="ctrl-pill">
-        <span class="msymbol icon">videocam</span>
-        <span>Cam</span>
-      </button>
-    </div>
-    <!-- Chat input -->
-    <div style="flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:30px;display:flex;align-items:center;gap:6px;padding:0 12px;height:38px;">
-      <input id="chatInput" type="text" placeholder="Say something..." style="flex:1;background:transparent;border:none;color:#fff;font-size:12px;outline:none;" />
-      <button id="sendBtn" style="background:none;border:none;cursor:pointer;color:#00b4c8;">
-        <span class="msymbol" style="font-size:18px;">send</span>
-      </button>
-    </div>
-    <!-- Gift -->
-    <button id="giftBtn" style="position:relative;width:38px;height:38px;border-radius:50%;background:rgba(245,158,11,.15);border:1.5px solid rgba(245,158,11,.4);display:flex;align-items:center;justify-content:center;cursor:pointer;">
-      <span class="msymbol" style="font-size:20px;color:#f59e0b;">redeem</span>
-    </button>
-  </div>
-  <!-- Switch camera (below, only visible if cam on) -->
-  <div id="switchCamRow" style="display:flex;justify-content:center;margin-top:8px;">
-    <button id="switchCamBtn" style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:5px 14px;color:#fff;font-size:10px;font-weight:700;cursor:pointer;">
-      <span class="msymbol" style="font-size:14px;">cameraswitch</span> Switch Camera
-    </button>
-  </div>
 </div>
 
-<!-- 4-dot Menu Button -->
-<button id="menuDots">
-  <div class="dots-grid">
-    <div class="dot"></div><div class="dot"></div>
-    <div class="dot"></div><div class="dot"></div>
+<!-- CHAT PANEL -->
+<div id="chatP" class="panel"><div class="pb" id="cpb"></div><div class="ps"><div class="sh"></div><div class="ph"><span class="pt">💬 Chat</span><button class="pc" id="cpc">✕</button></div><div id="chatfull" class="hs"></div><div class="cpinput"><input id="cpIn" placeholder="Type a message..."><button id="cpSend">Send</button></div><div style="height:14px;"></div></div></div>
+
+<!-- GIFT PANEL -->
+<div id="giftP" class="panel"><div class="pb" id="gpb"></div><div class="ps">
+  <div class="sh"></div>
+  <div class="ph"><span class="pt">🎁 Send Gift</span><button class="pc" id="gpc">✕</button></div>
+  <div style="padding:0 14px 4px;font-size:10px;color:rgba(255,255,255,.4);font-weight:700;letter-spacing:.5px;">SEND TO</div>
+  <div class="gtrow hs" id="gtRow"></div>
+  <div class="gtabs hs" id="gtabs">
+    <div class="gtab active" data-c="popular">Popular</div>
+    <div class="gtab" data-c="lucky">Lucky</div>
+    <div class="gtab" data-c="luxury">Luxury</div>
   </div>
-</button>
+  <div id="ggrid" class="ggrid"></div>
+  <div style="padding:0 14px 6px;font-size:10px;color:rgba(255,255,255,.4);font-weight:700;letter-spacing:.5px;">QUANTITY</div>
+  <div class="qrow" id="qrow"></div>
+  <button class="sgbtn" id="sgBtn">Send Gift 🎁</button>
+  <div style="height:6px;"></div>
+</div></div>
 
-<!-- Quick Menu -->
-<div id="quickMenu">
-  <button class="qm-btn" id="qmGift"><span class="msymbol icon" style="color:#f59e0b;">redeem</span>Send Gift</button>
-  <button class="qm-btn" id="qmBg" style="display:none;"><span class="msymbol icon" style="color:#00b4c8;">wallpaper</span>Background</button>
-  <button class="qm-btn" id="qmInvite" style="display:none;"><span class="msymbol icon" style="color:#a78bfa;">person_add</span>Invite</button>
-  <button class="qm-btn" id="qmLeave" style="color:#ef4444;"><span class="msymbol icon">logout</span><span id="qmLeaveLabel">Leave Room</span></button>
-</div>
+<!-- SETTINGS PANEL -->
+<div id="setP" class="panel"><div class="pb" id="spb"></div><div class="ps">
+  <div class="sh"></div>
+  <div class="ph"><span class="pt">⚙️ Settings</span><button class="pc" id="spc">✕</button></div>
+  <div class="sr"><div class="sl"><span class="ms">mic</span><span class="slbl">Microphone</span></div><label class="tog"><input type="checkbox" id="micTog" checked><div class="tsl"></div></label></div>
+  <div class="sr"><div class="sl"><span class="ms">videocam</span><span class="slbl">Camera</span></div><label class="tog"><input type="checkbox" id="camTog" checked><div class="tsl"></div></label></div>
+  <div class="sr" id="swRow"><div class="sl"><span class="ms">cameraswitch</span><span class="slbl">Switch Camera</span></div><span class="ms sarr">chevron_right</span></div>
+  <div class="sr" id="filtRow"><div class="sl"><span class="ms">auto_fix_high</span><span class="slbl">Camera Filters</span></div><span class="ms sarr">chevron_right</span></div>
+  <div class="sr" id="bgRow" style="display:none;"><div class="sl"><span class="ms">wallpaper</span><span class="slbl">Background</span></div><span class="ms sarr">chevron_right</span></div>
+  <div class="sr" id="invRow" style="display:none;"><div class="sl"><span class="ms">person_add</span><span class="slbl">Invite to Stage</span></div><span class="ms sarr">chevron_right</span></div>
+  <div class="sr" id="lockRow" style="display:none;"><div class="sl"><span class="ms" id="lockIco">lock_open</span><span class="slbl" id="lockLbl">Lock Seat</span></div><label class="tog" onclick="event.stopPropagation()"><input type="checkbox" id="lockTog"><div class="tsl"></div></label></div>
+  <div class="sr" id="lvRow"><div class="sl"><span class="ms" style="color:var(--red);">logout</span><span class="slbl" style="color:var(--red);" id="lvLbl">Leave Room</span></div><span class="ms sarr">chevron_right</span></div>
+</div></div>
 
-<!-- ═══ PANELS ═══ -->
+<!-- FILTERS PANEL -->
+<div id="filtP" class="panel"><div class="pb" id="fpb"></div><div class="ps"><div class="sh"></div><div class="ph"><span class="pt">✨ Filters</span><button class="pc" id="fpc">✕</button></div><div class="fgrid" id="fgrid"></div><div style="height:10px;"></div></div></div>
 
-<!-- Gift Panel -->
-<div id="giftPanel" class="panel">
-  <div class="panel-backdrop" id="giftBackdrop"></div>
-  <div class="panel-sheet">
-    <div class="panel-handle"></div>
-    <div class="panel-header">
-      <span class="panel-title">🎁 Send a Gift</span>
-      <button class="panel-close" id="giftClose">✕</button>
-    </div>
-    <div id="giftGrid" class="gift-grid"></div>
-    <div style="padding:0 16px 6px;">
-      <div style="color:rgba(255,255,255,.5);font-size:10px;font-weight:600;margin-bottom:8px;">QUANTITY</div>
-      <div class="qty-chips" id="qtyChips">
-        <button class="qty-chip active" data-q="1">1×</button>
-        <button class="qty-chip" data-q="10">10×</button>
-        <button class="qty-chip" data-q="17">17×</button>
-        <button class="qty-chip" data-q="37">37×</button>
-        <button class="qty-chip" data-q="77">77×</button>
-        <button class="qty-chip" data-q="99">99×</button>
-      </div>
-    </div>
-    <div style="padding:0 16px 8px;">
-      <button id="confirmGiftBtn" style="width:100%;padding:14px;background:linear-gradient(135deg,#006571,#00b4c8);border:none;border-radius:14px;color:#fff;font-size:14px;font-weight:800;cursor:pointer;letter-spacing:.5px;">
-        Send Gift 🎁
-      </button>
-    </div>
-  </div>
-</div>
+<!-- BG PANEL -->
+<div id="bgP" class="panel"><div class="pb" id="bpb"></div><div class="ps"><div class="sh"></div><div class="ph"><span class="pt">🎨 Background</span><button class="pc" id="bpc">✕</button></div><div class="bggrid" id="bggrid"></div><div style="height:10px;"></div></div></div>
 
-<!-- Background Panel (host only) -->
-<div id="bgPanel" class="panel">
-  <div class="panel-backdrop" id="bgBackdrop"></div>
-  <div class="panel-sheet">
-    <div class="panel-handle"></div>
-    <div class="panel-header">
-      <span class="panel-title">🎨 Room Background</span>
-      <button class="panel-close" id="bgClose">✕</button>
-    </div>
-    <div id="bgGridEl" class="bg-grid"></div>
-  </div>
-</div>
+<!-- INVITE PANEL -->
+<div id="invP" class="panel"><div class="pb" id="ipb"></div><div class="ps"><div class="sh"></div><div class="ph"><span class="pt">👥 Invite to Stage</span><button class="pc" id="ipc">✕</button></div><div class="igrid" id="igrid"></div><div style="height:10px;"></div></div></div>
 
-<!-- Invite Panel (host only) -->
-<div id="invitePanel" class="panel">
-  <div class="panel-backdrop" id="inviteBackdrop"></div>
-  <div class="panel-sheet">
-    <div class="panel-handle"></div>
-    <div class="panel-header">
-      <span class="panel-title">👥 Invite to Stage</span>
-      <button class="panel-close" id="inviteClose">✕</button>
-    </div>
-    <div id="inviteGrid" class="invite-grid"></div>
-  </div>
-</div>
+<!-- JOIN REQUESTS PANEL -->
+<div id="reqP" class="panel"><div class="pb" id="rpb"></div><div class="ps"><div class="sh"></div><div class="ph"><span class="pt">📥 Join Requests</span><button class="pc" id="rpc">✕</button></div><div class="rlist" id="rlist"></div><div style="height:10px;"></div></div></div>
 
-<!-- Host Action Popup -->
-<div id="actionPopup" class="action-popup">
-  <div class="action-popup-backdrop" id="popupBackdrop"></div>
-  <div class="action-popup-card">
-    <div class="popup-user">
-      <img id="popupAvatar" src="">
-      <div>
-        <div id="popupName" class="pname"></div>
-        <div id="popupRole" class="prole"></div>
-      </div>
-    </div>
-    <div class="popup-actions">
-      <button class="popup-action-btn" id="popupMuteBtn">
-        <span class="msymbol icon">mic_off</span>
-        <span id="popupMuteLabel">Mute Member</span>
-      </button>
-      <button class="popup-action-btn danger" id="popupRemoveBtn">
-        <span class="msymbol icon">person_remove</span>
-        Remove from Stage
-      </button>
-    </div>
-    <button class="popup-cancel" id="popupCancel">Cancel</button>
-  </div>
-</div>
+<!-- HOST ACTION -->
+<div id="hact"><div id="hactbk"></div><div class="hcard">
+  <div class="huser"><img id="hav" src=""><div><div class="hun" id="hnam"></div><div class="huid2" id="huid"></div></div></div>
+  <button class="habtn" id="hmuteBtn"><span class="ms" id="hmuteIco">mic_off</span><span id="hmuteLbl">Mute Member</span></button>
+  <button class="habtn danger" id="hremBtn"><span class="ms">person_remove</span>Remove from Stage</button>
+  <button class="hcanc" id="hcanc">Cancel</button>
+</div></div>
+
+<!-- USER CARD -->
+<div id="ucard"><div id="ucback"></div><div id="ucinner">
+  <div class="uctop"><img id="ucav" src=""><div><div class="ucname" id="ucnam"></div><div class="ucuid" id="ucuid"></div></div></div>
+  <div class="ucrow"><a id="uclink" href="#">View Profile →</a><div class="ucgems"><span class="ms f">diamond</span><span id="ucgems">0</span><span style="font-size:10px;color:rgba(255,255,255,.4);margin-left:2px;">gems in room</span></div></div>
+</div></div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-  import {
-    getFirestore, doc, getDoc, setDoc, deleteDoc, collection,
-    onSnapshot, addDoc, serverTimestamp, query, orderBy, limit,
-    updateDoc, increment, getDocs, arrayUnion, arrayRemove
-  } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import{initializeApp}from"https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import{getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,addDoc,serverTimestamp,query,orderBy,limit,updateDoc,increment,getDocs}from"https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+const FB=initializeApp({apiKey:"AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",authDomain:"galmet-app.firebaseapp.com",projectId:"galmet-app",storageBucket:"galmet-app.firebasestorage.app"});
+const db=getFirestore(FB);
+const me=JSON.parse(localStorage.getItem("user")||"null");
+if(!me?.userId){location.replace("login.html");}
+const myId=me.userId.toString(),myName=me.username||"User",myPhoto=me.photoURL||av(myName),agoraUID=Number(me.userId);
+const urlP=new URLSearchParams(location.search),roomId=urlP.get("id");
+if(!roomId){toast("Invalid room");setTimeout(()=>location.href="party.html",1500);}
+const roomRef=doc(db,"rooms",roomId),membRef=collection(db,"rooms",roomId,"members"),msgRef=collection(db,"rooms",roomId,"messages"),reqRef=collection(db,"rooms",roomId,"requests");
+const APP_ID="873172a9b2064b1ca97b4f45ee6ed9b5",TOKEN="007eJxTYNgf3zFVVc1vqcmx/X9OXy/PrUgsXmXoeNimROEVu7RPuZACg4W5saG5UaJlkpGBmUmSYXKipXmSSZqJaWqqWWqKZZKp1JQbmQ2BjAyqH/ewMDJAIIgvwpDob5Zu5pQdlBsa4ViZGmQUaplWwsAAACc3I8I=";
+let agoraC=null,audT=null,vidT=null,micOn=true,camOn=true,camF=true,curFilt="none";
+const remV={};
+let roomData=null,hostId=null,isHost=false,members=[],allMsgs=[],selGift=null,selQty=1,selTarget=null,popT=null,seatLocked=false,gCat="popular";
+const BGLST=["https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800","https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800","https://images.unsplash.com/photo-1536240474400-bc3c7eac8f0d?w=800","https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800","https://images.unsplash.com/photo-1500462918059-b1a0cb512f1d?w=800","https://images.unsplash.com/photo-1511884642898-4c92249e20b6?w=800","https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800","https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=800","https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800"];
+const FILTS=[{id:"none",n:"Normal",css:"none",t:"https://images.unsplash.com/photo-1500462918059-b1a0cb512f1d?w=80"},{id:"warm",n:"Warm",css:"sepia(.3) saturate(1.4) brightness(1.1)",t:"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=80"},{id:"cool",n:"Cool",css:"hue-rotate(30deg) saturate(1.3)",t:"https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=80"},{id:"vivid",n:"Vivid",css:"saturate(2) contrast(1.1)",t:"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=80"},{id:"bw",n:"B&W",css:"grayscale(1)",t:"https://images.unsplash.com/photo-1536240474400-bc3c7eac8f0d?w=80"},{id:"beauty",n:"Beauty",css:"brightness(1.12) contrast(.95) saturate(1.2)",t:"https://images.unsplash.com/photo-1511884642898-4c92249e20b6?w=80"},{id:"drama",n:"Drama",css:"contrast(1.4) brightness(.9) saturate(.8)",t:"https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=80"},{id:"glow",n:"Glow",css:"brightness(1.2) saturate(1.5)",t:"https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=80"}];
+const GIFTS=[{id:"rose",n:"Rose",img:"https://cdn-icons-png.flaticon.com/128/2722/2722480.png",p:10,c:"popular"},{id:"heart",n:"Heart",img:"https://cdn-icons-png.flaticon.com/128/833/833472.png",p:25,c:"popular"},{id:"star",n:"Star",img:"https://cdn-icons-png.flaticon.com/128/1828/1828884.png",p:30,c:"popular"},{id:"crown",n:"Crown",img:"https://cdn-icons-png.flaticon.com/128/1827/1827370.png",p:50,c:"popular"},{id:"coin",n:"Coin",img:"https://cdn-icons-png.flaticon.com/128/2933/2933245.png",p:20,c:"popular"},{id:"rocket",n:"Rocket",img:"https://cdn-icons-png.flaticon.com/128/2991/2991501.png",p:100,c:"popular"},{id:"bomb",n:"Bomb",img:"https://cdn-icons-png.flaticon.com/128/2965/2965567.png",p:150,c:"lucky"},{id:"plane",n:"Airplane",img:"https://cdn-icons-png.flaticon.com/128/3124/3124190.png",p:88,c:"lucky"},{id:"lucky",n:"Lucky Box",img:"https://cdn-icons-png.flaticon.com/128/2454/2454286.png",p:77,c:"lucky"},{id:"diamond",n:"Diamond",img:"https://cdn-icons-png.flaticon.com/128/3135/3135706.png",p:500,c:"luxury"},{id:"trophy",n:"Trophy",img:"https://cdn-icons-png.flaticon.com/128/2583/2583344.png",p:200,c:"luxury"},{id:"castle",n:"Castle",img:"https://cdn-icons-png.flaticon.com/128/1433/1433156.png",p:999,c:"luxury"}];
+function av(n){return`https://ui-avatars.com/api/?name=${encodeURIComponent(n)}&background=006571&color=fff&size=128`;}
+function esc(s){if(!s)return"";return s.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));}
+function fn(n){if(n>=1000)return(n/1000).toFixed(1)+"K";return n||0;}
+function G(id){return document.getElementById(id);}
+function sp(id){G(id).classList.add("show");}
+function hp(id){G(id).classList.remove("show");}
+function toast(msg){const t=document.createElement("div");t.className="toast";t.innerText=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2500);}
 
-  const firebaseApp = initializeApp({
-    apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
-    authDomain: "galmet-app.firebaseapp.com",
-    projectId: "galmet-app",
-    storageBucket: "galmet-app.firebasestorage.app"
+// Panel close bindings
+[["cpb","chatP"],["cpc","chatP"],["gpb","giftP"],["gpc","giftP"],["spb","setP"],["spc","setP"],["fpb","filtP"],["fpc","filtP"],["bpb","bgP"],["bpc","bgP"],["ipb","invP"],["ipc","invP"],["rpb","reqP"],["rpc","reqP"]].forEach(([t,p])=>G(t).onclick=()=>hp(p));
+G("ucback").onclick=()=>hp("ucard");
+G("hactbk").onclick=()=>hp("hact");
+G("hcanc").onclick=()=>hp("hact");
+
+// Load room
+async function loadRoom(){
+  const snap=await getDoc(roomRef);
+  if(!snap.exists()){toast("Room not found");setTimeout(()=>location.href="party.html",1500);return;}
+  roomData=snap.data(); hostId=roomData.hostId?.toString(); isHost=myId===hostId;
+  seatLocked=roomData.seatLocked||false;
+  G("rnEl").innerText=roomData.name||"Party Room";
+  G("riEl").innerText=`ID: ${hostId||"?"}`;
+  G("rwEl").innerText=roomData.rewards||0;
+  if(roomData.coverPhoto) G("bgImg").src=roomData.coverPhoto;
+  const hs=await getDoc(doc(db,"users",hostId)).catch(()=>null);
+  G("hostAv").src=hs?.data()?.photoURL||av(roomData.hostName||"Host");
+  G("hostPill").onclick=()=>showUC({uid:hostId,username:roomData.hostName||"Host",photoURL:G("hostAv").src,gems:0});
+  if(isHost){G("bgRow").style.display="flex";G("invRow").style.display="flex";G("lockRow").style.display="flex";G("reqWrap").style.display="flex";G("lvLbl").innerText="End Live";G("lockTog").checked=seatLocked;}
+  G("leaveBtn").onclick=()=>isHost?confirmEnd():confirmLeave();
+  G("lvRow").onclick=()=>{hp("setP");isHost?confirmEnd():confirmLeave();};
+  G("swRow").onclick=switchCam;
+  G("filtRow").onclick=()=>{hp("setP");buildFilts();sp("filtP");};
+  G("bgRow").onclick=()=>{hp("setP");buildBG();sp("bgP");};
+  G("invRow").onclick=()=>{hp("setP");openInvite();};
+  G("lockTog").onchange=async e=>{seatLocked=e.target.checked;await updateDoc(roomRef,{seatLocked}).catch(()=>{});toast(seatLocked?"Seat locked":"Seat open");renderSeats();};
+}
+
+// Realtime room
+onSnapshot(roomRef,snap=>{
+  if(!snap.exists())return;const d=snap.data();
+  G("rwEl").innerText=d.rewards||0;
+  seatLocked=d.seatLocked||false;
+  if(isHost) G("lockTog").checked=seatLocked;
+  if(d.coverPhoto){const bi=G("bgImg");if(bi.getAttribute("src")!==d.coverPhoto){bi.style.opacity=".3";setTimeout(()=>{bi.src=d.coverPhoto;bi.style.opacity="1";},350);}}
+});
+
+// Members
+function listenMembers(){
+  onSnapshot(membRef,async snap=>{
+    const list=[];
+    for(const d of snap.docs){
+      const m=d.data();const uid=m.uid?.toString();if(!uid)continue;
+      let username=m.username||"User",photoURL=m.photoURL||"";
+      if(!m.username){const us=await getDoc(doc(db,"users",uid)).catch(()=>null);if(us?.exists()){username=us.data().username||"User";photoURL=us.data().photoURL||"";}}
+      list.push({uid,username,photoURL:photoURL||av(username),micMuted:m.micMuted||false,gems:m.gems||0});
+    }
+    members=list; G("vwEl").innerText=members.length; renderSeats();
   });
-  const db = getFirestore(firebaseApp);
+}
 
-  // ── Auth ──
-  const currentUser = JSON.parse(localStorage.getItem("user") || "null");
-  if (!currentUser?.userId) { window.location.replace("login.html"); }
-  const myUserId = currentUser.userId.toString();
-  const myUsername = currentUser.username || "User";
-  const myPhoto = currentUser.photoURL || avatarUrl(myUsername);
-  const agoraUID = Number(currentUser.userId);
-
-  const urlParams = new URLSearchParams(window.location.search);
-  const roomId = urlParams.get("id");
-  if (!roomId) { showToast("Invalid room"); setTimeout(() => location.href="party.html", 1500); }
-
-  const roomRef   = doc(db, "rooms", roomId);
-  const membersRef = collection(db, "rooms", roomId, "members");
-  const messagesRef = collection(db, "rooms", roomId, "messages");
-  const mutedRef   = collection(db, "rooms", roomId, "muted");
-
-  // ── Agora ──
-  const AGORA_APP_ID = "873172a9b2064b1ca97b4f45ee6ed9b5";
-  const AGORA_TOKEN  = "007eJxTYNgf3zFVVc1vqcmx/X9OXy/PrUgsXmXoeNimROEVu7RPuZACg4W5saG5UaJlkpGBmUmSYXKipXmSSZqJaWqqWWqKZZKp1JQbmQ2BjAyqH/ewMDJAIIgvwpDob5Zu5pQdlBsa4ViZGmQUaplWwsAAACc3I8I=";
-  let agoraClient = null;
-  let localAudioTrack = null;
-  let localVideoTrack = null;
-  let micOn = true, camOn = true, cameraFront = true;
-  const remoteVideoTracks = {}; // uid → videoTrack
-
-  // ── State ──
-  let roomData = null, hostId = null, isHost = false;
-  let members = [];                         // live member docs {uid, username, photoURL, micMuted}
-  let mutedMembers = new Set();             // uids muted by host (reflected in Firestore)
-  let selectedGift = null, selectedQty = 1;
-  let popupTarget = null;                   // member shown in action popup
-
-  // ── DOM ──
-  const $ = id => document.getElementById(id);
-  const topSeatsRow   = $("topSeatsRow");
-  const bottomSeatsRow= $("bottomSeatsRow");
-  const chatMessagesDiv=$("chatMessages");
-  const chatInput     = $("chatInput");
-  const sendBtn       = $("sendBtn");
-  const rewardSpan    = $("rewardSpan");
-  const viewerSpan    = $("viewerSpan");
-  const hostAvatarEl  = $("hostAvatar");
-  const roomNameEl    = $("roomNameSpan");
-  const roomInfoEl    = $("roomInfoSpan");
-  const announceTitle = $("announceTitle");
-  const announceText  = $("announceText");
-  const categoryTag   = $("categoryTag");
-  const roomCoverImgEl= $("roomCoverImg");
-
-  const micToggle   = $("micToggle");
-  const camToggle   = $("camToggle");
-  const switchCamBtn= $("switchCamBtn");
-  const menuDots    = $("menuDots");
-  const quickMenu   = $("quickMenu");
-
-  const giftPanel   = $("giftPanel");
-  const giftGridEl  = $("giftGrid");
-  const bgPanel     = $("bgPanel");
-  const bgGridEl    = $("bgGridEl");
-  const invitePanel = $("invitePanel");
-  const inviteGridEl= $("inviteGrid");
-  const actionPopup = $("actionPopup");
-
-  // ── Helpers ──
-  function avatarUrl(name){ return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=006571&color=fff&size=128`; }
-  function esc(s){ if(!s)return ""; return s.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
-  function showToast(msg){
-    const t=document.createElement("div");
-    t.className="toast";t.innerText=msg;
-    document.body.appendChild(t);
-    setTimeout(()=>t.remove(),2400);
-  }
-  function closePanel(el){ el.classList.remove("open"); }
-  function openPanel(el){ el.classList.add("open"); }
-
-  // ── 1. Load Room ──
-  async function loadRoom(){
-    const snap = await getDoc(roomRef);
-    if(!snap.exists()){ showToast("Room not found"); setTimeout(()=>location.href="party.html",1500); return; }
-    roomData = snap.data();
-    hostId = roomData.hostId?.toString();
-    isHost = myUserId === hostId;
-    roomNameEl.innerText = roomData.name || "Unnamed Room";
-    roomInfoEl.innerText = `Host: ${roomData.hostName || "?"} · LIVE`;
-    rewardSpan.innerText = roomData.rewards || 0;
-    announceTitle.innerText = roomData.announcement ? "Announcement" : "Welcome";
-    announceText.innerText  = roomData.announcement || "Enjoy the party! Keep it friendly.";
-    categoryTag.innerText   = roomData.category ? `#${roomData.category}` : "#Party";
-    if(roomData.coverPhoto) roomCoverImgEl.src = roomData.coverPhoto;
-
-    // Host avatar
-    const hSnap = await getDoc(doc(db,"users",hostId)).catch(()=>null);
-    hostAvatarEl.src = hSnap?.data()?.photoURL || avatarUrl(roomData.hostName||"Host");
-
-    // Show host-only quick menu items
-    if(isHost){
-      $("qmBg").style.display = "flex";
-      $("qmInvite").style.display = "flex";
-      $("qmLeaveLabel").innerText = "End Live";
-    }
-    $("leaveBtn").onclick = () => isHost ? confirmEnd() : confirmLeave();
-  }
-
-  async function confirmEnd(){
-    if(confirm("End the live party for everyone?")){ await deleteDoc(roomRef); location.href="party.html"; }
-  }
-  async function confirmLeave(){
-    await deleteDoc(doc(db,"rooms",roomId,"members",myUserId));
-    await updateDoc(roomRef,{users:increment(-1)}).catch(()=>{});
-    if(agoraClient){ try{ localAudioTrack?.close(); localVideoTrack?.close(); await agoraClient.leave(); }catch(e){} }
-    location.href="party.html";
-  }
-
-  // ── 2. Members realtime ──
-  function listenMembers(){
-    onSnapshot(membersRef, async snap => {
-      const list = [];
-      for(const d of snap.docs){
-        const m = d.data();
-        const uid = m.uid?.toString(); if(!uid) continue;
-        let username="User", photoURL="";
-        const us = await getDoc(doc(db,"users",uid)).catch(()=>null);
-        if(us?.exists()){ username=us.data().username||"User"; photoURL=us.data().photoURL||""; }
-        list.push({ uid, username, photoURL, micMuted: m.micMuted||false, role: m.role||"guest" });
-      }
-      members = list;
-      viewerSpan.innerText = members.length;
-      renderSeats();
-    });
-  }
-
-  // ── 3. Render Seats ──
-  function renderSeats(){
-    const sorted = [...members];
-    const hi = sorted.findIndex(m=>m.uid===hostId);
-    if(hi!==-1){ const h=sorted.splice(hi,1)[0]; sorted.unshift(h); }
-
-    // Top 3
-    topSeatsRow.innerHTML="";
-    for(let i=0;i<3;i++){
-      const m = sorted[i];
-      const seat = document.createElement("div");
-      seat.className="top-seat";
-      const box = document.createElement("div");
-      box.className="cam-box";
-      if(m){
-        // overlay gradient
-        const ov=document.createElement("div"); ov.className="cam-overlay"; box.appendChild(ov);
-        // name
-        const nm=document.createElement("div"); nm.className="cam-name"; nm.innerText=m.username; box.appendChild(nm);
-        // host badge
-        if(m.uid===hostId){ const bd=document.createElement("div"); bd.className="cam-badge"; bd.innerText="HOST"; box.appendChild(bd); }
-        // mic-off badge
-        if(m.micMuted){ const mb=document.createElement("div"); mb.className="cam-mic-off"; mb.innerHTML='<span class="msymbol" style="font-size:11px;">mic_off</span>'; box.appendChild(mb); }
-        // video / avatar
-        const videoContainerId = `vbox-${m.uid}`;
-        const vc = document.createElement("div");
-        vc.id = videoContainerId;
-        vc.style.cssText="position:absolute;inset:0;";
-        box.insertBefore(vc, ov);
-        // play video or avatar
-        setTimeout(()=>{
-          const c = document.getElementById(videoContainerId);
-          if(!c) return;
-          if(m.uid===myUserId && localVideoTrack && camOn){
-            c.innerHTML=""; localVideoTrack.play(c);
-          } else if(remoteVideoTracks[m.uid]){
-            c.innerHTML=""; remoteVideoTracks[m.uid].play(c);
-          } else {
-            c.innerHTML=`<img class="avatar-fill" src="${m.photoURL||avatarUrl(m.username)}">`;
-          }
-        },50);
-        // Click: host opens action popup, others do nothing (or join on empty)
-        if(isHost && m.uid!==hostId){
-          box.style.cursor="pointer";
-          box.onclick=()=>openActionPopup(m);
-        }
-      } else {
-        // empty seat
-        const eb=document.createElement("div"); eb.className="empty-seat-btn";
-        eb.innerHTML=`<div class="plus-ring"><span class="msymbol">add</span></div><span class="label">${isHost?"Invite":"Join"}</span>`;
-        eb.onclick=()=> isHost ? openInvitePanel() : joinRoom();
-        box.appendChild(eb);
-      }
-      seat.appendChild(box);
-      topSeatsRow.appendChild(seat);
-    }
-
-    // Bottom 5
-    bottomSeatsRow.innerHTML="";
-    for(let i=0;i<5;i++){
-      const m=sorted[i+3];
-      const seat=document.createElement("div");
-      if(m){
-        seat.className="bot-seat";
-        seat.innerHTML=`
-          <div class="ava">
-            <img src="${m.photoURL||avatarUrl(m.username)}">
-            ${m.micMuted?`<div class="mic-off-dot"><span class="msymbol" style="font-size:8px;">mic_off</span></div>`:""}
-          </div>
-          <span class="bot-name">${esc(m.username)}</span>`;
-        if(isHost && m.uid!==hostId){ seat.style.cursor="pointer"; seat.onclick=()=>openActionPopup(m); }
-      } else {
-        seat.className="bot-seat empty-bot";
-        seat.innerHTML=`<div class="ava" style="display:flex;align-items:center;justify-content:center;"><span class="msymbol plus-icon">add</span></div><span class="bot-name">${isHost?"Invite":"Join"}</span>`;
-        seat.onclick=()=> isHost ? openInvitePanel() : joinRoom();
-      }
-      bottomSeatsRow.appendChild(seat);
-    }
-  }
-
-  async function joinRoom(){
-    const md=doc(db,"rooms",roomId,"members",myUserId);
-    const ms=await getDoc(md);
-    if(!ms.exists()){
-      await setDoc(md,{uid:myUserId,role:"guest",micMuted:false,joinedAt:serverTimestamp()});
-      await updateDoc(roomRef,{users:increment(1)}).catch(()=>{});
-    }
-  }
-
-  // ── 4. Action Popup (host) ──
-  function openActionPopup(m){
-    popupTarget=m;
-    $("popupAvatar").src = m.photoURL || avatarUrl(m.username);
-    $("popupName").innerText = m.username;
-    $("popupRole").innerText = m.uid===hostId ? "Host" : "Guest";
-    $("popupMuteLabel").innerText = m.micMuted ? "Unmute Member" : "Mute Member";
-    $("popupMuteBtn").querySelector(".msymbol").innerText = m.micMuted ? "mic" : "mic_off";
-    openPanel(actionPopup);
-  }
-  $("popupBackdrop").onclick = ()=>closePanel(actionPopup);
-  $("popupCancel").onclick   = ()=>closePanel(actionPopup);
-  $("popupRemoveBtn").onclick = async ()=>{
-    if(!popupTarget) return;
-    await deleteDoc(doc(db,"rooms",roomId,"members",popupTarget.uid));
-    await updateDoc(roomRef,{users:increment(-1)}).catch(()=>{});
-    closePanel(actionPopup);
-    showToast(`${popupTarget.username} removed from stage`);
-  };
-  $("popupMuteBtn").onclick = async ()=>{
-    if(!popupTarget) return;
-    const newMuted = !popupTarget.micMuted;
-    await updateDoc(doc(db,"rooms",roomId,"members",popupTarget.uid),{micMuted:newMuted});
-    closePanel(actionPopup);
-    showToast(`${popupTarget.username} ${newMuted?"muted":"unmuted"}`);
-  };
-
-  // ── 5. Agora ──
-  async function startAgora(){
-    agoraClient = AgoraRTC.createClient({mode:"rtc",codec:"vp8"});
-    await agoraClient.join(AGORA_APP_ID, roomId, AGORA_TOKEN, agoraUID);
-
-    // Create mic and camera separately
-    try{ localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack(); }catch(e){ console.warn("Mic error",e); }
-    try{ localVideoTrack = await AgoraRTC.createCameraVideoTrack({facingMode: cameraFront?"user":"environment"}); }catch(e){ console.warn("Cam error",e); }
-
-    const toPublish = [];
-    if(localAudioTrack) toPublish.push(localAudioTrack);
-    if(localVideoTrack) toPublish.push(localVideoTrack);
-    if(toPublish.length) await agoraClient.publish(toPublish);
-
-    agoraClient.on("user-published", async (user, mediaType)=>{
-      await agoraClient.subscribe(user, mediaType);
-      if(mediaType==="video"){
-        remoteVideoTracks[user.uid] = user.videoTrack;
-        // Re-render to show video
-        const c=document.getElementById(`vbox-${user.uid}`);
-        if(c){ c.innerHTML=""; user.videoTrack.play(c); }
-      }
-      if(mediaType==="audio") user.audioTrack?.play();
-    });
-    agoraClient.on("user-unpublished",(user,mediaType)=>{
-      if(mediaType==="video"){
-        delete remoteVideoTracks[user.uid];
-        const c=document.getElementById(`vbox-${user.uid}`);
-        const m=members.find(x=>x.uid==user.uid);
-        if(c && m) c.innerHTML=`<img class="avatar-fill" src="${m.photoURL||avatarUrl(m.username)}">`;
-      }
-    });
-    agoraClient.on("user-left",(user)=>{
-      delete remoteVideoTracks[user.uid];
-    });
-  }
-
-  // ── 6. Mic / Camera Controls ──
-  micToggle.onclick = async ()=>{
-    micOn = !micOn;
-    if(localAudioTrack) await localAudioTrack.setEnabled(micOn);
-    micToggle.classList.toggle("active", !micOn);
-    micToggle.querySelector(".msymbol").innerText = micOn ? "mic" : "mic_off";
-    micToggle.querySelector("span:last-child").innerText = micOn ? "Mic" : "Mic Off";
-    // Update own member doc if joined
-    const md=doc(db,"rooms",roomId,"members",myUserId);
-    const ms=await getDoc(md); if(ms.exists()) await updateDoc(md,{micMuted:!micOn});
-  };
-
-  camToggle.onclick = async ()=>{
-    camOn = !camOn;
-    if(localVideoTrack) await localVideoTrack.setEnabled(camOn);
-    camToggle.classList.toggle("active",!camOn);
-    camToggle.querySelector(".msymbol").innerText = camOn?"videocam":"videocam_off";
-    camToggle.querySelector("span:last-child").innerText = camOn?"Cam":"Cam Off";
-    // Update local seat display
-    const c=document.getElementById(`vbox-${myUserId}`);
-    if(c){
-      if(camOn && localVideoTrack){ c.innerHTML=""; localVideoTrack.play(c); }
-      else { c.innerHTML=`<img class="avatar-fill" src="${myPhoto}">`; }
-    }
-    $("switchCamRow").style.display = camOn ? "flex" : "none";
-  };
-
-  switchCamBtn.onclick = async ()=>{
-    if(!localVideoTrack||!agoraClient) return;
-    cameraFront=!cameraFront;
-    try{
-      await agoraClient.unpublish(localVideoTrack);
-      localVideoTrack.close();
-      localVideoTrack = await AgoraRTC.createCameraVideoTrack({facingMode: cameraFront?"user":"environment"});
-      await agoraClient.publish(localVideoTrack);
-      if(camOn){
-        const c=document.getElementById(`vbox-${myUserId}`);
-        if(c){ c.innerHTML=""; localVideoTrack.play(c); }
-      }
-      showToast(`Camera: ${cameraFront?"Front":"Back"}`);
-    }catch(e){ showToast("Failed to switch camera"); }
-  };
-
-  // ── 7. Chat ──
-  function listenChat(){
-    const q=query(messagesRef,orderBy("timestamp","desc"),limit(60));
-    onSnapshot(q, snap=>{
-      const msgs=[];
-      snap.forEach(d=>msgs.push({id:d.id,...d.data()}));
-      msgs.reverse();
-      chatMessagesDiv.innerHTML="";
-      msgs.slice(-15).forEach(msg=>{
-        const div=document.createElement("div");
-        div.style.cssText="display:flex;align-items:flex-start;gap:6px;";
-        if(msg.type==="gift"){
-          div.innerHTML=`<span style="color:#f59e0b;font-size:11px;font-weight:800;">🎁 ${esc(msg.senderName)}:</span><span style="color:rgba(255,255,255,.8);font-size:10px;"> sent ${esc(msg.giftName)} ×${msg.quantity||1}</span>`;
-        } else {
-          const isMe = msg.senderId===myUserId;
-          div.innerHTML=`<span style="color:${isMe?"#00e3fd":"#a5f3fc"};font-size:11px;font-weight:800;">${esc(msg.senderName)}:</span><span style="color:rgba(255,255,255,.85);font-size:10px;word-break:break-word;"> ${esc(msg.text)}</span>`;
-        }
-        chatMessagesDiv.appendChild(div);
-      });
-      chatMessagesDiv.parentElement.scrollTop = chatMessagesDiv.parentElement.scrollHeight;
-    });
-  }
-
-  async function sendMessage(text,type="text",giftData=null){
-    if(!text?.trim() && type!=="gift") return;
-    const m={senderId:myUserId,senderName:myUsername,timestamp:serverTimestamp(),type};
-    if(type==="text") m.text=text;
-    if(type==="gift"&&giftData){ m.text=`sent ${giftData.name}×${giftData.qty}`; m.giftName=giftData.name; m.giftImage=giftData.image; m.quantity=giftData.qty; }
-    await addDoc(messagesRef,m);
-  }
-
-  document.querySelectorAll(".quick-btn").forEach(b=>b.onclick=()=>sendMessage(b.dataset.msg));
-  sendBtn.onclick=()=>{ const t=chatInput.value.trim(); if(t){ sendMessage(t); chatInput.value=""; } };
-  chatInput.addEventListener("keypress",e=>{ if(e.key==="Enter"){ sendBtn.onclick(); } });
-
-  // ── 8. Gifts ──
-  const BACKGROUNDS = [
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800",
-    "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800",
-    "https://images.unsplash.com/photo-1536240474400-bc3c7eac8f0d?w=800",
-    "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
-    "https://images.unsplash.com/photo-1500462918059-b1a0cb512f1d?w=800",
-    "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?w=800",
-    "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800",
-    "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=800",
-    "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800"
-  ];
-
-  async function loadGifts(){
-    giftGridEl.innerHTML="";
-    const snap=await getDocs(collection(db,"gifts"));
-    if(snap.empty){
-      // Default gifts if none in DB
-      const defaults=[
-        {id:"rose",name:"Rose",image:"https://cdn-icons-png.flaticon.com/128/2722/2722480.png",coinPrice:10},
-        {id:"crown",name:"Crown",image:"https://cdn-icons-png.flaticon.com/128/1827/1827370.png",coinPrice:50},
-        {id:"rocket",name:"Rocket",image:"https://cdn-icons-png.flaticon.com/128/2991/2991501.png",coinPrice:100},
-        {id:"diamond",name:"Diamond",image:"https://cdn-icons-png.flaticon.com/128/3135/3135706.png",coinPrice:500},
-      ];
-      defaults.forEach(g=>renderGiftCard(g));
+// Render seats
+function renderSeats(){
+  const s=[...members];const hi=s.findIndex(m=>m.uid===hostId);
+  if(hi!==-1){const h=s.splice(hi,1)[0];s.unshift(h);}
+  const tr=G("topRow");tr.innerHTML="";
+  for(let i=0;i<3;i++){
+    const m=s[i];const seat=document.createElement("div");seat.className="tseat";
+    const cam=document.createElement("div");cam.className="cam";
+    if(m){
+      const vc=document.createElement("div");vc.id=`vb-${m.uid}`;vc.style.cssText="position:absolute;inset:0;z-index:0;";cam.appendChild(vc);
+      const g=document.createElement("div");g.className="grad";cam.appendChild(g);
+      if(m.uid===hostId){const b=document.createElement("div");b.className="hbadge";b.innerText="HOST";cam.appendChild(b);}
+      else{const gt=document.createElement("div");gt.className="gtag";gt.innerHTML=`<span class="ms f" style="font-size:9px;">diamond</span><span>${fn(m.gems)}</span>`;cam.appendChild(gt);}
+      const sn=document.createElement("div");sn.className="snum";sn.innerText=`#${i+1}`;cam.appendChild(sn);
+      if(m.micMuted){const mi=document.createElement("div");mi.className="micoff";mi.innerHTML='<span class="ms">mic_off</span>';cam.appendChild(mi);}
+      const nm=document.createElement("div");nm.className="uname";nm.innerText=m.username;cam.appendChild(nm);
+      setTimeout(()=>refreshVid(m,`vb-${m.uid}`),80);
+      cam.style.cursor="pointer";cam.onclick=()=>isHost&&m.uid!==hostId?openHA(m):showUC(m);
     } else {
-      snap.forEach(d=>renderGiftCard({id:d.id,...d.data()}));
+      const ec=document.createElement("div");ec.className="ecam";
+      if(seatLocked&&!isHost){ec.innerHTML=`<div class="ering" style="border-color:rgba(245,158,11,.4);"><span class="ms" style="font-size:22px;color:var(--gold);">lock</span></div><span class="elbl" style="color:rgba(245,158,11,.55);">Locked</span>`;ec.onclick=()=>reqJoin();}
+      else{ec.innerHTML=`<div class="ering"><span class="ms" style="font-size:22px;">add</span></div><span class="elbl">${isHost?"Invite":"Join"}</span>`;ec.onclick=()=>isHost?openInvite():reqJoin();}
+      cam.appendChild(ec);
     }
+    seat.appendChild(cam);tr.appendChild(seat);
   }
+  const br=G("botRow");br.innerHTML="";
+  for(let i=0;i<5;i++){
+    const m=s[i+3];const seat=document.createElement("div");
+    if(m){
+      seat.className="bseat";
+      seat.innerHTML=`<div class="ba"><div class="r2"><img src="${m.photoURL||av(m.username)}" loading="lazy"></div>${m.micMuted?'<div class="md"><span class="ms">mic_off</span></div>':''}<div class="gd"><span class="ms f" style="font-size:7px;">diamond</span><span>${fn(m.gems)}</span></div></div><span class="bn">${esc(m.username)}</span>`;
+      seat.onclick=()=>isHost&&m.uid!==hostId?openHA(m):showUC(m);
+    } else {
+      seat.className="bseat be";
+      seat.innerHTML=`<div class="ba"><div class="r2" style="display:flex;align-items:center;justify-content:center;"><span class="ms" style="font-size:20px;color:rgba(255,255,255,.22);">${seatLocked&&!isHost?"lock":"add"}</span></div></div><span class="bn" style="color:rgba(255,255,255,.22);">${seatLocked&&!isHost?"Locked":isHost?"Invite":"Join"}</span>`;
+      seat.onclick=()=>{if(seatLocked&&!isHost){reqJoin();return;}isHost?openInvite():joinSeat();};
+    }
+    br.appendChild(seat);
+  }
+}
 
-  function renderGiftCard(g){
-    const div=document.createElement("div");
-    div.className="gift-card";
-    div.innerHTML=`<img src="${g.image}"><div class="g-name">${esc(g.name)}</div><div class="g-price">${g.coinPrice} coins</div>`;
-    div.onclick=()=>{
-      document.querySelectorAll(".gift-card").forEach(c=>c.classList.remove("selected"));
-      div.classList.add("selected");
-      selectedGift={...g};
+function refreshVid(m,cid){
+  const c=document.getElementById(cid);if(!c)return;
+  if(m.uid===myId&&vidT&&camOn){c.innerHTML="";vidT.play(c);applyFilt(c.querySelector("video"));}
+  else if(remV[m.uid]){c.innerHTML="";remV[m.uid].play(c);}
+  else{c.innerHTML=`<img class="av-fill" src="${m.photoURL||av(m.username)}" loading="lazy">`;}
+}
+
+function applyFilt(v){if(!v)return;const f=FILTS.find(x=>x.id===curFilt);if(f)v.style.filter=f.css;}
+
+async function reqJoin(){
+  if(seatLocked){
+    const rd=doc(db,"rooms",roomId,"requests",myId);
+    const rs=await getDoc(rd).catch(()=>null);
+    if(rs?.exists()){toast("Request already sent!");return;}
+    await setDoc(rd,{uid:myId,username:myName,photoURL:myPhoto,requestedAt:serverTimestamp()});
+    toast("Join request sent to host!");
+  } else {await joinSeat();}
+}
+
+async function joinSeat(){
+  const md=doc(db,"rooms",roomId,"members",myId);
+  const ms=await getDoc(md).catch(()=>null);
+  if(!ms?.exists()){
+    await setDoc(md,{uid:myId,username:myName,photoURL:myPhoto,role:"guest",micMuted:false,gems:0,joinedAt:serverTimestamp()});
+    await updateDoc(roomRef,{users:increment(1)}).catch(()=>{});
+  }
+}
+
+// Listen requests
+function listenReqs(){
+  if(!isHost)return;
+  onSnapshot(reqRef,snap=>{
+    const c=snap.docs.length;
+    const badge=G("rqc");
+    if(c>0){badge.style.display="flex";badge.innerText=c;}else{badge.style.display="none";}
+  });
+}
+
+// Requests panel
+async function openReqPanel(){
+  const snap=await getDocs(reqRef);const rl=G("rlist");rl.innerHTML="";
+  if(snap.empty){rl.innerHTML='<p style="color:rgba(255,255,255,.4);padding:20px;text-align:center;font-size:13px;">No pending requests</p>';sp("reqP");return;}
+  snap.forEach(d=>{
+    const u=d.data();const div=document.createElement("div");div.className="ritem";
+    div.innerHTML=`<img src="${u.photoURL||av(u.username||"User")}"><div class="ri"><div class="rn">${esc(u.username||"User")}</div><div class="ru">ID: ${u.uid}</div></div><button class="ra" data-uid="${u.uid}" data-nm="${esc(u.username)}" data-ph="${u.photoURL||av(u.username||"User")}">Accept</button>`;
+    rl.appendChild(div);
+  });
+  rl.querySelectorAll(".ra").forEach(btn=>{
+    btn.onclick=async()=>{
+      const uid=btn.dataset.uid,nm=btn.dataset.nm,ph=btn.dataset.ph;
+      await setDoc(doc(db,"rooms",roomId,"members",uid),{uid,username:nm,photoURL:ph,role:"guest",micMuted:false,gems:0,joinedAt:serverTimestamp()});
+      await updateDoc(roomRef,{users:increment(1)}).catch(()=>{});
+      await deleteDoc(doc(db,"rooms",roomId,"requests",uid));
+      btn.closest(".ritem").remove();toast(`${nm} added!`);
     };
-    giftGridEl.appendChild(div);
-  }
-
-  // Quantity chips
-  $("qtyChips").onclick=e=>{
-    const btn=e.target.closest(".qty-chip");
-    if(!btn) return;
-    document.querySelectorAll(".qty-chip").forEach(c=>c.classList.remove("active"));
-    btn.classList.add("active");
-    selectedQty=parseInt(btn.dataset.q);
-  };
-
-  $("confirmGiftBtn").onclick=async()=>{
-    if(!selectedGift){ showToast("Pick a gift first!"); return; }
-    if(myUserId===hostId){ showToast("Can't send gift to yourself"); return; }
-    const price=selectedGift.coinPrice*selectedQty;
-    const uSnap=await getDoc(doc(db,"users",myUserId));
-    if((uSnap.data()?.coins||0)<price){ showToast("Not enough coins!"); return; }
-    await updateDoc(doc(db,"users",myUserId),{coins:increment(-price)});
-    if(hostId){
-      const hRef=doc(db,"users",hostId);
-      const hSnap=await getDoc(hRef);
-      const charm=hSnap.data()?.charmLevel||0;
-      const gems=Math.floor(price*(0.30+charm*0.01));
-      await updateDoc(hRef,{gems:increment(gems)});
-      await updateDoc(roomRef,{rewards:increment(gems)});
-      rewardSpan.innerText=(parseInt(rewardSpan.innerText)||0)+gems;
-    }
-    await sendMessage("","gift",{name:selectedGift.name,image:selectedGift.image,qty:selectedQty});
-    // Float animation
-    const fl=document.createElement("div");
-    fl.className="gift-float";
-    fl.innerHTML=`<img src="${selectedGift.image}" style="width:56px;height:56px;filter:drop-shadow(0 0 12px #f59e0b);">`;
-    document.body.appendChild(fl); setTimeout(()=>fl.remove(),1900);
-    closePanel(giftPanel); showToast(`Sent ${selectedGift.name} ×${selectedQty} 🎁`);
-    selectedGift=null; document.querySelectorAll(".gift-card").forEach(c=>c.classList.remove("selected"));
-  };
-
-  // ── 9. Background (host only) ──
-  function initBgGrid(){
-    bgGridEl.innerHTML="";
-    BACKGROUNDS.forEach(url=>{
-      const div=document.createElement("div");
-      div.className="bg-card";
-      if(roomCoverImgEl.src===url) div.classList.add("active");
-      div.innerHTML=`<img src="${url}" loading="lazy">`;
-      div.onclick=async()=>{
-        roomCoverImgEl.style.opacity="0.4";
-        setTimeout(()=>{ roomCoverImgEl.src=url; roomCoverImgEl.style.opacity="1"; },300);
-        document.querySelectorAll(".bg-card").forEach(c=>c.classList.remove("active"));
-        div.classList.add("active");
-        await updateDoc(roomRef,{coverPhoto:url}).catch(()=>{});
-        closePanel(bgPanel);
-        showToast("Background updated!");
-      };
-      bgGridEl.appendChild(div);
-    });
-  }
-
-  // ── 10. Invite (host only) ──
-  async function openInvitePanel(){
-    inviteGridEl.innerHTML=`<div style="color:rgba(255,255,255,.5);font-size:12px;padding:16px;grid-column:span 4;text-align:center;">Loading...</div>`;
-    openPanel(invitePanel);
-    const allUsers=await getDocs(collection(db,"users"));
-    const memberIds=new Set(members.map(m=>m.uid));
-    const avail=[];
-    allUsers.forEach(d=>{ if(d.id!==myUserId&&!memberIds.has(d.id)) avail.push({uid:d.id,...d.data()}); });
-    inviteGridEl.innerHTML="";
-    if(!avail.length){ inviteGridEl.innerHTML=`<div style="color:rgba(255,255,255,.4);font-size:12px;padding:16px;grid-column:span 4;text-align:center;">No users available to invite</div>`; return; }
-    avail.forEach(u=>{
-      const div=document.createElement("div");
-      div.className="invite-card";
-      div.innerHTML=`<img src="${u.photoURL||avatarUrl(u.username||"User")}"><span>${esc(u.username||"User")}</span>`;
-      div.onclick=async()=>{
-        await setDoc(doc(db,"rooms",roomId,"members",u.uid),{uid:u.uid,role:"guest",micMuted:false,joinedAt:serverTimestamp()});
-        await updateDoc(roomRef,{users:increment(1)}).catch(()=>{});
-        closePanel(invitePanel); showToast(`${u.username||"User"} invited!`);
-      };
-      inviteGridEl.appendChild(div);
-    });
-  }
-
-  // ── 11. Menu Dots ──
-  menuDots.onclick=e=>{ e.stopPropagation(); quickMenu.classList.toggle("open"); };
-  document.addEventListener("click",()=>quickMenu.classList.remove("open"));
-  quickMenu.addEventListener("click",e=>e.stopPropagation());
-
-  $("qmGift").onclick=()=>{ quickMenu.classList.remove("open"); openPanel(giftPanel); loadGifts(); };
-  $("qmBg").onclick=()=>{ quickMenu.classList.remove("open"); initBgGrid(); openPanel(bgPanel); };
-  $("qmInvite").onclick=()=>{ quickMenu.classList.remove("open"); openInvitePanel(); };
-  $("qmLeave").onclick=()=>{ quickMenu.classList.remove("open"); isHost ? confirmEnd() : confirmLeave(); };
-  $("giftBtn").onclick=()=>{ openPanel(giftPanel); loadGifts(); };
-
-  // Panel backdrop closes
-  ["giftBackdrop","bgBackdrop","inviteBackdrop"].forEach((id,i)=>{
-    const panels=[giftPanel,bgPanel,invitePanel];
-    $(id).onclick=()=>closePanel(panels[i]);
   });
-  $("giftClose").onclick=()=>closePanel(giftPanel);
-  $("bgClose").onclick=()=>closePanel(bgPanel);
-  $("inviteClose").onclick=()=>closePanel(invitePanel);
+  sp("reqP");
+}
+G("reqBtn").onclick=openReqPanel;
 
-  // ── 12. Leave Button ──
-  $("leaveBtn").onclick=()=> isHost ? confirmEnd() : confirmLeave();
+// Leave/End
+async function confirmEnd(){if(confirm("End live for everyone?")){await deleteDoc(roomRef);location.href="party.html";}}
+async function confirmLeave(){
+  await deleteDoc(doc(db,"rooms",roomId,"members",myId));
+  await updateDoc(roomRef,{users:increment(-1)}).catch(()=>{});
+  try{audT?.close();vidT?.close();await agoraC?.leave();}catch(e){}
+  location.href="party.html";
+}
 
-  // ── 13. Listen for background changes (all users) ──
-  onSnapshot(roomRef, snap=>{
-    if(!snap.exists()) return;
-    const d=snap.data();
-    if(d.coverPhoto && d.coverPhoto!==roomCoverImgEl.src){
-      roomCoverImgEl.style.opacity="0.4";
-      setTimeout(()=>{ roomCoverImgEl.src=d.coverPhoto; roomCoverImgEl.style.opacity="1"; },300);
-    }
-    rewardSpan.innerText = d.rewards||0;
+// Agora
+async function startAgora(){
+  agoraC=AgoraRTC.createClient({mode:"rtc",codec:"vp8"});
+  await agoraC.join(APP_ID,roomId,TOKEN,agoraUID);
+  try{audT=await AgoraRTC.createMicrophoneAudioTrack();}catch(e){console.warn("mic",e);}
+  try{vidT=await AgoraRTC.createCameraVideoTrack({facingMode:camF?"user":"environment"});}catch(e){console.warn("cam",e);}
+  const pub=[];if(audT)pub.push(audT);if(vidT)pub.push(vidT);
+  if(pub.length)await agoraC.publish(pub);
+  agoraC.on("user-published",async(u,mt)=>{
+    await agoraC.subscribe(u,mt);
+    if(mt==="video"){remV[u.uid]=u.videoTrack;const c=document.getElementById(`vb-${u.uid}`);if(c){c.innerHTML="";u.videoTrack.play(c);}}
+    if(mt==="audio")u.audioTrack?.play();
   });
+  agoraC.on("user-unpublished",(u,mt)=>{
+    if(mt==="video"){delete remV[u.uid];const c=document.getElementById(`vb-${u.uid}`);const m=members.find(x=>x.uid==u.uid);if(c&&m)c.innerHTML=`<img class="av-fill" src="${m.photoURL||av(m.username)}">`;}
+  });
+  agoraC.on("user-left",async u=>{
+    delete remV[u.uid];
+    // Remove from Firestore when Agora user leaves (connection drop / page close)
+    await deleteDoc(doc(db,"rooms",roomId,"members",u.uid.toString())).catch(()=>{});
+  });
+}
 
-  // ── Init ──
-  async function init(){
-    await loadRoom();
-    if(isHost) await joinRoom();  // Host auto-joins seat
-    await startAgora();
-    listenMembers();
-    listenChat();
+// Mic/Cam toggles
+G("micTog").onchange=async e=>{
+  micOn=e.target.checked;if(audT)await audT.setEnabled(micOn);
+  const md=doc(db,"rooms",roomId,"members",myId);const ms=await getDoc(md).catch(()=>null);
+  if(ms?.exists())await updateDoc(md,{micMuted:!micOn});
+};
+G("camTog").onchange=async e=>{
+  camOn=e.target.checked;if(vidT)await vidT.setEnabled(camOn);
+  const c=document.getElementById(`vb-${myId}`);if(c){
+    if(camOn&&vidT){c.innerHTML="";vidT.play(c);applyFilt(c.querySelector("video"));}
+    else{const m=members.find(x=>x.uid===myId);c.innerHTML=`<img class="av-fill" src="${m?.photoURL||myPhoto}">`;}
   }
-  init().catch(console.error);
+};
+
+async function switchCam(){
+  if(!vidT||!agoraC)return;camF=!camF;
+  try{
+    await agoraC.unpublish(vidT);vidT.close();
+    vidT=await AgoraRTC.createCameraVideoTrack({facingMode:camF?"user":"environment"});
+    await agoraC.publish(vidT);
+    if(camOn){const c=document.getElementById(`vb-${myId}`);if(c){c.innerHTML="";vidT.play(c);applyFilt(c.querySelector("video"));}}
+    toast(camF?"Front camera":"Back camera");
+  }catch(e){toast("Switch failed");}
+}
+
+// Chat
+function listenChat(){
+  const q=query(msgRef,orderBy("timestamp","desc"),limit(80));
+  onSnapshot(q,snap=>{
+    const msgs=[];snap.forEach(d=>msgs.push({id:d.id,...d.data()}));msgs.reverse();allMsgs=msgs;
+    rdrChat(G("chatInner"),msgs.slice(-15));rdrChat(G("chatfull"),msgs,true);
+  });
+}
+
+function rdrChat(el,msgs,full=false){
+  if(!el)return;el.innerHTML="";
+  msgs.forEach(msg=>{
+    if(msg.type==="gift"){
+      const d=document.createElement("div");d.className="gmsg";
+      d.innerHTML=`<img src="${msg.giftImage||''}" onerror="this.style.display='none'"><div class="gtxt">🎁 <b>${esc(msg.senderName)}</b> → <b>${esc(msg.targetName||"Host")}</b> ×${msg.qty||1}</div>`;
+      d.onclick=()=>showUCbyId(msg.senderId);
+      el.appendChild(d);
+    } else {
+      const d=document.createElement("div");d.className="cmsg";const isMe=msg.senderId===myId;
+      d.innerHTML=`<span class="cn${isMe?" me":""}" data-uid="${msg.senderId}">${esc(msg.senderName)}:</span> <span class="ct">${esc(msg.text)}</span>`;
+      d.querySelector(".cn").onclick=e=>{e.stopPropagation();showUCbyId(msg.senderId);};
+      el.appendChild(d);
+    }
+  });
+  if(full){el.scrollTop=el.scrollHeight;}else{G("chatWrap").scrollTop=G("chatWrap").scrollHeight;}
+}
+
+async function showUCbyId(uid){
+  const m=members.find(x=>x.uid===uid);
+  if(m){showUC(m);return;}
+  const us=await getDoc(doc(db,"users",uid)).catch(()=>null);
+  showUC(us?.exists()?{uid,username:us.data().username||"User",photoURL:us.data().photoURL||av(us.data().username||"User"),gems:0}:{uid,username:"User",photoURL:av("User"),gems:0});
+}
+
+function showUC(m){
+  G("ucav").src=m.photoURL||av(m.username||"User");
+  G("ucnam").innerText=m.username||"User";
+  G("ucuid").innerText=`ID: ${m.uid}`;
+  G("ucgems").innerText=fn(m.gems||0);
+  G("uclink").href=`view.html?id=${m.uid}`;
+  sp("ucard");
+}
+
+async function sendMsg(txt,type="text",gd=null){
+  if(!txt?.trim()&&type!=="gift")return;
+  const msg={senderId:myId,senderName:myName,timestamp:serverTimestamp(),type};
+  if(type==="text")msg.text=txt;
+  if(type==="gift"&&gd){msg.text=`sent ${gd.n}×${gd.qty}`;msg.giftName=gd.n;msg.giftImage=gd.img;msg.qty=gd.qty;msg.targetName=gd.tName;msg.targetId=gd.tId;}
+  await addDoc(msgRef,msg);
+}
+
+// Chat inputs
+G("cTrig").onclick=()=>{sp("chatP");G("cpIn").focus();};
+G("cBarIn").onfocus=()=>{G("cBarIn").blur();sp("chatP");G("cpIn").focus();};
+G("chatBtn").onclick=()=>sp("chatP");
+G("cBarSend").onclick=()=>{const t=G("cBarIn").value.trim();if(t){sendMsg(t);G("cBarIn").value="";}};
+G("cpSend").onclick=()=>{const t=G("cpIn").value.trim();if(t){sendMsg(t);G("cpIn").value="";}};
+G("cpIn").addEventListener("keypress",e=>{if(e.key==="Enter"){G("cpSend").onclick();}});
+
+// Gifts
+G("giftBtn").onclick=()=>{buildGiftTargets();buildGiftGrid(gCat);buildQty();sp("giftP");};
+G("gtabs").onclick=e=>{const t=e.target.closest(".gtab");if(!t)return;document.querySelectorAll(".gtab").forEach(x=>x.classList.remove("active"));t.classList.add("active");gCat=t.dataset.c;buildGiftGrid(gCat);};
+
+function buildGiftTargets(){
+  const row=G("gtRow");row.innerHTML="";selTarget=null;
+  const a=document.createElement("div");a.className="gtitem sel";a.dataset.uid="all";
+  a.innerHTML=`<div style="width:38px;height:38px;border-radius:50%;background:rgba(0,101,113,.4);border:2px solid var(--t2);display:flex;align-items:center;justify-content:center;"><span class="ms" style="font-size:16px;color:var(--t2);">groups</span></div><span>All</span>`;
+  a.onclick=()=>{document.querySelectorAll(".gtitem").forEach(x=>x.classList.remove("sel"));a.classList.add("sel");selTarget=null;};
+  row.appendChild(a);
+  members.filter(m=>m.uid!==myId).forEach(m=>{
+    const d=document.createElement("div");d.className="gtitem";
+    d.innerHTML=`<img src="${m.photoURL||av(m.username)}" loading="lazy"><span>${esc(m.username.substring(0,8))}</span>`;
+    d.onclick=()=>{document.querySelectorAll(".gtitem").forEach(x=>x.classList.remove("sel"));d.classList.add("sel");selTarget=m;};
+    row.appendChild(d);
+  });
+}
+
+function buildGiftGrid(cat){
+  const grid=G("ggrid");grid.innerHTML="";
+  GIFTS.filter(g=>g.c===cat).forEach(g=>{
+    const d=document.createElement("div");d.className="gc";
+    d.innerHTML=`<img src="${g.img}" loading="lazy"><div class="gn">${esc(g.n)}</div><div class="gp">${g.p} coins</div>`;
+    d.onclick=()=>{document.querySelectorAll(".gc").forEach(x=>x.classList.remove("sel"));d.classList.add("sel");selGift={...g};};
+    grid.appendChild(d);
+  });
+}
+
+function buildQty(){
+  const row=G("qrow");row.innerHTML="";selQty=1;
+  [1,17,37,77].forEach(q=>{
+    const b=document.createElement("button");b.className="qc"+(q===1?" active":"");b.innerText=q;
+    b.onclick=()=>{document.querySelectorAll(".qc").forEach(x=>x.classList.remove("active"));b.classList.add("active");selQty=q;};
+    row.appendChild(b);
+  });
+}
+
+G("sgBtn").onclick=async()=>{
+  if(!selGift){toast("Pick a gift first!");return;}
+  if(myId===hostId){toast("Can't gift yourself");return;}
+  const price=selGift.p*selQty;
+  const us=await getDoc(doc(db,"users",myId)).catch(()=>null);
+  if((us?.data()?.coins||0)<price){toast("Not enough coins!");return;}
+  await updateDoc(doc(db,"users",myId),{coins:increment(-price)});
+  const tId=selTarget?selTarget.uid:hostId;
+  const tName=selTarget?selTarget.username:(roomData?.hostName||"Host");
+  if(tId){
+    const hr=doc(db,"users",tId);const hs=await getDoc(hr).catch(()=>null);
+    const charm=hs?.data()?.charmLevel||0;const gems=Math.floor(price*(0.30+charm*0.01));
+    await updateDoc(hr,{gems:increment(gems)}).catch(()=>{});
+    await updateDoc(roomRef,{rewards:increment(gems)}).catch(()=>{});
+    const mr=doc(db,"rooms",roomId,"members",tId);const ms=await getDoc(mr).catch(()=>null);
+    if(ms?.exists())await updateDoc(mr,{gems:increment(gems)}).catch(()=>{});
+  }
+  await sendMsg("","gift",{n:selGift.n,img:selGift.img,qty:selQty,tName,tId});
+  showGiftPop(myName,myPhoto,selGift,selQty,tName);
+  hp("giftP");toast(`Sent ${selGift.n} ×${selQty} 🎁`);
+  selGift=null;document.querySelectorAll(".gc").forEach(x=>x.classList.remove("sel"));
+};
+
+function showGiftPop(sn,sp2,gift,qty,tn){
+  const d=document.createElement("div");d.className="gpop";
+  d.style.cssText=`bottom:${130+Math.random()*60}px;left:${6+Math.random()*35}%;`;
+  d.innerHTML=`<div class="gpi"><img class="sav" src="${sp2}"><div class="gpinf"><div class="gpn">${esc(sn)}</div><div class="gpt">→ ${esc(tn)}</div></div><img class="ggif" src="${gift.img}"><div class="gx">×${qty}</div></div>`;
+  document.body.appendChild(d);setTimeout(()=>d.remove(),3200);
+}
+
+// Dots menu → settings panel
+G("dotsBtn").onclick=()=>sp("setP");
+
+// Filters
+function buildFilts(){
+  const grid=G("fgrid");grid.innerHTML="";
+  FILTS.forEach(f=>{
+    const d=document.createElement("div");d.className="fi"+(f.id===curFilt?" sel":"");
+    d.innerHTML=`<div class="ft"><img src="${f.t}" style="filter:${f.css};"></div><span>${f.n}</span>`;
+    d.onclick=()=>{
+      curFilt=f.id;document.querySelectorAll(".fi").forEach(x=>x.classList.remove("sel"));d.classList.add("sel");
+      const c=document.getElementById(`vb-${myId}`);if(c){const v=c.querySelector("video");if(v)v.style.filter=f.css;}
+      toast(`Filter: ${f.n}`);
+    };
+    grid.appendChild(d);
+  });
+}
+
+// BG
+function buildBG(){
+  const grid=G("bggrid");grid.innerHTML="";
+  BGLST.forEach(url=>{
+    const d=document.createElement("div");d.className="bgo";const bi=G("bgImg");if(bi.src===url)d.classList.add("active");
+    d.innerHTML=`<img src="${url}" loading="lazy">`;
+    d.onclick=async()=>{
+      bi.style.opacity=".3";setTimeout(()=>{bi.src=url;bi.style.opacity="1";},350);
+      document.querySelectorAll(".bgo").forEach(x=>x.classList.remove("active"));d.classList.add("active");
+      await updateDoc(roomRef,{coverPhoto:url}).catch(()=>{});hp("bgP");toast("Background updated!");
+    };
+    grid.appendChild(d);
+  });
+}
+
+// Invite
+async function openInvite(){
+  G("igrid").innerHTML='<p style="color:rgba(255,255,255,.4);text-align:center;padding:20px;font-size:12px;grid-column:span 4;">Loading...</p>';
+  sp("invP");
+  const all=await getDocs(collection(db,"users")).catch(()=>({forEach:()=>{}}));
+  const mids=new Set(members.map(m=>m.uid));const avail=[];
+  all.forEach(d=>{if(d.id!==myId&&!mids.has(d.id))avail.push({uid:d.id,...d.data()});});
+  const grid=G("igrid");grid.innerHTML="";
+  if(!avail.length){grid.innerHTML='<p style="color:rgba(255,255,255,.4);padding:16px;grid-column:span 4;text-align:center;font-size:12px;">No users available</p>';return;}
+  avail.forEach(u=>{
+    const d=document.createElement("div");d.className="ic";
+    d.innerHTML=`<img src="${u.photoURL||av(u.username||"User")}"><span>${esc(u.username||"User")}</span>`;
+    d.onclick=async()=>{
+      await setDoc(doc(db,"rooms",roomId,"members",u.uid),{uid:u.uid,username:u.username||"User",photoURL:u.photoURL||"",role:"guest",micMuted:false,gems:0,joinedAt:serverTimestamp()});
+      await updateDoc(roomRef,{users:increment(1)}).catch(()=>{});
+      hp("invP");toast(`${u.username||"User"} invited!`);
+    };
+    grid.appendChild(d);
+  });
+}
+
+// Host action popup
+function openHA(m){
+  popT=m;G("hav").src=m.photoURL||av(m.username);G("hnam").innerText=m.username;G("huid").innerText=`ID: ${m.uid}`;
+  G("hmuteIco").innerText=m.micMuted?"mic":"mic_off";G("hmuteLbl").innerText=m.micMuted?"Unmute Member":"Mute Member";
+  sp("hact");
+}
+G("hmuteBtn").onclick=async()=>{
+  if(!popT)return;await updateDoc(doc(db,"rooms",roomId,"members",popT.uid),{micMuted:!popT.micMuted}).catch(()=>{});
+  hp("hact");toast(`${popT.username} ${popT.micMuted?"unmuted":"muted"}`);
+};
+G("hremBtn").onclick=async()=>{
+  if(!popT)return;await deleteDoc(doc(db,"rooms",roomId,"members",popT.uid));await updateDoc(roomRef,{users:increment(-1)}).catch(()=>{});
+  hp("hact");toast(`${popT.username} removed`);
+};
+
+// Init
+async function init(){
+  await loadRoom();
+  if(isHost)await joinSeat();
+  await startAgora().catch(e=>console.warn("Agora",e));
+  listenMembers();listenChat();listenReqs();
+}
+init();
 </script>
 </body>
 </html>
