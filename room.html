@@ -238,7 +238,7 @@
   if (!currentUser || !currentUser.userId) {
     window.location.replace("login.html");
   }
-  const myUserId = currentUser.userId.toString();
+  const myUserId = Number(currentUser.userId);
   const myUsername = currentUser.username || "User";
   const myPhoto = currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(myUsername)}&background=006571&color=fff`;
 
@@ -489,7 +489,7 @@
   // ========== 4. Agora Video Integration ==========
   async function startAgora() {
     client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
-    await client.join(APP_ID, roomId, null, myUserId);
+    await client.join(APP_ID, roomId, TOKEN, Number(myUserId));
     localTracks = await AgoraRTC.createMicrophoneAndCameraTracks();
     // Play local video in a container (add to top row)
     const localDiv = document.createElement("div");
