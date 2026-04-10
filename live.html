@@ -1,551 +1,697 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-    <title>Galmet – Professional Live</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
-    <style>
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; overflow: hidden; font-family: 'Be Vietnam Pro', sans-serif; background: #000; color: #fff; }
-        
-        #video-container { position: absolute; inset: 0; width: 100vw; height: 100vh; background: #111; z-index: 0; }
-        #video-container > div { width: 100%; height: 100%; object-fit: cover; }
-        /* Target the internal Agora video element for filters */
-        #local-player video { transition: filter 0.3s ease; }
-
-        /* Modern Glassmorphism */
-        .glass-panel {
-            background: rgba(0, 0, 0, 0.25);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 0.5px solid rgba(255, 255, 255, 0.1);
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Galmet – Live Studio</title>
+  <!-- Tailwind + Plugins -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#00E5FF",
+            "on-primary": "#00363D",
+            surface: "#0A0F12",
+            "on-surface": "#FFFFFF",
+            tertiary: "#FF2D55",
+            secondary: "#FFD600",
+            glass: "rgba(255,255,255,0.12)",
+            "glass-dark": "rgba(0,0,0,0.4)"
+          },
+          borderRadius: { DEFAULT: "1rem", lg: "1.5rem", xl: "2.5rem", full: "9999px" },
+          fontFamily: {
+            headline: ["Plus Jakarta Sans", "sans-serif"],
+            body: ["Be Vietnam Pro", "sans-serif"]
+          }
         }
-
-        /* Clean Transparent Chat */
-        .chat-scroll {
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none;  /* IE and Edge */
-        }
-        .chat-scroll::-webkit-scrollbar { display: none; } /* Chrome */
-        
-        .chat-message {
-            animation: slideInLeft 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            padding: 4px 0;
-            margin-bottom: 6px;
-            font-size: 14px;
-            line-height: 1.4;
-            /* Transparent background, relying on strong text shadows for visibility */
-            background: transparent;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.8), 0px 0px 4px rgba(0,0,0,0.6);
-        }
-        .chat-message .sender {
-            font-weight: 600;
-            color: #fcd34d; /* Golden amber for names */
-            cursor: pointer;
-            margin-right: 6px;
-        }
-
-        @keyframes slideInLeft {
-            from { opacity: 0; transform: translateX(-15px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        /* Bottom Sheet Animations for Popups */
-        .bottom-sheet {
-            transform: translateY(100%);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .bottom-sheet.open {
-            transform: translateY(0);
-        }
-
-        .level-badge {
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            text-shadow: none;
-        }
-
-        /* Gift Animation */
-        .gift-animation {
-            position: fixed;
-            bottom: 40%;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 200;
-            animation: popAndFloat 2.5s ease-out forwards;
-            pointer-events: none;
-        }
-        @keyframes popAndFloat {
-            0% { opacity: 0; transform: translate(-50%, 20px) scale(0.5); }
-            15% { opacity: 1; transform: translate(-50%, 0) scale(1.2); }
-            30% { opacity: 1; transform: translate(-50%, 0) scale(1); }
-            80% { opacity: 1; transform: translate(-50%, -60px) scale(1); }
-            100% { opacity: 0; transform: translate(-50%, -100px) scale(0.8); }
-        }
-    </style>
+      }
+    }
+  </script>
+  <!-- Agora & Firebase -->
+  <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
+  <script type="importmap">
+    {
+      "imports": {
+        "firebase/app": "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js",
+        "firebase/firestore": "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js"
+      }
+    }
+  </script>
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; overflow: hidden; background: #0a0a0a; font-family: 'Be Vietnam Pro', sans-serif; }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .filled { font-variation-settings: 'FILL' 1; }
+    .glass-panel {
+      background: rgba(20, 20, 30, 0.5);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .glass-dark {
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+    .glass-strong {
+      background: rgba(10,15,18,0.92);
+      backdrop-filter: blur(32px);
+      -webkit-backdrop-filter: blur(32px);
+    }
+    #video-stage {
+      position: fixed; top:0; left:0; width:100%; height:100%; z-index:0; background:#000;
+    }
+    #video-stage > div {
+      width: 100% !important; height: 100% !important; object-fit: cover;
+    }
+    #local-preview {
+      position: absolute; top: 20px; right: 20px; width: 120px; height: 180px;
+      border-radius: 20px; overflow: hidden; border: 2px solid rgba(255,255,255,0.2);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5); z-index: 50; display: none;
+    }
+    .host-mode #local-preview { display: block; }
+    /* Bottom sheets */
+    .bottom-sheet {
+      transform: translateY(105%);
+      transition: transform 0.42s cubic-bezier(0.33,1,0.68,1);
+    }
+    .bottom-sheet.active { transform: translateY(0); }
+    .sheet-overlay {
+      opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
+    }
+    .sheet-overlay.active { opacity: 1; pointer-events: auto; }
+    /* Chat animations */
+    @keyframes fadeInUp {
+      from { opacity:0; transform: translateY(10px); }
+      to { opacity:1; transform: translateY(0); }
+    }
+    .chat-message {
+      animation: fadeInUp 0.2s ease;
+      padding: 6px 10px;
+      border-radius: 16px;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(4px);
+      margin-bottom: 4px;
+      color: white;
+      font-size: 13px;
+      line-height: 1.4;
+      max-width: 85%;
+    }
+    .chat-message .sender {
+      font-weight: 600;
+      color: #a5f3fc;
+      cursor: pointer;
+      margin-right: 6px;
+    }
+    .chat-mask {
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 35%);
+      mask-image: linear-gradient(to bottom, transparent 0%, black 35%);
+    }
+    .custom-scroll::-webkit-scrollbar { width:3px; }
+    .custom-scroll::-webkit-scrollbar-track { background:transparent; }
+    .custom-scroll::-webkit-scrollbar-thumb { background:rgba(0,229,255,0.3); border-radius:99px; }
+    /* Tabs */
+    .tab-btn { position:relative; transition:color 0.2s; }
+    .tab-btn::after {
+      content:''; position:absolute; bottom:-2px; left:50%; right:50%;
+      height:2px; background:var(--primary); border-radius:99px;
+      transition:left 0.25s, right 0.25s;
+    }
+    .tab-btn.active { color: var(--primary); }
+    .tab-btn.active::after { left:0; right:0; }
+    /* Gift card */
+    .gift-card {
+      transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+      cursor: pointer;
+    }
+    .gift-card:hover { transform: translateY(-3px) scale(1.04); }
+    .gift-card.selected {
+      border-color: var(--primary) !important;
+      background: rgba(0,229,255,0.12) !important;
+      box-shadow: 0 0 16px rgba(0,229,255,0.25);
+    }
+    /* Toggle switch */
+    .toggle-switch { position:relative; display:inline-block; width:40px; height:22px; }
+    .toggle-switch input { opacity:0; width:0; height:0; }
+    .toggle-slider {
+      position:absolute; cursor:pointer; top:0;left:0;right:0;bottom:0;
+      background:rgba(255,255,255,0.15); transition:.3s; border-radius:22px;
+    }
+    .toggle-slider:before {
+      position:absolute; content:''; height:16px; width:16px;
+      left:3px; bottom:3px; background:white; transition:.3s; border-radius:50%;
+    }
+    .toggle-switch input:checked + .toggle-slider { background: var(--primary); }
+    .toggle-switch input:checked + .toggle-slider:before { transform:translateX(18px); background:#00363D; }
+    /* Popup menu */
+    .popup-panel {
+      opacity:0; pointer-events:none; transform:translateY(8px) scale(0.96);
+      transition:all 0.22s cubic-bezier(0.34,1.56,0.64,1);
+      transform-origin: bottom right;
+    }
+    .popup-panel.active {
+      opacity:1; pointer-events:auto; transform:translateY(0) scale(1);
+    }
+    .btn-glow-primary { box-shadow:0 4px 20px rgba(0,229,255,0.35); }
+    .section-label {
+      font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.1em;
+      color:rgba(255,255,255,0.4);
+    }
+    .gift-animation {
+      position:fixed; bottom:30%; right:20px; z-index:200;
+      animation:floatUp 2s ease-out forwards;
+    }
+    @keyframes floatUp {
+      0%{opacity:0; transform:translateY(20px) scale(0.8);}
+      20%{opacity:1; transform:translateY(0) scale(1.2);}
+      80%{opacity:1; transform:translateY(-40px) scale(1);}
+      100%{opacity:0; transform:translateY(-100px) scale(0.5);}
+    }
+    .incoming-call-modal {
+      background:rgba(20,20,40,0.95); backdrop-filter:blur(20px);
+      border:1px solid rgba(255,255,255,0.15);
+    }
+  </style>
 </head>
-<body>
+<body class="text-white font-body" id="app-body">
 
-<div id="video-container"></div>
+<!-- MAIN VIDEO STAGE -->
+<div id="video-stage"></div>
+<!-- LOCAL PREVIEW (host only) -->
+<div id="local-preview"></div>
+<!-- FILTER OVERLAY (applied to video elements via CSS) -->
+<div class="fixed inset-0 pointer-events-none z-[5] transition-all duration-500" id="filter-overlay"></div>
+<div class="fixed inset-0 bg-gradient-to-b from-black/55 via-transparent to-black/75 pointer-events-none z-[6]"></div>
 
-<div id="loadingOverlay" class="fixed inset-0 bg-black z-[100] flex flex-col items-center justify-center">
-    <div class="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin mb-4"></div>
-    <p class="text-white/80 font-medium tracking-wide">Connecting...</p>
+<!-- LOADING OVERLAY -->
+<div id="loadingOverlay" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-[100] flex items-center justify-center">
+  <div class="text-center">
+    <div class="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+    <p class="text-white/80">Joining live studio...</p>
+  </div>
 </div>
 
-<div class="fixed inset-0 z-10 pointer-events-none flex flex-col justify-between">
-    
-    <div class="p-4 pt-12 flex justify-between items-start">
-        <div class="glass-panel rounded-full flex items-center gap-2 pr-4 pl-1 py-1 pointer-events-auto cursor-pointer" id="hostProfileCapsule">
-            <img id="hostAvatar" class="w-10 h-10 rounded-full border border-white/40 object-cover" src="">
-            <div class="flex flex-col">
-                <span id="hostName" class="font-bold text-sm leading-tight text-white shadow-sm">Loading...</span>
-                <div class="flex items-center gap-2 text-[10px] font-medium text-white/90">
-                    <span class="flex items-center gap-1 text-red-400">
-                        <span class="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>LIVE
-                    </span>
-                    <span>💎 <span id="liveGems">0</span></span>
-                </div>
-            </div>
-            <button class="ml-2 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full w-8 h-8 flex items-center justify-center shadow-lg">
-                <span class="material-symbols-outlined text-sm">add</span>
-            </button>
+<!-- TOP BAR -->
+<header class="fixed top-0 left-0 w-full z-40 pt-5 px-4 flex justify-between items-start pointer-events-none">
+  <div class="flex flex-col gap-2 pointer-events-auto">
+    <div class="glass-panel flex items-center gap-2.5 p-1.5 pr-3 rounded-full">
+      <div class="relative">
+        <img id="hostAvatar" class="w-10 h-10 rounded-full object-cover border-2 border-primary pulse-glow" src="">
+        <div class="absolute -bottom-0.5 -right-0.5 bg-tertiary rounded-full w-3.5 h-3.5 flex items-center justify-center border border-black">
+          <div class="live-dot w-1.5 h-1.5 rounded-full bg-white animate-pulse"></div>
         </div>
-
-        <div class="flex flex-col items-end gap-3 pointer-events-auto">
-            <button id="exitBtn" class="glass-panel rounded-full w-10 h-10 flex items-center justify-center hover:bg-white/10 transition">
-                <span class="material-symbols-outlined">close</span>
-            </button>
-            <div class="glass-panel rounded-full px-3 py-1.5 flex items-center gap-1.5 text-xs font-semibold">
-                <span class="material-symbols-outlined text-[14px]">visibility</span>
-                <span id="viewerCount">0</span>
-            </div>
+      </div>
+      <div>
+        <p id="hostNameDisplay" class="text-white font-headline font-bold text-xs leading-tight">Loading...</p>
+        <div class="flex items-center gap-1 mt-0.5">
+          <span class="text-[9px] font-extrabold text-primary uppercase tracking-widest">● LIVE</span>
         </div>
+      </div>
+      <button id="followBtn" class="ml-1 bg-primary text-on-primary rounded-full px-2.5 py-1 text-[10px] font-extrabold tracking-wide">+FOLLOW</button>
     </div>
-
-    <div class="flex-1 flex flex-col justify-end p-4 pb-2">
-        <div id="chatMessages" class="w-[85%] h-[250px] overflow-y-auto flex flex-col-reverse gap-1 chat-scroll pointer-events-auto mask-image-top"></div>
+    <div class="flex items-center gap-1.5">
+      <div class="glass-panel px-2.5 py-1 rounded-full flex items-center gap-1">
+        <span class="material-symbols-outlined filled !text-[13px] text-secondary">diamond</span>
+        <span id="liveGems" class="text-[11px] font-bold text-white">0</span>
+      </div>
+      <div class="glass-panel px-2.5 py-1 rounded-full flex items-center gap-1">
+        <span class="material-symbols-outlined !text-[13px] text-white/60">visibility</span>
+        <span id="viewerCount" class="text-[11px] font-bold text-white">0</span>
+      </div>
     </div>
-
-    <div class="p-4 pt-2 pointer-events-auto pb-8">
-        
-        <div id="viewerControls" class="hidden flex items-center gap-3">
-            <div class="glass-panel rounded-full flex-1 flex items-center px-4 py-2">
-                <input id="chatInput" type="text" class="w-full bg-transparent border-none text-white text-sm placeholder-white/60 focus:outline-none focus:ring-0 p-0" placeholder="Add a comment...">
-            </div>
-            <button id="sendChatBtn" class="glass-panel rounded-full w-11 h-11 flex items-center justify-center text-white/90 hover:text-white">
-                <span class="material-symbols-outlined">send</span>
-            </button>
-            <button id="callBtn" class="glass-panel rounded-full w-11 h-11 flex items-center justify-center text-blue-400 hover:text-blue-300">
-                <span class="material-symbols-outlined">video_call</span>
-            </button>
-            <button id="giftPanelBtn" class="bg-gradient-to-r from-amber-400 to-orange-500 rounded-full w-11 h-11 flex items-center justify-center shadow-[0_0_15px_rgba(245,158,11,0.4)]">
-                <span class="material-symbols-outlined">featured_seasonal_and_gifts</span>
-            </button>
-        </div>
-
-        <div id="hostControls" class="hidden flex justify-between items-center w-full">
-            <div class="flex gap-3">
-                <button id="micBtn" class="glass-panel rounded-full w-11 h-11 flex items-center justify-center">
-                    <span class="material-symbols-outlined">mic</span>
-                </button>
-                <button id="cameraBtn" class="glass-panel rounded-full w-11 h-11 flex items-center justify-center">
-                    <span class="material-symbols-outlined">videocam</span>
-                </button>
-                <button id="mirrorBtn" class="glass-panel rounded-full w-11 h-11 flex items-center justify-center">
-                    <span class="material-symbols-outlined">flip_camera_ios</span>
-                </button>
-                <button id="filterBtn" class="glass-panel rounded-full w-11 h-11 flex items-center justify-center text-pink-400">
-                    <span class="material-symbols-outlined">auto_fix_high</span>
-                </button>
-            </div>
-            <button id="endLiveBtn" class="bg-red-500/90 rounded-full px-5 py-2.5 font-bold text-sm shadow-lg flex items-center gap-1">
-                <span class="material-symbols-outlined text-[18px]">power_settings_new</span> End
-            </button>
-        </div>
-
+  </div>
+  <div class="flex flex-col items-end gap-2 pointer-events-auto">
+    <div class="flex items-center gap-2">
+      <button onclick="openPanel('analytics-sheet')" class="glass-panel w-9 h-9 flex items-center justify-center rounded-full text-white/80">
+        <span class="material-symbols-outlined !text-[20px]">bar_chart</span>
+      </button>
+      <button onclick="openPanel('share-sheet')" class="glass-panel w-9 h-9 flex items-center justify-center rounded-full text-white/80">
+        <span class="material-symbols-outlined !text-[20px]">share</span>
+      </button>
+      <button id="endLiveTopBtn" onclick="openPanel('end-sheet')" class="bg-tertiary/90 backdrop-blur text-white px-4 py-2 rounded-full text-xs font-extrabold flex items-center gap-1.5">
+        <span class="material-symbols-outlined filled !text-[15px]">cancel</span> END LIVE
+      </button>
     </div>
+  </div>
+</header>
+
+<!-- CHAT FEED -->
+<main class="fixed bottom-[108px] left-0 w-full max-w-sm px-4 z-30 pointer-events-none">
+  <div id="chatContainer" class="flex flex-col gap-2 max-h-[280px] overflow-y-auto overflow-x-hidden chat-mask custom-scroll pointer-events-auto"></div>
+</main>
+
+<!-- BOTTOM BAR -->
+<nav class="fixed bottom-0 left-0 w-full z-40 px-4 pb-8 pt-3 pointer-events-none">
+  <div class="flex items-center gap-2.5 pointer-events-auto">
+    <div class="flex-grow">
+      <div class="glass-dark rounded-full px-4 py-3 flex items-center gap-2 border border-white/10 focus-within:border-primary/50">
+        <span class="material-symbols-outlined !text-[18px] text-white/40">sentiment_satisfied</span>
+        <input id="chatInput" class="bg-transparent border-none focus:ring-0 text-white placeholder-white/35 text-sm w-full" placeholder="Say something..." type="text">
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="openPanel('beauty-sheet')" class="glass-panel text-white w-10 h-10 flex items-center justify-center rounded-full">
+        <span class="material-symbols-outlined filled !text-[20px]">auto_fix_high</span>
+      </button>
+      <button onclick="openPanel('gift-sheet')" class="bg-primary text-on-primary rounded-full w-11 h-11 flex items-center justify-center btn-glow-primary">
+        <span class="material-symbols-outlined filled !text-[20px]">card_giftcard</span>
+      </button>
+      <div class="relative">
+        <button onclick="toggleMenu()" class="glass-panel text-white w-10 h-10 flex items-center justify-center rounded-full" id="more-btn">
+          <span class="material-symbols-outlined !text-[20px]">apps</span>
+        </button>
+        <div class="popup-panel absolute bottom-14 right-0 glass-strong rounded-2xl w-56 p-2 shadow-2xl z-50" id="more-menu">
+          <p class="section-label px-3 pt-2 pb-1">Controls</p>
+          <button onclick="toggleMic()" class="w-full flex items-center gap-3 p-3 hover:bg-white/8 rounded-xl">
+            <div class="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center"><span class="material-symbols-outlined !text-[18px]" id="mic-icon-menu">mic</span></div>
+            <div class="flex-1 text-left"><p class="text-sm text-white">Microphone</p><p class="text-[10px] text-primary" id="mic-status-menu">Active</p></div>
+            <label class="toggle-switch" onclick="event.stopPropagation()"><input type="checkbox" id="mic-toggle-menu" checked><span class="toggle-slider"></span></label>
+          </button>
+          <button onclick="toggleCamera()" class="w-full flex items-center gap-3 p-3 hover:bg-white/8 rounded-xl">
+            <div class="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center"><span class="material-symbols-outlined !text-[18px]" id="cam-icon-menu">videocam</span></div>
+            <div class="flex-1 text-left"><p class="text-sm text-white">Camera</p><p class="text-[10px] text-primary" id="cam-status-menu">Active</p></div>
+            <label class="toggle-switch" onclick="event.stopPropagation()"><input type="checkbox" id="cam-toggle-menu" checked><span class="toggle-slider"></span></label>
+          </button>
+          <div class="h-px bg-white/5 my-1 mx-3"></div>
+          <button onclick="flipCamera()" class="w-full flex items-center gap-3 p-3 hover:bg-white/8 rounded-xl">
+            <div class="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center"><span class="material-symbols-outlined !text-[18px]">flip_camera_ios</span></div>
+            <p class="text-sm text-white">Flip Camera</p>
+          </button>
+          <button onclick="toggleFullscreen()" class="w-full flex items-center gap-3 p-3 hover:bg-white/8 rounded-xl">
+            <div class="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center"><span class="material-symbols-outlined !text-[18px]">fullscreen</span></div>
+            <p class="text-sm text-white">Fullscreen</p>
+          </button>
+          <div id="callMenuOption" class="hidden">
+            <div class="h-px bg-white/5 my-1 mx-3"></div>
+            <button onclick="requestCall()" class="w-full flex items-center gap-3 p-3 hover:bg-white/8 rounded-xl text-tertiary">
+              <div class="w-8 h-8 rounded-xl bg-tertiary/20 flex items-center justify-center"><span class="material-symbols-outlined !text-[18px]">video_call</span></div>
+              <p class="text-sm">Call Host (1000🪙)</p>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- OVERLAY -->
+<div class="fixed inset-0 bg-black/70 z-[60] hidden sheet-overlay" id="global-overlay" onclick="closeAllPanels()"></div>
+
+<!-- INCOMING CALL MODAL -->
+<div id="incomingCallModal" class="fixed inset-0 z-[100] hidden items-center justify-center">
+  <div class="incoming-call-modal rounded-3xl p-6 w-80 text-center shadow-2xl">
+    <img id="callerAvatar" class="w-20 h-20 rounded-full mx-auto border-2 border-primary mb-3">
+    <h3 id="callerName" class="text-xl font-bold mb-1">Caller</h3>
+    <p class="text-white/60 text-sm mb-4">wants to video call</p>
+    <div class="flex gap-3 justify-center">
+      <button id="declineCallBtn" class="bg-gray-600 hover:bg-gray-700 px-6 py-3 rounded-full font-semibold">Decline</button>
+      <button id="acceptCallBtn" class="bg-green-500 hover:bg-green-600 px-6 py-3 rounded-full font-semibold">Accept</button>
+    </div>
+  </div>
+</div>
+<div id="callingOverlay" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/70 backdrop-blur-sm">
+  <div class="text-center">
+    <div class="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+    <p class="text-white text-lg">Calling host...</p>
+    <button id="cancelCallBtn" class="mt-6 bg-red-500/80 hover:bg-red-600 px-6 py-2 rounded-full text-sm font-semibold">Cancel</button>
+  </div>
 </div>
 
-<div id="giftPanel" class="fixed inset-x-0 bottom-0 z-50 bg-[#1a1a1a] rounded-t-3xl bottom-sheet pointer-events-auto border-t border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
-    <div class="p-5">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="font-bold text-lg">Send Gift</h3>
-            <div class="flex items-center gap-2 bg-black/30 px-3 py-1 rounded-full">
-                <span class="text-amber-400 text-sm font-bold">🪙 <span id="myCoinsBal">0</span></span>
-            </div>
-        </div>
-        <div id="giftGrid" class="grid grid-cols-4 gap-4 max-h-[40vh] overflow-y-auto pb-6 chat-scroll"></div>
+<!-- ========== BOTTOM SHEETS ========== -->
+<!-- GIFT SHEET -->
+<div class="bottom-sheet fixed bottom-0 left-0 w-full glass-strong z-[70] rounded-t-[2rem] overflow-hidden" id="gift-sheet" style="max-height:90vh;">
+  <div class="flex justify-center pt-3 pb-1"><div class="w-10 h-1 bg-white/20 rounded-full"></div></div>
+  <div class="flex justify-between items-center px-6 py-3">
+    <div class="flex items-center gap-2"><span class="material-symbols-outlined filled !text-xl text-primary">card_giftcard</span><span class="text-white font-headline font-bold text-lg">Send Gift</span></div>
+    <div class="flex items-center gap-2"><div class="glass-panel flex items-center gap-1.5 px-3 py-1.5 rounded-full"><span class="material-symbols-outlined filled !text-[16px] text-secondary">monetization_on</span><span id="userCoinsDisplay" class="text-white text-sm font-bold">0</span></div></div>
+  </div>
+  <div class="flex items-center gap-1 px-6 overflow-x-auto pb-1 custom-scroll">
+    <button class="tab-btn active text-[12px] font-bold px-3 py-2 text-white/60" data-cat="all">All</button>
+    <button class="tab-btn text-[12px] font-bold px-3 py-2 text-white/60" data-cat="popular">🔥 Popular</button>
+    <button class="tab-btn text-[12px] font-bold px-3 py-2 text-white/60" data-cat="luxury">💎 Luxury</button>
+  </div>
+  <div class="h-px bg-white/5 mx-6"></div>
+  <div id="giftGrid" class="grid grid-cols-4 gap-3 px-5 py-4 overflow-y-auto custom-scroll" style="max-height:240px;"></div>
+  <div class="px-5 pb-8 pt-2">
+    <div class="flex items-center justify-between mb-3"><span class="text-white/50 text-xs">Selected:</span><span id="selectedGiftName" class="text-primary font-bold text-sm">Rose</span><span class="text-white/50 text-xs">Cost:</span><span class="material-symbols-outlined filled !text-[14px] text-secondary">monetization_on</span><span id="selectedGiftCost" class="text-secondary font-bold text-sm">1</span></div>
+    <div class="flex gap-2">
+      <div class="glass-panel flex items-center gap-2 px-3 rounded-xl"><button onclick="changeGiftQty(-1)">−</button><span id="giftQty">1</span><button onclick="changeGiftQty(1)">+</button></div>
+      <button id="sendGiftBtn" class="flex-1 bg-primary text-on-primary font-extrabold py-3.5 rounded-2xl btn-glow-primary">SEND GIFT</button>
     </div>
+  </div>
 </div>
 
-<div id="filterPanel" class="fixed inset-x-0 bottom-0 z-50 bg-[#1a1a1a] rounded-t-3xl bottom-sheet pointer-events-auto border-t border-white/10">
-    <div class="p-5">
-        <div class="flex justify-between items-center mb-6">
-            <h3 class="font-bold text-lg">Beauty & Filters</h3>
-            <button id="closeFilterBtn" class="text-white/50 hover:text-white"><span class="material-symbols-outlined">close</span></button>
-        </div>
-        <div class="flex gap-4 overflow-x-auto chat-scroll pb-4">
-            <button class="filter-opt flex flex-col items-center gap-2 min-w-[70px]" data-filter="none">
-                <div class="w-14 h-14 rounded-full bg-white/10 border-2 border-primary flex justify-center items-center"><span class="material-symbols-outlined">block</span></div>
-                <span class="text-xs">Normal</span>
-            </button>
-            <button class="filter-opt flex flex-col items-center gap-2 min-w-[70px]" data-filter="brightness(1.2) contrast(1.1)">
-                <div class="w-14 h-14 rounded-full bg-white/10 flex justify-center items-center"><span class="material-symbols-outlined">light_mode</span></div>
-                <span class="text-xs">Bright</span>
-            </button>
-            <button class="filter-opt flex flex-col items-center gap-2 min-w-[70px]" data-filter="sepia(0.3) saturate(1.2)">
-                <div class="w-14 h-14 rounded-full bg-white/10 flex justify-center items-center"><span class="material-symbols-outlined">wb_sunny</span></div>
-                <span class="text-xs">Warm</span>
-            </button>
-            <button class="filter-opt flex flex-col items-center gap-2 min-w-[70px]" data-filter="contrast(1.2) saturate(1.5)">
-                <div class="w-14 h-14 rounded-full bg-white/10 flex justify-center items-center"><span class="material-symbols-outlined">movie</span></div>
-                <span class="text-xs">Vivid</span>
-            </button>
-        </div>
-    </div>
+<!-- BEAUTY/FILTER SHEET -->
+<div class="bottom-sheet fixed bottom-0 left-0 w-full glass-strong z-[70] rounded-t-[2rem]" id="beauty-sheet">
+  <div class="flex justify-center pt-3 pb-1"><div class="w-10 h-1 bg-white/20 rounded-full"></div></div>
+  <div class="flex justify-between items-center px-6 py-3"><span class="text-white font-headline font-bold text-lg">Filters</span></div>
+  <div class="grid grid-cols-4 gap-3 px-6 pb-8">
+    <div onclick="applyFilter('none')" class="cursor-pointer rounded-xl border-2 border-primary/60 p-2 text-center"><div class="h-12 rounded bg-gray-500"></div><span class="text-xs">Original</span></div>
+    <div onclick="applyFilter('warm')" class="cursor-pointer rounded-xl border-2 border-white/10 p-2 text-center"><div class="h-12 rounded bg-orange-400"></div><span class="text-xs">Warm</span></div>
+    <div onclick="applyFilter('cool')" class="cursor-pointer rounded-xl border-2 border-white/10 p-2 text-center"><div class="h-12 rounded bg-blue-400"></div><span class="text-xs">Cool</span></div>
+    <div onclick="applyFilter('vivid')" class="cursor-pointer rounded-xl border-2 border-white/10 p-2 text-center"><div class="h-12 rounded bg-pink-400"></div><span class="text-xs">Vivid</span></div>
+    <div onclick="applyFilter('mono')" class="cursor-pointer rounded-xl border-2 border-white/10 p-2 text-center"><div class="h-12 rounded bg-gray-400"></div><span class="text-xs">Mono</span></div>
+    <div onclick="applyFilter('golden')" class="cursor-pointer rounded-xl border-2 border-white/10 p-2 text-center"><div class="h-12 rounded bg-yellow-500"></div><span class="text-xs">Golden</span></div>
+    <div onclick="applyFilter('rose')" class="cursor-pointer rounded-xl border-2 border-white/10 p-2 text-center"><div class="h-12 rounded bg-rose-400"></div><span class="text-xs">Rose</span></div>
+    <div onclick="applyFilter('night')" class="cursor-pointer rounded-xl border-2 border-white/10 p-2 text-center"><div class="h-12 rounded bg-indigo-800"></div><span class="text-xs">Night</span></div>
+  </div>
 </div>
 
-<div id="profilePreview" class="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm hidden items-center justify-center opacity-0 transition-opacity duration-200">
-    <div class="bg-[#1e1e24] rounded-2xl w-72 overflow-hidden shadow-2xl transform scale-95 transition-transform duration-200" id="profileCard">
-        <div class="h-24 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 relative">
-            <button id="closeProfilePreview" class="absolute top-2 right-2 w-8 h-8 bg-black/20 rounded-full flex justify-center items-center"><span class="material-symbols-outlined text-sm">close</span></button>
-        </div>
-        <div class="px-5 pb-6 text-center relative -mt-12">
-            <img id="previewAvatar" class="w-24 h-24 rounded-full object-cover border-4 border-[#1e1e24] mx-auto mb-2 bg-gray-800">
-            <h2 id="previewName" class="font-bold text-lg text-white"></h2>
-            <p id="previewDetails" class="text-white/60 text-sm mb-4">Level 1 • 20 yrs • USA</p>
-            <button id="viewProfileBtn" class="w-full py-2.5 bg-white/10 hover:bg-white/20 rounded-xl font-semibold transition text-sm">View Full Profile</button>
-        </div>
+<!-- ANALYTICS SHEET -->
+<div class="bottom-sheet fixed bottom-0 left-0 w-full glass-strong z-[70] rounded-t-[2rem]" id="analytics-sheet">
+  <div class="flex justify-center pt-3 pb-1"><div class="w-10 h-1 bg-white/20 rounded-full"></div></div>
+  <div class="px-6 py-3"><span class="text-white font-headline font-bold text-lg">Live Analytics</span></div>
+  <div class="overflow-y-auto custom-scroll px-6 py-2" style="max-height:70vh;">
+    <div class="grid grid-cols-2 gap-3 mb-4">
+      <div class="glass-panel rounded-2xl p-4"><span class="text-white/50 text-xs">Viewers</span><p id="statViewers" class="text-2xl font-bold">0</p></div>
+      <div class="glass-panel rounded-2xl p-4"><span class="text-white/50 text-xs">Gems</span><p id="statGems" class="text-2xl font-bold text-secondary">0</p></div>
     </div>
+    <p class="section-label mb-2">Top Gifters</p>
+    <div id="topGiftersList" class="space-y-2"></div>
+  </div>
 </div>
 
-<div id="exitConfirmModal" class="fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm hidden items-center justify-center">
-    <div class="bg-[#1a1a1a] border border-white/10 rounded-2xl p-6 w-72 text-center shadow-2xl">
-        <h3 class="text-lg font-bold mb-2" id="exitTitle">Leave Stream?</h3>
-        <p class="text-white/60 text-sm mb-6" id="exitDesc">Are you sure you want to exit?</p>
-        <div class="flex gap-3 justify-center">
-            <button id="cancelExit" class="flex-1 bg-white/10 hover:bg-white/20 py-2.5 rounded-xl font-semibold text-sm">Stay</button>
-            <button id="confirmExit" class="flex-1 bg-red-500 hover:bg-red-600 py-2.5 rounded-xl font-semibold text-sm">Exit</button>
-        </div>
-    </div>
+<!-- SHARE SHEET -->
+<div class="bottom-sheet fixed bottom-0 left-0 w-full glass-strong z-[70] rounded-t-[2rem]" id="share-sheet">
+  <div class="p-6"><span class="text-white font-bold text-lg">Share</span>
+    <div class="glass-panel rounded-xl flex items-center gap-3 p-3 mt-4"><span class="material-symbols-outlined">link</span><span id="shareUrl" class="text-white/60 text-xs truncate flex-1">loading...</span><button onclick="copyShareLink()" class="bg-primary text-on-primary rounded-lg px-3 py-1 text-xs">COPY</button></div>
+  </div>
 </div>
 
-<div id="incomingCallModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/40 backdrop-blur-sm">
-    <div class="bg-[#1a1a1a] rounded-3xl p-6 w-72 text-center shadow-2xl border border-white/10">
-        <div class="relative w-20 h-20 mx-auto mb-4">
-            <img id="callerAvatar" class="w-20 h-20 rounded-full object-cover border-2 border-blue-500 animate-pulse">
-            <div class="absolute -bottom-1 -right-1 bg-blue-500 w-6 h-6 rounded-full flex justify-center items-center"><span class="material-symbols-outlined text-[14px]">videocam</span></div>
-        </div>
-        <h3 id="callerName" class="text-xl font-bold mb-1">Name</h3>
-        <p class="text-white/50 text-xs mb-6">Requesting a video call</p>
-        <div class="flex gap-3 justify-center">
-            <button id="declineCallBtn" class="flex-1 bg-red-500/20 text-red-500 py-3 rounded-2xl font-bold text-sm">Decline</button>
-            <button id="acceptCallBtn" class="flex-1 bg-green-500 py-3 rounded-2xl font-bold text-sm">Accept</button>
-        </div>
+<!-- END SHEET -->
+<div class="bottom-sheet fixed bottom-0 left-0 w-full glass-strong z-[70] rounded-t-[2rem]" id="end-sheet">
+  <div class="p-6 text-center">
+    <h2 class="text-xl font-bold">End Live Stream?</h2>
+    <div class="flex gap-4 justify-center mt-6">
+      <button onclick="endLiveStream('save')" class="bg-primary px-6 py-3 rounded-full font-bold">Save & End</button>
+      <button onclick="endLiveStream('discard')" class="bg-tertiary px-6 py-3 rounded-full font-bold">End Now</button>
     </div>
+    <button onclick="closeAllPanels()" class="mt-4 text-white/50">Cancel</button>
+  </div>
 </div>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, onSnapshot, addDoc, serverTimestamp, query, orderBy, limit, increment, updateDoc, getDocs, where } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+  import { initializeApp } from "firebase/app";
+  import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, onSnapshot, addDoc, serverTimestamp, query, orderBy, limit, increment, updateDoc, getDocs, where } from "firebase/firestore";
 
-    // Firebase Init
-    const firebaseConfig = {
-        apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
-        authDomain: "galmet-app.firebaseapp.com",
-        projectId: "galmet-app",
-        storageBucket: "galmet-app.firebasestorage.app"
-    };
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+  const firebaseConfig = {
+    apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+    authDomain: "galmet-app.firebaseapp.com",
+    projectId: "galmet-app",
+    storageBucket: "galmet-app.firebasestorage.app"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-    // Context
-    const currentUser = JSON.parse(localStorage.getItem("user"));
-    if (!currentUser?.userId) window.location.replace("login.html");
-    
-    const myUserId = currentUser.userId.toString();
-    const myUsername = currentUser.username || "User";
-    const myAvatar = currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(myUsername)}&background=006571&color=fff`;
-    
-    const urlParams = new URLSearchParams(window.location.search);
-    const roomId = urlParams.get("room");
-    const isHost = urlParams.get("host") === "true";
-    if (!roomId) window.location.href = "dashboard.html";
+  const currentUser = JSON.parse(localStorage.getItem("user"));
+  if (!currentUser?.userId) window.location.replace("login.html");
+  const myUserId = currentUser.userId.toString();
+  const myUsername = currentUser.username || "User";
+  const myAvatar = currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(myUsername)}&background=006571&color=fff`;
 
-    // Track when user joined for Ephemeral Chat
-    const joinTimestampMillis = Date.now(); 
+  const urlParams = new URLSearchParams(window.location.search);
+  const roomId = urlParams.get("room");
+  const isHost = urlParams.get("host") === "true";
+  if (!roomId) { alert("Invalid room"); window.location.href = "dashboard.html"; }
 
-    // Agora Settings
-    const APP_ID = "873172a9b2064b1ca97b4f45ee6ed9b5";
-    const TOKEN = "007eJxTYLhY+e9/xCXvlDiXjK68XT+fffPzeFq3eObdpND3cVkiHs8UGCzMjQ3NjRItk4wMzEySDJMTLc2TTNJMTFNTzVJTLJNML3DdzGwIZGTwNnFmYIRCEJ+XoSg/Pzfe1MzE0sDc3IKBAQBvhCPa";
-    let client, localAudioTrack, localVideoTrack;
-    let cameraFront = true, isMuted = false, cameraEnabled = true;
+  const APP_ID = "873172a9b2064b1ca97b4f45ee6ed9b5";
+  const TOKEN = "007eJxTYLhY+e9/xCXvlDiXjK68XT+fffPzeFq3eObdpND3cVkiHs8UGCzMjQ3NjRItk4wMzEySDJMTLc2TTNJMTFNTzVJTLJNML3DdzGwIZGTwNnFmYIRCEJ+XoSg/Pzfe1MzE0sDc3IKBAQBvhCPa";
 
-    // DOM Links
-    const hostControls = document.getElementById('hostControls');
-    const viewerControls = document.getElementById('viewerControls');
-    const chatMessagesDiv = document.getElementById('chatMessages');
-    const giftPanel = document.getElementById('giftPanel');
-    const filterPanel = document.getElementById('filterPanel');
-    const profilePreview = document.getElementById('profilePreview');
-    const exitConfirmModal = document.getElementById('exitConfirmModal');
-    
-    // UI Setup based on Role
-    if (isHost) {
-        hostControls.classList.remove('hidden');
-    } else {
-        viewerControls.classList.remove('hidden');
+  let client = null, localAudioTrack = null, localVideoTrack = null;
+  let isMuted = false, cameraEnabled = true, cameraFront = true;
+  let hostUserId = null, hostData = null;
+  let totalLiveGems = 0, currentViewerCount = 0;
+  let currentCallDoc = null, callListenerUnsub = null;
+  let selectedGift = { id: null, name: 'Rose', price: 1, image: '🌹' };
+  let giftQuantity = 1;
+  let userJoinTime = Date.now(); // for ephemeral chat
+
+  // UI elements
+  const hostAvatar = document.getElementById('hostAvatar');
+  const hostNameDisplay = document.getElementById('hostNameDisplay');
+  const liveGemsSpan = document.getElementById('liveGems');
+  const viewerCountSpan = document.getElementById('viewerCount');
+  const chatContainer = document.getElementById('chatContainer');
+  const chatInput = document.getElementById('chatInput');
+  const loadingOverlay = document.getElementById('loadingOverlay');
+
+  function escapeHtml(s) { return s ? s.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])) : ''; }
+
+  // Load host info
+  async function loadHostInfo() {
+    const livesSnap = await getDocs(collection(db, "lives"));
+    let hostId = null;
+    livesSnap.forEach(d => { if (d.data().roomId === roomId) hostId = d.id; });
+    if (hostId) {
+      hostUserId = hostId;
+      const userSnap = await getDoc(doc(db, "users", hostId));
+      if (userSnap.exists()) {
+        hostData = userSnap.data();
+        hostNameDisplay.innerText = hostData.username || "Host";
+        hostAvatar.src = hostData.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(hostData.username)}`;
+      }
+    } else if (isHost) {
+      hostUserId = myUserId;
+      hostNameDisplay.innerText = myUsername;
+      hostAvatar.src = myAvatar;
     }
+    if (!isHost) document.getElementById('callMenuOption').classList.remove('hidden');
+  }
+  await loadHostInfo();
 
-    // Helper: Close all sheets
-    function closeAllSheets() {
-        giftPanel.classList.remove('open');
-        filterPanel.classList.remove('open');
-        setTimeout(() => {
-            profilePreview.classList.add('hidden');
-            profilePreview.classList.remove('opacity-100');
-        }, 200);
-    }
-    
-    document.addEventListener('click', (e) => {
-        if(e.target.id === 'video-container' || e.target.id === 'chatMessages') closeAllSheets();
-    });
-
-    // 1. Host Info Loading
-    let hostUserId = null;
-    async function loadHostData() {
-        const livesSnap = await getDocs(collection(db, "lives"));
-        livesSnap.forEach(snap => { if(snap.data().roomId === roomId) hostUserId = snap.id; });
-        if(!hostUserId && isHost) hostUserId = myUserId;
-        
-        if (hostUserId) {
-            const userSnap = await getDoc(doc(db, "users", hostUserId));
-            if (userSnap.exists()) {
-                const data = userSnap.data();
-                document.getElementById('hostName').innerText = data.username || "Host";
-                document.getElementById('hostAvatar').src = data.photoURL || myAvatar;
-            }
-        }
-    }
-
-    // 2. Chat Implementation (Ephemeral)
-    function listenChat() {
-        // Query recent messages. We filter out old ones in JS to avoid needing complex Firestore indexes.
-        const q = query(collection(db, "liveChat", roomId, "messages"), orderBy("timestamp", "desc"), limit(50));
-        
-        onSnapshot(q, (snap) => {
-            chatMessagesDiv.innerHTML = "";
-            const messages = [];
-            snap.forEach(docSnap => {
-                const data = docSnap.data();
-                // Ephemeral Check: Only show messages generated AFTER the user joined this session
-                const msgTime = data.timestamp ? data.timestamp.toMillis() : Date.now();
-                if (msgTime >= joinTimestampMillis) {
-                    messages.push({ id: docSnap.id, ...data });
-                }
-            });
-
-            messages.forEach(msg => {
-                const div = document.createElement("div");
-                div.className = "chat-message";
-                if (msg.type === 'join') {
-                    div.innerHTML = `<span class="text-white/80 italic text-xs">👋 ${msg.senderName} joined the room</span>`;
-                } else if (msg.type === 'gift') {
-                    div.innerHTML = `<span class="text-amber-400 font-bold">🎁 ${msg.senderName} sent ${msg.giftName}</span>`;
-                } else {
-                    div.innerHTML = `<span class="sender" data-id="${msg.senderId}">${msg.senderName}:</span><span class="text-white">${msg.text}</span>`;
-                }
-                chatMessagesDiv.appendChild(div);
-            });
-            
-            // Profile Clicks in Chat
-            document.querySelectorAll('.sender').forEach(el => {
-                el.onclick = async (e) => {
-                    e.stopPropagation();
-                    const uSnap = await getDoc(doc(db, "users", el.dataset.id));
-                    if(uSnap.exists()) showProfile(el.dataset.id, uSnap.data());
-                };
-            });
-        });
-    }
-
-    async function sendMsg() {
-        const text = document.getElementById('chatInput').value.trim();
-        if(!text) return;
-        document.getElementById('chatInput').value = "";
-        await addDoc(collection(db, "liveChat", roomId, "messages"), {
-            type: "text", senderId: myUserId, senderName: myUsername, text: text, timestamp: serverTimestamp()
-        });
-    }
-    document.getElementById('sendChatBtn').onclick = sendMsg;
-    document.getElementById('chatInput').addEventListener('keypress', e => e.key === 'Enter' && sendMsg());
-
-    // 3. Profile Viewing
-    function showProfile(id, data) {
-        document.getElementById('previewAvatar').src = data.photoURL || '';
-        document.getElementById('previewName').innerText = data.username || 'User';
-        document.getElementById('previewDetails').innerText = `Lv ${data.charmLevel || 1} • ${data.age||'N/A'} yrs • ${data.country?.name||'Unknown'}`;
-        document.getElementById('viewProfileBtn').onclick = () => window.location.href = `view.html?id=${id}`;
-        
-        profilePreview.classList.remove('hidden');
-        setTimeout(() => profilePreview.classList.add('opacity-100'), 10);
-    }
-    document.getElementById('closeProfilePreview').onclick = closeAllSheets;
-
-    // 4. Video & Agora Logic
-    async function initAgora() {
-        client = AgoraRTC.createClient({ mode: "live", codec: "vp8" });
-        await client.setClientRole(isHost ? "host" : "audience");
-        await client.join(APP_ID, roomId, TOKEN, null);
-
-        if (isHost) {
-            [localAudioTrack, localVideoTrack] = await AgoraRTC.createMicrophoneAndCameraTracks(
-                { cameraId: "user" }, { encoderConfig: "720p" }
-            );
-            const player = document.createElement("div");
-            player.id = "local-player";
-            player.style.width = "100%"; player.style.height = "100%";
-            document.getElementById("video-container").appendChild(player);
-            localVideoTrack.play("local-player");
-            await client.publish([localAudioTrack, localVideoTrack]);
-            document.getElementById('local-player').style.transform = "scaleX(-1)"; // Default mirror
-        }
-
-        client.on("user-published", async (user, mediaType) => {
-            await client.subscribe(user, mediaType);
-            if (mediaType === "video") {
-                const player = document.createElement("div");
-                player.id = user.uid;
-                player.style.width = "100%"; player.style.height = "100%";
-                document.getElementById("video-container").appendChild(player);
-                user.videoTrack.play(player);
-            }
-            if (mediaType === "audio") user.audioTrack.play();
-        });
-
-        document.getElementById('loadingOverlay').style.display = 'none';
-        
-        // Notify entry
-        if (!isHost) {
-            await setDoc(doc(db, "liveViewers", roomId, "viewers", myUserId), { joined: serverTimestamp() });
-            await addDoc(collection(db, "liveChat", roomId, "messages"), { type: "join", senderName: myUsername, timestamp: serverTimestamp() });
-        }
-    }
-
-    // 5. Host Controls (Mic, Cam, Filter, Exit)
-    if(isHost) {
-        document.getElementById('micBtn').onclick = async function() {
-            isMuted = !isMuted;
-            await localAudioTrack.setEnabled(!isMuted);
-            this.innerHTML = isMuted ? `<span class="material-symbols-outlined text-red-400">mic_off</span>` : `<span class="material-symbols-outlined">mic</span>`;
-        };
-        
-        document.getElementById('mirrorBtn').onclick = async () => {
-            cameraFront = !cameraFront;
-            const newTrack = await AgoraRTC.createCameraVideoTrack({ cameraId: cameraFront ? "user" : "environment" });
-            await client.unpublish(localVideoTrack);
-            localVideoTrack.close();
-            localVideoTrack = newTrack;
-            await client.publish(localVideoTrack);
-            localVideoTrack.play("local-player");
-            document.getElementById('local-player').style.transform = cameraFront ? "scaleX(-1)" : "scaleX(1)";
-        };
-
-        // Filters Array setup
-        document.getElementById('filterBtn').onclick = () => filterPanel.classList.add('open');
-        document.getElementById('closeFilterBtn').onclick = closeAllSheets;
-        
-        document.querySelectorAll('.filter-opt').forEach(btn => {
-            btn.onclick = () => {
-                document.querySelectorAll('.filter-opt div').forEach(d => d.classList.remove('border-2', 'border-primary'));
-                btn.querySelector('div').classList.add('border-2', 'border-primary');
-                const filterVal = btn.dataset.filter;
-                const videoEl = document.querySelector('#local-player video');
-                if(videoEl) videoEl.style.filter = filterVal === "none" ? "" : filterVal;
-            };
-        });
-    }
-
-    // 6. Exiting
-    document.getElementById('exitBtn').onclick = document.getElementById('endLiveBtn')?.onclick = () => {
-        document.getElementById('exitTitle').innerText = isHost ? "End Live Stream?" : "Leave Stream?";
-        exitConfirmModal.classList.remove('hidden');
-        exitConfirmModal.style.display = 'flex';
-    };
-    document.getElementById('cancelExit').onclick = () => {
-        exitConfirmModal.classList.add('hidden');
-        exitConfirmModal.style.display = 'none';
-    };
-    document.getElementById('confirmExit').onclick = async () => {
-        if(!isHost) await deleteDoc(doc(db, "liveViewers", roomId, "viewers", myUserId));
-        else await deleteDoc(doc(db, "lives", myUserId));
-        if(client) await client.leave();
-        window.location.href = "dashboard.html";
-    };
-
-    // 7. Gifts Implementation (UI only for Viewer)
-    if (!isHost) {
-        document.getElementById('giftPanelBtn').onclick = async () => {
-            giftPanel.classList.add('open');
-            const uSnap = await getDoc(doc(db, "users", myUserId));
-            document.getElementById('myCoinsBal').innerText = uSnap.data()?.coins || 0;
-            
-            // Render basic mockup gifts for visual completion
-            const gifts = [
-                {id:1, name:'Rose', price:10, img:'https://cdn-icons-png.flaticon.com/512/3257/3257919.png'},
-                {id:2, name:'Heart', price:50, img:'https://cdn-icons-png.flaticon.com/512/833/833472.png'},
-                {id:3, name:'Crown', price:500, img:'https://cdn-icons-png.flaticon.com/512/3135/3135804.png'},
-                {id:4, name:'Rocket', price:1000, img:'https://cdn-icons-png.flaticon.com/512/1356/1356479.png'}
-            ];
-            
-            const gGrid = document.getElementById('giftGrid');
-            gGrid.innerHTML = "";
-            gifts.forEach(g => {
-                gGrid.innerHTML += `
-                    <div class="bg-white/5 hover:bg-white/10 rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer transition" onclick="sendMockGift('${g.name}', '${g.img}')">
-                        <img src="${g.img}" class="w-12 h-12 mb-2 drop-shadow-md">
-                        <span class="text-xs text-white/80 font-medium">${g.name}</span>
-                        <span class="text-[10px] text-amber-400 font-bold">${g.price}</span>
-                    </div>`;
-            });
-        };
-        
-        window.sendMockGift = async (name, img) => {
-            closeAllSheets();
-            await addDoc(collection(db, "liveChat", roomId, "messages"), {
-                type: "gift", senderId: myUserId, senderName: myUsername, giftName: name, timestamp: serverTimestamp()
-            });
-            // Show local animation overlay
-            const anim = document.createElement("div");
-            anim.className = "gift-animation";
-            anim.innerHTML = `<img src="${img}" class="w-24 h-24 drop-shadow-[0_0_20px_rgba(255,255,255,0.5)]">`;
-            document.body.appendChild(anim);
-            setTimeout(() => anim.remove(), 2500);
-        };
-    }
-
-    // Initialize Viewers Counter
+  // Viewer management
+  async function addViewer() { if (!isHost) await setDoc(doc(db, "liveViewers", roomId, "viewers", myUserId), { userId: myUserId, username: myUsername, photoURL: myAvatar, joinedAt: serverTimestamp() }); }
+  async function removeViewer() { if (!isHost) await deleteDoc(doc(db, "liveViewers", roomId, "viewers", myUserId)); }
+  function listenViewerCount() {
     onSnapshot(collection(db, "liveViewers", roomId, "viewers"), (snap) => {
-        document.getElementById('viewerCount').innerText = snap.size;
+      currentViewerCount = snap.size;
+      viewerCountSpan.innerText = currentViewerCount;
+      document.getElementById('statViewers') && (document.getElementById('statViewers').innerText = currentViewerCount);
     });
+  }
 
-    // Run Startup
-    await loadHostData();
-    initAgora();
+  // Chat (ephemeral: only messages after user join)
+  function listenChat() {
+    const joinTimestamp = new Date(userJoinTime);
+    const q = query(collection(db, "liveChat", roomId, "messages"), where("timestamp", ">", joinTimestamp), orderBy("timestamp", "desc"), limit(50));
+    onSnapshot(q, (snap) => {
+      chatContainer.innerHTML = "";
+      const msgs = []; snap.forEach(d => msgs.push({id: d.id, ...d.data()}));
+      msgs.reverse().forEach(msg => {
+        const div = document.createElement('div'); div.className = 'chat-message';
+        if (msg.type === 'join') div.innerHTML = `<span class="text-primary-fixed text-xs">✨ ${escapeHtml(msg.senderName)} joined</span>`;
+        else if (msg.type === 'gift') div.innerHTML = `<span class="text-amber-300 text-xs">🎁 ${escapeHtml(msg.senderName)} sent ${escapeHtml(msg.giftName)}</span>`;
+        else div.innerHTML = `<span class="sender" data-userid="${msg.senderId}">${escapeHtml(msg.senderName)}:</span> <span>${escapeHtml(msg.text)}</span>`;
+        chatContainer.appendChild(div);
+      });
+      chatContainer.scrollTop = 0;
+    });
+  }
+  async function sendChatMessage(text) {
+    if (!text.trim()) return;
+    await addDoc(collection(db, "liveChat", roomId, "messages"), { type: "text", senderId: myUserId, senderName: myUsername, text, timestamp: serverTimestamp() });
+    chatInput.value = "";
+  }
+
+  // Gifts
+  async function loadGifts(cat = 'all') {
+    const snap = await getDocs(collection(db, "gifts"));
+    const grid = document.getElementById('giftGrid'); grid.innerHTML = '';
+    snap.forEach(doc => {
+      const g = doc.data();
+      if (cat !== 'all' && g.category !== cat) return;
+      const card = document.createElement('div');
+      card.className = `gift-card flex flex-col items-center p-2 rounded-2xl border border-white/8 bg-white/5`;
+      card.innerHTML = `<div class="text-3xl">${g.image || '🎁'}</div><span class="text-white/70 text-[10px]">${g.name}</span><span class="text-secondary text-[10px]">${g.coinPrice}🪙</span>`;
+      card.onclick = () => { 
+        document.querySelectorAll('.gift-card').forEach(c=>c.classList.remove('selected')); 
+        card.classList.add('selected'); 
+        selectedGift = { id: doc.id, name: g.name, price: g.coinPrice, image: g.image }; 
+        document.getElementById('selectedGiftName').innerText = g.name; 
+        document.getElementById('selectedGiftCost').innerText = g.coinPrice; 
+      };
+      grid.appendChild(card);
+    });
+  }
+  window.changeGiftQty = (d) => { giftQuantity = Math.max(1, Math.min(99, giftQuantity + d)); document.getElementById('giftQty').innerText = giftQuantity; };
+  async function sendGift() {
+    if (!selectedGift.id) return alert('Select a gift');
+    if (myUserId === hostUserId) return alert("Cannot gift yourself");
+    const userSnap = await getDoc(doc(db, "users", myUserId));
+    const coins = userSnap.data()?.coins || 0;
+    const total = selectedGift.price * giftQuantity;
+    if (coins < total) return alert("Not enough coins");
+    await updateDoc(doc(db, "users", myUserId), { coins: increment(-total) });
+    if (hostUserId) {
+      await updateDoc(doc(db, "users", hostUserId), { gems: increment(total), totalGemsEarned: increment(total) });
+      totalLiveGems += total; liveGemsSpan.innerText = totalLiveGems;
+    }
+    await addDoc(collection(db, "liveChat", roomId, "messages"), { type: "gift", senderId: myUserId, senderName: myUsername, giftName: selectedGift.name, giftImage: selectedGift.image, quantity: giftQuantity, timestamp: serverTimestamp() });
+    closeAllPanels();
+    const anim = document.createElement('div'); anim.className = 'gift-animation'; anim.innerHTML = `<span class="text-4xl">${selectedGift.image}</span>`; document.body.appendChild(anim); setTimeout(()=>anim.remove(),2000);
+  }
+
+  // Agora
+  async function startAgora() {
+    try {
+      client = AgoraRTC.createClient({ mode: "live", codec: "vp8" });
+      await client.setClientRole(isHost ? "host" : "audience");
+      await client.join(APP_ID, roomId, TOKEN, null);
+      if (isHost) {
+        [localAudioTrack, localVideoTrack] = await AgoraRTC.createMicrophoneAndCameraTracks({ cameraId: cameraFront ? "user" : "environment" }, { encoderConfig: "720p" });
+        if (!cameraEnabled) localVideoTrack.setEnabled(false);
+        const mainDiv = document.createElement('div'); mainDiv.id = 'local-main'; document.getElementById('video-stage').appendChild(mainDiv);
+        localVideoTrack.play('local-main');
+        const previewDiv = document.createElement('div'); previewDiv.id = 'local-preview-video'; document.getElementById('local-preview').appendChild(previewDiv);
+        localVideoTrack.play('local-preview-video');
+        await client.publish([localAudioTrack, localVideoTrack]);
+        document.body.classList.add('host-mode');
+        applyMirror();
+      }
+      client.on("user-published", async (user, mediaType) => {
+        await client.subscribe(user, mediaType);
+        if (mediaType === "video") {
+          const player = document.createElement('div'); player.id = user.uid; document.getElementById('video-stage').appendChild(player);
+          user.videoTrack.play(player);
+        }
+        if (mediaType === "audio") user.audioTrack.play();
+      });
+      client.on("user-unpublished", (user) => { const el = document.getElementById(user.uid); if(el) el.remove(); });
+      loadingOverlay.style.display = 'none';
+    } catch(e) { alert("Stream error: "+e.message); window.location.href="dashboard.html"; }
+  }
+
+  async function toggleMic() {
+    if (!localAudioTrack) return; isMuted = !isMuted; await localAudioTrack.setEnabled(!isMuted);
+    document.getElementById('mic-icon-menu').innerText = isMuted ? 'mic_off' : 'mic';
+    document.getElementById('mic-status-menu').innerText = isMuted ? 'Muted' : 'Active';
+    document.getElementById('mic-toggle-menu').checked = !isMuted;
+  }
+  async function toggleCamera() {
+    if (!localVideoTrack) return; cameraEnabled = !cameraEnabled; await localVideoTrack.setEnabled(cameraEnabled);
+    document.getElementById('cam-icon-menu').innerText = cameraEnabled ? 'videocam' : 'videocam_off';
+    document.getElementById('cam-status-menu').innerText = cameraEnabled ? 'Active' : 'Off';
+    document.getElementById('cam-toggle-menu').checked = cameraEnabled;
+  }
+  async function flipCamera() {
+    if (!localVideoTrack) return; cameraFront = !cameraFront;
+    const newTrack = await AgoraRTC.createCameraVideoTrack({ cameraId: cameraFront ? "user" : "environment", encoderConfig: "720p" });
+    await client.unpublish(localVideoTrack); localVideoTrack.close(); localVideoTrack = newTrack;
+    localVideoTrack.play('local-main'); localVideoTrack.play('local-preview-video');
+    await client.publish(localVideoTrack); applyMirror();
+  }
+  function applyMirror() {
+    const main = document.getElementById('local-main'); const preview = document.getElementById('local-preview-video');
+    if(main) main.style.transform = cameraFront ? 'scaleX(-1)' : 'scaleX(1)';
+    if(preview) preview.style.transform = cameraFront ? 'scaleX(-1)' : 'scaleX(1)';
+  }
+  function toggleFullscreen() { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); }
+
+  // Filters (apply to video elements)
+  const filterMap = {
+    none: '', warm: 'sepia(0.5) saturate(1.3)', cool: 'hue-rotate(20deg) saturate(1.2)',
+    vivid: 'saturate(1.8) contrast(1.1)', mono: 'grayscale(1)', golden: 'sepia(0.8) saturate(1.5) brightness(1.1)',
+    rose: 'hue-rotate(-30deg) saturate(1.4)', night: 'hue-rotate(200deg) saturate(0.8) brightness(0.8)'
+  };
+  window.applyFilter = (name) => {
+    const videos = document.querySelectorAll('#video-stage video, #local-preview video');
+    videos.forEach(v => v.style.filter = filterMap[name] || '');
+  };
+
+  // Call handling
+  async function requestCall() {
+    if (myUserId === hostUserId) return;
+    try { await navigator.mediaDevices.getUserMedia({ video: true, audio: true }); } catch { alert("Camera permission required"); return; }
+    const userSnap = await getDoc(doc(db, "users", myUserId));
+    if ((userSnap.data()?.coins || 0) < 1000) { alert("Need 1000 coins"); return; }
+    const callRef = doc(db, "calls", roomId);
+    await setDoc(callRef, { callerId: myUserId, callerName: myUsername, callerAvatar: myAvatar, hostId: hostUserId, status: "waiting", createdAt: serverTimestamp() });
+    document.getElementById('callingOverlay').style.display = 'flex';
+    callListenerUnsub = onSnapshot(callRef, (snap) => {
+      if (!snap.exists()) { document.getElementById('callingOverlay').style.display='none'; return; }
+      const d = snap.data();
+      if (d.status === 'accepted') window.location.href = `call.html?room=${roomId}&callerId=${myUserId}&hostId=${hostUserId}`;
+      else if (d.status === 'rejected') { alert('Declined'); document.getElementById('callingOverlay').style.display='none'; deleteDoc(callRef); }
+    });
+  }
+  function listenIncomingCalls() {
+    if (!isHost) return;
+    onSnapshot(doc(db, "calls", roomId), (snap) => {
+      if (snap.exists() && snap.data().status === 'waiting') {
+        currentCallDoc = snap.data();
+        document.getElementById('callerAvatar').src = currentCallDoc.callerAvatar;
+        document.getElementById('callerName').innerText = currentCallDoc.callerName;
+        document.getElementById('incomingCallModal').style.display = 'flex';
+      } else document.getElementById('incomingCallModal').style.display = 'none';
+    });
+  }
+  async function acceptCall() {
+    await updateDoc(doc(db, "calls", roomId), { status: "accepted" });
+    window.location.href = `call.html?room=${roomId}&callerId=${currentCallDoc.callerId}&hostId=${myUserId}`;
+  }
+  async function declineCall() {
+    await updateDoc(doc(db, "calls", roomId), { status: "rejected" });
+    document.getElementById('incomingCallModal').style.display = 'none';
+  }
+
+  async function endLiveStream() {
+    if (isHost) await deleteDoc(doc(db, "lives", myUserId));
+    await removeViewer();
+    if (client) { localAudioTrack?.close(); localVideoTrack?.close(); await client.leave(); }
+    window.location.href = "dashboard.html";
+  }
+
+  // Panels
+  const panels = ['gift-sheet','beauty-sheet','analytics-sheet','share-sheet','end-sheet'];
+  window.openPanel = (id) => {
+    closeAllPanels(false);
+    document.getElementById(id).classList.add('active');
+    document.getElementById('global-overlay').classList.add('active','!block');
+    if (id === 'gift-sheet') loadGifts();
+    if (id === 'analytics-sheet') { document.getElementById('statViewers').innerText = currentViewerCount; document.getElementById('statGems').innerText = totalLiveGems; }
+    document.getElementById('more-menu').classList.remove('active');
+  };
+  window.closeAllPanels = () => { panels.forEach(id => document.getElementById(id)?.classList.remove('active')); document.getElementById('global-overlay').classList.remove('active','!block'); };
+  window.toggleMenu = () => document.getElementById('more-menu').classList.toggle('active');
+  window.copyShareLink = () => { navigator.clipboard.writeText(window.location.href); alert('Link copied'); };
+
+  // Wire buttons
+  document.getElementById('sendGiftBtn').onclick = sendGift;
+  chatInput.addEventListener('keypress', (e) => { if(e.key==='Enter') sendChatMessage(chatInput.value); });
+  document.getElementById('followBtn').onclick = async () => { if(hostUserId && hostUserId!==myUserId) { await updateDoc(doc(db, "users", hostUserId), { followers: increment(1) }); alert('Followed!'); } };
+  document.getElementById('acceptCallBtn').onclick = acceptCall;
+  document.getElementById('declineCallBtn').onclick = declineCall;
+  document.getElementById('cancelCallBtn').onclick = async () => { document.getElementById('callingOverlay').style.display='none'; await deleteDoc(doc(db, "calls", roomId)); };
+  
+  window.toggleMic = toggleMic; window.toggleCamera = toggleCamera; window.flipCamera = flipCamera; window.toggleFullscreen = toggleFullscreen;
+  window.requestCall = requestCall; window.endLiveStream = endLiveStream;
+
+  // Init
+  (async () => {
+    await startAgora();
+    if (!isHost) await addViewer();
+    listenViewerCount();
     listenChat();
+    listenIncomingCalls();
+    const userSnap = await getDoc(doc(db, "users", myUserId));
+    document.getElementById('userCoinsDisplay').innerText = userSnap.data()?.coins || 0;
+    // Hide host controls for viewers
+    if (!isHost) {
+      document.getElementById('endLiveTopBtn').style.display = 'none';
+      document.querySelector('[onclick="openPanel(\'analytics-sheet\')"]').style.display = 'none';
+    }
+  })();
 
-    // Clean up on un-graceful exit
-    window.addEventListener("beforeunload", () => {
-        if (!isHost) deleteDoc(doc(db, "liveViewers", roomId, "viewers", myUserId));
-    });
+  window.addEventListener('beforeunload', () => { if (!isHost) removeViewer(); });
 </script>
 </body>
 </html>
