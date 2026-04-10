@@ -44,6 +44,27 @@ button{border:none;background:none;cursor:pointer;font-family:inherit;}input{out
 .tseat+.tseat::before{content:'';position:absolute;left:0;top:8%;bottom:8%;width:1px;background:rgba(255,255,255,.12);z-index:2;}
 .cam{position:relative;width:100%;aspect-ratio:9/13;background:#0c1619;overflow:hidden;}
 .cam .av-fill,.cam video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+/* New style for camera-off avatar – circular inside the seat */
+.cam .avatar-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #1a2030;
+  border: 2px solid rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.cam .avatar-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 .cam .grad{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.72) 0%,transparent 55%);z-index:1;}
 .cam .uname{position:absolute;bottom:5px;left:0;right:0;text-align:center;font-size:9px;font-weight:700;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.9);z-index:2;}
 .cam .hbadge{position:absolute;top:5px;left:5px;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;font-size:7px;font-weight:900;padding:2px 5px;border-radius:10px;z-index:2;}
@@ -424,11 +445,25 @@ function renderSeats(){
   }
 }
 
-function refreshVid(m,cid){
-  const c=document.getElementById(cid);if(!c)return;
-  if(m.uid===myId&&vidT&&camOn){c.innerHTML="";vidT.play(c);applyFilt(c.querySelector("video"));}
-  else if(remV[m.uid]){c.innerHTML="";remV[m.uid].play(c);}
-  else{c.innerHTML=`<img class="av-fill" src="${m.photoURL||av(m.username)}" loading="lazy">`;}
+// FIXED: Camera on -> full video fills seat (rectangular). Camera off -> small circular avatar.
+function refreshVid(m, cid){
+  const c = document.getElementById(cid);
+  if(!c) return;
+  if(m.uid === myId && vidT && camOn){
+    c.innerHTML = "";
+    vidT.play(c);
+    applyFilt(c.querySelector("video"));
+  } else if(remV[m.uid]){
+    c.innerHTML = "";
+    remV[m.uid].play(c);
+  } else {
+    // Camera off or no stream – show circular avatar
+    c.innerHTML = `
+      <div class="avatar-circle">
+        <img src="${m.photoURL || av(m.username)}" loading="lazy">
+      </div>
+    `;
+  }
 }
 
 function applyFilt(v){if(!v)return;const f=FILTS.find(x=>x.id===curFilt);if(f)v.style.filter=f.css;}
@@ -507,11 +542,10 @@ async function startAgora(){
     if(mt==="audio")u.audioTrack?.play();
   });
   agoraC.on("user-unpublished",(u,mt)=>{
-    if(mt==="video"){delete remV[u.uid];const c=document.getElementById(`vb-${u.uid}`);const m=members.find(x=>x.uid==u.uid);if(c&&m)c.innerHTML=`<img class="av-fill" src="${m.photoURL||av(m.username)}">`;}
+    if(mt==="video"){delete remV[u.uid];const c=document.getElementById(`vb-${u.uid}`);const m=members.find(x=>x.uid==u.uid);if(c&&m)c.innerHTML=`<div class="avatar-circle"><img src="${m.photoURL||av(m.username)}"></div>`;}
   });
   agoraC.on("user-left",async u=>{
     delete remV[u.uid];
-    // Remove from Firestore when Agora user leaves (connection drop / page close)
     await deleteDoc(doc(db,"rooms",roomId,"members",u.uid.toString())).catch(()=>{});
   });
 }
@@ -526,7 +560,7 @@ G("camTog").onchange=async e=>{
   camOn=e.target.checked;if(vidT)await vidT.setEnabled(camOn);
   const c=document.getElementById(`vb-${myId}`);if(c){
     if(camOn&&vidT){c.innerHTML="";vidT.play(c);applyFilt(c.querySelector("video"));}
-    else{const m=members.find(x=>x.uid===myId);c.innerHTML=`<img class="av-fill" src="${m?.photoURL||myPhoto}">`;}
+    else{c.innerHTML=`<div class="avatar-circle"><img src="${myPhoto}"></div>`;}
   }
 };
 
