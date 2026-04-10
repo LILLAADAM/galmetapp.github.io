@@ -1,165 +1,176 @@
 <!DOCTYPE html>
-<html>
+<html class="light" lang="en">
 <head>
-  <title>Gems History</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Gems History - Galmet</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f6fa;
-      margin: 0;
-      padding: 0;
-    }
-
-    .header {
-      padding: 15px;
-      background: #fff;
-      font-weight: bold;
-      text-align: center;
-      border-bottom: 1px solid #eee;
-    }
-
-    .container {
-      padding: 10px;
-    }
-
-    .card {
-      background: #fff;
-      padding: 12px;
-      border-radius: 12px;
-      margin-bottom: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .left {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .title {
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .time {
-      font-size: 11px;
-      color: #888;
-      margin-top: 4px;
-    }
-
-    .amount {
-      font-size: 16px;
-      font-weight: bold;
-      color: #00b894;
-    }
-
-    .empty {
-      text-align: center;
-      margin-top: 50px;
-      color: #999;
-    }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    body { background: #f3f7fb; font-family: 'Be Vietnam Pro', sans-serif; }
+    .glass-card { background: rgba(255,255,255,0.6); backdrop-filter: blur(12px); border: 1px solid rgba(0,101,113,0.1); }
+    .tx-plus { color: #ec4899; }
+    .tx-minus { color: #ef4444; }
   </style>
 </head>
+<body class="bg-surface font-body text-on-surface min-h-screen pb-24">
 
-<body>
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/20">
+  <div class="flex justify-between items-center px-4 h-14 max-w-md mx-auto">
+    <button onclick="window.history.back()" class="p-2 rounded-full hover:bg-primary-container/30 transition-colors active:scale-95">
+      <span class="material-symbols-outlined text-primary">arrow_back</span>
+    </button>
+    <h1 class="font-headline font-semibold text-lg text-primary">Gems History</h1>
+    <div class="w-8"></div>
+  </div>
+</header>
 
-<div class="header">💎 Gems History</div>
+<main class="max-w-md mx-auto px-4 pt-20 pb-8">
+  <!-- Summary Card -->
+  <div class="glass-card rounded-2xl p-4 mb-6 flex justify-between items-center">
+    <div>
+      <p class="text-xs text-outline">Total Gems Earned</p>
+      <p id="totalEarned" class="text-2xl font-bold text-tertiary">0</p>
+    </div>
+    <div class="w-px h-10 bg-outline-variant/30"></div>
+    <div>
+      <p class="text-xs text-outline">Total Gems Spent</p>
+      <p id="totalSpent" class="text-2xl font-bold text-on-surface">0</p>
+    </div>
+  </div>
 
-<div class="container" id="gemsHistory"></div>
+  <!-- Transaction List -->
+  <div id="transactionList" class="space-y-2">
+    <div class="text-center py-8 text-outline">Loading transactions...</div>
+  </div>
+</main>
+
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-3 bg-white/80 backdrop-blur-xl rounded-t-2xl shadow-[0_-4px_24px_rgba(0,101,113,0.06)]">
+  <button onclick="location.href='dashboard.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
+    <span class="material-symbols-outlined">home</span>
+    <span class="text-[10px] font-label">Home</span>
+  </button>
+  <button onclick="location.href='party.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
+    <span class="material-symbols-outlined">sports_esports</span>
+    <span class="text-[10px] font-label">Party</span>
+  </button>
+  <button onclick="location.href='chats.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
+    <span class="material-symbols-outlined">chat_bubble</span>
+    <span class="text-[10px] font-label">Chats</span>
+  </button>
+  <button onclick="location.href='profile.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
+    <span class="material-symbols-outlined">person</span>
+    <span class="text-[10px] font-label">Profile</span>
+  </button>
+</nav>
 
 <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+  import { getFirestore, collection, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-// 🔥 FIREBASE INIT
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-
-import {
-  getFirestore,
-  collection,
-  query,
-  where,
-  orderBy,
-  onSnapshot
-} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-
-// ✅ YOUR CONFIG (already correct from your project)
-const firebaseConfig = {
-  apiKey: "AIzaSyAxNlQ9g2kcDcaiTwPsSZFgsTvtyLyN3oY",
-  authDomain: "galmet-app.firebaseapp.com",
-  projectId: "galmet-app",
-  storageBucket: "galmet-app.appspot.com",
-};
-
-// INIT
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-
-// ================= USER =================
-const user = JSON.parse(localStorage.getItem("user"));
-
-if (!user) {
-  alert("Login required");
-}
-
-const userId = user.userId.toString();
-
-
-// ================= QUERY =================
-const q = query(
-  collection(db, "transactions"),
-  where("receiverId", "==", userId),
-  orderBy("createdAt", "desc")
-);
-
-
-// ================= FORMAT TIME =================
-function formatTime(ts) {
-  if (!ts) return "";
-
-  const date = ts.toDate();
-
-  return date.toLocaleString("en-US", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit"
+  const app = initializeApp({
+    apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+    authDomain: "galmet-app.firebaseapp.com",
+    projectId: "galmet-app",
+    storageBucket: "galmet-app.firebasestorage.app"
   });
-}
+  const db = getFirestore(app);
 
-
-// ================= RENDER =================
-onSnapshot(q, (snap) => {
-
-  const container = document.getElementById("gemsHistory");
-  container.innerHTML = "";
-
-  if (snap.empty) {
-    container.innerHTML = `<div class="empty">No gems yet 💎</div>`;
-    return;
+  const currentUser = JSON.parse(localStorage.getItem("user"));
+  if (!currentUser || !currentUser.userId) {
+    window.location.replace("login.html");
   }
+  const userId = currentUser.userId.toString();
 
-  snap.forEach(doc => {
-    const d = doc.data();
+  // Query all transactions where user receives gems (gift, video call earnings, live gifts, etc.)
+  const q = query(
+    collection(db, "transactions"),
+    orderBy("createdAt", "desc")
+  );
 
-    container.innerHTML += `
-      <div class="card">
-        <div class="left">
-          <div class="title">🎁 Gift Received</div>
-          <div class="time">${formatTime(d.createdAt)}</div>
+  let totalEarned = 0;
+  let totalSpent = 0;
+
+  onSnapshot(q, (snapshot) => {
+    const container = document.getElementById("transactionList");
+    container.innerHTML = "";
+    totalEarned = 0;
+    totalSpent = 0;
+
+    if (snapshot.empty) {
+      container.innerHTML = '<div class="text-center py-8 text-outline">No gems history yet</div>';
+      document.getElementById("totalEarned").innerText = "0";
+      document.getElementById("totalSpent").innerText = "0";
+      return;
+    }
+
+    snapshot.forEach(docSnap => {
+      const tx = docSnap.data();
+      // Only show if user is involved and the transaction has gems
+      const isReceiver = tx.receiverId === userId && (tx.gems > 0);
+      const isSender = tx.senderId === userId && (tx.gems > 0 && tx.type === "gift"); // if user spends gems? Normally gems are only earned, not spent.
+      // Also handle video call earnings
+      const isVideoEarn = tx.type === "video_call" && tx.receiverId === userId && tx.gems > 0;
+      const isLiveGift = tx.type === "live_gift" && tx.receiverId === userId && tx.gems > 0;
+
+      if (!isReceiver && !isVideoEarn && !isLiveGift) return;
+
+      let title = "";
+      let amount = tx.gems || 0;
+      let sign = "+";
+      let typeClass = "tx-plus";
+      let icon = "diamond";
+
+      if (tx.type === "gift") {
+        title = `Gift Received: ${tx.giftName || "Gift"}`;
+        amount = tx.gems;
+        totalEarned += amount;
+      } else if (tx.type === "video_call") {
+        title = "Video Call Earnings";
+        amount = tx.gems;
+        totalEarned += amount;
+      } else if (tx.type === "live_gift") {
+        title = `Live Gift: ${tx.giftName || "Gift"}`;
+        amount = tx.gems;
+        totalEarned += amount;
+      } else {
+        title = "Gems Received";
+        totalEarned += amount;
+      }
+
+      const time = tx.createdAt?.seconds ? new Date(tx.createdAt.seconds * 1000).toLocaleString() : "Just now";
+
+      const div = document.createElement("div");
+      div.className = "glass-card rounded-xl p-3 flex justify-between items-center";
+      div.innerHTML = `
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-tertiary-container/20 flex items-center justify-center">
+            <span class="material-symbols-outlined text-tertiary">${icon}</span>
+          </div>
+          <div>
+            <p class="font-headline font-semibold text-sm text-on-surface">${escapeHtml(title)}</p>
+            <p class="text-[10px] text-outline">${time}</p>
+          </div>
         </div>
-        <div class="amount">+${d.gems} 💎</div>
-      </div>
-    `;
+        <div class="font-bold ${typeClass} text-base">
+          ${sign}${amount.toLocaleString()} 💎
+        </div>
+      `;
+      container.appendChild(div);
+    });
+
+    document.getElementById("totalEarned").innerText = totalEarned.toLocaleString();
+    document.getElementById("totalSpent").innerText = totalSpent.toLocaleString();
   });
 
-});
-
+  function escapeHtml(str) {
+    if (!str) return "";
+    return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m]));
+  }
 </script>
-
 </body>
 </html>
