@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Galmet – Party Room</title>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
   <style>
@@ -48,7 +49,7 @@
       background: rgba(0,0,0,0.4);
       backdrop-filter: blur(4px);
     }
-    .camera-frame img {
+    .camera-frame video, .camera-frame img {
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -67,21 +68,26 @@
       gap: 12px;
       z-index: 250;
     }
-    .bg-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-    }
-    .bg-option {
-      aspect-ratio: 16/9;
-      border-radius: 12px;
-      overflow: hidden;
-      cursor: pointer;
-      border: 2px solid transparent;
-      transition: 0.2s;
-    }
+    .bg-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .bg-option { aspect-ratio: 16/9; border-radius: 12px; overflow: hidden; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
     .bg-option.selected { border-color: #00e3fd; }
     .bg-option img { width: 100%; height: 100%; object-fit: cover; }
+    .controls-panel {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0,0,0,0.9);
+      backdrop-filter: blur(20px);
+      border-radius: 20px 20px 0 0;
+      padding: 16px;
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 260;
+    }
+    .controls-grid { display: flex; gap: 12px; justify-content: center; }
+    .ctrl-btn { background: #006571; border: none; padding: 10px 20px; border-radius: 30px; color: white; font-weight: bold; cursor: pointer; }
   </style>
 </head>
 <body class="bg-background font-body text-on-background min-h-screen overflow-x-hidden">
@@ -120,7 +126,6 @@
       <span class="material-symbols-outlined text-white text-xs">visibility</span>
       <span id="viewerCount" class="text-white text-[10px] font-bold">0</span>
     </div>
-    <!-- For host: 3-dots menu; for viewer: X button (same element, changes based on role) -->
     <button id="menuBtn" class="w-8 h-8 flex items-center justify-center rounded-full bg-black/10 text-on-surface hover:opacity-80">
       <span id="menuIcon" class="material-symbols-outlined text-xl">more_vert</span>
     </button>
@@ -130,9 +135,9 @@
 <main class="relative z-10 pt-20 pb-40 px-4 flex flex-col min-h-screen">
   <!-- Seat Grid -->
   <div class="max-w-md mx-auto w-full">
-    <!-- Top Row: 3 seats -->
+    <!-- Top Row: 3 seats (live video) -->
     <div class="grid grid-cols-3 gap-4 mb-6" id="topRowSeats"></div>
-    <!-- Bottom Row: 5 seats -->
+    <!-- Bottom Row: 5 seats (audio only / invite) -->
     <div class="grid grid-cols-5 gap-2 mb-8" id="bottomRowSeats"></div>
   </div>
 
@@ -205,6 +210,18 @@
   <div id="bgGrid" class="bg-grid"></div>
 </div>
 
+<!-- Controls Panel (Mic/Camera) -->
+<div id="controlsPanel" class="controls-panel">
+  <div class="flex justify-between items-center mb-2">
+    <h3 class="text-white font-bold">Audio/Video Controls</h3>
+    <button id="closeControls" class="close-gift">✕</button>
+  </div>
+  <div class="controls-grid">
+    <button id="toggleMicBtn" class="ctrl-btn">🎤 Mic</button>
+    <button id="toggleCamBtn" class="ctrl-btn">📷 Camera</button>
+  </div>
+</div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
   import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, onSnapshot, addDoc, serverTimestamp, query, orderBy, limit, updateDoc, increment, getDocs } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
@@ -235,6 +252,12 @@
   const membersRef = collection(db, "rooms", roomId, "members");
   const messagesRef = collection(db, "rooms", roomId, "messages");
 
+  // Agora
+  const APP_ID = "40a6e327deb541bfae210201bde9325e";
+  let client = null;
+  let localTracks = [];
+  let remoteUsers = {};
+
   // DOM elements
   const hostAvatarImg = document.getElementById("hostAvatar");
   const roomNameSpan = document.getElementById("roomName");
@@ -261,13 +284,17 @@
   const bgPickerPanel = document.getElementById("bgPickerPanel");
   const closeBgPicker = document.getElementById("closeBgPicker");
   const bgGrid = document.getElementById("bgGrid");
+  const controlsPanel = document.getElementById("controlsPanel");
+  const closeControls = document.getElementById("closeControls");
+  const toggleMicBtn = document.getElementById("toggleMicBtn");
+  const toggleCamBtn = document.getElementById("toggleCamBtn");
 
   let roomData = null;
   let members = [];
   let hostId = null;
   let isHost = false;
 
-  // Professional backgrounds (from Unsplash or local)
+  // Professional backgrounds
   const backgrounds = [
     "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800",
     "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800",
@@ -325,41 +352,45 @@
   }
 
   async function endLive() {
-    // Delete room and all subcollections (optional: just delete room document)
     await deleteDoc(roomRef);
     window.location.href = "party.html";
   }
 
   // ========== 2. Real-time Members & Seat Display ==========
   function renderSeats() {
+    // Sort members: host first, then others by join time
     const allMembers = [...members];
     const hostIndex = allMembers.findIndex(m => m.uid === hostId);
     if (hostIndex !== -1) {
       const hostMember = allMembers.splice(hostIndex, 1)[0];
       allMembers.unshift(hostMember);
     }
+    // Top row: first 3 members (live video)
     const topMembers = allMembers.slice(0, 3);
     const bottomMembers = allMembers.slice(3, 8);
-    // Top row
+    
+    // Render top row
     topRowSeats.innerHTML = "";
     for (let i = 0; i < 3; i++) {
       const member = topMembers[i];
       if (member) {
-        const isHostMember = member.uid === hostId;
         const div = document.createElement("div");
         div.className = "flex flex-col items-center gap-1";
         div.innerHTML = `
-          <div class="camera-frame">
-            <img src="${member.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.username)}&background=006571&color=fff`}">
-            ${isHostMember ? '<div class="absolute bottom-0 left-0 right-0 bg-primary text-white text-[7px] py-0.5 text-center font-bold">HOST</div>' : ''}
-          </div>
+          <div id="video-${member.uid}" class="camera-frame"></div>
           <span class="text-white text-[9px] font-medium truncate max-w-[64px]">${member.username}</span>
         `;
         topRowSeats.appendChild(div);
+        // Play video if track exists
+        if (remoteUsers[member.uid]?.videoTrack) {
+          const container = document.getElementById(`video-${member.uid}`);
+          if (container) remoteUsers[member.uid].videoTrack.play(container);
+        }
       } else {
+        // Empty seat (invite / join)
         const div = document.createElement("div");
         div.className = "flex flex-col items-center gap-1 cursor-pointer";
-        div.onclick = () => joinRoom(); // click to join
+        div.onclick = () => joinRoom();
         div.innerHTML = `
           <div class="camera-frame flex items-center justify-center">
             <span class="material-symbols-outlined text-white/60 text-3xl">add</span>
@@ -369,7 +400,7 @@
         topRowSeats.appendChild(div);
       }
     }
-    // Bottom row
+    // Bottom row (audio only)
     bottomRowSeats.innerHTML = "";
     for (let i = 0; i < 5; i++) {
       const member = bottomMembers[i];
@@ -378,7 +409,7 @@
         div.className = "flex flex-col items-center gap-1";
         div.innerHTML = `
           <div class="w-12 h-12 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 overflow-hidden">
-            <img class="w-full h-full object-cover" src="${member.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.username)}&background=006571&color=fff`}">
+            <img src="${member.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.username)}&background=006571&color=fff`}" class="w-full h-full object-cover">
           </div>
           <span class="text-white/60 text-[7px] uppercase tracking-widest truncate max-w-[48px]">${member.username}</span>
         `;
@@ -396,7 +427,6 @@
         bottomRowSeats.appendChild(div);
       }
     }
-    // Update viewer count
     viewerCountSpan.innerText = members.length;
   }
 
@@ -424,7 +454,7 @@
     });
   }
 
-  // ========== 3. Join Room ==========
+  // ========== 3. Join / Leave Room ==========
   async function joinRoom() {
     const memberDoc = doc(db, "rooms", roomId, "members", myUserId);
     const memberSnap = await getDoc(memberDoc);
@@ -441,9 +471,12 @@
   async function leaveRoom() {
     await deleteDoc(doc(db, "rooms", roomId, "members", myUserId));
     await updateDoc(roomRef, { users: increment(-1) });
+    if (client) {
+      for (let track of localTracks) track.close();
+      await client.leave();
+    }
     window.location.href = "party.html";
   }
-  // For viewer's X button, we already set menuBtn to call leaveRoom. For host, leaveBtn goes back without leaving? We'll keep leaveBtn as back button for all.
   leaveBtn.onclick = () => {
     if (isHost) {
       if (confirm("End live and go back?")) endLive();
@@ -452,7 +485,46 @@
     }
   };
 
-  // ========== 4. Real-time Chat ==========
+  // ========== 4. Agora Video Integration ==========
+  async function startAgora() {
+    client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
+    await client.join(APP_ID, roomId, null, myUserId);
+    localTracks = await AgoraRTC.createMicrophoneAndCameraTracks();
+    // Play local video in a container (add to top row)
+    const localDiv = document.createElement("div");
+    localDiv.id = `video-${myUserId}`;
+    localDiv.className = "camera-frame";
+    // We'll insert into the top row during render, but for now we just create and play later.
+    // The render function will handle placement. We'll just play after render.
+    await client.publish(localTracks);
+    // Handle remote users
+    client.on("user-published", async (user, mediaType) => {
+      await client.subscribe(user, mediaType);
+      if (mediaType === "video") {
+        remoteUsers[user.uid] = { videoTrack: user.videoTrack };
+        const container = document.getElementById(`video-${user.uid}`);
+        if (container) user.videoTrack.play(container);
+      }
+      if (mediaType === "audio") {
+        user.audioTrack.play();
+      }
+    });
+    client.on("user-unpublished", (user) => {
+      const container = document.getElementById(`video-${user.uid}`);
+      if (container) container.innerHTML = "";
+      delete remoteUsers[user.uid];
+    });
+  }
+
+  // After members load, ensure local video is played in its container
+  function playLocalVideo() {
+    const container = document.getElementById(`video-${myUserId}`);
+    if (container && localTracks[1]) {
+      localTracks[1].play(container);
+    }
+  }
+
+  // ========== 5. Real-time Chat ==========
   function listenChat() {
     const q = query(messagesRef, orderBy("timestamp", "desc"), limit(50));
     onSnapshot(q, (snap) => {
@@ -512,7 +584,7 @@
     }
   });
 
-  // ========== 5. Gift System ==========
+  // ========== 6. Gift System (with charm level based gems) ==========
   async function loadGifts() {
     const snapshot = await getDocs(collection(db, "gifts"));
     giftGrid.innerHTML = "";
@@ -545,10 +617,14 @@
     if (hostId) {
       const hostRef = doc(db, "users", hostId);
       const hostSnap = await getDoc(hostRef);
-      const currentGems = hostSnap.data()?.gems || 0;
-      await updateDoc(hostRef, { gems: currentGems + price });
-      await updateDoc(roomRef, { rewards: increment(price) });
-      rewardAmountSpan.innerText = (roomData?.rewards || 0) + price;
+      // Get host's charm level to calculate gems earned
+      const charmLevel = hostSnap.data()?.charmLevel || 0;
+      // Gem rate: 30% + (level * 1%) as per backend
+      const gemRate = 0.30 + (charmLevel * 0.01);
+      const gemsEarned = Math.floor(price * gemRate);
+      await updateDoc(hostRef, { gems: increment(gemsEarned) });
+      await updateDoc(roomRef, { rewards: increment(gemsEarned) });
+      rewardAmountSpan.innerText = (roomData?.rewards || 0) + gemsEarned;
     }
     await sendMessage('', 'gift', { name: giftName, image: giftImage, quantity: 1 });
     const anim = document.createElement("div");
@@ -564,17 +640,16 @@
   openGiftBtn.onclick = openGiftPanelFn;
   closeGiftPanelBtn.onclick = closeGiftPanelFn;
 
-  // ========== 6. Background Picker ==========
+  // ========== 7. Background Picker ==========
   function initBgPicker() {
     bgGrid.innerHTML = "";
-    backgrounds.forEach((url, idx) => {
+    backgrounds.forEach((url) => {
       const div = document.createElement("div");
       div.className = "bg-option";
       div.innerHTML = `<img src="${url}">`;
       div.onclick = () => {
         roomCoverImg.src = url;
         closeBgPickerFn();
-        // Optionally save to Firestore for persistence
         updateDoc(roomRef, { coverPhoto: url }).catch(console.error);
       };
       bgGrid.appendChild(div);
@@ -585,7 +660,30 @@
   bgPickerBtn.onclick = openBgPickerFn;
   closeBgPicker.onclick = closeBgPickerFn;
 
-  // ========== 7. Helper ==========
+  // ========== 8. Controls Panel (Mic/Camera) ==========
+  function openControls() { controlsPanel.style.display = "flex"; }
+  function closeControlsFn() { controlsPanel.style.display = "none"; }
+  document.getElementById("bgPickerBtn").addEventListener("click", openControls); // Reuse 4-dots button to open controls
+  closeControls.onclick = closeControlsFn;
+
+  function toggleMic() {
+    if (localTracks[0]) {
+      const enabled = localTracks[0].enabled;
+      localTracks[0].setEnabled(!enabled);
+      toggleMicBtn.innerHTML = enabled ? "🎤 Mic (Off)" : "🎤 Mic (On)";
+    }
+  }
+  function toggleCam() {
+    if (localTracks[1]) {
+      const enabled = localTracks[1].enabled;
+      localTracks[1].setEnabled(!enabled);
+      toggleCamBtn.innerHTML = enabled ? "📷 Camera (Off)" : "📷 Camera (On)";
+    }
+  }
+  toggleMicBtn.onclick = toggleMic;
+  toggleCamBtn.onclick = toggleCam;
+
+  // ========== 9. Helper ==========
   function escapeHtml(str) {
     if (!str) return "";
     return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m]));
@@ -594,10 +692,22 @@
   // ========== Init ==========
   async function init() {
     await loadRoomData();
-    await joinRoom(); // auto join when page loads
+    await joinRoom();
+    await startAgora();
     loadMembers();
     listenChat();
     initBgPicker();
+    // Wait a bit for members to render, then play local video
+    setTimeout(() => {
+      playLocalVideo();
+      // Also play remote videos that might have arrived before containers
+      Object.keys(remoteUsers).forEach(uid => {
+        const container = document.getElementById(`video-${uid}`);
+        if (container && remoteUsers[uid].videoTrack) {
+          remoteUsers[uid].videoTrack.play(container);
+        }
+      });
+    }, 1000);
   }
   init();
 </script>
