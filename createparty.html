@@ -3,228 +3,174 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Galmet – Party Room</title>
+  <title>Galmet - Create Party Room</title>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-  <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface": "#f3f7fb", "surface-container-low": "#ecf1f6",
+            "surface-container-lowest": "#ffffff", "on-surface": "#2a2f32",
+            "on-surface-variant": "#575c60", "primary": "#006571",
+            "primary-container": "#00e3fd", "primary-dim": "#005863",
+            "secondary": "#755700", "tertiary": "#b60051",
+            "outline": "#73777b", "outline-variant": "#a9aeb1"
+          },
+          fontFamily: {
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Be Vietnam Pro"],
+            "label": ["Plus Jakarta Sans"]
+          },
+          borderRadius: { DEFAULT: "1rem", lg: "2rem", xl: "3rem", full: "9999px" }
+        }
+      }
+    }
+  </script>
   <style>
-    * { box-sizing: border-box; }
-    body { background: #f3f7fb; }
     .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-    .custom-glass { background: rgba(0, 101, 113, 0.2); backdrop-filter: blur(12px); }
-    .scrollbar-hide::-webkit-scrollbar { display: none; }
-    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-    .chat-mask { mask-image: linear-gradient(to top, black 85%, transparent 100%); }
-    .gift-panel {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(0,0,0,0.9);
-      backdrop-filter: blur(20px);
-      border-radius: 20px 20px 0 0;
-      padding: 16px;
-      display: none;
-      flex-direction: column;
-      gap: 12px;
-      z-index: 200;
-      max-height: 60%;
-      overflow-y: auto;
-    }
-    .gift-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-    .gift-item { background: rgba(255,255,255,0.1); border-radius: 12px; padding: 8px; text-align: center; cursor: pointer; transition: 0.2s; }
-    .gift-item:active { transform: scale(0.95); }
-    .gift-item img { width: 50px; height: 50px; object-fit: contain; margin-bottom: 4px; }
-    .gift-name { font-size: 10px; color: white; }
-    .gift-price { font-size: 9px; color: #f59e0b; }
-    .close-gift { background: rgba(255,255,255,0.2); border: none; padding: 8px; border-radius: 30px; color: white; }
-    .camera-frame {
-      position: relative;
-      width: 72px;
-      height: 72px;
-      border-radius: 16px;
-      overflow: hidden;
-      border: 2px solid rgba(255,255,255,0.3);
-      background: rgba(0,0,0,0.4);
-      backdrop-filter: blur(4px);
-    }
-    .camera-frame video, .camera-frame img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .bg-picker {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(0,0,0,0.9);
-      backdrop-filter: blur(20px);
-      border-radius: 20px 20px 0 0;
-      padding: 16px;
-      display: none;
-      flex-direction: column;
-      gap: 12px;
-      z-index: 250;
-    }
-    .bg-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-    .bg-option { aspect-ratio: 16/9; border-radius: 12px; overflow: hidden; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
-    .bg-option.selected { border-color: #00e3fd; }
-    .bg-option img { width: 100%; height: 100%; object-fit: cover; }
-    .controls-panel {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(0,0,0,0.9);
-      backdrop-filter: blur(20px);
-      border-radius: 20px 20px 0 0;
-      padding: 16px;
-      display: none;
-      flex-direction: column;
-      gap: 12px;
-      z-index: 260;
-    }
-    .controls-grid { display: flex; gap: 12px; justify-content: center; }
-    .ctrl-btn { background: #006571; border: none; padding: 10px 20px; border-radius: 30px; color: white; font-weight: bold; cursor: pointer; }
+    .glass-card { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
   </style>
 </head>
-<body class="bg-background font-body text-on-background min-h-screen overflow-x-hidden">
-
-<!-- Hero Background (room cover or default) -->
-<div class="fixed inset-0 z-0">
-  <img id="roomCover" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA20THb-mnLuJuMVVEs5Nco4vurMKZyjwxbe-W-Uf31d7QbNQS_KI_bQplpTqJ7cXu5RI20jhbRkhzOPSwu2XF_T4G3UvgrhRbeXkmUqcrSP-25vpaHrZHNncWyT6Avp8NVLm8lUemyYs9MMXrCHQsBOMi9Tkew5o-4bQooMiqiIB8KooDFbGjXdgoLKX11AxSSueSaxoZivYU5V5lfSTgJ9A_eZkQdsTHMtOGI53wnt1zRQAfhczG_jZdwzgzoSvqPMyyGEr-_aYZ8">
-  <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60"></div>
-</div>
+<body class="bg-surface font-body text-on-surface min-h-screen pb-32">
 
 <!-- Top Navigation -->
-<header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 py-3 bg-[#f3f7fb]/80 backdrop-blur-xl border-b border-white/5">
-  <div class="flex items-center gap-2">
-    <button id="leaveBtn" class="w-8 h-8 flex items-center justify-center rounded-full bg-black/10 text-slate-600 hover:bg-black/20 active:scale-90 transition-all">
-      <span id="leaveIcon" class="material-symbols-outlined text-xl">arrow_back</span>
-    </button>
-    <div class="flex items-center gap-2">
-      <div class="relative">
-        <img id="hostAvatar" class="w-9 h-9 rounded-full border-2 border-primary-fixed object-cover" src="">
-        <div class="absolute -bottom-0.5 -right-0.5 bg-secondary rounded-full p-0.5">
-          <span class="material-symbols-outlined text-[10px] text-white" style="font-variation-settings:'FILL'1">star</span>
-        </div>
-      </div>
-      <div>
-        <h1 id="roomName" class="text-[#006571] font-headline font-bold tracking-tight leading-none text-xs"></h1>
-        <p id="roomInfo" class="text-[9px] text-slate-500 font-medium">Loading...</p>
-      </div>
-    </div>
-  </div>
-  <div class="flex items-center gap-2">
-    <div class="bg-black/10 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1.5 border border-white/10">
-      <span class="material-symbols-outlined text-secondary-fixed text-xs" style="font-variation-settings:'FILL'1">payments</span>
-      <span id="rewardAmount" class="text-on-surface text-[10px] font-bold">0</span>
-    </div>
-    <div class="bg-black/10 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1.5 border border-white/10">
-      <span class="material-symbols-outlined text-white text-xs">visibility</span>
-      <span id="viewerCount" class="text-white text-[10px] font-bold">0</span>
-    </div>
-    <button id="menuBtn" class="w-8 h-8 flex items-center justify-center rounded-full bg-black/10 text-on-surface hover:opacity-80">
-      <span id="menuIcon" class="material-symbols-outlined text-xl">more_vert</span>
-    </button>
-  </div>
+<header class="flex justify-between items-center px-6 h-16 w-full sticky top-0 z-50 bg-white/40 backdrop-blur-md">
+  <button onclick="history.back()" class="flex items-center justify-center w-10 h-10 rounded-full hover:opacity-80 transition-opacity">
+    <span class="material-symbols-outlined text-primary">arrow_back</span>
+  </button>
+  <h1 class="font-headline font-bold text-lg text-primary">Create Party</h1>
+  <button class="flex items-center justify-center w-10 h-10 rounded-full hover:opacity-80 transition-opacity">
+    <span class="material-symbols-outlined text-primary">settings</span>
+  </button>
 </header>
 
-<main class="relative z-10 pt-20 pb-40 px-4 flex flex-col min-h-screen">
-  <!-- Seat Grid -->
-  <div class="max-w-md mx-auto w-full">
-    <!-- Top Row: 3 seats (live video) -->
-    <div class="grid grid-cols-3 gap-4 mb-6" id="topRowSeats"></div>
-    <!-- Bottom Row: 5 seats (audio only / invite) -->
-    <div class="grid grid-cols-5 gap-2 mb-8" id="bottomRowSeats"></div>
-  </div>
-
-  <!-- Room Rules / Announcement -->
-  <div class="max-w-xs mx-auto mb-6">
-    <div class="custom-glass rounded-lg p-3 border border-primary-fixed/20 shadow-lg">
-      <div class="flex items-center gap-2 mb-1.5">
-        <span class="material-symbols-outlined text-primary-fixed text-xs" style="font-variation-settings:'FILL'1">info</span>
-        <h3 id="roomAnnouncementTitle" class="text-white text-[11px] font-headline font-bold">Welcome to the Party</h3>
+<main class="max-w-md mx-auto px-6 space-y-6 mt-4">
+  <!-- Banner Upload Section -->
+  <section class="relative group">
+    <div class="w-full h-48 rounded-lg overflow-hidden bg-surface-container-highest relative">
+      <img id="bannerPreview" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBi2ACL0grtYoDrnJiuKS3p3ohbJsYeYhiXsdA14U7Oi23ELmWQnwo4RgXHfZ8Mf2iMCYTrpYmAeIxgyUE-USbvckIDrk5VygS8vP-sw3B5mEtapI0bn9IvAjFsrHJty0ckFAm0zN-ERarS6FsDyiGakn3XaMT7rTW1Tt0tZGFc6gBtEowsBAWMdorKiaBGpDCpeWttPzYz43GNpRxD2aj4xd4wbmySC5TuY2-x8-tIWLADUoRSCyHTHt4PFi_teIIurRyZQGU3I0f8">
+      <div class="absolute inset-0 flex flex-col items-center justify-center bg-black/10 cursor-pointer" onclick="document.getElementById('bannerInput').click()">
+        <div class="w-14 h-14 rounded-full bg-white/90 shadow-lg flex items-center justify-center mb-2">
+          <span class="material-symbols-outlined text-primary text-3xl">add_a_photo</span>
+        </div>
+        <span class="font-label text-xs font-bold text-white uppercase tracking-wider drop-shadow-md">Upload Party Banner</span>
       </div>
-      <p id="roomAnnouncementText" class="text-white/80 text-[9px] leading-snug">Enjoy our party! Keep it friendly.</p>
-      <div class="mt-2 flex gap-1.5">
-        <span id="roomCategoryTag" class="bg-primary-fixed/20 text-primary-fixed text-[7px] px-1.5 py-0.5 rounded-full font-bold">#Party</span>
+      <input type="file" id="bannerInput" accept="image/*" class="hidden">
+    </div>
+  </section>
+
+  <!-- Room Details Form -->
+  <section class="space-y-5">
+    <div>
+      <label class="font-label text-xs font-bold text-on-surface-variant ml-2">Room Title</label>
+      <input id="roomTitle" class="w-full px-6 py-4 rounded-lg bg-surface-container-lowest border-none shadow-sm focus:ring-2 focus:ring-primary text-on-surface font-semibold" type="text" placeholder="My Awesome Party">
+    </div>
+    <div>
+      <label class="font-label text-xs font-bold text-on-surface-variant ml-2">Room Privacy</label>
+      <div class="flex gap-3">
+        <button id="privacyPublic" class="flex-1 py-3 rounded-full bg-primary text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-primary/20">
+          <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL'1">public</span> Public
+        </button>
+        <button id="privacyPrivate" class="flex-1 py-3 rounded-full bg-surface-container-highest text-on-surface-variant font-bold text-sm flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-sm">lock</span> Private
+        </button>
       </div>
     </div>
-  </div>
+    <div>
+      <label class="font-label text-xs font-bold text-on-surface-variant ml-2">Announcement</label>
+      <textarea id="announcement" class="w-full px-6 py-4 rounded-lg bg-surface-container-lowest border-none shadow-sm focus:ring-2 focus:ring-primary text-on-surface min-h-[80px]" placeholder="Welcome to the best party on Galmet! Let's have fun!"></textarea>
+    </div>
+  </section>
 
-  <!-- Chat Area -->
-  <div class="mt-auto mb-4 max-w-sm chat-mask h-32 overflow-y-auto pr-4 scrollbar-hide">
-    <div id="chatMessages" class="space-y-2"></div>
-  </div>
+  <!-- Seat Limit (ONLY 8 seats – functional) -->
+  <section class="space-y-4">
+    <div class="flex items-center justify-between px-2">
+      <label class="font-label text-xs font-bold text-on-surface-variant">Seat Limit</label>
+      <span class="text-xs font-bold text-primary px-3 py-1 bg-primary-container/20 rounded-full">8 Seats</span>
+    </div>
+    <div class="bg-surface-container-low p-2 rounded-full flex justify-center">
+      <div class="px-5 py-2 rounded-full bg-primary text-white shadow-md text-sm font-bold">8</div>
+    </div>
+  </section>
 
-  <!-- Quick Action Buttons -->
-  <div class="flex gap-1.5 mb-2 overflow-x-auto pb-2 scrollbar-hide">
-    <button class="quick-btn whitespace-nowrap px-3 py-1.5 bg-white/10 backdrop-blur-md rounded-full text-white text-[9px] font-headline font-bold border border-white/5 active:scale-95 transition-transform" data-msg="🎵 Let's beat the music!">Beat</button>
-    <button class="quick-btn whitespace-nowrap px-3 py-1.5 bg-white/10 backdrop-blur-md rounded-full text-white text-[9px] font-headline font-bold border border-white/5 active:scale-95 transition-transform" data-msg="🎲 Bingo!">Bingo</button>
-    <button class="quick-btn whitespace-nowrap px-3 py-1.5 bg-gradient-to-r from-tertiary to-tertiary-fixed-dim rounded-full text-white text-[9px] font-headline font-bold shadow-md active:scale-95 transition-transform" data-msg="✨ Blingbling!">Blingbling</button>
-    <button class="quick-btn whitespace-nowrap px-3 py-1.5 bg-white/10 backdrop-blur-md rounded-full text-white text-[9px] font-headline font-bold border border-white/5 active:scale-95 transition-transform" data-msg="👏 Clap clap!">Clap</button>
-  </div>
+  <!-- Layout Preview (8 Seats) – static display -->
+  <section class="space-y-4">
+    <label class="font-label text-xs font-bold text-on-surface-variant ml-2">Layout Preview</label>
+    <div class="bg-surface-container p-6 rounded-lg space-y-6">
+      <div class="flex justify-center gap-4">
+        <div class="w-16 h-16 bg-white rounded-md flex items-center justify-center relative shadow-sm border-b-2 border-primary">
+          <span class="material-symbols-outlined text-primary-dim text-xl">videocam</span>
+          <div class="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full border-2 border-white"></div>
+        </div>
+        <div class="w-16 h-16 bg-white rounded-md flex items-center justify-center relative shadow-sm border-b-2 border-primary">
+          <span class="material-symbols-outlined text-primary-dim text-xl">videocam</span>
+          <div class="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full border-2 border-white"></div>
+        </div>
+        <div class="w-16 h-16 bg-white rounded-md flex items-center justify-center relative shadow-sm border-b-2 border-primary">
+          <span class="material-symbols-outlined text-primary-dim text-xl">videocam</span>
+          <div class="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full border-2 border-white"></div>
+        </div>
+      </div>
+      <div class="flex flex-wrap justify-center gap-3">
+        <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm"><span class="material-symbols-outlined text-on-surface-variant text-lg">mic</span></div>
+        <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm"><span class="material-symbols-outlined text-on-surface-variant text-lg">mic</span></div>
+        <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm"><span class="material-symbols-outlined text-on-surface-variant text-lg">mic</span></div>
+        <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm"><span class="material-symbols-outlined text-on-surface-variant text-lg">mic</span></div>
+        <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm"><span class="material-symbols-outlined text-on-surface-variant text-lg">mic</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Category -->
+  <section class="space-y-4">
+    <label class="font-label text-xs font-bold text-on-surface-variant ml-2">Category</label>
+    <div class="flex flex-wrap gap-2">
+      <button id="catGame" class="px-5 py-2.5 rounded-full bg-secondary-container text-on-secondary-fixed font-bold text-sm flex items-center gap-2 shadow-sm">
+        <span class="material-symbols-outlined text-sm">sports_esports</span> Game Room
+      </button>
+      <button id="catChat" class="px-5 py-2.5 rounded-full bg-white text-on-surface-variant font-bold text-sm flex items-center gap-2 border-outline-variant/10 border">
+        <span class="material-symbols-outlined text-sm">forum</span> Chat Room
+      </button>
+      <button id="catSpin" class="px-5 py-2.5 rounded-full bg-white text-on-surface-variant font-bold text-sm flex items-center gap-2 border-outline-variant/10 border">
+        <span class="material-symbols-outlined text-sm">poker_chip</span> Lucky Spin
+      </button>
+    </div>
+  </section>
+
+  <!-- Video Filter (coming soon) -->
+  <section>
+    <button class="w-full flex items-center justify-between p-4 rounded-lg bg-surface-container-low hover:bg-surface-container-highest transition-colors" onclick="alert('Video filters coming soon')">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-tertiary-container flex items-center justify-center">
+          <span class="material-symbols-outlined text-on-tertiary-container">magic_button</span>
+        </div>
+        <div>
+          <p class="font-bold text-sm">Video Filter</p>
+          <p class="text-[10px] text-on-surface-variant">Apply live beauty effects & AR</p>
+        </div>
+      </div>
+      <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+    </button>
+  </section>
 </main>
 
-<!-- Bottom Bar -->
-<div class="fixed bottom-0 w-full z-50 bg-white/90 backdrop-blur-2xl rounded-t-[1.5rem] shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
-  <div class="flex items-center justify-between px-5 py-3 gap-3">
-    <div class="flex-1 bg-slate-100 rounded-full px-4 py-2 flex items-center gap-2">
-      <span class="material-symbols-outlined text-slate-400 text-base">chat_bubble</span>
-      <input type="text" id="chatInput" class="flex-1 bg-transparent border-none text-sm text-slate-700 placeholder-slate-400 focus:outline-none" placeholder="Say something...">
-    </div>
-    <div class="flex items-center gap-4">
-      <button id="openGiftBtn" class="relative text-slate-400 hover:text-primary transition-colors active:scale-110">
-        <span class="material-symbols-outlined text-2xl">redeem</span>
-        <div class="absolute -top-1 -right-1 w-2 h-2 bg-tertiary rounded-full border border-white"></div>
-      </button>
-      <button onclick="window.location.href='party.html'" class="flex flex-col items-center justify-center bg-primary text-white rounded-full p-2.5 shadow-md active:scale-110 transition-transform">
-        <span class="material-symbols-outlined text-xl" style="font-variation-settings:'FILL'1">sports_esports</span>
-      </button>
-      <button id="bgPickerBtn" class="text-slate-400 hover:text-slate-600 active:scale-110">
-        <span class="material-symbols-outlined text-2xl">grid_view</span>
-      </button>
-    </div>
-  </div>
-  <div class="h-4"></div>
-</div>
-
-<!-- Gift Panel -->
-<div id="giftPanel" class="gift-panel">
-  <div class="flex justify-between items-center mb-2">
-    <h3 class="text-white font-bold">Send a Gift</h3>
-    <button id="closeGiftPanel" class="close-gift">✕</button>
-  </div>
-  <div id="giftGrid" class="gift-grid"></div>
-</div>
-
-<!-- Background Picker Panel -->
-<div id="bgPickerPanel" class="bg-picker">
-  <div class="flex justify-between items-center mb-2">
-    <h3 class="text-white font-bold">Change Background</h3>
-    <button id="closeBgPicker" class="close-gift">✕</button>
-  </div>
-  <div id="bgGrid" class="bg-grid"></div>
-</div>
-
-<!-- Controls Panel (Mic/Camera) -->
-<div id="controlsPanel" class="controls-panel">
-  <div class="flex justify-between items-center mb-2">
-    <h3 class="text-white font-bold">Audio/Video Controls</h3>
-    <button id="closeControls" class="close-gift">✕</button>
-  </div>
-  <div class="controls-grid">
-    <button id="toggleMicBtn" class="ctrl-btn">🎤 Mic</button>
-    <button id="toggleCamBtn" class="ctrl-btn">📷 Camera</button>
+<!-- Fixed Action Button (Create Party) -->
+<div class="fixed bottom-0 left-0 right-0 p-6 glass-card bg-white/60">
+  <div class="max-w-md mx-auto">
+    <button id="createPartyBtn" class="w-full h-14 rounded-full bg-gradient-to-r from-primary to-primary-fixed-dim text-white font-headline font-extrabold text-lg flex items-center justify-center gap-3 shadow-[0_12px_24px_-8px_rgba(0,101,113,0.4)] active:scale-95 transition-all duration-200">
+      <span class="material-symbols-outlined" style="font-variation-settings:'FILL'1">celebration</span> Let's Party
+    </button>
   </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-  import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, onSnapshot, addDoc, serverTimestamp, query, orderBy, limit, updateDoc, increment, getDocs } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
 
   const app = initializeApp({
     apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
@@ -233,483 +179,153 @@
     storageBucket: "galmet-app.firebasestorage.app"
   });
   const db = getFirestore(app);
+  const storage = getStorage(app);
 
   const currentUser = JSON.parse(localStorage.getItem("user"));
   if (!currentUser || !currentUser.userId) {
     window.location.replace("login.html");
   }
-  const myUserId = currentUser.userId.toString();
-  const myUsername = currentUser.username || "User";
-  const myPhoto = currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(myUsername)}&background=006571&color=fff`;
-
-  const urlParams = new URLSearchParams(window.location.search);
-  const roomId = urlParams.get("id");
-  if (!roomId) {
-    alert("Invalid room");
-    window.location.href = "party.html";
-  }
-  const roomRef = doc(db, "rooms", roomId);
-  const membersRef = collection(db, "rooms", roomId, "members");
-  const messagesRef = collection(db, "rooms", roomId, "messages");
-
-  // Agora
-  const APP_ID = "40a6e327deb541bfae210201bde9325e";
-  let client = null;
-  let localTracks = [];
-  let remoteUsers = {};
+  const userId = currentUser.userId.toString();
+  const username = currentUser.username || "User";
+  const photoURL = currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=006571&color=fff`;
 
   // DOM elements
-  const hostAvatarImg = document.getElementById("hostAvatar");
-  const roomNameSpan = document.getElementById("roomName");
-  const roomInfoSpan = document.getElementById("roomInfo");
-  const rewardAmountSpan = document.getElementById("rewardAmount");
-  const viewerCountSpan = document.getElementById("viewerCount");
-  const roomAnnouncementTitle = document.getElementById("roomAnnouncementTitle");
-  const roomAnnouncementText = document.getElementById("roomAnnouncementText");
-  const roomCategoryTag = document.getElementById("roomCategoryTag");
-  const roomCoverImg = document.getElementById("roomCover");
-  const topRowSeats = document.getElementById("topRowSeats");
-  const bottomRowSeats = document.getElementById("bottomRowSeats");
-  const chatMessagesDiv = document.getElementById("chatMessages");
-  const leaveBtn = document.getElementById("leaveBtn");
-  const menuBtn = document.getElementById("menuBtn");
-  const menuIcon = document.getElementById("menuIcon");
-  const leaveIcon = document.getElementById("leaveIcon");
-  const openGiftBtn = document.getElementById("openGiftBtn");
-  const giftPanel = document.getElementById("giftPanel");
-  const closeGiftPanelBtn = document.getElementById("closeGiftPanel");
-  const giftGrid = document.getElementById("giftGrid");
-  const chatInput = document.getElementById("chatInput");
-  const bgPickerBtn = document.getElementById("bgPickerBtn");
-  const bgPickerPanel = document.getElementById("bgPickerPanel");
-  const closeBgPicker = document.getElementById("closeBgPicker");
-  const bgGrid = document.getElementById("bgGrid");
-  const controlsPanel = document.getElementById("controlsPanel");
-  const closeControls = document.getElementById("closeControls");
-  const toggleMicBtn = document.getElementById("toggleMicBtn");
-  const toggleCamBtn = document.getElementById("toggleCamBtn");
+  const roomTitle = document.getElementById("roomTitle");
+  const announcement = document.getElementById("announcement");
+  const privacyPublic = document.getElementById("privacyPublic");
+  const privacyPrivate = document.getElementById("privacyPrivate");
+  const catGame = document.getElementById("catGame");
+  const catChat = document.getElementById("catChat");
+  const catSpin = document.getElementById("catSpin");
+  const bannerInput = document.getElementById("bannerInput");
+  const bannerPreview = document.getElementById("bannerPreview");
+  const createBtn = document.getElementById("createPartyBtn");
 
-  let roomData = null;
-  let members = [];
-  let hostId = null;
-  let isHost = false;
+  let selectedPrivacy = "public";
+  let selectedCategory = "game";
+  let selectedBannerFile = null;
 
-  // Professional backgrounds
-  const backgrounds = [
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800",
-    "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800",
-    "https://images.unsplash.com/photo-1536240474400-bc3c7eac8f0d?w=800",
-    "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
-    "https://images.unsplash.com/photo-1500462918059-b1a0cb512f1d?w=800",
-    "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?w=800"
-  ];
+  // Privacy selection
+  privacyPublic.onclick = () => {
+    privacyPublic.classList.add("bg-primary", "text-white", "shadow-lg");
+    privacyPrivate.classList.remove("bg-primary", "text-white", "shadow-lg");
+    privacyPrivate.classList.add("bg-surface-container-highest", "text-on-surface-variant");
+    selectedPrivacy = "public";
+  };
+  privacyPrivate.onclick = () => {
+    privacyPrivate.classList.add("bg-primary", "text-white", "shadow-lg");
+    privacyPublic.classList.remove("bg-primary", "text-white", "shadow-lg");
+    privacyPublic.classList.add("bg-surface-container-highest", "text-on-surface-variant");
+    selectedPrivacy = "private";
+  };
 
-  // ========== 1. Load Room Data ==========
-  async function loadRoomData() {
-    const snap = await getDoc(roomRef);
-    if (!snap.exists()) {
-      alert("Room not found");
-      window.location.href = "party.html";
-      return;
-    }
-    roomData = snap.data();
-    hostId = roomData.hostId?.toString();
-    isHost = (myUserId === hostId);
-    roomNameSpan.innerText = roomData.name || "Unnamed Room";
-    roomInfoSpan.innerText = `ID: ${hostId || "?"} • LIVE`;
-    rewardAmountSpan.innerText = roomData.rewards || 0;
-    roomAnnouncementTitle.innerText = roomData.announcement ? "Announcement" : "Welcome";
-    roomAnnouncementText.innerText = roomData.announcement || "Enjoy the party! Keep it friendly.";
-    roomCategoryTag.innerText = roomData.category ? `#${roomData.category}` : "#Party";
-    if (roomData.coverPhoto) roomCoverImg.src = roomData.coverPhoto;
-    if (hostId) {
-      const userSnap = await getDoc(doc(db, "users", hostId));
-      if (userSnap.exists()) {
-        const hostUser = userSnap.data();
-        hostAvatarImg.src = hostUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(hostUser.username || "Host")}&background=006571&color=fff`;
-      } else {
-        hostAvatarImg.src = roomData.hostPhoto || `https://ui-avatars.com/api/?name=${encodeURIComponent(roomData.hostName || "Host")}&background=006571&color=fff`;
-      }
-    }
-    // UI based on role
-    if (isHost) {
-      menuIcon.innerText = "more_vert";
-      leaveIcon.innerText = "arrow_back";
-      menuBtn.onclick = () => {
-        if (confirm("End the live party? This will close the room for everyone.")) {
-          endLive();
-        }
-      };
-    } else {
-      menuIcon.innerText = "close";
-      leaveIcon.innerText = "arrow_back";
-      menuBtn.onclick = () => {
-        if (confirm("Leave the party?")) {
-          leaveRoom();
-        }
-      };
-    }
-  }
-
-  async function endLive() {
-    await deleteDoc(roomRef);
-    window.location.href = "party.html";
-  }
-
-  // ========== 2. Real-time Members & Seat Display ==========
-  function renderSeats() {
-    // Sort members: host first, then others by join time
-    const allMembers = [...members];
-    const hostIndex = allMembers.findIndex(m => m.uid === hostId);
-    if (hostIndex !== -1) {
-      const hostMember = allMembers.splice(hostIndex, 1)[0];
-      allMembers.unshift(hostMember);
-    }
-    // Top row: first 3 members (live video)
-    const topMembers = allMembers.slice(0, 3);
-    const bottomMembers = allMembers.slice(3, 8);
-    
-    // Render top row
-    topRowSeats.innerHTML = "";
-    for (let i = 0; i < 3; i++) {
-      const member = topMembers[i];
-      if (member) {
-        const div = document.createElement("div");
-        div.className = "flex flex-col items-center gap-1";
-        div.innerHTML = `
-          <div id="video-${member.uid}" class="camera-frame"></div>
-          <span class="text-white text-[9px] font-medium truncate max-w-[64px]">${member.username}</span>
-        `;
-        topRowSeats.appendChild(div);
-        // Play video if track exists
-        if (remoteUsers[member.uid]?.videoTrack) {
-          const container = document.getElementById(`video-${member.uid}`);
-          if (container) remoteUsers[member.uid].videoTrack.play(container);
-        }
-      } else {
-        // Empty seat (invite / join)
-        const div = document.createElement("div");
-        div.className = "flex flex-col items-center gap-1 cursor-pointer";
-        div.onclick = () => joinRoom();
-        div.innerHTML = `
-          <div class="camera-frame flex items-center justify-center">
-            <span class="material-symbols-outlined text-white/60 text-3xl">add</span>
-          </div>
-          <span class="text-white/60 text-[9px]">Join</span>
-        `;
-        topRowSeats.appendChild(div);
-      }
-    }
-    // Bottom row (audio only)
-    bottomRowSeats.innerHTML = "";
-    for (let i = 0; i < 5; i++) {
-      const member = bottomMembers[i];
-      if (member) {
-        const div = document.createElement("div");
-        div.className = "flex flex-col items-center gap-1";
-        div.innerHTML = `
-          <div class="w-12 h-12 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 overflow-hidden">
-            <img src="${member.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.username)}&background=006571&color=fff`}" class="w-full h-full object-cover">
-          </div>
-          <span class="text-white/60 text-[7px] uppercase tracking-widest truncate max-w-[48px]">${member.username}</span>
-        `;
-        bottomRowSeats.appendChild(div);
-      } else {
-        const div = document.createElement("div");
-        div.className = "flex flex-col items-center gap-1 cursor-pointer";
-        div.onclick = () => joinRoom();
-        div.innerHTML = `
-          <div class="w-12 h-12 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center">
-            <span class="material-symbols-outlined text-white/60 text-xl">add</span>
-          </div>
-          <span class="text-white/40 text-[7px] uppercase tracking-widest">Join</span>
-        `;
-        bottomRowSeats.appendChild(div);
-      }
-    }
-    viewerCountSpan.innerText = members.length;
-  }
-
-  async function loadMembers() {
-    onSnapshot(membersRef, async (snap) => {
-      const membersList = [];
-      for (const docSnap of snap.docs) {
-        const member = docSnap.data();
-        const uid = member.uid?.toString();
-        if (!uid) continue;
-        let username = "User";
-        let photoURL = "";
-        try {
-          const userSnap = await getDoc(doc(db, "users", uid));
-          if (userSnap.exists()) {
-            const u = userSnap.data();
-            username = u.username || "User";
-            photoURL = u.photoURL || "";
-          }
-        } catch(e) {}
-        membersList.push({ uid, username, photoURL, role: member.role || "guest" });
-      }
-      members = membersList;
-      renderSeats();
+  // Category selection (simple)
+  const resetCategories = () => {
+    [catGame, catChat, catSpin].forEach(btn => {
+      btn.classList.remove("bg-secondary-container", "text-on-secondary-fixed");
+      btn.classList.add("bg-white", "text-on-surface-variant");
     });
-  }
+  };
+  catGame.onclick = () => { resetCategories(); catGame.classList.add("bg-secondary-container", "text-on-secondary-fixed"); selectedCategory = "game"; };
+  catChat.onclick = () => { resetCategories(); catChat.classList.add("bg-secondary-container", "text-on-secondary-fixed"); selectedCategory = "chat"; };
+  catSpin.onclick = () => { resetCategories(); catSpin.classList.add("bg-secondary-container", "text-on-secondary-fixed"); selectedCategory = "spin"; };
+  // default: game selected
+  catGame.classList.add("bg-secondary-container", "text-on-secondary-fixed");
 
-  // ========== 3. Join / Leave Room ==========
-  async function joinRoom() {
-    const memberDoc = doc(db, "rooms", roomId, "members", myUserId);
-    const memberSnap = await getDoc(memberDoc);
-    if (!memberSnap.exists()) {
-      await setDoc(memberDoc, {
-        uid: myUserId,
-        role: "guest",
-        joinedAt: serverTimestamp()
-      });
-      await updateDoc(roomRef, { users: increment(1) });
-    }
-  }
-
-  async function leaveRoom() {
-    await deleteDoc(doc(db, "rooms", roomId, "members", myUserId));
-    await updateDoc(roomRef, { users: increment(-1) });
-    if (client) {
-      for (let track of localTracks) track.close();
-      await client.leave();
-    }
-    window.location.href = "party.html";
-  }
-  leaveBtn.onclick = () => {
-    if (isHost) {
-      if (confirm("End live and go back?")) endLive();
-    } else {
-      leaveRoom();
+  // Banner upload
+  bannerInput.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      selectedBannerFile = file;
+      const reader = new FileReader();
+      reader.onload = (ev) => bannerPreview.src = ev.target.result;
+      reader.readAsDataURL(file);
     }
   };
 
-  // ========== 4. Agora Video Integration ==========
-  async function startAgora() {
-    client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
-    await client.join(APP_ID, roomId, null, myUserId);
-    localTracks = await AgoraRTC.createMicrophoneAndCameraTracks();
-    // Play local video in a container (add to top row)
-    const localDiv = document.createElement("div");
-    localDiv.id = `video-${myUserId}`;
-    localDiv.className = "camera-frame";
-    // We'll insert into the top row during render, but for now we just create and play later.
-    // The render function will handle placement. We'll just play after render.
-    await client.publish(localTracks);
-    // Handle remote users
-    client.on("user-published", async (user, mediaType) => {
-      await client.subscribe(user, mediaType);
-      if (mediaType === "video") {
-        remoteUsers[user.uid] = { videoTrack: user.videoTrack };
-        const container = document.getElementById(`video-${user.uid}`);
-        if (container) user.videoTrack.play(container);
-      }
-      if (mediaType === "audio") {
-        user.audioTrack.play();
-      }
-    });
-    client.on("user-unpublished", (user) => {
-      const container = document.getElementById(`video-${user.uid}`);
-      if (container) container.innerHTML = "";
-      delete remoteUsers[user.uid];
-    });
-  }
-
-  // After members load, ensure local video is played in its container
-  function playLocalVideo() {
-    const container = document.getElementById(`video-${myUserId}`);
-    if (container && localTracks[1]) {
-      localTracks[1].play(container);
-    }
-  }
-
-  // ========== 5. Real-time Chat ==========
-  function listenChat() {
-    const q = query(messagesRef, orderBy("timestamp", "desc"), limit(50));
-    onSnapshot(q, (snap) => {
-      const msgs = [];
-      snap.forEach(d => msgs.push({ id: d.id, ...d.data() }));
-      msgs.reverse();
-      chatMessagesDiv.innerHTML = "";
-      msgs.slice(-10).forEach(msg => {
-        const div = document.createElement("div");
-        div.className = "flex items-start gap-2";
-        if (msg.type === 'gift') {
-          div.innerHTML = `
-            <span class="text-amber-400 font-bold text-[10px] whitespace-nowrap">🎁 ${escapeHtml(msg.senderName)}:</span>
-            <p class="text-white text-[10px]">sent ${escapeHtml(msg.giftName)} x${msg.quantity || 1}</p>
-          `;
-        } else {
-          div.innerHTML = `
-            <span class="text-primary-fixed font-bold text-[10px] whitespace-nowrap">${escapeHtml(msg.senderName)}:</span>
-            <p class="text-white text-[10px] break-words">${escapeHtml(msg.text)}</p>
-          `;
+  // Compress image helper
+  async function compressImage(file) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      const reader = new FileReader();
+      reader.onload = (e) => img.src = e.target.result;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width, height = img.height;
+        const maxDim = 1024;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = (height / width) * maxDim;
+            width = maxDim;
+          } else {
+            width = (width / height) * maxDim;
+            height = maxDim;
+          }
         }
-        chatMessagesDiv.appendChild(div);
-      });
-      chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
-    });
-  }
-
-  async function sendMessage(text, type = 'text', giftData = null) {
-    if (!text.trim() && type !== 'gift') return;
-    const message = {
-      senderId: myUserId,
-      senderName: myUsername,
-      timestamp: serverTimestamp(),
-      type: type
-    };
-    if (type === 'text') message.text = text;
-    if (type === 'gift' && giftData) {
-      message.text = `sent ${giftData.name} x${giftData.quantity}`;
-      message.giftName = giftData.name;
-      message.giftImage = giftData.image;
-      message.quantity = giftData.quantity;
-    }
-    await addDoc(messagesRef, message);
-  }
-
-  document.querySelectorAll('.quick-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const msg = btn.getAttribute('data-msg');
-      if (msg) sendMessage(msg);
-    });
-  });
-
-  chatInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter' && chatInput.value.trim()) {
-      sendMessage(chatInput.value.trim());
-      chatInput.value = '';
-    }
-  });
-
-  // ========== 6. Gift System (with charm level based gems) ==========
-  async function loadGifts() {
-    const snapshot = await getDocs(collection(db, "gifts"));
-    giftGrid.innerHTML = "";
-    snapshot.forEach(docSnap => {
-      const g = docSnap.data();
-      const div = document.createElement("div");
-      div.className = "gift-item";
-      div.onclick = () => sendGift(docSnap.id, g.name, g.image, g.coinPrice);
-      div.innerHTML = `
-        <img src="${g.image}">
-        <div class="gift-name">${g.name}</div>
-        <div class="gift-price">${g.coinPrice} coins</div>
-      `;
-      giftGrid.appendChild(div);
-    });
-  }
-
-  async function sendGift(giftId, giftName, giftImage, price) {
-    if (myUserId === hostId) {
-      alert("You cannot send a gift to yourself");
-      return;
-    }
-    const userSnap = await getDoc(doc(db, "users", myUserId));
-    const userCoins = userSnap.data()?.coins || 0;
-    if (userCoins < price) {
-      alert("Not enough coins!");
-      return;
-    }
-    await updateDoc(doc(db, "users", myUserId), { coins: increment(-price) });
-    if (hostId) {
-      const hostRef = doc(db, "users", hostId);
-      const hostSnap = await getDoc(hostRef);
-      // Get host's charm level to calculate gems earned
-      const charmLevel = hostSnap.data()?.charmLevel || 0;
-      // Gem rate: 30% + (level * 1%) as per backend
-      const gemRate = 0.30 + (charmLevel * 0.01);
-      const gemsEarned = Math.floor(price * gemRate);
-      await updateDoc(hostRef, { gems: increment(gemsEarned) });
-      await updateDoc(roomRef, { rewards: increment(gemsEarned) });
-      rewardAmountSpan.innerText = (roomData?.rewards || 0) + gemsEarned;
-    }
-    await sendMessage('', 'gift', { name: giftName, image: giftImage, quantity: 1 });
-    const anim = document.createElement("div");
-    anim.className = "fixed bottom-40 right-10 z-50 animate-bounce";
-    anim.innerHTML = `<img src="${giftImage}" class="w-16 h-16 drop-shadow-xl">`;
-    document.body.appendChild(anim);
-    setTimeout(() => anim.remove(), 2000);
-    closeGiftPanelFn();
-  }
-
-  function openGiftPanelFn() { giftPanel.style.display = "flex"; loadGifts(); }
-  function closeGiftPanelFn() { giftPanel.style.display = "none"; }
-  openGiftBtn.onclick = openGiftPanelFn;
-  closeGiftPanelBtn.onclick = closeGiftPanelFn;
-
-  // ========== 7. Background Picker ==========
-  function initBgPicker() {
-    bgGrid.innerHTML = "";
-    backgrounds.forEach((url) => {
-      const div = document.createElement("div");
-      div.className = "bg-option";
-      div.innerHTML = `<img src="${url}">`;
-      div.onclick = () => {
-        roomCoverImg.src = url;
-        closeBgPickerFn();
-        updateDoc(roomRef, { coverPhoto: url }).catch(console.error);
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(blob => resolve(blob), "image/jpeg", 0.85);
       };
-      bgGrid.appendChild(div);
+      reader.readAsDataURL(file);
     });
   }
-  function openBgPickerFn() { bgPickerPanel.style.display = "flex"; }
-  function closeBgPickerFn() { bgPickerPanel.style.display = "none"; }
-  bgPickerBtn.onclick = openBgPickerFn;
-  closeBgPicker.onclick = closeBgPickerFn;
 
-  // ========== 8. Controls Panel (Mic/Camera) ==========
-  function openControls() { controlsPanel.style.display = "flex"; }
-  function closeControlsFn() { controlsPanel.style.display = "none"; }
-  document.getElementById("bgPickerBtn").addEventListener("click", openControls); // Reuse 4-dots button to open controls
-  closeControls.onclick = closeControlsFn;
-
-  function toggleMic() {
-    if (localTracks[0]) {
-      const enabled = localTracks[0].enabled;
-      localTracks[0].setEnabled(!enabled);
-      toggleMicBtn.innerHTML = enabled ? "🎤 Mic (Off)" : "🎤 Mic (On)";
+  // Create room
+  createBtn.onclick = async () => {
+    if (!roomTitle.value.trim()) {
+      alert("Please enter a room title");
+      return;
     }
-  }
-  function toggleCam() {
-    if (localTracks[1]) {
-      const enabled = localTracks[1].enabled;
-      localTracks[1].setEnabled(!enabled);
-      toggleCamBtn.innerHTML = enabled ? "📷 Camera (Off)" : "📷 Camera (On)";
-    }
-  }
-  toggleMicBtn.onclick = toggleMic;
-  toggleCamBtn.onclick = toggleCam;
+    // Disable button to prevent double creation
+    createBtn.disabled = true;
+    createBtn.innerText = "Creating...";
 
-  // ========== 9. Helper ==========
-  function escapeHtml(str) {
-    if (!str) return "";
-    return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m]));
-  }
+    try {
+      let coverPhotoUrl = null;
+      if (selectedBannerFile) {
+        const compressed = await compressImage(selectedBannerFile);
+        const fileName = `room_banners/${Date.now()}_${Math.random()}.jpg`;
+        const storageRef = ref(storage, fileName);
+        await uploadBytes(storageRef, compressed);
+        coverPhotoUrl = await getDownloadURL(storageRef);
+      } else {
+        // default: use user avatar or a default party image
+        coverPhotoUrl = photoURL;
+      }
 
-  // ========== Init ==========
-  async function init() {
-    await loadRoomData();
-    await joinRoom();
-    await startAgora();
-    loadMembers();
-    listenChat();
-    initBgPicker();
-    // Wait a bit for members to render, then play local video
-    setTimeout(() => {
-      playLocalVideo();
-      // Also play remote videos that might have arrived before containers
-      Object.keys(remoteUsers).forEach(uid => {
-        const container = document.getElementById(`video-${uid}`);
-        if (container && remoteUsers[uid].videoTrack) {
-          remoteUsers[uid].videoTrack.play(container);
-        }
+      const roomRef = await addDoc(collection(db, "rooms"), {
+        name: roomTitle.value.trim(),
+        hostId: userId,
+        hostName: username,
+        hostPhoto: photoURL,
+        coverPhoto: coverPhotoUrl,
+        privacy: selectedPrivacy,
+        announcement: announcement.value.trim(),
+        seatLimit: 8,  // fixed 8 seats
+        category: selectedCategory,
+        users: 1,
+        rewards: 0,
+        createdAt: serverTimestamp()
       });
-    }, 1000);
-  }
-  init();
+
+      // Add host as member
+      await setDoc(doc(db, "rooms", roomRef.id, "members", userId), {
+        uid: userId,
+        role: "host",
+        joinedAt: serverTimestamp()
+      });
+
+      // Redirect to room.html
+      window.location.href = `room.html?id=${roomRef.id}`;
+    } catch (err) {
+      console.error(err);
+      alert("Failed to create room. Please try again.");
+      createBtn.disabled = false;
+      createBtn.innerText = "Let's Party";
+    }
+  };
 </script>
 </body>
 </html>
