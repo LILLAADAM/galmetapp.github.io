@@ -75,7 +75,7 @@ button{border:none;background:none;cursor:pointer;font-family:inherit;}input{out
 .gmsg .gtxt{font-size:10px;color:var(--gold);font-weight:700;}
 #bar{position:relative;z-index:10;background:rgba(10,15,20,.95);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.07);padding:8px 12px;padding-bottom:max(8px,env(safe-area-inset-bottom));}
 .brow{display:flex;align-items:center;gap:10px;}
-.cinput{flex:1;display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:30px;padding:0 12px;height:38px;cursor:text;}
+.cinput{flex:1;display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:30px;padding:0 12px;height:38px;}
 .cinput input{flex:1;background:transparent;border:none;color:#fff;font-size:12px;}
 .cinput input::placeholder{color:rgba(255,255,255,.3);}
 .bico{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1);}
@@ -206,7 +206,7 @@ button{border:none;background:none;cursor:pointer;font-family:inherit;}input{out
 </div>
 <div id="bar">
   <div class="brow">
-    <div class="cinput" id="cTrig"><span class="ms" style="font-size:16px;color:rgba(255,255,255,.3);">chat_bubble</span><input id="cBarIn" placeholder="Say something..." readonly><button id="cBarSend" style="color:var(--t2);"><span class="ms" style="font-size:18px;">send</span></button></div>
+    <div class="cinput"><span class="ms" style="font-size:16px;color:rgba(255,255,255,.3);">chat_bubble</span><input id="cBarIn" placeholder="Say something..."><button id="cBarSend" style="color:var(--t2);"><span class="ms" style="font-size:18px;">send</span></button></div>
     <button class="bico" id="globalChatBtn"><span class="ms" style="font-size:22px;">chat</span></button>
     <button class="bico" id="giftBtn" style="background:rgba(245,158,11,.12);border:1.5px solid rgba(245,158,11,.32);"><span class="ms" style="font-size:22px;color:var(--gold);">redeem</span></button>
     <button class="bico" id="dotsBtn" style="background:rgba(0,101,113,.7);border:1.5px solid rgba(0,180,200,.3);"><svg width="14" height="14" viewBox="0 0 14 14"><circle cx="3" cy="3" r="2.5" fill="white"/><circle cx="11" cy="3" r="2.5" fill="white"/><circle cx="3" cy="11" r="2.5" fill="white"/><circle cx="11" cy="11" r="2.5" fill="white"/></svg></button>
@@ -238,11 +238,14 @@ button{border:none;background:none;cursor:pointer;font-family:inherit;}input{out
 <!-- INVITE PANEL -->
 <div id="invP" class="panel"><div class="pb" id="ipb"></div><div class="ps"><div class="sh"></div><div class="ph"><span class="pt">👥 Invite to Stage</span><button class="pc" id="ipc">✕</button></div><div class="igrid" id="igrid"></div><div style="height:10px;"></div></div></div>
 
-<!-- GIFT PANEL -->
+<!-- GIFT PANEL (with coin display and no default target) -->
 <div id="giftP" class="panel"><div class="pb" id="gpb"></div><div class="ps">
   <div class="sh"></div>
   <div class="ph"><span class="pt">🎁 Send Gift</span><button class="pc" id="gpc">✕</button></div>
-  <div style="padding:0 14px 4px;font-size:10px;color:rgba(255,255,255,.4);font-weight:700;">SEND TO</div>
+  <div style="padding:0 14px 4px;display:flex;justify-content:space-between;align-items:center;">
+    <span style="font-size:10px;color:rgba(255,255,255,.4);font-weight:700;">SEND TO</span>
+    <span style="font-size:10px;color:var(--gold);"><span class="ms f" style="font-size:12px;">monetization_on</span> <span id="giftUserCoins">0</span> coins</span>
+  </div>
   <div class="gtrow hs" id="gtRow"></div>
   <div class="gtabs hs" id="gtabs">
     <div class="gtab active" data-c="popular">Popular</div>
@@ -271,6 +274,14 @@ button{border:none;background:none;cursor:pointer;font-family:inherit;}input{out
 <div id="ucard"><div id="ucback"></div><div id="ucinner">
   <div class="uctop"><img id="ucav" src=""><div><div class="ucname" id="ucnam"></div><div class="ucuid" id="ucuid"></div></div></div>
   <div class="ucrow"><a id="uclink" href="#">View Profile →</a><div class="ucgems"><span class="ms f">diamond</span><span id="ucgems">0</span><span style="font-size:10px;color:rgba(255,255,255,.4);margin-left:2px;">gems in room</span></div></div>
+</div></div>
+
+<!-- GLOBAL CHAT PANEL (half‑screen with chats list) -->
+<div id="globalChatP" class="panel"><div class="pb" id="gcpb"></div><div class="ps" style="height:70vh;">
+  <div class="sh"></div>
+  <div class="ph"><span class="pt">💬 Chats</span><button class="pc" id="gcpc">✕</button></div>
+  <div id="globalChatList" class="igrid" style="grid-template-columns:1fr; gap:8px; padding:0 14px 14px; overflow-y:auto;"></div>
+  <div style="height:10px;"></div>
 </div></div>
 
 <script type="module">
@@ -307,8 +318,9 @@ const TOKEN = "007eJxTYNgf3zFVVc1vqcmx/X9OXy/PrUgsXmXoeNimROEVu7RPuZACg4W5saG5Ua
 let agoraC = null, audT = null, vidT = null, micOn = true, camOn = true, camF = true;
 const remV = {};
 let roomData = null, hostId = null, isHost = false, members = [], isSeated = false;
-let localChat = []; // ephemeral chat messages
-let typingTimeout = null;
+let localChat = [];
+let selGift = null, selQty = 1, selTarget = null, curGiftCat = "popular";
+let curFilt = "none";
 const BGLST = ["https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800","https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800","https://images.unsplash.com/photo-1536240474400-bc3c7eac8f0d?w=800","https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800","https://images.unsplash.com/photo-1500462918059-b1a0cb512f1d?w=800","https://images.unsplash.com/photo-1511884642898-4c92249e20b6?w=800","https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800","https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=800","https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800"];
 const FILTS = [{id:"none",n:"Normal",css:"none",t:"https://images.unsplash.com/photo-1500462918059-b1a0cb512f1d?w=80"},{id:"warm",n:"Warm",css:"sepia(.3) saturate(1.4) brightness(1.1)",t:"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=80"},{id:"cool",n:"Cool",css:"hue-rotate(30deg) saturate(1.3)",t:"https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=80"},{id:"vivid",n:"Vivid",css:"saturate(2) contrast(1.1)",t:"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=80"},{id:"bw",n:"B&W",css:"grayscale(1)",t:"https://images.unsplash.com/photo-1536240474400-bc3c7eac8f0d?w=80"},{id:"beauty",n:"Beauty",css:"brightness(1.12) contrast(.95) saturate(1.2)",t:"https://images.unsplash.com/photo-1511884642898-4c92249e20b6?w=80"},{id:"drama",n:"Drama",css:"contrast(1.4) brightness(.9) saturate(.8)",t:"https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=80"},{id:"glow",n:"Glow",css:"brightness(1.2) saturate(1.5)",t:"https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=80"}];
 const GIFTS = [{id:"rose",n:"Rose",img:"https://cdn-icons-png.flaticon.com/128/2722/2722480.png",p:10,c:"popular"},{id:"heart",n:"Heart",img:"https://cdn-icons-png.flaticon.com/128/833/833472.png",p:25,c:"popular"},{id:"star",n:"Star",img:"https://cdn-icons-png.flaticon.com/128/1828/1828884.png",p:30,c:"popular"},{id:"crown",n:"Crown",img:"https://cdn-icons-png.flaticon.com/128/1827/1827370.png",p:50,c:"popular"},{id:"coin",n:"Coin",img:"https://cdn-icons-png.flaticon.com/128/2933/2933245.png",p:20,c:"popular"},{id:"rocket",n:"Rocket",img:"https://cdn-icons-png.flaticon.com/128/2991/2991501.png",p:100,c:"popular"},{id:"bomb",n:"Bomb",img:"https://cdn-icons-png.flaticon.com/128/2965/2965567.png",p:150,c:"lucky"},{id:"plane",n:"Airplane",img:"https://cdn-icons-png.flaticon.com/128/3124/3124190.png",p:88,c:"lucky"},{id:"lucky",n:"Lucky Box",img:"https://cdn-icons-png.flaticon.com/128/2454/2454286.png",p:77,c:"lucky"},{id:"diamond",n:"Diamond",img:"https://cdn-icons-png.flaticon.com/128/3135/3135706.png",p:500,c:"luxury"},{id:"trophy",n:"Trophy",img:"https://cdn-icons-png.flaticon.com/128/2583/2583344.png",p:200,c:"luxury"},{id:"castle",n:"Castle",img:"https://cdn-icons-png.flaticon.com/128/1433/1433156.png",p:999,c:"luxury"}];
@@ -322,12 +334,11 @@ function hp(id) { G(id).classList.remove("show"); }
 function toast(msg) { const t=document.createElement("div"); t.className="toast"; t.innerText=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2500); }
 
 // Panel close bindings
-[["spb","setP"],["spc","setP"],["fpb","filtP"],["fpc","filtP"],["bpb","bgP"],["bpc","bgP"],["ipb","invP"],["ipc","invP"],["gpb","giftP"],["gpc","giftP"],["rpb","reqP"],["rpc","reqP"]].forEach(([t,p])=>G(t).onclick=()=>hp(p));
+[["spb","setP"],["spc","setP"],["fpb","filtP"],["fpc","filtP"],["bpb","bgP"],["bpc","bgP"],["ipb","invP"],["ipc","invP"],["gpb","giftP"],["gpc","giftP"],["rpb","reqP"],["rpc","reqP"],["gcpb","globalChatP"],["gcpc","globalChatP"]].forEach(([t,p])=>G(t).onclick=()=>hp(p));
 G("ucback").onclick=()=>hp("ucard");
 G("hactbk").onclick=()=>hp("hact");
 G("hcanc").onclick=()=>hp("hact");
 
-// Level badge helper
 function getLevelClass(level) {
   const lvl = Math.min(Math.max(level,0),10);
   const colors = ["#9ca3af","#84cc16","#14b8a6","#3b82f6","#6366f1","#8b5cf6","#ec4899","#f43f5e","#f97316","#f59e0b","#eab308"];
@@ -344,7 +355,6 @@ async function loadRoom() {
   if(roomData.coverPhoto) G("bgImg").src = roomData.coverPhoto;
   const hs = await getDoc(doc(db,"users",hostId)).catch(()=>null);
   G("hostAv").src = hs?.data()?.photoURL || av(roomData.hostName||"Host");
-  // level badge
   const hostLevel = (hs?.data()?.charmLevel ?? hs?.data()?.wealthLevel ?? 0);
   const levelInfo = getLevelClass(hostLevel);
   const badge = G("levelBadge");
@@ -380,16 +390,12 @@ async function loadRoom() {
   G("bgRow").onclick = () => { hp("setP"); buildBG(); sp("bgP"); };
   G("invRow").onclick = () => { hp("setP"); openInvite(); };
   G("reqBtn").onclick = openReqPanel;
-  G("globalChatBtn").onclick = () => window.location.href = "chat.html";
-  G("dotsBtn").onclick = () => sp("setP");
-  // check if user is already seated
   const memSnap = await getDoc(doc(db,"rooms",roomId,"members",myId));
   isSeated = memSnap.exists();
   if(!isSeated && !isHost) G("dotsBtn").style.display = "none";
   else G("dotsBtn").style.display = "flex";
 }
 
-// Realtime room rewards
 onSnapshot(roomRef, snap => {
   if(!snap.exists()) return;
   const d = snap.data();
@@ -417,7 +423,6 @@ function listenMembers() {
     members = list;
     G("vwEl").innerText = members.length;
     renderSeats();
-    // update isSeated status
     const seated = members.some(m => m.uid === myId);
     if(seated !== isSeated){
       isSeated = seated;
@@ -429,7 +434,6 @@ function listenMembers() {
   });
 }
 
-// Render seats
 function renderSeats() {
   const s = [...members];
   const hi = s.findIndex(m => m.uid === hostId);
@@ -537,7 +541,7 @@ async function openReqPanel() {
   sp("reqP");
 }
 
-// Ephemeral chat
+// Ephemeral room chat (fixed input)
 function addLocalChat(msg){
   localChat.push(msg);
   if(localChat.length > 50) localChat.shift();
@@ -562,22 +566,59 @@ function renderChat(){
   });
   G("chatWrap").scrollTop = G("chatWrap").scrollHeight;
 }
-
 function sendLocalMessage(text){
   if(!text.trim()) return;
   addLocalChat({ type:"text", senderId:myId, sender:myName, text:text });
-  // Simulate typing indicator (optional)
 }
 function sendLocalGift(senderId, senderName, targetName, gift, qty){
   addLocalChat({ type:"gift", senderId, sender:senderName, target:targetName, img:gift.img, qty, giftName:gift.n });
 }
 
-// Gift system
-let selGift = null, selQty = 1, selTarget = null, curGiftCat = "popular";
-function buildGiftTargets(){
+// Global chat panel (chats.html style)
+async function loadGlobalChats() {
+  const container = G("globalChatList");
+  container.innerHTML = '<p style="color:rgba(255,255,255,.4);text-align:center;padding:20px;">Loading chats...</p>';
+  const chatsRef = collection(db, "userChats", myId, "list");
+  const q = query(chatsRef, orderBy("updatedAt", "desc"));
+  onSnapshot(q, async (snap) => {
+    container.innerHTML = "";
+    if(snap.empty){
+      container.innerHTML = '<p style="color:rgba(255,255,255,.4);text-align:center;padding:20px;">No conversations yet</p>';
+      return;
+    }
+    for(const docSnap of snap.docs){
+      const chat = docSnap.data();
+      const otherId = chat.uid;
+      if(!otherId) continue;
+      const userSnap = await getDoc(doc(db,"users",otherId));
+      const user = userSnap.exists() ? userSnap.data() : { username: "User", photoURL: "" };
+      const div = document.createElement("div");
+      div.className = "ic";
+      div.style.flexDirection = "row";
+      div.style.gap = "12px";
+      div.style.justifyContent = "flex-start";
+      div.style.padding = "10px";
+      div.innerHTML = `
+        <img src="${user.photoURL || av(user.username || "User")}" style="width:44px;height:44px;">
+        <div style="flex:1;text-align:left;">
+          <div style="font-weight:800;color:#fff;">${esc(user.username || "User")}</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.4);">${chat.lastMessage || "Tap to chat"}</div>
+        </div>
+        <span class="ms" style="color:rgba(255,255,255,.3);">chevron_right</span>
+      `;
+      div.onclick = () => window.location.href = `chat.html?id=${otherId}`;
+      container.appendChild(div);
+    }
+  });
+}
+G("globalChatBtn").onclick = () => { loadGlobalChats(); sp("globalChatP"); };
+
+// Gift panel (no default target)
+async function buildGiftTargets(){
   const row = G("gtRow"); row.innerHTML = ""; selTarget = null;
-  const a = document.createElement("div"); a.className = "gtitem sel"; a.dataset.uid = "all";
-  a.innerHTML = `<div style="width:38px;height:38px;border-radius:50%;background:rgba(0,101,113,.4);border:2px solid var(--t2);display:flex;align-items:center;justify-content:center;"><span class="ms" style="font-size:16px;color:var(--t2);">groups</span></div><span>All</span>`;
+  // "All" option – user must click to select
+  const a = document.createElement("div"); a.className = "gtitem"; a.dataset.uid = "all";
+  a.innerHTML = `<div style="width:38px;height:38px;border-radius:50%;background:rgba(0,101,113,.4);border:2px solid transparent;display:flex;align-items:center;justify-content:center;"><span class="ms" style="font-size:16px;color:var(--t2);">groups</span></div><span>All</span>`;
   a.onclick = () => { document.querySelectorAll(".gtitem").forEach(x=>x.classList.remove("sel")); a.classList.add("sel"); selTarget = null; };
   row.appendChild(a);
   members.filter(m=>m.uid!==myId).forEach(m=>{
@@ -604,14 +645,24 @@ function buildQty(){
     row.appendChild(b);
   });
 }
+async function updateGiftUserCoins(){
+  const us = await getDoc(doc(db,"users",myId));
+  G("giftUserCoins").innerText = us.data()?.coins || 0;
+}
 G("gtabs").onclick = e=>{
   const t = e.target.closest(".gtab"); if(!t) return;
   document.querySelectorAll(".gtab").forEach(x=>x.classList.remove("active")); t.classList.add("active");
   curGiftCat = t.dataset.c; buildGiftGrid(curGiftCat);
 };
-G("giftBtn").onclick = () => { buildGiftTargets(); buildGiftGrid(curGiftCat); buildQty(); sp("giftP"); };
+G("giftBtn").onclick = async () => { await updateGiftUserCoins(); buildGiftTargets(); buildGiftGrid(curGiftCat); buildQty(); sp("giftP"); };
 G("sgBtn").onclick = async () => {
   if(!selGift){ toast("Pick a gift first!"); return; }
+  if(!selTarget && selTarget !== null){ // null means "All" is not selected? Actually "All" target is null, but we must ensure user selected something.
+    if(selTarget === null && !document.querySelector(".gtitem.sel")){
+      toast("Select a recipient (All or specific user)");
+      return;
+    }
+  }
   if(myId === hostId){ toast("Can't gift yourself"); return; }
   const price = selGift.p * selQty;
   const us = await getDoc(doc(db,"users",myId));
@@ -619,7 +670,6 @@ G("sgBtn").onclick = async () => {
   await updateDoc(doc(db,"users",myId),{ coins:increment(-price) });
   const tId = selTarget ? selTarget.uid : hostId;
   const tName = selTarget ? selTarget.username : (roomData?.hostName||"Host");
-  // Add gems to receiver
   const hr = doc(db,"users",tId);
   const hs = await getDoc(hr);
   const charm = hs.data()?.charmLevel || 0;
@@ -629,14 +679,11 @@ G("sgBtn").onclick = async () => {
   const memberRef = doc(db,"rooms",roomId,"members",tId);
   const memSnap = await getDoc(memberRef);
   if(memSnap.exists()) await updateDoc(memberRef,{ gems:increment(gemsEarned) });
-  // Save transaction
   await addDoc(collection(db,"transactions"),{
     type:"gift", senderId:myId, receiverId:tId, giftName:selGift.n, giftImage:selGift.img,
     coins:price, gems:gemsEarned, createdAt:serverTimestamp()
   });
-  // Local ephemeral gift message
   sendLocalGift(myId, myName, tName, selGift, selQty);
-  // RTDB gift event for animation
   const rtdbRef = dbRef(rtdb, `giftEvents/${roomId}`);
   await setDoc(doc(rtdbRef), {
     senderId:myId, senderName:myName, receiverId:tId, giftName:selGift.n, giftImage:selGift.img, quantity:selQty, timestamp:Date.now()
@@ -652,7 +699,6 @@ function showGiftPop(sn, sp2, gift, qty, tn){
   d.innerHTML = `<div class="gpi"><img class="sav" src="${sp2}"><div class="gpinf"><div class="gpn">${esc(sn)}</div><div class="gpt">→ ${esc(tn)}</div></div><img class="ggif" src="${gift.img}"><div class="gx">×${qty}</div></div>`;
   document.body.appendChild(d); setTimeout(()=>d.remove(),3200);
 }
-// RTDB gift event listener for animation (receiving)
 function listenGiftEvents() {
   const giftRef = dbRef(rtdb, `giftEvents/${roomId}`);
   onChildAdded(giftRef, (snapshot) => {
@@ -684,7 +730,6 @@ async function startAgora(){
     await deleteDoc(doc(db,"rooms",roomId,"members",u.uid.toString())).catch(()=>{});
   });
 }
-// Mic/Cam toggles
 G("micTog").onchange = async e => {
   micOn = e.target.checked; if(audT) await audT.setEnabled(micOn);
   await updateDoc(doc(db,"rooms",roomId,"members",myId),{ micMuted:!micOn }).catch(()=>{});
@@ -708,19 +753,13 @@ async function switchCam(){
   } catch(e){ toast("Switch failed"); }
 }
 
-// Chat input
-G("cTrig").onclick = () => { G("cBarIn").focus(); };
+// Chat input (fixed)
 G("cBarIn").addEventListener("keypress", e => {
   if(e.key === "Enter"){ const txt = G("cBarIn").value.trim(); if(txt){ sendLocalMessage(txt); G("cBarIn").value = ""; } }
 });
 G("cBarSend").onclick = () => { const txt = G("cBarIn").value.trim(); if(txt){ sendLocalMessage(txt); G("cBarIn").value = ""; } };
-// Typing indicator (simple)
-G("cBarIn").addEventListener("input", () => {
-  // Not implemented fully, but can be added via RTDB if needed
-});
 
 // Filters and BG
-let curFilt = "none";
 function buildFilts(){
   const grid = G("fgrid"); grid.innerHTML = "";
   FILTS.forEach(f=>{
@@ -771,7 +810,6 @@ async function openInvite(){
   });
 }
 
-// Host action popup
 let popT = null;
 function openHA(m){
   popT = m;
