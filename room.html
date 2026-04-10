@@ -9,773 +9,1119 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; }
-    body { background: #f3f7fb; }
-    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-    .custom-glass { background: rgba(0, 101, 113, 0.2); backdrop-filter: blur(12px); }
-    .scrollbar-hide::-webkit-scrollbar { display: none; }
-    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-    .chat-mask { mask-image: linear-gradient(to top, black 85%, transparent 100%); }
-    .gift-panel, .invite-panel, .quantity-panel {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(0,0,0,0.9);
-      backdrop-filter: blur(20px);
-      border-radius: 20px 20px 0 0;
-      padding: 16px;
-      display: none;
-      flex-direction: column;
-      gap: 12px;
-      z-index: 200;
-      max-height: 60%;
-      overflow-y: auto;
+    *{box-sizing:border-box;}
+    :root{
+      --primary:#006571;
+      --primary-light:#00b4c8;
+      --gold:#f59e0b;
+      --bg:#0d1117;
+      --surface:rgba(255,255,255,0.06);
+      --border:rgba(255,255,255,0.10);
     }
-    .gift-grid, .invite-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-    .gift-item, .invite-item { background: rgba(255,255,255,0.1); border-radius: 12px; padding: 8px; text-align: center; cursor: pointer; transition: 0.2s; }
-    .gift-item:active, .invite-item:active { transform: scale(0.95); }
-    .gift-item img { width: 50px; height: 50px; object-fit: contain; margin-bottom: 4px; }
-    .gift-name { font-size: 10px; color: white; }
-    .gift-price { font-size: 9px; color: #f59e0b; }
-    .close-gift, .close-invite { background: rgba(255,255,255,0.2); border: none; padding: 8px; border-radius: 30px; color: white; cursor: pointer; }
-    .camera-frame {
-      position: relative;
-      width: 90px;
-      height: 90px;
-      border-radius: 16px;
-      overflow: hidden;
-      border: 2px solid rgba(255,255,255,0.5);
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(4px);
+    body{background:#0d1117;font-family:'Plus Jakarta Sans',sans-serif;overflow-x:hidden;}
+    .msymbol{font-family:'Material Symbols Outlined';font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;font-size:inherit;line-height:1;}
+    .msymbol.filled{font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;}
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar{width:3px;height:3px;}
+    ::-webkit-scrollbar-track{background:transparent;}
+    ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.2);border-radius:99px;}
+    .hide-scroll{scrollbar-width:none;-ms-overflow-style:none;}
+    .hide-scroll::-webkit-scrollbar{display:none;}
+
+    /* ── Background ── */
+    #roomBg{position:fixed;inset:0;z-0;}
+    #roomBg img{width:100%;height:100%;object-fit:cover;transition:opacity .5s;}
+    #roomBg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.55) 0%,rgba(0,0,0,.25) 40%,rgba(0,0,0,.70) 100%);}
+
+    /* ── Top Seats (3 big) ── */
+    #topSeatsRow{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:0;
+      margin:0 0 0 0;
     }
-    .camera-frame video, .camera-frame img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+    .top-seat{
+      position:relative;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
     }
-    .camera-frame .avatar-overlay {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0,0,0,0.7);
+    .top-seat + .top-seat::before{
+      content:'';
+      position:absolute;
+      left:0; top:8px; bottom:8px;
+      width:1px;
+      background:rgba(255,255,255,0.15);
     }
-    .top-row { display: flex; justify-content: center; gap: 0; margin-bottom: 24px; }
-    .top-seat { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; border-right: 1px solid rgba(255,255,255,0.2); }
-    .top-seat:last-child { border-right: none; }
-    .bg-picker, .controls-panel {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(0,0,0,0.9);
-      backdrop-filter: blur(20px);
-      border-radius: 20px 20px 0 0;
-      padding: 16px;
-      display: none;
-      flex-direction: column;
-      gap: 12px;
-      z-index: 250;
+    .cam-box{
+      position:relative;
+      width:100%;
+      aspect-ratio:3/4;
+      background:#111;
+      overflow:hidden;
     }
-    .bg-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-    .bg-option { aspect-ratio: 16/9; border-radius: 12px; overflow: hidden; cursor: pointer; border: 2px solid transparent; }
-    .bg-option.selected { border-color: #00e3fd; }
-    .bg-option img { width: 100%; height: 100%; object-fit: cover; }
-    .controls-grid { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-    .ctrl-btn { background: #006571; border: none; padding: 8px 16px; border-radius: 30px; color: white; font-weight: bold; cursor: pointer; font-size: 12px; }
-    .bottom-bar { flex-wrap: wrap; justify-content: center; gap: 8px; }
-    .bottom-bar .flex-1 { min-width: 140px; }
-    @media (max-width: 480px) {
-      .camera-frame { width: 70px; height: 70px; }
-      .bottom-bar .flex-1 { min-width: 100px; }
-      .ctrl-btn { padding: 6px 12px; font-size: 10px; }
+    .cam-box video,.cam-box img.avatar-fill{
+      width:100%;height:100%;object-fit:cover;display:block;
+    }
+    .cam-box .cam-overlay{
+      position:absolute;inset:0;
+      background:linear-gradient(to top,rgba(0,0,0,.6) 0%,transparent 50%);
+    }
+    .cam-box .cam-name{
+      position:absolute;bottom:6px;left:0;right:0;
+      text-align:center;font-size:10px;font-weight:700;
+      color:#fff;letter-spacing:.3px;
+      text-shadow:0 1px 4px rgba(0,0,0,.8);
+    }
+    .cam-box .cam-badge{
+      position:absolute;top:6px;left:6px;
+      background:linear-gradient(135deg,#f59e0b,#ef4444);
+      color:#fff;font-size:8px;font-weight:800;
+      padding:2px 6px;border-radius:20px;
+      letter-spacing:.5px;
+    }
+    .cam-box .cam-mic-off{
+      position:absolute;top:6px;right:6px;
+      background:rgba(239,68,68,.85);
+      border-radius:50%;width:20px;height:20px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:11px;color:#fff;
+    }
+    .cam-box .empty-seat-btn{
+      position:absolute;inset:0;
+      display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      gap:4px;cursor:pointer;
+      background:rgba(0,0,0,.35);
+      transition:background .2s;
+    }
+    .cam-box .empty-seat-btn:hover{background:rgba(0,101,113,.35);}
+    .cam-box .empty-seat-btn .plus-ring{
+      width:40px;height:40px;border-radius:50%;
+      border:2px dashed rgba(255,255,255,.4);
+      display:flex;align-items:center;justify-content:center;
+      font-size:20px;color:rgba(255,255,255,.6);
+    }
+    .cam-box .empty-seat-btn span.label{
+      font-size:9px;color:rgba(255,255,255,.5);font-weight:600;
+    }
+
+    /* ── Bottom Seats (5 audio only) ── */
+    #bottomSeatsRow{
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:6px;
+      padding:0 8px;
+      margin-top:16px;
+    }
+    .bot-seat{
+      display:flex;flex-direction:column;align-items:center;gap:4px;
+      cursor:pointer;
+    }
+    .bot-seat .ava{
+      width:50px;height:50px;border-radius:50%;
+      overflow:hidden;border:2px solid rgba(255,255,255,.15);
+      position:relative;
+      background:#1a1a2e;
+    }
+    .bot-seat .ava img{width:100%;height:100%;object-fit:cover;}
+    .bot-seat .ava .mic-off-dot{
+      position:absolute;bottom:0;right:0;
+      background:#ef4444;border-radius:50%;
+      width:14px;height:14px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:8px;color:#fff;border:1.5px solid #0d1117;
+    }
+    .bot-seat .bot-name{font-size:8px;color:rgba(255,255,255,.6);font-weight:600;text-align:center;max-width:52px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .bot-seat.empty-bot .ava{border-style:dashed;background:transparent;}
+    .bot-seat.empty-bot .plus-icon{font-size:22px;color:rgba(255,255,255,.3);}
+
+    /* ── Chat ── */
+    #chatMessages{
+      display:flex;flex-direction:column;gap:5px;
+    }
+    .chat-mask{mask-image:linear-gradient(to top,black 70%,transparent 100%);}
+
+    /* ── Bottom Bar ── */
+    #bottomBar{
+      position:fixed;bottom:0;left:0;right:0;z-index:60;
+      background:rgba(13,17,23,.92);
+      backdrop-filter:blur(24px);
+      border-top:1px solid rgba(255,255,255,.08);
+      padding:10px 16px;
+      padding-bottom:max(10px, env(safe-area-inset-bottom));
+    }
+
+    /* ── Panels (bottom sheet) ── */
+    .panel{
+      position:fixed;inset:0;z-index:200;
+      display:none;
+    }
+    .panel.open{display:flex;}
+    .panel-backdrop{
+      position:absolute;inset:0;
+      background:rgba(0,0,0,.55);
+      backdrop-filter:blur(4px);
+    }
+    .panel-sheet{
+      position:absolute;bottom:0;left:0;right:0;
+      background:#13181f;
+      border-radius:24px 24px 0 0;
+      padding:0 0 max(24px,env(safe-area-inset-bottom)) 0;
+      max-height:80vh;
+      overflow-y:auto;
+      animation:slideUp .3s cubic-bezier(.22,1,.36,1);
+    }
+    @keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+    .panel-handle{
+      width:40px;height:4px;background:rgba(255,255,255,.2);
+      border-radius:2px;margin:12px auto 0;
+    }
+    .panel-header{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:16px 20px 12px;
+    }
+    .panel-title{color:#fff;font-size:15px;font-weight:800;letter-spacing:.3px;}
+    .panel-close{
+      width:32px;height:32px;background:rgba(255,255,255,.1);
+      border:none;border-radius:50%;color:#fff;
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer;font-size:14px;transition:background .2s;
+    }
+    .panel-close:hover{background:rgba(255,255,255,.2);}
+
+    /* Gift Grid */
+    .gift-grid{
+      display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
+      padding:0 16px 16px;
+    }
+    .gift-card{
+      background:rgba(255,255,255,.06);border-radius:14px;
+      padding:10px 6px;text-align:center;cursor:pointer;
+      border:1.5px solid transparent;
+      transition:all .2s;
+    }
+    .gift-card:hover{background:rgba(0,101,113,.25);border-color:rgba(0,180,200,.4);}
+    .gift-card.selected{border-color:#00b4c8;background:rgba(0,180,200,.1);}
+    .gift-card img{width:46px;height:46px;object-fit:contain;margin:0 auto 4px;}
+    .gift-card .g-name{font-size:9px;color:#fff;font-weight:700;}
+    .gift-card .g-price{font-size:8px;color:#f59e0b;margin-top:2px;}
+
+    /* Qty row */
+    .qty-chips{display:flex;gap:8px;padding:0 16px 16px;flex-wrap:wrap;}
+    .qty-chip{
+      padding:8px 18px;border-radius:30px;
+      background:rgba(255,255,255,.08);
+      color:#fff;font-size:12px;font-weight:700;
+      border:1.5px solid transparent;cursor:pointer;transition:all .2s;
+    }
+    .qty-chip.active{background:rgba(0,101,113,.4);border-color:#00b4c8;color:#00e3fd;}
+
+    /* Bg Grid */
+    .bg-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+      padding:0 16px 16px;
+    }
+    .bg-card{
+      aspect-ratio:16/9;border-radius:12px;overflow:hidden;
+      cursor:pointer;border:2px solid transparent;transition:all .2s;
+    }
+    .bg-card:hover{transform:scale(1.03);}
+    .bg-card.active{border-color:#00b4c8;}
+    .bg-card img{width:100%;height:100%;object-fit:cover;}
+
+    /* Invite grid */
+    .invite-grid{
+      display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
+      padding:0 16px 16px;
+    }
+    .invite-card{
+      display:flex;flex-direction:column;align-items:center;gap:5px;
+      background:rgba(255,255,255,.05);border-radius:14px;
+      padding:10px 4px;cursor:pointer;border:1.5px solid transparent;
+      transition:all .2s;
+    }
+    .invite-card:hover{background:rgba(0,101,113,.2);border-color:rgba(0,180,200,.4);}
+    .invite-card img{width:40px;height:40px;border-radius:50%;object-fit:cover;}
+    .invite-card span{font-size:9px;color:rgba(255,255,255,.8);font-weight:600;text-align:center;max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+    /* Toast */
+    .toast{
+      position:fixed;top:80px;left:50%;transform:translateX(-50%);
+      background:rgba(0,101,113,.95);backdrop-filter:blur(16px);
+      color:#fff;padding:10px 20px;border-radius:30px;
+      font-size:12px;font-weight:700;z-index:999;
+      border:1px solid rgba(0,180,200,.4);
+      animation:toastIn .3s ease, toastOut .3s ease 2s forwards;
+      pointer-events:none;white-space:nowrap;
+    }
+    @keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(-10px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
+    @keyframes toastOut{from{opacity:1;}to{opacity:0;}}
+
+    /* Popup (host actions) */
+    .action-popup{
+      position:fixed;inset:0;z-index:300;display:none;
+      align-items:center;justify-content:center;
+    }
+    .action-popup.open{display:flex;}
+    .action-popup-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);}
+    .action-popup-card{
+      position:relative;background:#161b22;
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:24px;padding:24px;width:280px;
+      animation:popIn .25s cubic-bezier(.22,1,.36,1);
+    }
+    @keyframes popIn{from{opacity:0;transform:scale(.85);}to{opacity:1;transform:scale(1);}}
+    .popup-user{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+    .popup-user img{width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.15);}
+    .popup-user .pname{font-size:14px;font-weight:800;color:#fff;}
+    .popup-user .prole{font-size:10px;color:rgba(255,255,255,.4);}
+    .popup-actions{display:flex;flex-direction:column;gap:8px;}
+    .popup-action-btn{
+      display:flex;align-items:center;gap:12px;
+      padding:12px 14px;border-radius:14px;
+      background:rgba(255,255,255,.06);border:none;
+      color:#fff;font-size:13px;font-weight:600;
+      cursor:pointer;transition:background .2s;width:100%;text-align:left;
+    }
+    .popup-action-btn:hover{background:rgba(255,255,255,.12);}
+    .popup-action-btn.danger{color:#ef4444;}
+    .popup-action-btn.danger:hover{background:rgba(239,68,68,.12);}
+    .popup-action-btn .icon{font-size:18px;width:24px;text-align:center;}
+    .popup-cancel{
+      margin-top:12px;width:100%;padding:11px;
+      background:transparent;border:1px solid rgba(255,255,255,.15);
+      border-radius:14px;color:rgba(255,255,255,.5);
+      font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;
+    }
+    .popup-cancel:hover{background:rgba(255,255,255,.06);}
+
+    /* Gift anim */
+    .gift-float{
+      position:fixed;bottom:160px;right:20px;z-index:400;
+      animation:floatUp 1.8s ease forwards;pointer-events:none;
+    }
+    @keyframes floatUp{
+      0%{opacity:1;transform:translateY(0) scale(1);}
+      100%{opacity:0;transform:translateY(-120px) scale(1.4);}
+    }
+
+    /* Controls */
+    .ctrl-pill{
+      display:flex;align-items:center;gap:6px;
+      padding:9px 16px;border-radius:30px;
+      background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
+      color:#fff;font-size:11px;font-weight:700;cursor:pointer;
+      transition:all .2s;
+    }
+    .ctrl-pill:hover{background:rgba(255,255,255,.14);}
+    .ctrl-pill.active{background:rgba(239,68,68,.2);border-color:#ef4444;color:#ef4444;}
+    .ctrl-pill .icon{font-size:16px;}
+
+    /* Header */
+    #header{
+      position:fixed;top:0;width:100%;z-index:50;
+      background:rgba(13,17,23,.75);backdrop-filter:blur(20px);
+      border-bottom:1px solid rgba(255,255,255,.07);
+      display:flex;align-items:center;justify-content:space-between;
+      padding:10px 14px;
+    }
+
+    /* 4-dot menu btn */
+    #menuDots{
+      position:fixed;bottom:85px;right:14px;z-index:55;
+      width:44px;height:44px;border-radius:50%;
+      background:rgba(0,101,113,.85);backdrop-filter:blur(12px);
+      border:1.5px solid rgba(0,180,200,.4);
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer;transition:all .2s;
+      box-shadow:0 4px 20px rgba(0,101,113,.5);
+    }
+    #menuDots:hover{transform:scale(1.08);}
+    .dots-grid{
+      display:grid;grid-template-columns:repeat(2,6px);gap:4px;
+    }
+    .dot{width:6px;height:6px;border-radius:50%;background:#fff;}
+
+    /* Quick menu popup */
+    #quickMenu{
+      position:fixed;bottom:140px;right:14px;z-index:56;
+      background:#161b22;border:1px solid rgba(255,255,255,.1);
+      border-radius:18px;padding:8px;
+      display:none;flex-direction:column;gap:4px;
+      animation:popIn .2s ease;
+      min-width:160px;
+    }
+    #quickMenu.open{display:flex;}
+    .qm-btn{
+      display:flex;align-items:center;gap:10px;
+      padding:10px 14px;border-radius:12px;
+      background:transparent;border:none;
+      color:#fff;font-size:12px;font-weight:600;
+      cursor:pointer;transition:background .2s;white-space:nowrap;
+    }
+    .qm-btn:hover{background:rgba(255,255,255,.08);}
+    .qm-btn .icon{font-size:18px;}
+
+    @media(max-width:480px){
+      .cam-box{aspect-ratio:9/13;}
+      .bot-seat .ava{width:42px;height:42px;}
     }
   </style>
 </head>
-<body class="bg-background font-body text-on-background min-h-screen overflow-x-hidden">
+<body>
 
-<!-- Hero Background -->
-<div class="fixed inset-0 z-0">
-  <img id="roomCover" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA20THb-mnLuJuMVVEs5Nco4vurMKZyjwxbe-W-Uf31d7QbNQS_KI_bQplpTqJ7cXu5RI20jhbRkhzOPSwu2XF_T4G3UvgrhRbeXkmUqcrSP-25vpaHrZHNncWyT6Avp8NVLm8lUemyYs9MMXrCHQsBOMi9Tkew5o-4bQooMiqiIB8KooDFbGjXdgoLKX11AxSSueSaxoZivYU5V5lfSTgJ9A_eZkQdsTHMtOGI53wnt1zRQAfhczG_jZdwzgzoSvqPMyyGEr-_aYZ8">
-  <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60"></div>
+<!-- Background -->
+<div id="roomBg">
+  <img id="roomCoverImg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA20THb-mnLuJuMVVEs5Nco4vurMKZyjwxbe-W-Uf31d7QbNQS_KI_bQplpTqJ7cXu5RI20jhbRkhzOPSwu2XF_T4G3UvgrhRbeXkmUqcrSP-25vpaHrZHNncWyT6Avp8NVLm8lUemyYs9MMXrCHQsBOMi9Tkew5o-4bQooMiqiIB8KooDFbGjXdgoLKX11AxSSueSaxoZivYU5V5lfSTgJ9A_eZkQdsTHMtOGI53wnt1zRQAfhczG_jZdwzgzoSvqPMyyGEr-_aYZ8">
 </div>
 
-<!-- Top Navigation -->
-<header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 py-3 bg-[#f3f7fb]/80 backdrop-blur-xl border-b border-white/5">
-  <div class="flex items-center gap-2">
-    <button id="leaveBtn" class="w-8 h-8 flex items-center justify-center rounded-full bg-black/10 text-slate-600 hover:bg-black/20 active:scale-90">
-      <span id="leaveIcon" class="material-symbols-outlined text-xl">arrow_back</span>
+<!-- Header -->
+<div id="header">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <button id="leaveBtn" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.1);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;">
+      <span class="msymbol" style="font-size:18px;">arrow_back</span>
     </button>
-    <div class="flex items-center gap-2">
-      <div class="relative">
-        <img id="hostAvatar" class="w-9 h-9 rounded-full border-2 border-primary-fixed object-cover" src="">
-        <div class="absolute -bottom-0.5 -right-0.5 bg-secondary rounded-full p-0.5">
-          <span class="material-symbols-outlined text-[10px] text-white" style="font-variation-settings:'FILL'1">star</span>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div style="position:relative;">
+        <img id="hostAvatar" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #00b4c8;" src="">
+        <div style="position:absolute;bottom:-2px;right:-2px;background:linear-gradient(135deg,#f59e0b,#ef4444);border-radius:50%;width:14px;height:14px;display:flex;align-items:center;justify-content:center;">
+          <span class="msymbol filled" style="font-size:8px;color:#fff;">star</span>
         </div>
       </div>
       <div>
-        <h1 id="roomName" class="text-[#006571] font-headline font-bold tracking-tight leading-none text-xs"></h1>
-        <p id="roomInfo" class="text-[9px] text-slate-500 font-medium">Loading...</p>
+        <div id="roomNameSpan" style="color:#00e3fd;font-size:12px;font-weight:800;line-height:1.2;"></div>
+        <div id="roomInfoSpan" style="color:rgba(255,255,255,.45);font-size:9px;font-weight:500;"></div>
       </div>
     </div>
   </div>
-  <div class="flex items-center gap-2">
-    <div class="bg-black/10 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1.5 border border-white/10">
-      <span class="material-symbols-outlined text-secondary-fixed text-xs" style="font-variation-settings:'FILL'1">payments</span>
-      <span id="rewardAmount" class="text-on-surface text-[10px] font-bold">0</span>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:30px;padding:4px 10px;display:flex;align-items:center;gap:5px;">
+      <span class="msymbol filled" style="font-size:13px;color:#f59e0b;">payments</span>
+      <span id="rewardSpan" style="color:#fff;font-size:10px;font-weight:800;">0</span>
     </div>
-    <div class="bg-black/10 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1.5 border border-white/10">
-      <span class="material-symbols-outlined text-white text-xs">visibility</span>
-      <span id="viewerCount" class="text-white text-[10px] font-bold">0</span>
+    <div style="background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.4);border-radius:30px;padding:4px 10px;display:flex;align-items:center;gap:5px;">
+      <span style="width:6px;height:6px;border-radius:50%;background:#ef4444;animation:pulse 1.5s infinite;"></span>
+      <span id="viewerSpan" style="color:#fff;font-size:10px;font-weight:800;">0</span>
     </div>
-    <button id="menuBtn" class="w-8 h-8 flex items-center justify-center rounded-full bg-black/10 text-on-surface hover:opacity-80">
-      <span id="menuIcon" class="material-symbols-outlined text-xl">more_vert</span>
-    </button>
   </div>
-</header>
+</div>
+<style>@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}</style>
 
-<main class="relative z-10 pt-20 pb-40 px-4 flex flex-col min-h-screen">
-  <!-- Seat Grid -->
-  <div class="max-w-md mx-auto w-full">
-    <!-- Top Row: 3 seats (live video) attached -->
-    <div class="top-row" id="topRowSeats"></div>
-    <!-- Bottom Row: 5 seats (audio only / invite) -->
-    <div class="grid grid-cols-5 gap-2 mb-8" id="bottomRowSeats"></div>
-  </div>
+<!-- Main Content -->
+<div style="padding-top:64px;padding-bottom:160px;min-height:100vh;position:relative;z-index:10;">
 
-  <!-- Room Rules / Announcement -->
-  <div class="max-w-xs mx-auto mb-6">
-    <div class="custom-glass rounded-lg p-3 border border-primary-fixed/20 shadow-lg">
-      <div class="flex items-center gap-2 mb-1.5">
-        <span class="material-symbols-outlined text-primary-fixed text-xs" style="font-variation-settings:'FILL'1">info</span>
-        <h3 id="roomAnnouncementTitle" class="text-white text-[11px] font-headline font-bold">Welcome to the Party</h3>
+  <!-- Top 3 Seats -->
+  <div id="topSeatsRow"></div>
+
+  <!-- Bottom 5 Seats -->
+  <div id="bottomSeatsRow"></div>
+
+  <!-- Announcement -->
+  <div style="padding:14px 16px 0;">
+    <div style="background:rgba(0,101,113,.25);border:1px solid rgba(0,180,200,.2);border-radius:14px;padding:12px 14px;backdrop-filter:blur(8px);">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+        <span class="msymbol filled" style="font-size:14px;color:#00b4c8;">info</span>
+        <span id="announceTitle" style="color:#fff;font-size:11px;font-weight:800;">Welcome to the Party</span>
       </div>
-      <p id="roomAnnouncementText" class="text-white/80 text-[9px] leading-snug">Enjoy our party! Keep it friendly.</p>
-      <div class="mt-2 flex gap-1.5">
-        <span id="roomCategoryTag" class="bg-primary-fixed/20 text-primary-fixed text-[7px] px-1.5 py-0.5 rounded-full font-bold">#Party</span>
+      <p id="announceText" style="color:rgba(255,255,255,.7);font-size:10px;line-height:1.5;margin:0;"></p>
+      <div style="margin-top:6px;">
+        <span id="categoryTag" style="background:rgba(0,180,200,.15);color:#00b4c8;font-size:8px;font-weight:800;padding:2px 8px;border-radius:20px;">#Party</span>
       </div>
     </div>
   </div>
 
   <!-- Chat Area -->
-  <div class="mt-auto mb-4 max-w-sm chat-mask h-32 overflow-y-auto pr-4 scrollbar-hide">
-    <div id="chatMessages" class="space-y-2"></div>
+  <div style="padding:12px 16px 0;height:130px;overflow-y:auto;" class="hide-scroll chat-mask">
+    <div id="chatMessages"></div>
   </div>
 
-  <!-- Quick Action Buttons -->
-  <div class="flex gap-1.5 mb-2 overflow-x-auto pb-2 scrollbar-hide">
-    <button class="quick-btn whitespace-nowrap px-3 py-1.5 bg-white/10 backdrop-blur-md rounded-full text-white text-[9px] font-headline font-bold border border-white/5 active:scale-95" data-msg="🎵 Let's beat the music!">Beat</button>
-    <button class="quick-btn whitespace-nowrap px-3 py-1.5 bg-white/10 backdrop-blur-md rounded-full text-white text-[9px] font-headline font-bold border border-white/5 active:scale-95" data-msg="🎲 Bingo!">Bingo</button>
-    <button class="quick-btn whitespace-nowrap px-3 py-1.5 bg-gradient-to-r from-tertiary to-tertiary-fixed-dim rounded-full text-white text-[9px] font-headline font-bold shadow-md active:scale-95" data-msg="✨ Blingbling!">Blingbling</button>
-    <button class="quick-btn whitespace-nowrap px-3 py-1.5 bg-white/10 backdrop-blur-md rounded-full text-white text-[9px] font-headline font-bold border border-white/5 active:scale-95" data-msg="👏 Clap clap!">Clap</button>
+  <!-- Quick Chat Chips -->
+  <div style="padding:8px 16px;display:flex;gap:6px;overflow-x:auto;" class="hide-scroll">
+    <button class="quick-btn" data-msg="🎵 Let's go!" style="white-space:nowrap;padding:6px 14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.1);border-radius:20px;color:#fff;font-size:10px;font-weight:700;cursor:pointer;">Beat</button>
+    <button class="quick-btn" data-msg="🎲 Bingo!" style="white-space:nowrap;padding:6px 14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.1);border-radius:20px;color:#fff;font-size:10px;font-weight:700;cursor:pointer;">Bingo</button>
+    <button class="quick-btn" data-msg="✨ Blingbling!" style="white-space:nowrap;padding:6px 14px;background:linear-gradient(135deg,#006571,#00b4c8);border:none;border-radius:20px;color:#fff;font-size:10px;font-weight:700;cursor:pointer;">Blingbling</button>
+    <button class="quick-btn" data-msg="👏 Clap clap!" style="white-space:nowrap;padding:6px 14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.1);border-radius:20px;color:#fff;font-size:10px;font-weight:700;cursor:pointer;">Clap</button>
+    <button class="quick-btn" data-msg="🔥 Fire!" style="white-space:nowrap;padding:6px 14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.1);border-radius:20px;color:#fff;font-size:10px;font-weight:700;cursor:pointer;">Fire</button>
   </div>
-</main>
+</div>
 
 <!-- Bottom Bar -->
-<div class="fixed bottom-0 w-full z-50 bg-white/90 backdrop-blur-2xl rounded-t-[1.5rem] shadow-[0_-4px_20px_rgba(0,0,0,0.1)] bottom-bar">
-  <div class="flex items-center justify-between px-5 py-3 gap-3 flex-wrap">
-    <div class="flex-1 bg-slate-100 rounded-full px-4 py-2 flex items-center gap-2">
-      <span class="material-symbols-outlined text-slate-400 text-base">chat_bubble</span>
-      <input type="text" id="chatInput" class="flex-1 bg-transparent border-none text-sm text-slate-700 placeholder-slate-400 focus:outline-none" placeholder="Say something...">
-      <button id="sendMsgBtn" class="text-primary"><span class="material-symbols-outlined text-base">send</span></button>
-    </div>
-    <div class="flex items-center gap-4">
-      <button id="openGiftBtn" class="relative text-slate-400 hover:text-primary transition-colors active:scale-110">
-        <span class="material-symbols-outlined text-2xl">redeem</span>
-        <div class="absolute -top-1 -right-1 w-2 h-2 bg-tertiary rounded-full border border-white"></div>
+<div id="bottomBar">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <!-- My Mic/Cam controls (always visible) -->
+    <div id="myControls" style="display:flex;gap:6px;">
+      <button id="micToggle" class="ctrl-pill">
+        <span class="msymbol icon">mic</span>
+        <span>Mic</span>
       </button>
-      <button onclick="window.location.href='party.html'" class="flex flex-col items-center justify-center bg-primary text-white rounded-full p-2.5 shadow-md active:scale-110">
-        <span class="material-symbols-outlined text-xl" style="font-variation-settings:'FILL'1">sports_esports</span>
-      </button>
-      <button id="bgPickerBtn" class="text-slate-400 hover:text-slate-600 active:scale-110">
-        <span class="material-symbols-outlined text-2xl">grid_view</span>
+      <button id="camToggle" class="ctrl-pill">
+        <span class="msymbol icon">videocam</span>
+        <span>Cam</span>
       </button>
     </div>
+    <!-- Chat input -->
+    <div style="flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:30px;display:flex;align-items:center;gap:6px;padding:0 12px;height:38px;">
+      <input id="chatInput" type="text" placeholder="Say something..." style="flex:1;background:transparent;border:none;color:#fff;font-size:12px;outline:none;" />
+      <button id="sendBtn" style="background:none;border:none;cursor:pointer;color:#00b4c8;">
+        <span class="msymbol" style="font-size:18px;">send</span>
+      </button>
+    </div>
+    <!-- Gift -->
+    <button id="giftBtn" style="position:relative;width:38px;height:38px;border-radius:50%;background:rgba(245,158,11,.15);border:1.5px solid rgba(245,158,11,.4);display:flex;align-items:center;justify-content:center;cursor:pointer;">
+      <span class="msymbol" style="font-size:20px;color:#f59e0b;">redeem</span>
+    </button>
   </div>
-  <div class="h-4"></div>
+  <!-- Switch camera (below, only visible if cam on) -->
+  <div id="switchCamRow" style="display:flex;justify-content:center;margin-top:8px;">
+    <button id="switchCamBtn" style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:5px 14px;color:#fff;font-size:10px;font-weight:700;cursor:pointer;">
+      <span class="msymbol" style="font-size:14px;">cameraswitch</span> Switch Camera
+    </button>
+  </div>
 </div>
+
+<!-- 4-dot Menu Button -->
+<button id="menuDots">
+  <div class="dots-grid">
+    <div class="dot"></div><div class="dot"></div>
+    <div class="dot"></div><div class="dot"></div>
+  </div>
+</button>
+
+<!-- Quick Menu -->
+<div id="quickMenu">
+  <button class="qm-btn" id="qmGift"><span class="msymbol icon" style="color:#f59e0b;">redeem</span>Send Gift</button>
+  <button class="qm-btn" id="qmBg" style="display:none;"><span class="msymbol icon" style="color:#00b4c8;">wallpaper</span>Background</button>
+  <button class="qm-btn" id="qmInvite" style="display:none;"><span class="msymbol icon" style="color:#a78bfa;">person_add</span>Invite</button>
+  <button class="qm-btn" id="qmLeave" style="color:#ef4444;"><span class="msymbol icon">logout</span><span id="qmLeaveLabel">Leave Room</span></button>
+</div>
+
+<!-- ═══ PANELS ═══ -->
 
 <!-- Gift Panel -->
-<div id="giftPanel" class="gift-panel">
-  <div class="flex justify-between items-center mb-2">
-    <h3 class="text-white font-bold">Select Gift</h3>
-    <button id="closeGiftPanel" class="close-gift">✕</button>
+<div id="giftPanel" class="panel">
+  <div class="panel-backdrop" id="giftBackdrop"></div>
+  <div class="panel-sheet">
+    <div class="panel-handle"></div>
+    <div class="panel-header">
+      <span class="panel-title">🎁 Send a Gift</span>
+      <button class="panel-close" id="giftClose">✕</button>
+    </div>
+    <div id="giftGrid" class="gift-grid"></div>
+    <div style="padding:0 16px 6px;">
+      <div style="color:rgba(255,255,255,.5);font-size:10px;font-weight:600;margin-bottom:8px;">QUANTITY</div>
+      <div class="qty-chips" id="qtyChips">
+        <button class="qty-chip active" data-q="1">1×</button>
+        <button class="qty-chip" data-q="10">10×</button>
+        <button class="qty-chip" data-q="17">17×</button>
+        <button class="qty-chip" data-q="37">37×</button>
+        <button class="qty-chip" data-q="77">77×</button>
+        <button class="qty-chip" data-q="99">99×</button>
+      </div>
+    </div>
+    <div style="padding:0 16px 8px;">
+      <button id="confirmGiftBtn" style="width:100%;padding:14px;background:linear-gradient(135deg,#006571,#00b4c8);border:none;border-radius:14px;color:#fff;font-size:14px;font-weight:800;cursor:pointer;letter-spacing:.5px;">
+        Send Gift 🎁
+      </button>
+    </div>
   </div>
-  <div id="giftGrid" class="gift-grid"></div>
 </div>
 
-<!-- Quantity Panel (for gift) -->
-<div id="quantityPanel" class="gift-panel" style="z-index: 210;">
-  <div class="flex justify-between items-center mb-2">
-    <h3 class="text-white font-bold">Quantity</h3>
-    <button id="closeQuantityPanel" class="close-gift">✕</button>
+<!-- Background Panel (host only) -->
+<div id="bgPanel" class="panel">
+  <div class="panel-backdrop" id="bgBackdrop"></div>
+  <div class="panel-sheet">
+    <div class="panel-handle"></div>
+    <div class="panel-header">
+      <span class="panel-title">🎨 Room Background</span>
+      <button class="panel-close" id="bgClose">✕</button>
+    </div>
+    <div id="bgGridEl" class="bg-grid"></div>
   </div>
-  <div class="flex justify-center gap-3">
-    <button data-qty="1" class="qty-btn bg-white/20 text-white px-4 py-2 rounded-full">1x</button>
-    <button data-qty="17" class="qty-btn bg-white/20 text-white px-4 py-2 rounded-full">17x</button>
-    <button data-qty="37" class="qty-btn bg-white/20 text-white px-4 py-2 rounded-full">37x</button>
-    <button data-qty="77" class="qty-btn bg-white/20 text-white px-4 py-2 rounded-full">77x</button>
-  </div>
-  <button id="confirmSendGift" class="mt-3 bg-primary text-white py-2 rounded-full">Send Gift</button>
 </div>
 
-<!-- Invite Panel -->
-<div id="invitePanel" class="invite-panel">
-  <div class="flex justify-between items-center mb-2">
-    <h3 class="text-white font-bold">Invite a Friend</h3>
-    <button id="closeInvitePanel" class="close-invite">✕</button>
+<!-- Invite Panel (host only) -->
+<div id="invitePanel" class="panel">
+  <div class="panel-backdrop" id="inviteBackdrop"></div>
+  <div class="panel-sheet">
+    <div class="panel-handle"></div>
+    <div class="panel-header">
+      <span class="panel-title">👥 Invite to Stage</span>
+      <button class="panel-close" id="inviteClose">✕</button>
+    </div>
+    <div id="inviteGrid" class="invite-grid"></div>
   </div>
-  <div id="inviteList" class="invite-grid"></div>
 </div>
 
-<!-- Background Picker Panel -->
-<div id="bgPickerPanel" class="bg-picker">
-  <div class="flex justify-between items-center mb-2">
-    <h3 class="text-white font-bold">Change Background</h3>
-    <button id="closeBgPicker" class="close-gift">✕</button>
-  </div>
-  <div id="bgGrid" class="bg-grid"></div>
-</div>
-
-<!-- Controls Panel -->
-<div id="controlsPanel" class="controls-panel">
-  <div class="flex justify-between items-center mb-2">
-    <h3 class="text-white font-bold">Audio/Video Controls</h3>
-    <button id="closeControls" class="close-gift">✕</button>
-  </div>
-  <div class="controls-grid">
-    <button id="toggleMicBtn" class="ctrl-btn">🎤 Mic</button>
-    <button id="toggleCamBtn" class="ctrl-btn">📷 Camera</button>
-    <button id="switchCamBtn" class="ctrl-btn">🔄 Switch Camera</button>
+<!-- Host Action Popup -->
+<div id="actionPopup" class="action-popup">
+  <div class="action-popup-backdrop" id="popupBackdrop"></div>
+  <div class="action-popup-card">
+    <div class="popup-user">
+      <img id="popupAvatar" src="">
+      <div>
+        <div id="popupName" class="pname"></div>
+        <div id="popupRole" class="prole"></div>
+      </div>
+    </div>
+    <div class="popup-actions">
+      <button class="popup-action-btn" id="popupMuteBtn">
+        <span class="msymbol icon">mic_off</span>
+        <span id="popupMuteLabel">Mute Member</span>
+      </button>
+      <button class="popup-action-btn danger" id="popupRemoveBtn">
+        <span class="msymbol icon">person_remove</span>
+        Remove from Stage
+      </button>
+    </div>
+    <button class="popup-cancel" id="popupCancel">Cancel</button>
   </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-  import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, onSnapshot, addDoc, serverTimestamp, query, orderBy, limit, updateDoc, increment, getDocs } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+  import {
+    getFirestore, doc, getDoc, setDoc, deleteDoc, collection,
+    onSnapshot, addDoc, serverTimestamp, query, orderBy, limit,
+    updateDoc, increment, getDocs, arrayUnion, arrayRemove
+  } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-  const app = initializeApp({
+  const firebaseApp = initializeApp({
     apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
     authDomain: "galmet-app.firebaseapp.com",
     projectId: "galmet-app",
     storageBucket: "galmet-app.firebasestorage.app"
   });
-  const db = getFirestore(app);
+  const db = getFirestore(firebaseApp);
 
-  const currentUser = JSON.parse(localStorage.getItem("user"));
-  if (!currentUser || !currentUser.userId) window.location.replace("login.html");
+  // ── Auth ──
+  const currentUser = JSON.parse(localStorage.getItem("user") || "null");
+  if (!currentUser?.userId) { window.location.replace("login.html"); }
   const myUserId = currentUser.userId.toString();
-  const agoraUID = Number(currentUser.userId);
   const myUsername = currentUser.username || "User";
-  const myPhoto = currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(myUsername)}&background=006571&color=fff`;
+  const myPhoto = currentUser.photoURL || avatarUrl(myUsername);
+  const agoraUID = Number(currentUser.userId);
 
   const urlParams = new URLSearchParams(window.location.search);
   const roomId = urlParams.get("id");
-  if (!roomId) { alert("Invalid room"); window.location.href = "party.html"; }
-  const roomRef = doc(db, "rooms", roomId);
+  if (!roomId) { showToast("Invalid room"); setTimeout(() => location.href="party.html", 1500); }
+
+  const roomRef   = doc(db, "rooms", roomId);
   const membersRef = collection(db, "rooms", roomId, "members");
   const messagesRef = collection(db, "rooms", roomId, "messages");
+  const mutedRef   = collection(db, "rooms", roomId, "muted");
 
-  // Agora
-  const APP_ID = "873172a9b2064b1ca97b4f45ee6ed9b5";
-  const TOKEN = "007eJxTYNgf3zFVVc1vqcmx/X9OXy/PrUgsXmXoeNimROEVu7RPuZACg4W5saG5UaJlkpGBmUmSYXKipXmSSZqJaWqqWWqKZZKp1JQbmQ2BjAyqH/ewMDJAIIgvwpDob5Zu5pQdlBsa4ViZGmQUaplWwsAAACc3I8I=";
-  let client = null;
-  let localTracks = [];
-  let remoteUsers = {};
-  let cameraFront = true;
+  // ── Agora ──
+  const AGORA_APP_ID = "873172a9b2064b1ca97b4f45ee6ed9b5";
+  const AGORA_TOKEN  = "007eJxTYNgf3zFVVc1vqcmx/X9OXy/PrUgsXmXoeNimROEVu7RPuZACg4W5saG5UaJlkpGBmUmSYXKipXmSSZqJaWqqWWqKZZKp1JQbmQ2BjAyqH/ewMDJAIIgvwpDob5Zu5pQdlBsa4ViZGmQUaplWwsAAACc3I8I=";
+  let agoraClient = null;
+  let localAudioTrack = null;
+  let localVideoTrack = null;
+  let micOn = true, camOn = true, cameraFront = true;
+  const remoteVideoTracks = {}; // uid → videoTrack
 
-  // DOM elements
-  const hostAvatarImg = document.getElementById("hostAvatar");
-  const roomNameSpan = document.getElementById("roomName");
-  const roomInfoSpan = document.getElementById("roomInfo");
-  const rewardAmountSpan = document.getElementById("rewardAmount");
-  const viewerCountSpan = document.getElementById("viewerCount");
-  const roomAnnouncementTitle = document.getElementById("roomAnnouncementTitle");
-  const roomAnnouncementText = document.getElementById("roomAnnouncementText");
-  const roomCategoryTag = document.getElementById("roomCategoryTag");
-  const roomCoverImg = document.getElementById("roomCover");
-  const topRowSeats = document.getElementById("topRowSeats");
-  const bottomRowSeats = document.getElementById("bottomRowSeats");
-  const chatMessagesDiv = document.getElementById("chatMessages");
-  const leaveBtn = document.getElementById("leaveBtn");
-  const menuBtn = document.getElementById("menuBtn");
-  const menuIcon = document.getElementById("menuIcon");
-  const leaveIcon = document.getElementById("leaveIcon");
-  const openGiftBtn = document.getElementById("openGiftBtn");
-  const giftPanel = document.getElementById("giftPanel");
-  const closeGiftPanelBtn = document.getElementById("closeGiftPanel");
-  const giftGrid = document.getElementById("giftGrid");
-  const quantityPanel = document.getElementById("quantityPanel");
-  const closeQuantityPanel = document.getElementById("closeQuantityPanel");
-  const confirmSendGift = document.getElementById("confirmSendGift");
-  const chatInput = document.getElementById("chatInput");
-  const sendMsgBtn = document.getElementById("sendMsgBtn");
-  const bgPickerBtn = document.getElementById("bgPickerBtn");
-  const bgPickerPanel = document.getElementById("bgPickerPanel");
-  const closeBgPicker = document.getElementById("closeBgPicker");
-  const bgGrid = document.getElementById("bgGrid");
-  const controlsPanel = document.getElementById("controlsPanel");
-  const closeControls = document.getElementById("closeControls");
-  const toggleMicBtn = document.getElementById("toggleMicBtn");
-  const toggleCamBtn = document.getElementById("toggleCamBtn");
-  const switchCamBtn = document.getElementById("switchCamBtn");
-  const invitePanel = document.getElementById("invitePanel");
-  const closeInvitePanel = document.getElementById("closeInvitePanel");
-  const inviteList = document.getElementById("inviteList");
+  // ── State ──
+  let roomData = null, hostId = null, isHost = false;
+  let members = [];                         // live member docs {uid, username, photoURL, micMuted}
+  let mutedMembers = new Set();             // uids muted by host (reflected in Firestore)
+  let selectedGift = null, selectedQty = 1;
+  let popupTarget = null;                   // member shown in action popup
 
-  let roomData = null;
-  let members = [];
-  let hostId = null;
-  let isHost = false;
-  let selectedGift = null;
-  let selectedQuantity = 1;
+  // ── DOM ──
+  const $ = id => document.getElementById(id);
+  const topSeatsRow   = $("topSeatsRow");
+  const bottomSeatsRow= $("bottomSeatsRow");
+  const chatMessagesDiv=$("chatMessages");
+  const chatInput     = $("chatInput");
+  const sendBtn       = $("sendBtn");
+  const rewardSpan    = $("rewardSpan");
+  const viewerSpan    = $("viewerSpan");
+  const hostAvatarEl  = $("hostAvatar");
+  const roomNameEl    = $("roomNameSpan");
+  const roomInfoEl    = $("roomInfoSpan");
+  const announceTitle = $("announceTitle");
+  const announceText  = $("announceText");
+  const categoryTag   = $("categoryTag");
+  const roomCoverImgEl= $("roomCoverImg");
 
-  const backgrounds = [
+  const micToggle   = $("micToggle");
+  const camToggle   = $("camToggle");
+  const switchCamBtn= $("switchCamBtn");
+  const menuDots    = $("menuDots");
+  const quickMenu   = $("quickMenu");
+
+  const giftPanel   = $("giftPanel");
+  const giftGridEl  = $("giftGrid");
+  const bgPanel     = $("bgPanel");
+  const bgGridEl    = $("bgGridEl");
+  const invitePanel = $("invitePanel");
+  const inviteGridEl= $("inviteGrid");
+  const actionPopup = $("actionPopup");
+
+  // ── Helpers ──
+  function avatarUrl(name){ return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=006571&color=fff&size=128`; }
+  function esc(s){ if(!s)return ""; return s.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+  function showToast(msg){
+    const t=document.createElement("div");
+    t.className="toast";t.innerText=msg;
+    document.body.appendChild(t);
+    setTimeout(()=>t.remove(),2400);
+  }
+  function closePanel(el){ el.classList.remove("open"); }
+  function openPanel(el){ el.classList.add("open"); }
+
+  // ── 1. Load Room ──
+  async function loadRoom(){
+    const snap = await getDoc(roomRef);
+    if(!snap.exists()){ showToast("Room not found"); setTimeout(()=>location.href="party.html",1500); return; }
+    roomData = snap.data();
+    hostId = roomData.hostId?.toString();
+    isHost = myUserId === hostId;
+    roomNameEl.innerText = roomData.name || "Unnamed Room";
+    roomInfoEl.innerText = `Host: ${roomData.hostName || "?"} · LIVE`;
+    rewardSpan.innerText = roomData.rewards || 0;
+    announceTitle.innerText = roomData.announcement ? "Announcement" : "Welcome";
+    announceText.innerText  = roomData.announcement || "Enjoy the party! Keep it friendly.";
+    categoryTag.innerText   = roomData.category ? `#${roomData.category}` : "#Party";
+    if(roomData.coverPhoto) roomCoverImgEl.src = roomData.coverPhoto;
+
+    // Host avatar
+    const hSnap = await getDoc(doc(db,"users",hostId)).catch(()=>null);
+    hostAvatarEl.src = hSnap?.data()?.photoURL || avatarUrl(roomData.hostName||"Host");
+
+    // Show host-only quick menu items
+    if(isHost){
+      $("qmBg").style.display = "flex";
+      $("qmInvite").style.display = "flex";
+      $("qmLeaveLabel").innerText = "End Live";
+    }
+    $("leaveBtn").onclick = () => isHost ? confirmEnd() : confirmLeave();
+  }
+
+  async function confirmEnd(){
+    if(confirm("End the live party for everyone?")){ await deleteDoc(roomRef); location.href="party.html"; }
+  }
+  async function confirmLeave(){
+    await deleteDoc(doc(db,"rooms",roomId,"members",myUserId));
+    await updateDoc(roomRef,{users:increment(-1)}).catch(()=>{});
+    if(agoraClient){ try{ localAudioTrack?.close(); localVideoTrack?.close(); await agoraClient.leave(); }catch(e){} }
+    location.href="party.html";
+  }
+
+  // ── 2. Members realtime ──
+  function listenMembers(){
+    onSnapshot(membersRef, async snap => {
+      const list = [];
+      for(const d of snap.docs){
+        const m = d.data();
+        const uid = m.uid?.toString(); if(!uid) continue;
+        let username="User", photoURL="";
+        const us = await getDoc(doc(db,"users",uid)).catch(()=>null);
+        if(us?.exists()){ username=us.data().username||"User"; photoURL=us.data().photoURL||""; }
+        list.push({ uid, username, photoURL, micMuted: m.micMuted||false, role: m.role||"guest" });
+      }
+      members = list;
+      viewerSpan.innerText = members.length;
+      renderSeats();
+    });
+  }
+
+  // ── 3. Render Seats ──
+  function renderSeats(){
+    const sorted = [...members];
+    const hi = sorted.findIndex(m=>m.uid===hostId);
+    if(hi!==-1){ const h=sorted.splice(hi,1)[0]; sorted.unshift(h); }
+
+    // Top 3
+    topSeatsRow.innerHTML="";
+    for(let i=0;i<3;i++){
+      const m = sorted[i];
+      const seat = document.createElement("div");
+      seat.className="top-seat";
+      const box = document.createElement("div");
+      box.className="cam-box";
+      if(m){
+        // overlay gradient
+        const ov=document.createElement("div"); ov.className="cam-overlay"; box.appendChild(ov);
+        // name
+        const nm=document.createElement("div"); nm.className="cam-name"; nm.innerText=m.username; box.appendChild(nm);
+        // host badge
+        if(m.uid===hostId){ const bd=document.createElement("div"); bd.className="cam-badge"; bd.innerText="HOST"; box.appendChild(bd); }
+        // mic-off badge
+        if(m.micMuted){ const mb=document.createElement("div"); mb.className="cam-mic-off"; mb.innerHTML='<span class="msymbol" style="font-size:11px;">mic_off</span>'; box.appendChild(mb); }
+        // video / avatar
+        const videoContainerId = `vbox-${m.uid}`;
+        const vc = document.createElement("div");
+        vc.id = videoContainerId;
+        vc.style.cssText="position:absolute;inset:0;";
+        box.insertBefore(vc, ov);
+        // play video or avatar
+        setTimeout(()=>{
+          const c = document.getElementById(videoContainerId);
+          if(!c) return;
+          if(m.uid===myUserId && localVideoTrack && camOn){
+            c.innerHTML=""; localVideoTrack.play(c);
+          } else if(remoteVideoTracks[m.uid]){
+            c.innerHTML=""; remoteVideoTracks[m.uid].play(c);
+          } else {
+            c.innerHTML=`<img class="avatar-fill" src="${m.photoURL||avatarUrl(m.username)}">`;
+          }
+        },50);
+        // Click: host opens action popup, others do nothing (or join on empty)
+        if(isHost && m.uid!==hostId){
+          box.style.cursor="pointer";
+          box.onclick=()=>openActionPopup(m);
+        }
+      } else {
+        // empty seat
+        const eb=document.createElement("div"); eb.className="empty-seat-btn";
+        eb.innerHTML=`<div class="plus-ring"><span class="msymbol">add</span></div><span class="label">${isHost?"Invite":"Join"}</span>`;
+        eb.onclick=()=> isHost ? openInvitePanel() : joinRoom();
+        box.appendChild(eb);
+      }
+      seat.appendChild(box);
+      topSeatsRow.appendChild(seat);
+    }
+
+    // Bottom 5
+    bottomSeatsRow.innerHTML="";
+    for(let i=0;i<5;i++){
+      const m=sorted[i+3];
+      const seat=document.createElement("div");
+      if(m){
+        seat.className="bot-seat";
+        seat.innerHTML=`
+          <div class="ava">
+            <img src="${m.photoURL||avatarUrl(m.username)}">
+            ${m.micMuted?`<div class="mic-off-dot"><span class="msymbol" style="font-size:8px;">mic_off</span></div>`:""}
+          </div>
+          <span class="bot-name">${esc(m.username)}</span>`;
+        if(isHost && m.uid!==hostId){ seat.style.cursor="pointer"; seat.onclick=()=>openActionPopup(m); }
+      } else {
+        seat.className="bot-seat empty-bot";
+        seat.innerHTML=`<div class="ava" style="display:flex;align-items:center;justify-content:center;"><span class="msymbol plus-icon">add</span></div><span class="bot-name">${isHost?"Invite":"Join"}</span>`;
+        seat.onclick=()=> isHost ? openInvitePanel() : joinRoom();
+      }
+      bottomSeatsRow.appendChild(seat);
+    }
+  }
+
+  async function joinRoom(){
+    const md=doc(db,"rooms",roomId,"members",myUserId);
+    const ms=await getDoc(md);
+    if(!ms.exists()){
+      await setDoc(md,{uid:myUserId,role:"guest",micMuted:false,joinedAt:serverTimestamp()});
+      await updateDoc(roomRef,{users:increment(1)}).catch(()=>{});
+    }
+  }
+
+  // ── 4. Action Popup (host) ──
+  function openActionPopup(m){
+    popupTarget=m;
+    $("popupAvatar").src = m.photoURL || avatarUrl(m.username);
+    $("popupName").innerText = m.username;
+    $("popupRole").innerText = m.uid===hostId ? "Host" : "Guest";
+    $("popupMuteLabel").innerText = m.micMuted ? "Unmute Member" : "Mute Member";
+    $("popupMuteBtn").querySelector(".msymbol").innerText = m.micMuted ? "mic" : "mic_off";
+    openPanel(actionPopup);
+  }
+  $("popupBackdrop").onclick = ()=>closePanel(actionPopup);
+  $("popupCancel").onclick   = ()=>closePanel(actionPopup);
+  $("popupRemoveBtn").onclick = async ()=>{
+    if(!popupTarget) return;
+    await deleteDoc(doc(db,"rooms",roomId,"members",popupTarget.uid));
+    await updateDoc(roomRef,{users:increment(-1)}).catch(()=>{});
+    closePanel(actionPopup);
+    showToast(`${popupTarget.username} removed from stage`);
+  };
+  $("popupMuteBtn").onclick = async ()=>{
+    if(!popupTarget) return;
+    const newMuted = !popupTarget.micMuted;
+    await updateDoc(doc(db,"rooms",roomId,"members",popupTarget.uid),{micMuted:newMuted});
+    closePanel(actionPopup);
+    showToast(`${popupTarget.username} ${newMuted?"muted":"unmuted"}`);
+  };
+
+  // ── 5. Agora ──
+  async function startAgora(){
+    agoraClient = AgoraRTC.createClient({mode:"rtc",codec:"vp8"});
+    await agoraClient.join(AGORA_APP_ID, roomId, AGORA_TOKEN, agoraUID);
+
+    // Create mic and camera separately
+    try{ localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack(); }catch(e){ console.warn("Mic error",e); }
+    try{ localVideoTrack = await AgoraRTC.createCameraVideoTrack({facingMode: cameraFront?"user":"environment"}); }catch(e){ console.warn("Cam error",e); }
+
+    const toPublish = [];
+    if(localAudioTrack) toPublish.push(localAudioTrack);
+    if(localVideoTrack) toPublish.push(localVideoTrack);
+    if(toPublish.length) await agoraClient.publish(toPublish);
+
+    agoraClient.on("user-published", async (user, mediaType)=>{
+      await agoraClient.subscribe(user, mediaType);
+      if(mediaType==="video"){
+        remoteVideoTracks[user.uid] = user.videoTrack;
+        // Re-render to show video
+        const c=document.getElementById(`vbox-${user.uid}`);
+        if(c){ c.innerHTML=""; user.videoTrack.play(c); }
+      }
+      if(mediaType==="audio") user.audioTrack?.play();
+    });
+    agoraClient.on("user-unpublished",(user,mediaType)=>{
+      if(mediaType==="video"){
+        delete remoteVideoTracks[user.uid];
+        const c=document.getElementById(`vbox-${user.uid}`);
+        const m=members.find(x=>x.uid==user.uid);
+        if(c && m) c.innerHTML=`<img class="avatar-fill" src="${m.photoURL||avatarUrl(m.username)}">`;
+      }
+    });
+    agoraClient.on("user-left",(user)=>{
+      delete remoteVideoTracks[user.uid];
+    });
+  }
+
+  // ── 6. Mic / Camera Controls ──
+  micToggle.onclick = async ()=>{
+    micOn = !micOn;
+    if(localAudioTrack) await localAudioTrack.setEnabled(micOn);
+    micToggle.classList.toggle("active", !micOn);
+    micToggle.querySelector(".msymbol").innerText = micOn ? "mic" : "mic_off";
+    micToggle.querySelector("span:last-child").innerText = micOn ? "Mic" : "Mic Off";
+    // Update own member doc if joined
+    const md=doc(db,"rooms",roomId,"members",myUserId);
+    const ms=await getDoc(md); if(ms.exists()) await updateDoc(md,{micMuted:!micOn});
+  };
+
+  camToggle.onclick = async ()=>{
+    camOn = !camOn;
+    if(localVideoTrack) await localVideoTrack.setEnabled(camOn);
+    camToggle.classList.toggle("active",!camOn);
+    camToggle.querySelector(".msymbol").innerText = camOn?"videocam":"videocam_off";
+    camToggle.querySelector("span:last-child").innerText = camOn?"Cam":"Cam Off";
+    // Update local seat display
+    const c=document.getElementById(`vbox-${myUserId}`);
+    if(c){
+      if(camOn && localVideoTrack){ c.innerHTML=""; localVideoTrack.play(c); }
+      else { c.innerHTML=`<img class="avatar-fill" src="${myPhoto}">`; }
+    }
+    $("switchCamRow").style.display = camOn ? "flex" : "none";
+  };
+
+  switchCamBtn.onclick = async ()=>{
+    if(!localVideoTrack||!agoraClient) return;
+    cameraFront=!cameraFront;
+    try{
+      await agoraClient.unpublish(localVideoTrack);
+      localVideoTrack.close();
+      localVideoTrack = await AgoraRTC.createCameraVideoTrack({facingMode: cameraFront?"user":"environment"});
+      await agoraClient.publish(localVideoTrack);
+      if(camOn){
+        const c=document.getElementById(`vbox-${myUserId}`);
+        if(c){ c.innerHTML=""; localVideoTrack.play(c); }
+      }
+      showToast(`Camera: ${cameraFront?"Front":"Back"}`);
+    }catch(e){ showToast("Failed to switch camera"); }
+  };
+
+  // ── 7. Chat ──
+  function listenChat(){
+    const q=query(messagesRef,orderBy("timestamp","desc"),limit(60));
+    onSnapshot(q, snap=>{
+      const msgs=[];
+      snap.forEach(d=>msgs.push({id:d.id,...d.data()}));
+      msgs.reverse();
+      chatMessagesDiv.innerHTML="";
+      msgs.slice(-15).forEach(msg=>{
+        const div=document.createElement("div");
+        div.style.cssText="display:flex;align-items:flex-start;gap:6px;";
+        if(msg.type==="gift"){
+          div.innerHTML=`<span style="color:#f59e0b;font-size:11px;font-weight:800;">🎁 ${esc(msg.senderName)}:</span><span style="color:rgba(255,255,255,.8);font-size:10px;"> sent ${esc(msg.giftName)} ×${msg.quantity||1}</span>`;
+        } else {
+          const isMe = msg.senderId===myUserId;
+          div.innerHTML=`<span style="color:${isMe?"#00e3fd":"#a5f3fc"};font-size:11px;font-weight:800;">${esc(msg.senderName)}:</span><span style="color:rgba(255,255,255,.85);font-size:10px;word-break:break-word;"> ${esc(msg.text)}</span>`;
+        }
+        chatMessagesDiv.appendChild(div);
+      });
+      chatMessagesDiv.parentElement.scrollTop = chatMessagesDiv.parentElement.scrollHeight;
+    });
+  }
+
+  async function sendMessage(text,type="text",giftData=null){
+    if(!text?.trim() && type!=="gift") return;
+    const m={senderId:myUserId,senderName:myUsername,timestamp:serverTimestamp(),type};
+    if(type==="text") m.text=text;
+    if(type==="gift"&&giftData){ m.text=`sent ${giftData.name}×${giftData.qty}`; m.giftName=giftData.name; m.giftImage=giftData.image; m.quantity=giftData.qty; }
+    await addDoc(messagesRef,m);
+  }
+
+  document.querySelectorAll(".quick-btn").forEach(b=>b.onclick=()=>sendMessage(b.dataset.msg));
+  sendBtn.onclick=()=>{ const t=chatInput.value.trim(); if(t){ sendMessage(t); chatInput.value=""; } };
+  chatInput.addEventListener("keypress",e=>{ if(e.key==="Enter"){ sendBtn.onclick(); } });
+
+  // ── 8. Gifts ──
+  const BACKGROUNDS = [
     "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800",
     "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800",
     "https://images.unsplash.com/photo-1536240474400-bc3c7eac8f0d?w=800",
     "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
     "https://images.unsplash.com/photo-1500462918059-b1a0cb512f1d?w=800",
-    "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?w=800"
+    "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?w=800",
+    "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800",
+    "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=800",
+    "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800"
   ];
 
-  // ========== 1. Load Room Data ==========
-  async function loadRoomData() {
-    const snap = await getDoc(roomRef);
-    if (!snap.exists()) { alert("Room not found"); window.location.href = "party.html"; return; }
-    roomData = snap.data();
-    hostId = roomData.hostId?.toString();
-    isHost = (myUserId === hostId);
-    roomNameSpan.innerText = roomData.name || "Unnamed Room";
-    roomInfoSpan.innerText = `ID: ${hostId || "?"} • LIVE`;
-    rewardAmountSpan.innerText = roomData.rewards || 0;
-    roomAnnouncementTitle.innerText = roomData.announcement ? "Announcement" : "Welcome";
-    roomAnnouncementText.innerText = roomData.announcement || "Enjoy the party! Keep it friendly.";
-    roomCategoryTag.innerText = roomData.category ? `#${roomData.category}` : "#Party";
-    if (roomData.coverPhoto) roomCoverImg.src = roomData.coverPhoto;
-    if (hostId) {
-      const userSnap = await getDoc(doc(db, "users", hostId));
-      if (userSnap.exists()) hostAvatarImg.src = userSnap.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(userSnap.username || "Host")}&background=006571&color=fff`;
-      else hostAvatarImg.src = roomData.hostPhoto || `https://ui-avatars.com/api/?name=${encodeURIComponent(roomData.hostName || "Host")}&background=006571&color=fff`;
-    }
-    if (isHost) {
-      menuIcon.innerText = "more_vert";
-      leaveIcon.innerText = "arrow_back";
-      menuBtn.onclick = () => { if (confirm("End the live party?")) endLive(); };
+  async function loadGifts(){
+    giftGridEl.innerHTML="";
+    const snap=await getDocs(collection(db,"gifts"));
+    if(snap.empty){
+      // Default gifts if none in DB
+      const defaults=[
+        {id:"rose",name:"Rose",image:"https://cdn-icons-png.flaticon.com/128/2722/2722480.png",coinPrice:10},
+        {id:"crown",name:"Crown",image:"https://cdn-icons-png.flaticon.com/128/1827/1827370.png",coinPrice:50},
+        {id:"rocket",name:"Rocket",image:"https://cdn-icons-png.flaticon.com/128/2991/2991501.png",coinPrice:100},
+        {id:"diamond",name:"Diamond",image:"https://cdn-icons-png.flaticon.com/128/3135/3135706.png",coinPrice:500},
+      ];
+      defaults.forEach(g=>renderGiftCard(g));
     } else {
-      menuIcon.innerText = "close";
-      leaveIcon.innerText = "arrow_back";
-      menuBtn.onclick = () => { if (confirm("Leave the party?")) leaveRoom(); };
+      snap.forEach(d=>renderGiftCard({id:d.id,...d.data()}));
     }
   }
 
-  async function endLive() { await deleteDoc(roomRef); window.location.href = "party.html"; }
-
-  // ========== 2. Real-time Members & Seat Display ==========
-  function renderSeats() {
-    const allMembers = [...members];
-    const hostIndex = allMembers.findIndex(m => m.uid === hostId);
-    if (hostIndex !== -1) { const hostMember = allMembers.splice(hostIndex, 1)[0]; allMembers.unshift(hostMember); }
-    const topMembers = allMembers.slice(0, 3);
-    const bottomMembers = allMembers.slice(3, 8);
-    // Top row (attached)
-    topRowSeats.innerHTML = "";
-    for (let i = 0; i < 3; i++) {
-      const member = topMembers[i];
-      const seatDiv = document.createElement("div");
-      seatDiv.className = "top-seat";
-      if (member) {
-        const videoId = `video-${member.uid}`;
-        seatDiv.innerHTML = `
-          <div id="${videoId}" class="camera-frame"></div>
-          <span class="text-white text-[9px] font-medium truncate max-w-[70px]">${member.username}</span>
-        `;
-        // If video track exists, play it; otherwise show avatar
-        if (remoteUsers[member.uid]?.videoTrack) {
-          const container = document.getElementById(videoId);
-          if (container) remoteUsers[member.uid].videoTrack.play(container);
-        } else {
-          // Show avatar in camera frame
-          const container = document.getElementById(videoId);
-          if (container) {
-            container.innerHTML = `<img src="${member.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.username)}&background=006571&color=fff`}" style="width:100%;height:100%;object-fit:cover;">`;
-          }
-        }
-        // Host can click to remove
-        if (isHost && member.uid !== hostId) {
-          seatDiv.style.cursor = "pointer";
-          seatDiv.onclick = () => {
-            if (confirm(`Remove ${member.username} from seat?`)) {
-              deleteDoc(doc(db, "rooms", roomId, "members", member.uid));
-            }
-          };
-        }
-      } else {
-        // Empty seat (join)
-        seatDiv.className = "top-seat cursor-pointer";
-        seatDiv.onclick = () => joinRoom();
-        seatDiv.innerHTML = `
-          <div class="camera-frame flex items-center justify-center">
-            <span class="material-symbols-outlined text-white/60 text-3xl">add</span>
-          </div>
-          <span class="text-white/60 text-[9px]">Join</span>
-        `;
-      }
-      topRowSeats.appendChild(seatDiv);
-    }
-    // Bottom row
-    bottomRowSeats.innerHTML = "";
-    for (let i = 0; i < 5; i++) {
-      const member = bottomMembers[i];
-      if (member) {
-        const div = document.createElement("div");
-        div.className = "flex flex-col items-center gap-1";
-        div.innerHTML = `
-          <div class="w-12 h-12 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 overflow-hidden">
-            <img src="${member.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.username)}&background=006571&color=fff`}" class="w-full h-full object-cover">
-          </div>
-          <span class="text-white/60 text-[7px] uppercase tracking-widest truncate max-w-[48px]">${member.username}</span>
-        `;
-        if (isHost && member.uid !== hostId) {
-          div.style.cursor = "pointer";
-          div.onclick = () => {
-            if (confirm(`Remove ${member.username} from room?`)) {
-              deleteDoc(doc(db, "rooms", roomId, "members", member.uid));
-            }
-          };
-        }
-        bottomRowSeats.appendChild(div);
-      } else {
-        const div = document.createElement("div");
-        div.className = "flex flex-col items-center gap-1 cursor-pointer";
-        div.onclick = () => joinRoom();
-        div.innerHTML = `
-          <div class="w-12 h-12 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center">
-            <span class="material-symbols-outlined text-white/60 text-xl">add</span>
-          </div>
-          <span class="text-white/40 text-[7px] uppercase tracking-widest">Join</span>
-        `;
-        bottomRowSeats.appendChild(div);
-      }
-    }
-    viewerCountSpan.innerText = members.length;
+  function renderGiftCard(g){
+    const div=document.createElement("div");
+    div.className="gift-card";
+    div.innerHTML=`<img src="${g.image}"><div class="g-name">${esc(g.name)}</div><div class="g-price">${g.coinPrice} coins</div>`;
+    div.onclick=()=>{
+      document.querySelectorAll(".gift-card").forEach(c=>c.classList.remove("selected"));
+      div.classList.add("selected");
+      selectedGift={...g};
+    };
+    giftGridEl.appendChild(div);
   }
 
-  async function loadMembers() {
-    onSnapshot(membersRef, async (snap) => {
-      const membersList = [];
-      for (const docSnap of snap.docs) {
-        const member = docSnap.data();
-        const uid = member.uid?.toString();
-        if (!uid) continue;
-        let username = "User", photoURL = "";
-        try {
-          const userSnap = await getDoc(doc(db, "users", uid));
-          if (userSnap.exists()) { username = userSnap.data().username || "User"; photoURL = userSnap.data().photoURL || ""; }
-        } catch(e) {}
-        membersList.push({ uid, username, photoURL, role: member.role || "guest" });
-      }
-      members = membersList;
-      renderSeats();
-    });
-  }
-
-  // ========== 3. Join / Leave (no auto join) ==========
-  async function joinRoom() {
-    const memberDoc = doc(db, "rooms", roomId, "members", myUserId);
-    const memberSnap = await getDoc(memberDoc);
-    if (!memberSnap.exists()) {
-      await setDoc(memberDoc, { uid: myUserId, role: "guest", joinedAt: serverTimestamp() });
-      await updateDoc(roomRef, { users: increment(1) });
-    }
-  }
-
-  async function leaveRoom() {
-    await deleteDoc(doc(db, "rooms", roomId, "members", myUserId));
-    await updateDoc(roomRef, { users: increment(-1) });
-    if (client) { for (let track of localTracks) track.close(); await client.leave(); }
-    window.location.href = "party.html";
-  }
-  leaveBtn.onclick = () => {
-    if (isHost) { if (confirm("End live and go back?")) endLive(); }
-    else leaveRoom();
+  // Quantity chips
+  $("qtyChips").onclick=e=>{
+    const btn=e.target.closest(".qty-chip");
+    if(!btn) return;
+    document.querySelectorAll(".qty-chip").forEach(c=>c.classList.remove("active"));
+    btn.classList.add("active");
+    selectedQty=parseInt(btn.dataset.q);
   };
 
-  // ========== 4. Agora Video Integration ==========
-  async function startAgora() {
-    client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
-    await client.join(APP_ID, roomId, TOKEN, agoraUID);
-    localTracks = await AgoraRTC.createMicrophoneAndCameraTracks();
-    await client.publish(localTracks);
-    client.on("user-published", async (user, mediaType) => {
-      await client.subscribe(user, mediaType);
-      if (mediaType === "video") {
-        remoteUsers[user.uid] = { videoTrack: user.videoTrack };
-        const container = document.getElementById(`video-${user.uid}`);
-        if (container) user.videoTrack.play(container);
-      }
-      if (mediaType === "audio") user.audioTrack.play();
-    });
-    client.on("user-unpublished", (user) => {
-      const container = document.getElementById(`video-${user.uid}`);
-      if (container) container.innerHTML = "";
-      delete remoteUsers[user.uid];
-    });
-  }
-
-  function updateLocalVideoDisplay() {
-    const container = document.getElementById(`video-${myUserId}`);
-    if (!container) return;
-    if (localTracks[1] && localTracks[1].enabled) {
-      container.innerHTML = "";
-      localTracks[1].play(container);
-    } else {
-      container.innerHTML = `<img src="${myPhoto}" style="width:100%;height:100%;object-fit:cover;">`;
+  $("confirmGiftBtn").onclick=async()=>{
+    if(!selectedGift){ showToast("Pick a gift first!"); return; }
+    if(myUserId===hostId){ showToast("Can't send gift to yourself"); return; }
+    const price=selectedGift.coinPrice*selectedQty;
+    const uSnap=await getDoc(doc(db,"users",myUserId));
+    if((uSnap.data()?.coins||0)<price){ showToast("Not enough coins!"); return; }
+    await updateDoc(doc(db,"users",myUserId),{coins:increment(-price)});
+    if(hostId){
+      const hRef=doc(db,"users",hostId);
+      const hSnap=await getDoc(hRef);
+      const charm=hSnap.data()?.charmLevel||0;
+      const gems=Math.floor(price*(0.30+charm*0.01));
+      await updateDoc(hRef,{gems:increment(gems)});
+      await updateDoc(roomRef,{rewards:increment(gems)});
+      rewardSpan.innerText=(parseInt(rewardSpan.innerText)||0)+gems;
     }
-  }
+    await sendMessage("","gift",{name:selectedGift.name,image:selectedGift.image,qty:selectedQty});
+    // Float animation
+    const fl=document.createElement("div");
+    fl.className="gift-float";
+    fl.innerHTML=`<img src="${selectedGift.image}" style="width:56px;height:56px;filter:drop-shadow(0 0 12px #f59e0b);">`;
+    document.body.appendChild(fl); setTimeout(()=>fl.remove(),1900);
+    closePanel(giftPanel); showToast(`Sent ${selectedGift.name} ×${selectedQty} 🎁`);
+    selectedGift=null; document.querySelectorAll(".gift-card").forEach(c=>c.classList.remove("selected"));
+  };
 
-  async function switchCamera() {
-    if (!localTracks[1]) return;
-    cameraFront = !cameraFront;
-    const newTrack = await AgoraRTC.createCameraVideoTrack({ cameraId: cameraFront ? "environment" : "user", encoderConfig: "720p" });
-    await client.unpublish(localTracks[1]);
-    localTracks[1].close();
-    localTracks[1] = newTrack;
-    await client.publish(localTracks[1]);
-    updateLocalVideoDisplay();
-  }
-
-  // ========== 5. Real-time Chat ==========
-  function listenChat() {
-    const q = query(messagesRef, orderBy("timestamp", "desc"), limit(50));
-    onSnapshot(q, (snap) => {
-      const msgs = [];
-      snap.forEach(d => msgs.push({ id: d.id, ...d.data() }));
-      msgs.reverse();
-      chatMessagesDiv.innerHTML = "";
-      msgs.slice(-10).forEach(msg => {
-        const div = document.createElement("div");
-        div.className = "flex items-start gap-2";
-        if (msg.type === 'gift') {
-          div.innerHTML = `<span class="text-amber-400 font-bold text-[10px]">🎁 ${escapeHtml(msg.senderName)}:</span> <span class="text-white text-[10px]">sent ${escapeHtml(msg.giftName)} x${msg.quantity || 1}</span>`;
-        } else {
-          div.innerHTML = `<span class="text-primary-fixed font-bold text-[10px]">${escapeHtml(msg.senderName)}:</span> <span class="text-white text-[10px] break-words">${escapeHtml(msg.text)}</span>`;
-        }
-        chatMessagesDiv.appendChild(div);
-      });
-      chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
-    });
-  }
-
-  async function sendMessage(text, type = 'text', giftData = null) {
-    if (!text.trim() && type !== 'gift') return;
-    const message = { senderId: myUserId, senderName: myUsername, timestamp: serverTimestamp(), type: type };
-    if (type === 'text') message.text = text;
-    if (type === 'gift' && giftData) {
-      message.text = `sent ${giftData.name} x${giftData.quantity}`;
-      message.giftName = giftData.name;
-      message.giftImage = giftData.image;
-      message.quantity = giftData.quantity;
-    }
-    await addDoc(messagesRef, message);
-  }
-
-  document.querySelectorAll('.quick-btn').forEach(btn => {
-    btn.addEventListener('click', () => { const msg = btn.getAttribute('data-msg'); if (msg) sendMessage(msg); });
-  });
-  function sendChat() {
-    const text = chatInput.value.trim();
-    if (text) { sendMessage(text); chatInput.value = ''; }
-  }
-  sendMsgBtn.onclick = sendChat;
-  chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendChat(); });
-
-  // ========== 6. Gift System with Quantity ==========
-  async function loadGifts() {
-    const snapshot = await getDocs(collection(db, "gifts"));
-    giftGrid.innerHTML = "";
-    snapshot.forEach(docSnap => {
-      const g = docSnap.data();
-      const div = document.createElement("div");
-      div.className = "gift-item";
-      div.onclick = () => {
-        selectedGift = { id: docSnap.id, name: g.name, image: g.image, price: g.coinPrice };
-        quantityPanel.style.display = "flex";
-        giftPanel.style.display = "none";
+  // ── 9. Background (host only) ──
+  function initBgGrid(){
+    bgGridEl.innerHTML="";
+    BACKGROUNDS.forEach(url=>{
+      const div=document.createElement("div");
+      div.className="bg-card";
+      if(roomCoverImgEl.src===url) div.classList.add("active");
+      div.innerHTML=`<img src="${url}" loading="lazy">`;
+      div.onclick=async()=>{
+        roomCoverImgEl.style.opacity="0.4";
+        setTimeout(()=>{ roomCoverImgEl.src=url; roomCoverImgEl.style.opacity="1"; },300);
+        document.querySelectorAll(".bg-card").forEach(c=>c.classList.remove("active"));
+        div.classList.add("active");
+        await updateDoc(roomRef,{coverPhoto:url}).catch(()=>{});
+        closePanel(bgPanel);
+        showToast("Background updated!");
       };
-      div.innerHTML = `<img src="${g.image}"><div class="gift-name">${g.name}</div><div class="gift-price">${g.coinPrice} coins</div>`;
-      giftGrid.appendChild(div);
+      bgGridEl.appendChild(div);
     });
   }
 
-  async function sendGift() {
-    if (!selectedGift) return;
-    const price = selectedGift.price * selectedQuantity;
-    if (myUserId === hostId) { alert("Cannot send gift to yourself"); return; }
-    const userSnap = await getDoc(doc(db, "users", myUserId));
-    if ((userSnap.data()?.coins || 0) < price) { alert("Not enough coins!"); return; }
-    await updateDoc(doc(db, "users", myUserId), { coins: increment(-price) });
-    if (hostId) {
-      const hostRef = doc(db, "users", hostId);
-      const hostSnap = await getDoc(hostRef);
-      const charmLevel = hostSnap.data()?.charmLevel || 0;
-      const gemsEarned = Math.floor(price * (0.30 + charmLevel * 0.01));
-      await updateDoc(hostRef, { gems: increment(gemsEarned) });
-      await updateDoc(roomRef, { rewards: increment(gemsEarned) });
-      rewardAmountSpan.innerText = (roomData?.rewards || 0) + gemsEarned;
-    }
-    await sendMessage('', 'gift', { name: selectedGift.name, image: selectedGift.image, quantity: selectedQuantity });
-    const anim = document.createElement("div");
-    anim.className = "fixed bottom-40 right-10 z-50 animate-bounce";
-    anim.innerHTML = `<img src="${selectedGift.image}" class="w-16 h-16 drop-shadow-xl">`;
-    document.body.appendChild(anim);
-    setTimeout(() => anim.remove(), 2000);
-    closeQuantityPanelFn();
-    closeGiftPanelFn();
-    selectedGift = null;
+  // ── 10. Invite (host only) ──
+  async function openInvitePanel(){
+    inviteGridEl.innerHTML=`<div style="color:rgba(255,255,255,.5);font-size:12px;padding:16px;grid-column:span 4;text-align:center;">Loading...</div>`;
+    openPanel(invitePanel);
+    const allUsers=await getDocs(collection(db,"users"));
+    const memberIds=new Set(members.map(m=>m.uid));
+    const avail=[];
+    allUsers.forEach(d=>{ if(d.id!==myUserId&&!memberIds.has(d.id)) avail.push({uid:d.id,...d.data()}); });
+    inviteGridEl.innerHTML="";
+    if(!avail.length){ inviteGridEl.innerHTML=`<div style="color:rgba(255,255,255,.4);font-size:12px;padding:16px;grid-column:span 4;text-align:center;">No users available to invite</div>`; return; }
+    avail.forEach(u=>{
+      const div=document.createElement("div");
+      div.className="invite-card";
+      div.innerHTML=`<img src="${u.photoURL||avatarUrl(u.username||"User")}"><span>${esc(u.username||"User")}</span>`;
+      div.onclick=async()=>{
+        await setDoc(doc(db,"rooms",roomId,"members",u.uid),{uid:u.uid,role:"guest",micMuted:false,joinedAt:serverTimestamp()});
+        await updateDoc(roomRef,{users:increment(1)}).catch(()=>{});
+        closePanel(invitePanel); showToast(`${u.username||"User"} invited!`);
+      };
+      inviteGridEl.appendChild(div);
+    });
   }
 
-  function openGiftPanelFn() { giftPanel.style.display = "flex"; loadGifts(); }
-  function closeGiftPanelFn() { giftPanel.style.display = "none"; }
-  function closeQuantityPanelFn() { quantityPanel.style.display = "none"; }
-  openGiftBtn.onclick = openGiftPanelFn;
-  closeGiftPanelBtn.onclick = closeGiftPanelFn;
-  closeQuantityPanel.onclick = closeQuantityPanelFn;
-  document.querySelectorAll('.qty-btn').forEach(btn => {
-    btn.addEventListener('click', () => { selectedQuantity = parseInt(btn.dataset.qty); });
+  // ── 11. Menu Dots ──
+  menuDots.onclick=e=>{ e.stopPropagation(); quickMenu.classList.toggle("open"); };
+  document.addEventListener("click",()=>quickMenu.classList.remove("open"));
+  quickMenu.addEventListener("click",e=>e.stopPropagation());
+
+  $("qmGift").onclick=()=>{ quickMenu.classList.remove("open"); openPanel(giftPanel); loadGifts(); };
+  $("qmBg").onclick=()=>{ quickMenu.classList.remove("open"); initBgGrid(); openPanel(bgPanel); };
+  $("qmInvite").onclick=()=>{ quickMenu.classList.remove("open"); openInvitePanel(); };
+  $("qmLeave").onclick=()=>{ quickMenu.classList.remove("open"); isHost ? confirmEnd() : confirmLeave(); };
+  $("giftBtn").onclick=()=>{ openPanel(giftPanel); loadGifts(); };
+
+  // Panel backdrop closes
+  ["giftBackdrop","bgBackdrop","inviteBackdrop"].forEach((id,i)=>{
+    const panels=[giftPanel,bgPanel,invitePanel];
+    $(id).onclick=()=>closePanel(panels[i]);
   });
-  confirmSendGift.onclick = sendGift;
+  $("giftClose").onclick=()=>closePanel(giftPanel);
+  $("bgClose").onclick=()=>closePanel(bgPanel);
+  $("inviteClose").onclick=()=>closePanel(invitePanel);
 
-  // ========== 7. Invite System (Host only) ==========
-  async function openInvitePanel() {
-    // Get all users from Firestore except current members and host himself
-    const allUsers = await getDocs(collection(db, "users"));
-    const memberIds = new Set(members.map(m => m.uid));
-    const availableUsers = [];
-    allUsers.forEach(docSnap => {
-      const uid = docSnap.id;
-      if (uid !== myUserId && !memberIds.has(uid)) {
-        const data = docSnap.data();
-        availableUsers.push({ uid, username: data.username || "User", photoURL: data.photoURL });
-      }
-    });
-    inviteList.innerHTML = "";
-    if (availableUsers.length === 0) {
-      inviteList.innerHTML = '<div class="text-white text-center col-span-4">No users to invite</div>';
-    } else {
-      availableUsers.forEach(user => {
-        const div = document.createElement("div");
-        div.className = "invite-item";
-        div.innerHTML = `
-          <img src="${user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username)}&background=006571&color=fff`}" class="w-10 h-10 rounded-full mx-auto">
-          <div class="text-white text-xs">${user.username}</div>
-        `;
-        div.onclick = async () => {
-          await setDoc(doc(db, "rooms", roomId, "members", user.uid), {
-            uid: user.uid,
-            role: "guest",
-            joinedAt: serverTimestamp()
-          });
-          await updateDoc(roomRef, { users: increment(1) });
-          closeInvitePanelFn();
-        };
-        inviteList.appendChild(div);
-      });
+  // ── 12. Leave Button ──
+  $("leaveBtn").onclick=()=> isHost ? confirmEnd() : confirmLeave();
+
+  // ── 13. Listen for background changes (all users) ──
+  onSnapshot(roomRef, snap=>{
+    if(!snap.exists()) return;
+    const d=snap.data();
+    if(d.coverPhoto && d.coverPhoto!==roomCoverImgEl.src){
+      roomCoverImgEl.style.opacity="0.4";
+      setTimeout(()=>{ roomCoverImgEl.src=d.coverPhoto; roomCoverImgEl.style.opacity="1"; },300);
     }
-    invitePanel.style.display = "flex";
-  }
-  function closeInvitePanelFn() { invitePanel.style.display = "none"; }
-  closeInvitePanel.onclick = closeInvitePanelFn;
+    rewardSpan.innerText = d.rewards||0;
+  });
 
-  // ========== 8. Background Picker ==========
-  function initBgPicker() {
-    bgGrid.innerHTML = "";
-    backgrounds.forEach((url) => {
-      const div = document.createElement("div");
-      div.className = "bg-option";
-      div.innerHTML = `<img src="${url}">`;
-      div.onclick = () => { roomCoverImg.src = url; closeBgPickerFn(); updateDoc(roomRef, { coverPhoto: url }).catch(console.error); };
-      bgGrid.appendChild(div);
-    });
-  }
-  function openBgPickerFn() { bgPickerPanel.style.display = "flex"; }
-  function closeBgPickerFn() { bgPickerPanel.style.display = "none"; }
-  bgPickerBtn.onclick = openBgPickerFn;
-  closeBgPicker.onclick = closeBgPickerFn;
-
-  // ========== 9. Controls Panel ==========
-  function openControls() { controlsPanel.style.display = "flex"; }
-  function closeControlsFn() { controlsPanel.style.display = "none"; }
-  document.getElementById("bgPickerBtn").addEventListener("click", openControls);
-  closeControls.onclick = closeControlsFn;
-  let micEnabled = true, camEnabled = true;
-  toggleMicBtn.onclick = () => {
-    if (localTracks[0]) {
-      micEnabled = !micEnabled;
-      localTracks[0].setEnabled(micEnabled);
-      toggleMicBtn.innerHTML = micEnabled ? "🎤 Mic" : "🎤 Mic (Off)";
-    }
-  };
-  toggleCamBtn.onclick = () => {
-    if (localTracks[1]) {
-      camEnabled = !camEnabled;
-      localTracks[1].setEnabled(camEnabled);
-      toggleCamBtn.innerHTML = camEnabled ? "📷 Camera" : "📷 Camera (Off)";
-      updateLocalVideoDisplay();
-    }
-  };
-  switchCamBtn.onclick = switchCamera;
-
-  // ========== 10. Helper ==========
-  function escapeHtml(str) { if (!str) return ""; return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
-
-  // ========== Init ==========
-  async function init() {
-    await loadRoomData();
-    // Do NOT auto join. Only join when user clicks seat.
+  // ── Init ──
+  async function init(){
+    await loadRoom();
+    if(isHost) await joinRoom();  // Host auto-joins seat
     await startAgora();
-    loadMembers();
+    listenMembers();
     listenChat();
-    initBgPicker();
-    setTimeout(() => {
-      if (isHost) {
-        // Host auto joins his own seat
-        joinRoom();
-        // Host can also see invite button on empty seats? We'll add a context menu? For simplicity, host can click empty seat -> invite panel.
-        // Override empty seat click for host: instead of join, open invite panel.
-        // We'll modify the renderSeats function for host to show invite on empty seats.
-      }
-      updateLocalVideoDisplay();
-    }, 1000);
-    // Override empty seat click for host
-    const originalRender = renderSeats;
-    window.renderSeats = renderSeats;
-    // Add invite button for host on empty seats (we'll patch the click event after render)
   }
-  // Patch renderSeats to add invite for host on empty top seats
-  const origRender = renderSeats;
-  renderSeats = function() {
-    origRender();
-    if (isHost) {
-      document.querySelectorAll('.top-seat .camera-frame .material-symbols-outlined').forEach(el => {
-        const parent = el.closest('.top-seat');
-        if (parent && parent.querySelector('.camera-frame') && parent.querySelector('.camera-frame').innerHTML.includes('add')) {
-          parent.onclick = () => openInvitePanel();
-          parent.querySelector('span:last-child').innerText = 'Invite';
-        }
-      });
-      document.querySelectorAll('.bottom-row .camera-frame .material-symbols-outlined').forEach(el => {
-        const parent = el.closest('.flex.flex-col.items-center.gap-1');
-        if (parent && parent.querySelector('.material-symbols-outlined')?.innerText === 'add') {
-          parent.onclick = () => openInvitePanel();
-          parent.querySelector('span:last-child').innerText = 'Invite';
-        }
-      });
-    }
-  };
-  init();
+  init().catch(console.error);
 </script>
 </body>
 </html>
