@@ -596,6 +596,14 @@ setInterval(async ()=>{
     lastSeen: serverTimestamp()
   }).catch(()=>{});
 }, 10000);
+
+  await setDoc(doc(db,"rooms",roomId,"viewers",myId),{
+  uid: myId,
+  username: myName || "Guest",
+  photoURL: myPhoto || "",
+  joinedAt: serverTimestamp(),
+  lastSeen: serverTimestamp()
+},{merge:true});
   
 function updateSeatModeLabel(){
   G("seatModeLbl").innerText=seatMode===8?"Switch to 12 Seats":"Switch to 8 Seats";
@@ -1195,9 +1203,11 @@ setInterval(async()=>{
   await updateDoc(vd,{lastSeen:serverTimestamp()}).catch(()=>{});
   if(iAmOnSeat){const md=doc(db,"rooms",roomId,"members",myId);await updateDoc(md,{lastSeen:serverTimestamp()}).catch(()=>{});}
 },30000);
-window.addEventListener("beforeunload",()=>{
+window.addEventListener("beforeunload", ()=>{
   deleteDoc(doc(db,"rooms",roomId,"viewers",myId)).catch(()=>{});
-  if(iAmOnSeat)deleteDoc(doc(db,"rooms",roomId,"members",myId)).catch(()=>{});
+  if(iAmOnSeat){
+    deleteDoc(doc(db,"rooms",roomId,"members",myId)).catch(()=>{});
+  }
 });
   
 // ── Load historical coins ranking from transactions ──
