@@ -589,21 +589,23 @@ async function loadRoom(){
   const us=await getDoc(doc(db,"users",myId)).catch(()=>null);
   if(us?.exists())myCoins=us.data().coins||0;
   // Register as viewer
-  await registerPresence();
-}
-setInterval(async ()=>{
-  await updateDoc(doc(db,"rooms",roomId,"viewers",myId),{
-    lastSeen: serverTimestamp()
-  }).catch(()=>{});
-}, 10000);
+await registerPresence();
 
-  await setDoc(doc(db,"rooms",roomId,"viewers",myId),{
+// ✅ CREATE viewer FIRST
+await setDoc(doc(db,"rooms",roomId,"viewers",myId),{
   uid: myId,
   username: myName || "Guest",
   photoURL: myPhoto || "",
   joinedAt: serverTimestamp(),
   lastSeen: serverTimestamp()
 },{merge:true});
+
+// ✅ THEN start heartbeat
+setInterval(async ()=>{
+  await updateDoc(doc(db,"rooms",roomId,"viewers",myId),{
+    lastSeen: serverTimestamp()
+  }).catch(()=>{});
+},10000);
   
 function updateSeatModeLabel(){
   G("seatModeLbl").innerText=seatMode===8?"Switch to 12 Seats":"Switch to 8 Seats";
