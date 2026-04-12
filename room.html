@@ -21,7 +21,7 @@ input{outline:none;font-family:inherit;}
 /* BG */
 #bg{position:absolute;inset:0;z-index:0;}
 #bgImg{width:100%;height:100%;object-fit:cover;transition:opacity .45s;}
-#bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.52) 0%,transparent 28%,rgba(0,0,0,.6) 100%);}
+#bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.52) 0%,transparent 28%,rgba(0,0,0,.62) 100%);}
 
 /* HEADER */
 #hdr{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:max(10px,env(safe-area-inset-top)) 12px 6px;}
@@ -32,101 +32,112 @@ input{outline:none;font-family:inherit;}
 .rpill{display:flex;align-items:center;gap:4px;background:rgba(239,68,68,.15);border-radius:20px;padding:4px 10px;border:1px solid rgba(239,68,68,.3);}
 .rpill .ms{font-size:13px;color:var(--red);}
 .rpill span{color:#fff;font-size:10px;font-weight:800;}
-.hright{display:flex;align-items:center;gap:7px;}
-.vpill{display:flex;align-items:center;gap:5px;background:rgba(0,0,0,.4);border-radius:20px;padding:4px 10px;}
+.hright{display:flex;align-items:center;gap:6px;}
+/* Top 3 senders avatars next to viewer count */
+#top3Senders{display:flex;align-items:center;gap:-6px;}
+#top3Senders .ts-av{width:26px;height:26px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);cursor:pointer;margin-left:-6px;}
+#top3Senders .ts-av:first-child{margin-left:0;}
+.vpill{display:flex;align-items:center;gap:5px;background:rgba(0,0,0,.4);border-radius:20px;padding:4px 10px;cursor:pointer;}
 .vpill .vdot{width:7px;height:7px;border-radius:50%;background:var(--red);animation:bl 1.2s infinite;}
 @keyframes bl{0%,100%{opacity:1;}50%{opacity:.3;}}
 .vpill span{color:#fff;font-size:10px;font-weight:800;}
 .ibtn{width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;color:#fff;position:relative;flex-shrink:0;}
 .rbadge{position:absolute;top:-3px;right:-3px;background:var(--red);color:#fff;font-size:8px;font-weight:800;border-radius:10px;padding:1px 4px;min-width:14px;text-align:center;}
 
-/* SCROLL */
-#scr{position:relative;z-index:5;flex:1;overflow-y:auto;overflow-x:hidden;}
+/* MAIN LAYOUT: seats fixed top, chat fixed bottom, no up/down page scroll */
+#app{display:flex;flex-direction:column;}
+#seatsArea{position:relative;z-index:5;flex-shrink:0;}
+/* 8-seat mode */
+#topRow{display:grid;}
+#topRow.mode8{grid-template-columns:repeat(3,1fr);}
+#topRow.mode12{grid-template-columns:repeat(4,1fr);}
+#botRow{display:grid;gap:4px;padding:8px 8px 0;}
+#botRow.mode8{grid-template-columns:repeat(5,1fr);}
+#botRow.mode12{grid-template-columns:repeat(4,1fr);}
 
-/* TOP 3 SEATS */
-#topRow{display:grid;grid-template-columns:repeat(3,1fr);}
 .tseat{position:relative;}
 .tseat+.tseat::before{content:'';position:absolute;left:0;top:8%;bottom:8%;width:1px;background:rgba(255,255,255,.1);z-index:3;}
 .camWrap{position:relative;width:100%;overflow:hidden;}
-.camWrap.cam-on{aspect-ratio:9/13;background:rgba(0,0,0,.4);}
+/* 8-mode top seat: tall */
+.mode8 .camWrap{aspect-ratio:9/13;}
+/* 12-mode: all seats same square-ish */
+.mode12 .camWrap{aspect-ratio:3/4;}
+/* cam on */
+.camWrap.cam-on{background:rgba(0,0,0,.4);}
 .camWrap.cam-on video,.camWrap.cam-on .av-fill{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
 .camWrap.cam-on .grad{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.75) 0%,transparent 55%);z-index:1;}
 .camWrap.cam-on .ovl{position:absolute;inset:0;z-index:2;}
-/* mirrored video */
 .camWrap.cam-on.mirrored video{transform:scaleX(-1);}
-.camWrap.cam-off{aspect-ratio:9/13;background:rgba(0,0,0,.22);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;position:relative;}
-.camWrap.cam-off .co-av{width:68px;height:68px;border-radius:50%;overflow:hidden;border:2.5px solid rgba(255,255,255,.35);}
+/* cam off */
+.camWrap.cam-off{background:rgba(0,0,0,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;position:relative;}
+.camWrap.cam-off .co-av{border-radius:50%;overflow:hidden;border:2.5px solid rgba(255,255,255,.3);}
+.mode8 .camWrap.cam-off .co-av{width:64px;height:64px;}
+.mode12 .camWrap.cam-off .co-av{width:48px;height:48px;}
 .camWrap.cam-off .co-av img{width:100%;height:100%;object-fit:cover;}
-.camWrap.cam-off .co-name{font-size:10px;font-weight:700;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.9);}
-.camWrap.seat-empty{aspect-ratio:9/13;background:rgba(0,0,0,.18);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:background .2s;}
-.camWrap.seat-empty:hover,.camWrap.seat-empty:active{background:rgba(0,101,113,.28);}
-.camWrap.seat-empty .se-ring{width:52px;height:52px;border-radius:50%;border:2px dashed rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;}
-.camWrap.seat-empty .se-ring .ms{font-size:26px;color:rgba(255,255,255,.45);}
-.camWrap.seat-empty .se-lbl{font-size:9px;color:rgba(255,255,255,.4);font-weight:600;}
+.camWrap.cam-off .co-name{font-size:9px;font-weight:700;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.9);text-align:center;max-width:90%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+/* empty */
+.camWrap.seat-empty{background:rgba(0,0,0,.18);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;transition:background .2s;}
+.camWrap.seat-empty:active{background:rgba(0,101,113,.28);}
+.camWrap.seat-empty .se-ring{width:46px;height:46px;border-radius:50%;border:2px dashed rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;}
+.camWrap.seat-empty .se-ring .ms{font-size:24px;color:rgba(255,255,255,.4);}
+.camWrap.seat-empty .se-lbl{font-size:8px;color:rgba(255,255,255,.38);font-weight:600;}
 /* overlays cam-on */
-.ovl .uname{position:absolute;bottom:5px;left:0;right:0;text-align:center;font-size:9px;font-weight:700;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.9);}
-.ovl .hbadge{position:absolute;top:5px;left:5px;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;font-size:7px;font-weight:900;padding:2px 5px;border-radius:10px;}
-.ovl .gems-ov{position:absolute;top:5px;left:5px;display:flex;align-items:center;gap:2px;background:rgba(0,0,0,.5);border-radius:10px;padding:1px 5px;}
-.ovl .gems-ov .ms{font-size:9px;color:var(--red);}
-.ovl .gems-ov span{font-size:8px;font-weight:800;color:#fff;}
-.ovl .mic-ic{position:absolute;bottom:18px;right:5px;background:rgba(0,0,0,.4);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;}
-.ovl .mic-ic .ms{font-size:10px;color:#fff;}
-.ovl .mic-ic.muted{background:rgba(239,68,68,.85);}
-.ovl .mir-ic{position:absolute;bottom:18px;left:5px;background:rgba(0,0,0,.35);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;}
-.ovl .mir-ic .ms{font-size:10px;color:rgba(255,255,255,.7);}
-.ovl .mir-ic.on{background:rgba(0,180,200,.5);}
-/* cam-off overlays */
-.co-gems{display:flex;align-items:center;gap:2px;background:rgba(0,0,0,.5);border-radius:10px;padding:1px 6px;position:absolute;top:5px;left:5px;z-index:3;}
-.co-gems .ms{font-size:9px;color:var(--red);}
-.co-gems span{font-size:8px;font-weight:800;color:#fff;}
-.co-snum{position:absolute;top:5px;right:5px;background:rgba(0,0,0,.45);color:rgba(255,255,255,.6);font-size:8px;font-weight:700;border-radius:8px;padding:1px 5px;z-index:3;}
-.co-micic{position:absolute;bottom:8px;right:5px;background:rgba(0,0,0,.4);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;z-index:3;}
-.co-micic .ms{font-size:10px;color:#fff;}
-.co-micic.muted{background:rgba(239,68,68,.85);}
-.co-hbadge{position:absolute;top:5px;left:5px;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;font-size:7px;font-weight:900;padding:2px 5px;border-radius:10px;z-index:3;}
+.ovl .uname{position:absolute;bottom:4px;left:0;right:0;text-align:center;font-size:8px;font-weight:700;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.9);}
+.ovl .hbadge,.co-hbadge{position:absolute;top:4px;left:4px;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;font-size:7px;font-weight:900;padding:2px 5px;border-radius:8px;z-index:3;}
+.ovl .gems-ov,.co-gems{position:absolute;top:4px;left:4px;display:flex;align-items:center;gap:2px;background:rgba(0,0,0,.5);border-radius:8px;padding:1px 5px;z-index:3;}
+.ovl .gems-ov .ms,.co-gems .ms{font-size:9px;color:var(--red);}
+.ovl .gems-ov span,.co-gems span{font-size:8px;font-weight:800;color:#fff;}
+.ovl .mic-ic,.co-micic{position:absolute;bottom:16px;right:4px;background:rgba(0,0,0,.4);border-radius:50%;width:17px;height:17px;display:flex;align-items:center;justify-content:center;z-index:3;}
+.ovl .mic-ic .ms,.co-micic .ms{font-size:9px;color:#fff;}
+.ovl .mic-ic.muted,.co-micic.muted{background:rgba(239,68,68,.85);}
+.ovl .mir-ic{position:absolute;bottom:16px;left:4px;background:rgba(0,180,200,.45);border-radius:50%;width:17px;height:17px;display:flex;align-items:center;justify-content:center;z-index:3;}
+.ovl .mir-ic .ms{font-size:9px;color:#fff;}
+.snum,.co-snum{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.45);color:rgba(255,255,255,.6);font-size:8px;font-weight:700;border-radius:6px;padding:1px 4px;z-index:3;}
+.co-micic{bottom:6px;}
 
-/* BOT 5 */
-#botRow{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:10px 8px 0;}
+/* BOT ROW seats in 8-mode: circles */
 .bseat{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;}
-.bseat .ba{position:relative;width:50px;height:50px;}
+.bseat .ba{position:relative;width:46px;height:46px;}
 .bseat .ba .r2{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(255,255,255,.18);overflow:hidden;background:#1a2030;}
 .bseat .ba .r2 img{width:100%;height:100%;object-fit:cover;}
-.bseat .ba .bmic{position:absolute;bottom:-1px;right:-1px;width:15px;height:15px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1.5px solid var(--bg);}
-.bseat .ba .bmic .ms{font-size:8px;color:#fff;}
+.bseat .ba .bmic{position:absolute;bottom:-1px;right:-1px;width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1.5px solid var(--bg);}
+.bseat .ba .bmic .ms{font-size:7px;color:#fff;}
 .bseat .ba .bmic.on{background:var(--green);}
 .bseat .ba .bmic.off{background:var(--red);}
-.bseat .ba .bgd{position:absolute;top:-3px;left:-3px;background:rgba(0,0,0,.65);border-radius:8px;padding:1px 3px;display:flex;align-items:center;gap:1px;}
-.bseat .ba .bgd .ms{font-size:7px;color:var(--red);}
+.bseat .ba .bgd{position:absolute;top:-3px;left:-3px;background:rgba(0,0,0,.65);border-radius:6px;padding:1px 3px;display:flex;align-items:center;gap:1px;}
+.bseat .ba .bgd .ms{font-size:6px;color:var(--red);}
 .bseat .ba .bgd span{font-size:6px;color:#fff;font-weight:800;}
-.bseat .bn{font-size:7px;color:rgba(255,255,255,.5);font-weight:600;max-width:52px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;}
+.bseat .bn{font-size:7px;color:rgba(255,255,255,.5);font-weight:600;max-width:50px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;}
 .bseat.be .r2{border-style:dashed;border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.02);display:flex;align-items:center;justify-content:center;}
-.bseat.be .r2 .ms{font-size:20px;color:rgba(255,255,255,.2);}
+.bseat.be .r2 .ms{font-size:18px;color:rgba(255,255,255,.2);}
 
-/* CHAT */
-#chatArea{padding:6px 12px;overflow-y:auto;display:flex;flex-direction:column;justify-content:flex-end;mask-image:linear-gradient(to top,black 75%,transparent 100%);}
-.chatLine{margin-bottom:4px;line-height:1.5;display:flex;align-items:flex-start;gap:4px;}
+/* CHAT AREA — fixed at bottom of seats, grows upward */
+#chatSection{position:relative;z-index:6;flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;}
+/* Chat messages scroll: newest at bottom, old scrollable up */
+#chatArea{flex:1;overflow-y:auto;padding:4px 10px 2px;display:flex;flex-direction:column;}
+.chatLine{margin-bottom:3px;line-height:1.5;display:flex;align-items:flex-start;gap:4px;}
 .chatLine .cn{font-size:11px;font-weight:800;color:var(--t2);cursor:pointer;white-space:nowrap;flex-shrink:0;}
 .chatLine .cn.me{color:#a78bfa;}
 .chatLine .ct{font-size:10px;color:rgba(255,255,255,.82);word-break:break-word;}
-.joinLine{font-size:10px;color:rgba(255,255,255,.5);font-weight:600;background:rgba(0,0,0,.25);border-radius:20px;padding:3px 10px;margin-bottom:4px;display:inline-block;}
-.giftLine{display:flex;align-items:center;gap:5px;margin-bottom:4px;background:rgba(245,158,11,.07);border-radius:8px;padding:3px 8px;cursor:pointer;}
-.giftLine img{width:18px;height:18px;object-fit:contain;}
+.joinLine{font-size:10px;color:rgba(255,255,255,.5);font-weight:600;background:rgba(0,0,0,.22);border-radius:18px;padding:2px 9px;margin-bottom:3px;display:inline-block;}
+.giftLine{display:flex;align-items:center;gap:5px;margin-bottom:3px;cursor:pointer;}
+.giftLine img{width:17px;height:17px;object-fit:contain;}
 .giftLine .gtx{font-size:10px;color:var(--gold);font-weight:700;}
-.welmsg{background:rgba(0,0,0,.38);border-radius:10px;padding:8px 12px;margin-bottom:6px;}
-.welmsg p{font-size:10px;color:rgba(255,255,255,.7);line-height:1.6;}
+.welmsg{background:rgba(0,0,0,.35);border-radius:10px;padding:7px 10px;margin-bottom:4px;}
+.welmsg p{font-size:10px;color:rgba(255,255,255,.65);line-height:1.55;}
 
 /* EMOJI ROW */
-#emojiRow{display:flex;gap:6px;padding:4px 12px;overflow-x:auto;}
-.eq{font-size:18px;cursor:pointer;flex-shrink:0;background:rgba(255,255,255,.07);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;transition:transform .15s;}
-.eq:active{transform:scale(1.3);}
+#emojiRow{display:flex;gap:6px;padding:3px 10px;overflow-x:auto;flex-shrink:0;}
+.eq{font-size:17px;cursor:pointer;flex-shrink:0;background:rgba(255,255,255,.07);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;transition:transform .15s;}
+.eq:active{transform:scale(1.35);}
 
 /* BOTTOM BAR */
-#bar{position:relative;z-index:10;background:rgba(8,13,16,.96);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.07);padding:7px 12px;padding-bottom:max(7px,env(safe-area-inset-bottom));}
+#bar{position:relative;z-index:10;background:rgba(8,13,16,.96);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.07);padding:6px 12px;padding-bottom:max(6px,env(safe-area-inset-bottom));flex-shrink:0;}
 .brow{display:flex;align-items:center;gap:8px;}
-.cinput{flex:1;display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:30px;padding:0 12px;height:38px;cursor:text;}
+.cinput{flex:1;display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:30px;padding:0 10px;height:36px;cursor:text;}
 .cinput input{flex:1;background:transparent;border:none;color:#fff;font-size:12px;}
 .cinput input::placeholder{color:rgba(255,255,255,.3);}
-.bico{position:relative;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.bico{position:relative;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 
 /* PANELS */
 .panel{position:fixed;inset:0;z-index:100;display:none;flex-direction:column;justify-content:flex-end;}
@@ -166,7 +177,7 @@ input{outline:none;font-family:inherit;}
 .gtab.active{background:rgba(0,101,113,.35);color:var(--t2);}
 .ggrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 14px 12px;}
 .gc{background:rgba(255,255,255,.05);border-radius:12px;padding:8px 5px;text-align:center;cursor:pointer;border:1.5px solid transparent;transition:all .18s;}
-.gc:hover,.gc:active{background:rgba(0,101,113,.2);border-color:rgba(0,180,200,.3);}
+.gc:active{background:rgba(0,101,113,.2);border-color:rgba(0,180,200,.3);}
 .gc.sel{border-color:var(--t2);background:rgba(0,180,200,.08);}
 .gc img{width:44px;height:44px;object-fit:contain;margin:0 auto 3px;display:block;}
 .gc .gn{font-size:9px;color:#fff;font-weight:700;}
@@ -199,12 +210,25 @@ input{outline:none;font-family:inherit;}
 .bgo.active{border-color:var(--t2);}
 .bgo img{width:100%;height:100%;object-fit:cover;}
 
-/* INVITE / VIEWERS */
+/* INVITE / VIEWERS grid */
 .igrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 14px 14px;}
 .ic{display:flex;flex-direction:column;align-items:center;gap:4px;background:rgba(255,255,255,.04);border-radius:12px;padding:8px 4px;cursor:pointer;border:1.5px solid transparent;transition:all .2s;}
-.ic:hover,.ic:active{background:rgba(0,101,113,.2);border-color:rgba(0,180,200,.3);}
+.ic:active{background:rgba(0,101,113,.2);border-color:rgba(0,180,200,.3);}
 .ic img{width:38px;height:38px;border-radius:50%;object-fit:cover;}
 .ic span{font-size:9px;color:rgba(255,255,255,.72);font-weight:600;text-align:center;max-width:56px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* AUDIENCE LIST (Online list with coins ranking) */
+.aud-header{padding:14px 18px 8px;font-size:14px;font-weight:800;color:#fff;}
+.aud-item{display:flex;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer;}
+.aud-item img{width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.12);flex-shrink:0;}
+.aud-item.host-row img{border-color:var(--gold);}
+.aud-item .ai{flex:1;}
+.aud-item .an{font-size:13px;font-weight:700;color:#fff;}
+.aud-item .at{font-size:10px;color:rgba(255,255,255,.4);}
+.aud-item .ac{font-size:13px;font-weight:800;color:var(--gold);display:flex;align-items:center;gap:3px;}
+.aud-item .ac .ms{font-size:13px;color:var(--gold);}
+.aud-item .agift-btn{width:30px;height:30px;border-radius:50%;background:rgba(245,158,11,.15);border:1.5px solid rgba(245,158,11,.35);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.aud-item .agift-btn .ms{font-size:16px;color:var(--gold);}
 
 /* REQ LIST */
 .rlist{padding:0 14px 14px;}
@@ -224,11 +248,13 @@ input{outline:none;font-family:inherit;}
 .uctop img{width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid var(--t2);}
 .ucname{color:#fff;font-size:16px;font-weight:800;}
 .ucuid{color:rgba(255,255,255,.4);font-size:10px;margin-top:2px;}
-.ucrow{display:flex;align-items:center;justify-content:space-between;padding:6px 18px 16px;}
-.ucrow a{color:var(--t2);font-size:12px;font-weight:700;text-decoration:none;}
-.ucgems{display:flex;align-items:center;gap:4px;}
+.ucgems{display:flex;align-items:center;gap:4px;margin-top:4px;}
 .ucgems .ms{font-size:13px;color:var(--red);}
 .ucgems span{color:#fff;font-size:12px;font-weight:800;}
+.ucbtns{display:flex;gap:10px;padding:8px 18px 16px;}
+.ucbtns a{flex:1;padding:11px;border-radius:12px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:var(--t2);font-size:12px;font-weight:700;text-decoration:none;text-align:center;}
+.ucbtns button{flex:1;padding:11px;border-radius:12px;background:rgba(245,158,11,.15);border:1.5px solid rgba(245,158,11,.35);color:var(--gold);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:5px;}
+.ucbtns button .ms{font-size:16px;}
 
 /* HOST ACTION */
 #hact{position:fixed;inset:0;z-index:250;display:none;align-items:center;justify-content:center;}
@@ -241,9 +267,9 @@ input{outline:none;font-family:inherit;}
 .hun{font-size:14px;font-weight:800;color:#fff;}
 .huid2{font-size:10px;color:rgba(255,255,255,.4);}
 .habtn{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:12px;background:rgba(255,255,255,.05);color:#fff;font-size:13px;font-weight:600;cursor:pointer;width:100%;text-align:left;margin-bottom:6px;transition:background .2s;}
-.habtn:hover,.habtn:active{background:rgba(255,255,255,.1);}
+.habtn:active{background:rgba(255,255,255,.1);}
 .habtn.danger{color:var(--red);}
-.habtn.danger:hover,.habtn.danger:active{background:rgba(239,68,68,.1);}
+.habtn.danger:active{background:rgba(239,68,68,.1);}
 .habtn .ms{font-size:18px;width:22px;text-align:center;}
 .hcanc{width:100%;padding:10px;background:transparent;border:1px solid rgba(255,255,255,.12);border-radius:12px;color:rgba(255,255,255,.4);font-size:13px;font-weight:600;cursor:pointer;margin-top:4px;}
 
@@ -259,7 +285,7 @@ input{outline:none;font-family:inherit;}
 .permAccept{background:var(--t2);color:#fff;}
 .permReject{background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.12);}
 
-/* GIFT POPUP */
+/* GIFT POPUP on screen */
 .gpop{position:fixed;z-index:301;pointer-events:none;animation:gsh 3.2s ease forwards;}
 @keyframes gsh{0%{opacity:0;transform:translateY(30px) scale(.8);}12%{opacity:1;transform:translateY(0) scale(1);}78%{opacity:1;transform:translateY(-25px);}100%{opacity:0;transform:translateY(-70px) scale(1.1);}}
 .gpi{display:flex;align-items:center;gap:7px;background:rgba(0,0,0,.65);backdrop-filter:blur(14px);border-radius:30px;padding:6px 14px 6px 5px;border:1px solid rgba(255,255,255,.1);}
@@ -292,8 +318,6 @@ input{outline:none;font-family:inherit;}
 .toast{position:fixed;top:max(88px,calc(env(safe-area-inset-top)+76px));left:50%;transform:translateX(-50%);background:rgba(0,101,113,.95);backdrop-filter:blur(14px);color:#fff;padding:9px 18px;border-radius:24px;font-size:12px;font-weight:700;z-index:500;border:1px solid rgba(0,180,200,.3);animation:ti .3s ease,to .3s ease 2s forwards;pointer-events:none;white-space:nowrap;}
 @keyframes ti{from{opacity:0;transform:translateX(-50%) translateY(-8px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
 @keyframes to{from{opacity:1;}to{opacity:0;}}
-
-/* COIN ANIM */
 .coinAnim{position:fixed;z-index:302;pointer-events:none;animation:ca 1.4s ease forwards;}
 @keyframes ca{0%{opacity:1;transform:translateY(0);}100%{opacity:0;transform:translateY(-60px);}}
 .coinAnim span{font-size:13px;font-weight:800;color:var(--gold);}
@@ -302,21 +326,32 @@ input{outline:none;font-family:inherit;}
 <body>
 <div id="app">
   <div id="bg"><img id="bgImg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA20THb-mnLuJuMVVEs5Nco4vurMKZyjwxbe-W-Uf31d7QbNQS_KI_bQplpTqJ7cXu5RI20jhbRkhzOPSwu2XF_T4G3UvgrhRbeXkmUqcrSP-25vpaHrZHNncWyT6Avp8NVLm8lUemyYs9MMXrCHQsBOMi9Tkew5o-4bQooMiqiIB8KooDFbGjXdgoLKX11AxSSueSaxoZivYU5V5lfSTgJ9A_eZkQdsTHMtOGI53wnt1zRQAfhczG_jZdwzgzoSvqPMyyGEr-_aYZ8" alt=""></div>
+
+  <!-- HEADER -->
   <div id="hdr">
-    <div style="display:flex;align-items:center;gap:8px;">
+    <div style="display:flex;align-items:center;gap:7px;">
       <div class="hpill" id="hostPill"><img id="hostAv" src="" alt=""><div><div class="hn" id="rnEl">Loading...</div><div class="ht" id="riEl">LIVE</div></div></div>
       <div class="rpill"><span class="ms f">diamond</span><span id="rwEl">0</span></div>
     </div>
     <div class="hright">
-      <div class="vpill"><div class="vdot"></div><span id="vwEl">0</span></div>
+      <!-- Top 3 senders avatars -->
+      <div id="top3Senders"></div>
+      <!-- Viewer count — click to open audience list -->
+      <div class="vpill" id="viewerPillBtn"><div class="vdot"></div><span id="vwEl">0</span></div>
       <div id="reqWrap" style="display:none;"><button class="ibtn" id="reqBtn"><span class="ms" style="font-size:18px;">how_to_reg</span><span id="rqc" class="rbadge" style="display:none;">0</span></button></div>
       <button class="ibtn" id="leaveBtn"><span class="ms" style="font-size:18px;">close</span></button>
     </div>
   </div>
-  <div id="scr" class="hs">
-    <div id="topRow"></div>
-    <div id="botRow"></div>
-    <div id="chatArea" class="hs" style="height:155px;"></div>
+
+  <!-- SEATS AREA (fixed, non-scrollable) -->
+  <div id="seatsArea">
+    <div id="topRow" class="mode8"></div>
+    <div id="botRow" class="mode8"></div>
+  </div>
+
+  <!-- CHAT SECTION (fills remaining space) -->
+  <div id="chatSection">
+    <div id="chatArea" class="hs"></div>
     <div id="emojiRow" class="hs">
       <div class="eq" data-e="❤️">❤️</div><div class="eq" data-e="🔥">🔥</div>
       <div class="eq" data-e="👏">👏</div><div class="eq" data-e="😍">😍</div>
@@ -324,11 +359,13 @@ input{outline:none;font-family:inherit;}
       <div class="eq" data-e="🎵">🎵</div><div class="eq" data-e="😂">😂</div>
     </div>
   </div>
+
+  <!-- BOTTOM BAR -->
   <div id="bar">
     <div class="brow">
-      <div class="cinput" id="cTrig"><span class="ms" style="font-size:15px;color:rgba(255,255,255,.3);">chat_bubble</span><input id="cBarIn" placeholder="Say something..." readonly></div>
+      <div class="cinput" id="cTrig"><span class="ms" style="font-size:14px;color:rgba(255,255,255,.3);">chat_bubble</span><input id="cBarIn" placeholder="Say something..." readonly></div>
       <button class="bico" id="chatHalfBtn" style="background:rgba(0,180,200,.15);border:1.5px solid rgba(0,180,200,.3);"><span class="ms" style="font-size:20px;color:var(--t2);">forum</span></button>
-      <button class="bico" id="giftBtn" style="background:rgba(245,158,11,.12);border:1.5px solid rgba(245,158,11,.3);"><span class="ms" style="font-size:22px;color:var(--gold);">redeem</span></button>
+      <button class="bico" id="giftBtn" style="background:rgba(245,158,11,.12);border:1.5px solid rgba(245,158,11,.3);"><span class="ms" style="font-size:21px;color:var(--gold);">redeem</span></button>
       <button class="bico" id="dotsBtn" style="background:rgba(0,101,113,.7);border:1.5px solid rgba(0,180,200,.3);">
         <svg id="dotsIco" width="14" height="14" viewBox="0 0 14 14"><circle cx="3" cy="3" r="2.5" fill="white"/><circle cx="11" cy="3" r="2.5" fill="white"/><circle cx="3" cy="11" r="2.5" fill="white"/><circle cx="11" cy="11" r="2.5" fill="white"/></svg>
       </button>
@@ -350,7 +387,7 @@ input{outline:none;font-family:inherit;}
   <div style="height:6px;"></div>
 </div></div>
 
-<!-- SETTINGS PANEL (seated user — includes all options) -->
+<!-- SETTINGS PANEL -->
 <div id="setP" class="panel"><div class="pb" id="spb"></div><div class="ps">
   <div class="sh"></div><div class="ph"><span class="pt">⚙️ Settings</span><button class="pc" id="spc">✕</button></div>
   <div class="sr"><div class="sl"><span class="ms">mic</span><span class="slbl">Microphone</span></div><label class="tog"><input type="checkbox" id="micTog" checked><div class="tsl"></div></label></div>
@@ -358,18 +395,13 @@ input{outline:none;font-family:inherit;}
   <div class="sr" id="swRow"><div class="sl"><span class="ms">cameraswitch</span><span class="slbl">Switch Camera</span></div><span class="ms sarr">chevron_right</span></div>
   <div class="sr" id="mirRow"><div class="sl"><span class="ms">flip</span><span class="slbl">Mirror Camera</span></div><label class="tog" onclick="event.stopPropagation()"><input type="checkbox" id="mirTog"><div class="tsl"></div></label></div>
   <div class="sr" id="filtRow"><div class="sl"><span class="ms">auto_fix_high</span><span class="slbl">Camera Filters</span></div><span class="ms sarr">chevron_right</span></div>
+  <!-- Host only -->
+  <div class="sr" id="seatModeRow" style="display:none;"><div class="sl"><span class="ms">grid_view</span><span class="slbl" id="seatModeLbl">Switch to 12 Seats</span></div><span class="ms sarr">chevron_right</span></div>
   <div class="sr" id="bgRow" style="display:none;"><div class="sl"><span class="ms">wallpaper</span><span class="slbl">Room Background</span></div><span class="ms sarr">chevron_right</span></div>
   <div class="sr" id="invRow" style="display:none;"><div class="sl"><span class="ms">person_add</span><span class="slbl">Invite to Stage</span></div><span class="ms sarr">chevron_right</span></div>
   <div class="sr" id="lockRow" style="display:none;"><div class="sl"><span class="ms">lock_open</span><span class="slbl">Lock Seat</span></div><label class="tog" onclick="event.stopPropagation()"><input type="checkbox" id="lockTog"><div class="tsl"></div></label></div>
   <div class="sr" id="leaveSeatRow" style="display:none;"><div class="sl"><span class="ms" style="color:orange;">chair</span><span class="slbl" style="color:orange;">Leave Seat</span></div><span class="ms sarr">chevron_right</span></div>
   <div class="sr" id="lvRow"><div class="sl"><span class="ms" style="color:var(--red);">logout</span><span class="slbl" style="color:var(--red);" id="lvLbl">Leave Room</span></div><span class="ms sarr">chevron_right</span></div>
-</div></div>
-
-<!-- VIEWER PANEL (non-seated: only gift/chat; no seat controls) -->
-<div id="viewerP" class="panel"><div class="pb" id="vpb"></div><div class="ps">
-  <div class="sh"></div><div class="ph"><span class="pt">👥 Live Viewers</span><button class="pc" id="vpc">✕</button></div>
-  <div class="igrid" id="viewersGrid"></div>
-  <div style="height:10px;"></div>
 </div></div>
 
 <!-- FILTERS -->
@@ -387,7 +419,15 @@ input{outline:none;font-family:inherit;}
   <div class="bggrid" id="bggrid"></div><div style="height:10px;"></div>
 </div></div>
 
-<!-- INVITE (shows live room viewers — not all app users) -->
+<!-- AUDIENCE LIST panel (Online list ranked by coins sent) -->
+<div id="audP" class="panel"><div class="pb" id="audpb"></div><div class="ps">
+  <div class="sh"></div>
+  <div class="aud-header" id="audHeader">Online(0)</div>
+  <div id="audList"></div>
+  <div style="height:10px;"></div>
+</div></div>
+
+<!-- INVITE (host — real-time viewers not on seat) -->
 <div id="invP" class="panel"><div class="pb" id="ipb"></div><div class="ps">
   <div class="sh"></div><div class="ph"><span class="pt">📡 Invite to Stage</span><button class="pc" id="ipc">✕</button></div>
   <div class="igrid" id="igrid"></div><div style="height:10px;"></div>
@@ -410,14 +450,17 @@ input{outline:none;font-family:inherit;}
 <!-- PERMISSION DIALOG -->
 <div id="permDlg"><div id="permBk"></div><div class="permCard">
   <h3 id="permTitle">Join Stage?</h3>
-  <p id="permDesc">Allow access to microphone and camera to go on stage.</p>
+  <p id="permDesc">Microphone and camera access required.</p>
   <div class="permBtns"><button class="permAccept" id="permAccept">Accept</button><button class="permReject" id="permReject">Reject</button></div>
 </div></div>
 
 <!-- USER CARD -->
 <div id="ucard"><div id="ucback"></div><div id="ucinner">
-  <div class="uctop"><img id="ucav" src="" alt=""><div><div class="ucname" id="ucnam"></div><div class="ucuid" id="ucuid"></div></div></div>
-  <div class="ucrow"><a id="uclink" href="#">View Profile →</a><div class="ucgems"><span class="ms f">diamond</span><span id="ucgems">0</span><span style="font-size:10px;color:rgba(255,255,255,.4);margin-left:2px;">gems</span></div></div>
+  <div class="uctop"><img id="ucav" src="" alt=""><div><div class="ucname" id="ucnam"></div><div class="ucuid" id="ucuid"></div><div class="ucgems"><span class="ms f">diamond</span><span id="ucgems">0</span><span style="font-size:10px;color:rgba(255,255,255,.4);margin-left:2px;">gems</span></div></div></div>
+  <div class="ucbtns">
+    <a id="uclink" href="#">View Profile</a>
+    <button id="ucGiftBtn"><span class="ms">redeem</span>Send Gift</button>
+  </div>
 </div></div>
 
 <!-- END STATS -->
@@ -439,41 +482,38 @@ input{outline:none;font-family:inherit;}
 
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import{getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,serverTimestamp,updateDoc,increment,getDocs,addDoc}from"https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import{getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,serverTimestamp,updateDoc,increment,getDocs,addDoc,query,orderBy,limit}from"https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 const FB=initializeApp({apiKey:"AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",authDomain:"galmet-app.firebaseapp.com",projectId:"galmet-app",storageBucket:"galmet-app.firebasestorage.app"});
 const db=getFirestore(FB);
 
-// ── Auth ──
 const me=JSON.parse(localStorage.getItem("user")||"null");
-if(!me?.userId){location.replace("login.html");}
-const myId=me.userId.toString(), myName=me.username||"User", myPhoto=me.photoURL||avu(myName), agoraUID=Number(me.userId);
-const urlP=new URLSearchParams(location.search), roomId=urlP.get("id");
+if(!me?.userId)location.replace("login.html");
+const myId=me.userId.toString(),myName=me.username||"User",myPhoto=me.photoURL||avu(myName),agoraUID=Number(me.userId);
+const urlP=new URLSearchParams(location.search),roomId=urlP.get("id");
 if(!roomId){toast("Invalid room");setTimeout(()=>location.href="party.html",1500);}
 const roomRef=doc(db,"rooms",roomId);
 const membRef=collection(db,"rooms",roomId,"members");
 const reqRef=collection(db,"rooms",roomId,"requests");
+const viewersRef=collection(db,"rooms",roomId,"viewers"); // presence collection
 const txRef=collection(db,"transactions");
 const gemLogRef=collection(db,"rooms",roomId,"gemLog");
 
-// ── Agora ──
 const APP_ID="873172a9b2064b1ca97b4f45ee6ed9b5";
 const TOKEN="007eJxTYOj98FppsUbXpsoVK/LzhE9NtM8JY+VqeVU1UZX95768X8YKDBbmxobmRomWSUYGZiZJhsmJluZJJmkmpqmpZqkplkmmwk63MhsCGRl62P8xMTJAIIgvwpDob5Zu5pQdlBsa4ViZGmQUaplWwsAAAGxuJEQ=";
-let agoraC=null, audT=null, vidT=null;
-let micOn=true, camOn=true, camF=true, mirrorOn=false;
-let curFiltId="none", filtStrength=50;
+let agoraC=null,audT=null,vidT=null;
+let micOn=true,camOn=true,camF=true,mirrorOn=false;
+let curFiltId="none",filtStrength=50;
 const remV={};
 
-// ── State ──
-let roomData=null, hostId=null, isHost=false;
-let members=[], iAmOnSeat=false, seatLocked=false;
-let myCoins=0, roomStartTime=Date.now();
-let peakViewers=0, totalGiftsReceived=0, totalGemsReceived=0;
-let selGift=null, selQty=1, selTarget=null, gCat="popular";
-let popT=null;
-// Pending seat invite: {seatIdx, invitedBy}
-let pendingInvite=null;
-// Mic/cam already granted flags
-let micGranted=false, camGranted=false;
+let roomData=null,hostId=null,isHost=false;
+let members=[],viewers=[],iAmOnSeat=false,seatLocked=false;
+let seatMode=8; // 8 or 12
+let myCoins=0,roomStartTime=Date.now();
+let peakViewers=0,totalGiftsReceived=0,totalGemsReceived=0;
+let selGift=null,selQty=1,selTarget=null,gCat="popular";
+let popT=null,ucTarget=null;
+// coins sent by each uid in this room session (tracked via transactions)
+const coinsRanking={}; // uid -> {name,photo,coins}
 
 const BGLST=["https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800","https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800","https://images.unsplash.com/photo-1536240474400-bc3c7eac8f0d?w=800","https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800","https://images.unsplash.com/photo-1500462918059-b1a0cb512f1d?w=800","https://images.unsplash.com/photo-1511884642898-4c92249e20b6?w=800","https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800","https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=800","https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800"];
 const FCAT={
@@ -484,18 +524,16 @@ const FCAT={
 const FACE_THUMB="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80";
 const GIFTS=[{id:"rose",n:"Rose",img:"https://cdn-icons-png.flaticon.com/128/2722/2722480.png",p:10,c:"popular"},{id:"heart",n:"Heart",img:"https://cdn-icons-png.flaticon.com/128/833/833472.png",p:25,c:"popular"},{id:"star",n:"Star",img:"https://cdn-icons-png.flaticon.com/128/1828/1828884.png",p:30,c:"popular"},{id:"crown",n:"Crown",img:"https://cdn-icons-png.flaticon.com/128/1827/1827370.png",p:50,c:"popular"},{id:"coin",n:"Coin",img:"https://cdn-icons-png.flaticon.com/128/2933/2933245.png",p:20,c:"popular"},{id:"rocket",n:"Rocket",img:"https://cdn-icons-png.flaticon.com/128/2991/2991501.png",p:100,c:"popular"},{id:"bomb",n:"Bomb",img:"https://cdn-icons-png.flaticon.com/128/2965/2965567.png",p:150,c:"lucky"},{id:"plane",n:"Airplane",img:"https://cdn-icons-png.flaticon.com/128/3124/3124190.png",p:88,c:"lucky"},{id:"lucky",n:"Lucky Box",img:"https://cdn-icons-png.flaticon.com/128/2454/2454286.png",p:77,c:"lucky"},{id:"diamond",n:"Diamond",img:"https://cdn-icons-png.flaticon.com/128/3135/3135706.png",p:500,c:"luxury"},{id:"trophy",n:"Trophy",img:"https://cdn-icons-png.flaticon.com/128/2583/2583344.png",p:200,c:"luxury"},{id:"castle",n:"Castle",img:"https://cdn-icons-png.flaticon.com/128/1433/1433156.png",p:999,c:"luxury"}];
 
-// ── Utils ──
 function avu(n){return`https://ui-avatars.com/api/?name=${encodeURIComponent(n)}&background=006571&color=fff&size=128`;}
 function esc(s){if(!s)return"";return s.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));}
-function fn(n){if(n>=1000)return(n/1000).toFixed(1)+"K";return String(n||0);}
+function fn(n){if(n>=1000000)return(n/1000000).toFixed(2)+"M";if(n>=1000)return(n/1000).toFixed(1)+"K";return String(n||0);}
 function G(id){return document.getElementById(id);}
 function sp(id){G(id).classList.add("show");}
 function hp(id){G(id).classList.remove("show");}
 function toast(msg){const t=document.createElement("div");t.className="toast";t.innerText=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2500);}
 function filtCSS(fid,str){
-  const allF=[...FCAT.filters,...FCAT.beauty,...FCAT.preset];
-  const f=allF.find(x=>x.id===fid);if(!f||f.id==="none")return"none";
-  const s=str/100;
+  const f=[...FCAT.filters,...FCAT.beauty,...FCAT.preset].find(x=>x.id===fid);
+  if(!f||f.id==="none")return"none";const s=str/100;
   return f.css.replace(/{p}/g,(0.8+s*0.8).toFixed(2)).replace(/{b}/g,(0.95+s*0.2).toFixed(2)).replace(/{c}/g,(0.9+s*0.4).toFixed(2)).replace(/{s}/g,(s*0.5).toFixed(2)).replace(/{g}/g,s.toFixed(2)).replace(/{h}/g,(s*40).toFixed(0));
 }
 function applyMyFilter(){
@@ -503,49 +541,91 @@ function applyMyFilter(){
   const v=c.querySelector("video");if(v){v.style.filter=filtCSS(curFiltId,filtStrength);v.style.transform=mirrorOn?"scaleX(-1)":"scaleX(1)";}
 }
 
-// Panel close bindings
-[["gpb","giftP"],["gpc","giftP"],["spb","setP"],["spc","setP"],["fpb","filtP"],["fpc","filtP"],["bpb","bgP"],["bpc","bgP"],["ipb","invP"],["ipc","invP"],["rpb","reqP"],["rpc","reqP"],["vpb","viewerP"],["vpc","viewerP"]].forEach(([t,p])=>G(t).onclick=()=>hp(p));
+// Panel close
+[["gpb","giftP"],["gpc","giftP"],["spb","setP"],["spc","setP"],["fpb","filtP"],["fpc","filtP"],["bpb","bgP"],["bpc","bgP"],["ipb","invP"],["ipc","invP"],["rpb","reqP"],["rpc","reqP"],["audpb","audP"]].forEach(([t,p])=>G(t).onclick=()=>hp(p));
 G("ucback").onclick=()=>hp("ucard");
 G("hactbk").onclick=()=>hp("hact");
 G("hcanc").onclick=()=>hp("hact");
-G("permBk").onclick=()=>{hp("permDlg");pendingInvite=null;};
+G("permBk").onclick=()=>hp("permDlg");
 
 // ── Load Room ──
 async function loadRoom(){
   const snap=await getDoc(roomRef);
   if(!snap.exists()){toast("Room not found");setTimeout(()=>location.href="party.html",1500);return;}
   roomData=snap.data(); hostId=roomData.hostId?.toString(); isHost=myId===hostId;
-  seatLocked=roomData.seatLocked||false;
+  seatLocked=roomData.seatLocked||false;seatMode=roomData.seatMode||8;
   G("rnEl").innerText=roomData.name||"Party Room";
   G("riEl").innerText=`ID: ${hostId||"?"}`;
   G("rwEl").innerText=fn(roomData.totalRoomGems||0);
-  if(roomData.coverPhoto) G("bgImg").src=roomData.coverPhoto;
-  if(roomData.startTime) roomStartTime=roomData.startTime;
+  if(roomData.coverPhoto)G("bgImg").src=roomData.coverPhoto;
+  if(roomData.startTime)roomStartTime=roomData.startTime;
   const hs=await getDoc(doc(db,"users",hostId)).catch(()=>null);
   G("hostAv").src=hs?.data()?.photoURL||avu(roomData.hostName||"Host");
   G("hostPill").onclick=()=>showUC({uid:hostId,username:roomData.hostName||"Host",photoURL:G("hostAv").src,gems:0});
-  if(isHost){G("bgRow").style.display="flex";G("invRow").style.display="flex";G("lockRow").style.display="flex";G("reqWrap").style.display="flex";G("lvLbl").innerText="End Live";G("lockTog").checked=seatLocked;}
+  if(isHost){
+    G("bgRow").style.display="flex";G("invRow").style.display="flex";
+    G("lockRow").style.display="flex";G("reqWrap").style.display="flex";
+    G("seatModeRow").style.display="flex";G("lvLbl").innerText="End Live";
+    G("lockTog").checked=seatLocked;updateSeatModeLabel();
+  }
   G("leaveBtn").onclick=()=>isHost?confirmEnd():confirmLeave();
   G("lvRow").onclick=()=>{hp("setP");isHost?confirmEnd():confirmLeave();};
   G("swRow").onclick=switchCam;
   G("filtRow").onclick=()=>{hp("setP");buildFilts("filters");sp("filtP");};
   G("bgRow").onclick=()=>{hp("setP");buildBG();sp("bgP");};
   G("invRow").onclick=()=>{hp("setP");openInvite();};
-  G("lockTog").onchange=async e=>{seatLocked=e.target.checked;await updateDoc(roomRef,{seatLocked}).catch(()=>{});toast(seatLocked?"Seat locked — approval required":"Seat open");renderSeats();};
+  G("lockTog").onchange=async e=>{seatLocked=e.target.checked;await updateDoc(roomRef,{seatLocked}).catch(()=>{});toast(seatLocked?"Seat locked":"Seat open");renderSeats();};
   G("leaveSeatRow").onclick=()=>{hp("setP");leaveSeat();};
-  // Mirror toggle
   G("mirTog").onchange=async e=>{
-    mirrorOn=e.target.checked;
-    applyMyFilter();
-    // Sync to Firestore so all viewers see mirror state
+    mirrorOn=e.target.checked;applyMyFilter();
     const md=doc(db,"rooms",roomId,"members",myId);
     const ms=await getDoc(md).catch(()=>null);
-    if(ms?.exists()) await updateDoc(md,{mirrored:mirrorOn});
+    if(ms?.exists())await updateDoc(md,{mirrored:mirrorOn});
     toast(mirrorOn?"Mirror on":"Mirror off");
   };
+  G("seatModeRow").onclick=()=>toggleSeatMode();
+  G("viewerPillBtn").onclick=()=>{buildAudienceList();sp("audP");};
   addWelcome();
   const us=await getDoc(doc(db,"users",myId)).catch(()=>null);
-  if(us?.exists()) myCoins=us.data().coins||0;
+  if(us?.exists())myCoins=us.data().coins||0;
+  // Register as viewer
+  await registerPresence();
+}
+
+function updateSeatModeLabel(){
+  G("seatModeLbl").innerText=seatMode===8?"Switch to 12 Seats":"Switch to 8 Seats";
+}
+
+async function toggleSeatMode(){
+  hp("setP");
+  seatMode=seatMode===8?12:8;
+  await updateDoc(roomRef,{seatMode}).catch(()=>{});
+  applyMode();renderSeats();updateSeatModeLabel();
+  toast(seatMode===12?"Switched to 12 seats":"Switched to 8 seats");
+}
+
+function applyMode(){
+  const tr=G("topRow"),br=G("botRow");
+  if(seatMode===12){
+    tr.className="mode12";br.className="mode12";
+  } else {
+    tr.className="mode8";br.className="mode8";
+  }
+}
+
+// ── Viewer Presence ──
+async function registerPresence(){
+  const vd=doc(db,"rooms",roomId,"viewers",myId);
+  await setDoc(vd,{uid:myId,username:myName,photoURL:myPhoto,joinedAt:serverTimestamp(),lastSeen:serverTimestamp()},{merge:true}).catch(()=>{});
+}
+
+function listenViewers(){
+  onSnapshot(viewersRef,snap=>{
+    viewers=[];snap.forEach(d=>viewers.push({uid:d.id,...d.data()}));
+    G("vwEl").innerText=viewers.length;
+    if(viewers.length>peakViewers)peakViewers=viewers.length;
+    updateTop3Senders();
+  });
 }
 
 // ── Realtime room ──
@@ -554,44 +634,34 @@ onSnapshot(roomRef,snap=>{
   const d=snap.data();
   G("rwEl").innerText=fn(d.totalRoomGems||0);
   seatLocked=d.seatLocked||false;
-  if(isHost) G("lockTog").checked=seatLocked;
+  if(isHost)G("lockTog").checked=seatLocked;
   if(d.coverPhoto){const bi=G("bgImg");if(bi.getAttribute("data-src")!==d.coverPhoto){bi.setAttribute("data-src",d.coverPhoto);bi.style.opacity=".3";setTimeout(()=>{bi.src=d.coverPhoto;bi.style.opacity="1";},350);}}
-  if(d.totalRoomGems!==undefined) totalGemsReceived=d.totalRoomGems||0;
-  // Check if host changed (promoted)
-  if(d.hostId && d.hostId!==hostId){
-    hostId=d.hostId.toString(); isHost=myId===hostId;
-    if(isHost){
-      G("bgRow").style.display="flex";G("invRow").style.display="flex";
-      G("lockRow").style.display="flex";G("reqWrap").style.display="flex";
-      G("lvLbl").innerText="End Live";
-      toast("You are now the Host!");
-    }
-    G("rnEl").innerText=d.name||"Party Room";
+  if(d.totalRoomGems!==undefined)totalGemsReceived=d.totalRoomGems||0;
+  if(d.hostId&&d.hostId!==hostId){
+    hostId=d.hostId.toString();isHost=myId===hostId;
+    if(isHost){G("bgRow").style.display="flex";G("invRow").style.display="flex";G("lockRow").style.display="flex";G("reqWrap").style.display="flex";G("seatModeRow").style.display="flex";G("lvLbl").innerText="End Live";toast("You are now the Host!");}
   }
+  if(d.seatMode&&d.seatMode!==seatMode){seatMode=d.seatMode;applyMode();renderSeats();if(isHost)updateSeatModeLabel();}
 });
 
-// ── Members Realtime ──
+// ── Members ──
 function listenMembers(){
   onSnapshot(membRef,async snap=>{
     const list=[];
     for(const d of snap.docs){
-      const m=d.data(); const uid=m.uid?.toString(); if(!uid)continue;
-      let username=m.username||"User",photoURL=m.photoURL||"";
-      list.push({uid,username,photoURL:photoURL||avu(username),micMuted:m.micMuted||false,camOff:m.camOff||false,mirrored:m.mirrored||false,gems:m.gems||0,role:m.role||"guest"});
+      const m=d.data();const uid=m.uid?.toString();if(!uid)continue;
+      list.push({uid,username:m.username||"User",photoURL:m.photoURL||avu(m.username||"User"),micMuted:m.micMuted||false,camOff:m.camOff||false,mirrored:m.mirrored||false,gems:m.gems||0,role:m.role||"guest"});
     }
     members=list;
     iAmOnSeat=!!members.find(m=>m.uid===myId);
-    // Update dots btn
     if(iAmOnSeat){
       G("dotsBtn").innerHTML=`<svg width="14" height="14" viewBox="0 0 14 14"><circle cx="3" cy="3" r="2.5" fill="white"/><circle cx="11" cy="3" r="2.5" fill="white"/><circle cx="3" cy="11" r="2.5" fill="white"/><circle cx="11" cy="11" r="2.5" fill="white"/></svg>`;
       G("dotsBtn").onclick=()=>sp("setP");
       G("leaveSeatRow").style.display=!isHost?"flex":"none";
     } else {
       G("dotsBtn").innerHTML=`<span class="ms" style="font-size:20px;color:#fff;">groups</span>`;
-      G("dotsBtn").onclick=()=>{buildViewersPanel();sp("viewerP");};
+      G("dotsBtn").onclick=()=>{buildAudienceList();sp("audP");};
     }
-    G("vwEl").innerText=members.length;
-    if(members.length>peakViewers) peakViewers=members.length;
     renderSeats();
     checkHostTransfer();
   });
@@ -605,26 +675,25 @@ function sortedMembers(){
 }
 
 function checkHostTransfer(){
-  // If host is gone, promote next seat
   const sorted=sortedMembers();
   if(!sorted.find(m=>m.uid===hostId)&&sorted.length>0){
     const candidate=sorted[1]||sorted[0];
-    if(candidate&&candidate.uid===myId){
-      updateDoc(roomRef,{hostId:myId,hostName:myName}).catch(()=>{});
-    }
+    if(candidate&&candidate.uid===myId)updateDoc(roomRef,{hostId:myId,hostName:myName}).catch(()=>{});
   }
 }
 
 // ── Render Seats ──
 function renderSeats(){
   const sorted=sortedMembers();
-  const tr=G("topRow"); tr.innerHTML="";
-  for(let i=0;i<3;i++){
-    const m=sorted[i];
-    const seat=document.createElement("div");seat.className="tseat";
+  const maxSeats=seatMode===12?12:8;
+  const topCount=seatMode===12?4:3;
+  const botCount=seatMode===12?8:5;
+  const tr=G("topRow");tr.innerHTML="";
+  for(let i=0;i<topCount;i++){
+    const m=sorted[i];const seat=document.createElement("div");seat.className="tseat";
+    const camIsOn=m?(m.uid===myId?camOn:!m.camOff):false;
+    const isMirrored=m?(m.uid===myId?mirrorOn:m.mirrored):false;
     if(m){
-      const camIsOn=(m.uid===myId?camOn:!m.camOff);
-      const isMirrored=(m.uid===myId?mirrorOn:m.mirrored);
       const wrap=document.createElement("div");
       if(camIsOn){
         wrap.className="camWrap cam-on"+(isMirrored?" mirrored":"");
@@ -633,19 +702,18 @@ function renderSeats(){
         const ovl=document.createElement("div");ovl.className="ovl";
         if(m.uid===hostId){const b=document.createElement("div");b.className="hbadge";b.innerText="HOST";ovl.appendChild(b);}
         else{const gt=document.createElement("div");gt.className="gems-ov";gt.innerHTML=`<span class="ms f" style="font-size:9px;">diamond</span><span>${fn(m.gems)}</span>`;ovl.appendChild(gt);}
-        const mic=document.createElement("div");mic.className=`mic-ic${m.micMuted?" muted":""}`;mic.innerHTML=`<span class="ms" style="font-size:10px;">${m.micMuted?"mic_off":"mic"}</span>`;ovl.appendChild(mic);
-        // Mirror indicator
-        if(isMirrored){const mi=document.createElement("div");mi.className="mir-ic on";mi.innerHTML=`<span class="ms" style="font-size:10px;">flip</span>`;ovl.appendChild(mi);}
+        const mic=document.createElement("div");mic.className=`mic-ic${m.micMuted?" muted":""}`;mic.innerHTML=`<span class="ms" style="font-size:9px;">${m.micMuted?"mic_off":"mic"}</span>`;ovl.appendChild(mic);
+        if(isMirrored){const mi=document.createElement("div");mi.className="mir-ic";mi.innerHTML=`<span class="ms" style="font-size:9px;">flip</span>`;ovl.appendChild(mi);}
         const nm=document.createElement("div");nm.className="uname";nm.innerText=m.username;ovl.appendChild(nm);
         wrap.appendChild(ovl);
-        const sn=document.createElement("div");sn.className="snum";sn.innerText=`#${i+1}`;sn.style.zIndex="3";wrap.appendChild(sn);
+        const sn=document.createElement("div");sn.className="snum";sn.innerText=`#${i+1}`;wrap.appendChild(sn);
         setTimeout(()=>refreshVid(m,`vb-${m.uid}`),80);
       } else {
         wrap.className="camWrap cam-off";
         if(m.uid===hostId){const b=document.createElement("div");b.className="co-hbadge";b.innerText="HOST";wrap.appendChild(b);}
         else{const cg=document.createElement("div");cg.className="co-gems";cg.innerHTML=`<span class="ms f" style="font-size:9px;">diamond</span><span>${fn(m.gems)}</span>`;wrap.appendChild(cg);}
         const csn=document.createElement("div");csn.className="co-snum";csn.innerText=`#${i+1}`;wrap.appendChild(csn);
-        const cmic=document.createElement("div");cmic.className=`co-micic${m.micMuted?" muted":""}`;cmic.innerHTML=`<span class="ms" style="font-size:10px;">${m.micMuted?"mic_off":"mic"}</span>`;wrap.appendChild(cmic);
+        const cmic=document.createElement("div");cmic.className=`co-micic${m.micMuted?" muted":""}`;cmic.innerHTML=`<span class="ms" style="font-size:9px;">${m.micMuted?"mic_off":"mic"}</span>`;wrap.appendChild(cmic);
         const av=document.createElement("div");av.className="co-av";av.innerHTML=`<img src="${m.photoURL||avu(m.username)}" loading="lazy">`;wrap.appendChild(av);
         const cn=document.createElement("div");cn.className="co-name";cn.innerText=m.username;wrap.appendChild(cn);
       }
@@ -654,33 +722,58 @@ function renderSeats(){
       seat.appendChild(wrap);
     } else {
       const wrap=document.createElement("div");wrap.className="camWrap seat-empty";
-      if(seatLocked&&!isHost){
-        wrap.innerHTML=`<div class="se-ring" style="border-color:rgba(245,158,11,.4);"><span class="ms" style="font-size:26px;color:var(--gold);">lock</span></div><span class="se-lbl" style="color:rgba(245,158,11,.55);">Locked — tap to request</span>`;
-        wrap.onclick=()=>reqJoin(i);
-      } else {
-        wrap.innerHTML=`<div class="se-ring"><span class="ms" style="font-size:26px;">add</span></div><span class="se-lbl">${isHost?"Invite":"Join Seat"}</span>`;
-        wrap.onclick=()=>isHost?openInviteToSeat(i):askPermAndJoin(i);
-      }
+      if(seatLocked&&!isHost){wrap.innerHTML=`<div class="se-ring" style="border-color:rgba(245,158,11,.4);"><span class="ms" style="font-size:24px;color:var(--gold);">lock</span></div><span class="se-lbl" style="color:rgba(245,158,11,.5);">Locked</span>`;wrap.onclick=()=>reqJoin(i);}
+      else{wrap.innerHTML=`<div class="se-ring"><span class="ms" style="font-size:24px;">add</span></div><span class="se-lbl">${isHost?"Invite":"Join"}</span>`;wrap.onclick=()=>isHost?openInvite():askPermAndJoin(i);}
       seat.appendChild(wrap);
     }
     tr.appendChild(seat);
   }
-  // Bottom 5
   const br=G("botRow");br.innerHTML="";
-  for(let i=0;i<5;i++){
-    const m=sorted[i+3];
-    const seat=document.createElement("div");
+  for(let i=0;i<botCount;i++){
+    const m=sorted[i+topCount];const seat=document.createElement("div");
     if(m){
-      seat.className="bseat";
-      seat.innerHTML=`<div class="ba"><div class="r2"><img src="${m.photoURL||avu(m.username)}" loading="lazy"></div><div class="bmic ${m.micMuted?"off":"on"}"><span class="ms" style="font-size:8px;">${m.micMuted?"mic_off":"mic"}</span></div><div class="bgd"><span class="ms f" style="font-size:7px;">diamond</span><span>${fn(m.gems)}</span></div></div><span class="bn">${esc(m.username)}</span>`;
-      seat.onclick=()=>isHost&&m.uid!==hostId?openHA(m):showUC(m);
+      if(seatMode===12){
+        // 12-mode bottom: same cam-on/off style as top
+        const camIsOn=m.uid===myId?camOn:!m.camOff;
+        const isMirrored=m.uid===myId?mirrorOn:m.mirrored;
+        seat.className="tseat";
+        const wrap=document.createElement("div");
+        if(camIsOn){
+          wrap.className="camWrap cam-on"+(isMirrored?" mirrored":"");
+          const vc=document.createElement("div");vc.id=`vb-${m.uid}`;vc.style.cssText="position:absolute;inset:0;z-index:0;";wrap.appendChild(vc);
+          const g=document.createElement("div");g.className="grad";wrap.appendChild(g);
+          const ovl=document.createElement("div");ovl.className="ovl";
+          const gt=document.createElement("div");gt.className="gems-ov";gt.innerHTML=`<span class="ms f" style="font-size:9px;">diamond</span><span>${fn(m.gems)}</span>`;ovl.appendChild(gt);
+          const mic=document.createElement("div");mic.className=`mic-ic${m.micMuted?" muted":""}`;mic.innerHTML=`<span class="ms" style="font-size:9px;">${m.micMuted?"mic_off":"mic"}</span>`;ovl.appendChild(mic);
+          const nm=document.createElement("div");nm.className="uname";nm.innerText=m.username;ovl.appendChild(nm);
+          wrap.appendChild(ovl);const sn=document.createElement("div");sn.className="snum";sn.innerText=`#${i+topCount+1}`;wrap.appendChild(sn);
+          setTimeout(()=>refreshVid(m,`vb-${m.uid}`),80);
+        } else {
+          wrap.className="camWrap cam-off";
+          const cg=document.createElement("div");cg.className="co-gems";cg.innerHTML=`<span class="ms f" style="font-size:9px;">diamond</span><span>${fn(m.gems)}</span>`;wrap.appendChild(cg);
+          const csn=document.createElement("div");csn.className="co-snum";csn.innerText=`#${i+topCount+1}`;wrap.appendChild(csn);
+          const cmic=document.createElement("div");cmic.className=`co-micic${m.micMuted?" muted":""}`;cmic.innerHTML=`<span class="ms" style="font-size:9px;">${m.micMuted?"mic_off":"mic"}</span>`;wrap.appendChild(cmic);
+          const av=document.createElement("div");av.className="co-av";av.innerHTML=`<img src="${m.photoURL||avu(m.username)}" loading="lazy">`;wrap.appendChild(av);
+          const cn=document.createElement("div");cn.className="co-name";cn.innerText=m.username;wrap.appendChild(cn);
+        }
+        wrap.style.cursor="pointer";wrap.onclick=()=>isHost&&m.uid!==hostId?openHA(m):showUC(m);
+        seat.appendChild(wrap);
+      } else {
+        seat.className="bseat";
+        seat.innerHTML=`<div class="ba"><div class="r2"><img src="${m.photoURL||avu(m.username)}" loading="lazy"></div><div class="bmic ${m.micMuted?"off":"on"}"><span class="ms" style="font-size:7px;">${m.micMuted?"mic_off":"mic"}</span></div><div class="bgd"><span class="ms f" style="font-size:6px;">diamond</span><span>${fn(m.gems)}</span></div></div><span class="bn">${esc(m.username)}</span>`;
+        seat.onclick=()=>isHost&&m.uid!==hostId?openHA(m):showUC(m);
+      }
     } else {
-      seat.className="bseat be";
-      seat.innerHTML=`<div class="ba"><div class="r2"><span class="ms" style="font-size:20px;color:rgba(255,255,255,.2);">${seatLocked&&!isHost?"lock":"add"}</span></div></div><span class="bn" style="color:rgba(255,255,255,.2);">${seatLocked&&!isHost?"Locked":isHost?"Invite":"Join"}</span>`;
-      seat.onclick=()=>{
-        if(seatLocked&&!isHost){reqJoin(i+3);return;}
-        isHost?openInviteToSeat(i+3):askPermAndJoin(i+3);
-      };
+      if(seatMode===12){
+        seat.className="tseat";const wrap=document.createElement("div");wrap.className="camWrap seat-empty";
+        if(seatLocked&&!isHost){wrap.innerHTML=`<div class="se-ring" style="border-color:rgba(245,158,11,.4);"><span class="ms" style="font-size:24px;color:var(--gold);">lock</span></div><span class="se-lbl" style="color:rgba(245,158,11,.5);">Locked</span>`;wrap.onclick=()=>reqJoin(i+topCount);}
+        else{wrap.innerHTML=`<div class="se-ring"><span class="ms" style="font-size:24px;">add</span></div><span class="se-lbl">${isHost?"Invite":"Join"}</span>`;wrap.onclick=()=>isHost?openInvite():askPermAndJoin(i+topCount);}
+        seat.appendChild(wrap);
+      } else {
+        seat.className="bseat be";
+        seat.innerHTML=`<div class="ba"><div class="r2"><span class="ms" style="font-size:18px;color:rgba(255,255,255,.2);">${seatLocked&&!isHost?"lock":"add"}</span></div></div><span class="bn" style="color:rgba(255,255,255,.2);">${seatLocked&&!isHost?"Locked":isHost?"Invite":"Join"}</span>`;
+        seat.onclick=()=>{if(seatLocked&&!isHost){reqJoin(i+topCount);return;}isHost?openInvite():askPermAndJoin(i+topCount);};
+      }
     }
     br.appendChild(seat);
   }
@@ -688,59 +781,87 @@ function renderSeats(){
 
 function refreshVid(m,cid){
   const c=document.getElementById(cid);if(!c)return;
-  if(m.uid===myId&&vidT&&camOn){
-    c.innerHTML="";vidT.play(c);applyMyFilter();
-  } else if(remV[m.uid]){
-    c.innerHTML="";remV[m.uid].play(c);
-    // Apply mirror for remote if they have it on
-    const v=c.querySelector("video");if(v) v.style.transform=m.mirrored?"scaleX(-1)":"scaleX(1)";
-  } else {
-    c.innerHTML=`<img class="av-fill" src="${m.photoURL||avu(m.username)}" loading="lazy">`;
-  }
+  if(m.uid===myId&&vidT&&camOn){c.innerHTML="";vidT.play(c);applyMyFilter();}
+  else if(remV[m.uid]){c.innerHTML="";remV[m.uid].play(c);const v=c.querySelector("video");if(v)v.style.transform=m.mirrored?"scaleX(-1)":"scaleX(1)";}
+  else{c.innerHTML=`<img class="av-fill" src="${m.photoURL||avu(m.username)}" loading="lazy">`;}
 }
 
-// ── Permission Dialog & Join ──
+// ── Audience / Rankings ──
+function updateTop3Senders(){
+  const top3Div=G("top3Senders");top3Div.innerHTML="";
+  const sorted=getSortedViewers().slice(0,3);
+  sorted.forEach(v=>{
+    const img=document.createElement("img");
+    img.className="ts-av";img.src=v.photoURL||avu(v.username||v.name||"?");img.alt=v.name||"";
+    img.title=v.name||"";img.loading="lazy";
+    img.onclick=()=>{const m=members.find(x=>x.uid===v.uid)||v;showUC({uid:v.uid,username:v.name||"User",photoURL:v.photoURL||avu(v.name||"User"),gems:0});};
+    top3Div.appendChild(img);
+  });
+}
+
+function getSortedViewers(){
+  // Merge viewers presence with coins ranking
+  const all=[];
+  const seen=new Set();
+  // Host first
+  const hostEntry=coinsRanking[hostId];
+  const hostViewer=viewers.find(v=>v.uid===hostId)||members.find(m=>m.uid===hostId);
+  if(hostViewer||hostEntry){
+    all.push({uid:hostId,name:hostEntry?.name||(hostViewer?.username)||"Host",photoURL:hostEntry?.photo||(hostViewer?.photoURL)||"",coins:hostEntry?.coins||0,isHost:true});
+    seen.add(hostId);
+  }
+  // Others sorted by coins
+  const others=[];
+  const allUids=new Set([...viewers.map(v=>v.uid),...Object.keys(coinsRanking)]);
+  allUids.forEach(uid=>{
+    if(seen.has(uid))return;
+    const vp=viewers.find(v=>v.uid===uid);const cr=coinsRanking[uid];
+    others.push({uid,name:cr?.name||vp?.username||"User",photoURL:cr?.photo||vp?.photoURL||"",coins:cr?.coins||0});
+  });
+  others.sort((a,b)=>b.coins-a.coins);
+  return [...all,...others];
+}
+
+function buildAudienceList(){
+  const sorted=getSortedViewers();
+  G("audHeader").innerText=`Online(${viewers.length})`;
+  const list=G("audList");list.innerHTML="";
+  sorted.forEach((v,idx)=>{
+    const div=document.createElement("div");
+    div.className="aud-item"+(v.isHost?" host-row":"");
+    div.innerHTML=`<img src="${v.photoURL||avu(v.name||"User")}" loading="lazy"><div class="ai"><div class="an">${esc(v.name||"User")}${v.isHost?' 👑':''}</div><div class="at">${v.uid}</div></div><div class="ac"><span class="ms f" style="font-size:13px;">toll</span>${fn(v.coins)}</div><button class="agift-btn" data-uid="${v.uid}"><span class="ms" style="font-size:16px;">redeem</span></button>`;
+    div.querySelector("img").onclick=()=>{showUC({uid:v.uid,username:v.name||"User",photoURL:v.photoURL||"",gems:0});};
+    div.querySelector(".agift-btn").onclick=e=>{e.stopPropagation();hp("audP");openGiftForUser({uid:v.uid,username:v.name||"User",photoURL:v.photoURL||""});};
+    list.appendChild(div);
+  });
+}
+
+// ── Join / Leave Seat ──
 function askPermAndJoin(seatIdx){
   if(iAmOnSeat){toast("Already on a seat!");return;}
   const sorted=sortedMembers();
-  // Check if seat is actually empty
   if(sorted[seatIdx]){toast("Seat is taken!");return;}
-  pendingInvite={seatIdx,top:seatIdx<3};
-  const needMic=seatIdx>=3;
-  G("permTitle").innerText=seatIdx<3?"Join Stage?":"Join Audio Seat?";
-  G("permDesc").innerText=seatIdx<3?`Seat #${seatIdx+1} requires microphone and camera access.`:`Seat #${seatIdx+1} requires microphone access.`;
+  G("permTitle").innerText="Join Stage?";
+  G("permDesc").innerText=`Seat #${seatIdx+1} requires microphone and camera access.`;
   G("permAccept").onclick=()=>{hp("permDlg");doJoinSeat(seatIdx);};
-  G("permReject").onclick=()=>{hp("permDlg");pendingInvite=null;toast("Join cancelled");};
+  G("permReject").onclick=()=>{hp("permDlg");toast("Join cancelled");};
   sp("permDlg");
 }
 
 async function doJoinSeat(seatIdx){
-  const seated=members.filter(m=>m.uid===myId).length;
-  if(seated>0){toast("Already on a seat!");return;}
-  // Start mic/cam if top seat and not already running
-  if(seatIdx<3&&!agoraC){
-    await startAgora().catch(e=>console.warn("Agora",e));
-  }
-  if(seatIdx<3&&agoraC&&!audT){
-    try{audT=await AgoraRTC.createMicrophoneAudioTrack({encoderConfig:{sampleRate:48000,stereo:true,bitrate:128}});await agoraC.publish([audT]);micGranted=true;}catch(e){console.warn("mic",e);}
-  }
-  if(seatIdx<3&&agoraC&&!vidT){
-    try{vidT=await AgoraRTC.createCameraVideoTrack({encoderConfig:"1080p_1",facingMode:camF?"user":"environment"});await agoraC.publish([vidT]);camGranted=true;}catch(e){console.warn("cam",e);}
-  }
-  if(seatIdx>=3&&agoraC&&!audT){
-    try{audT=await AgoraRTC.createMicrophoneAudioTrack({encoderConfig:{sampleRate:48000,stereo:true,bitrate:128}});await agoraC.publish([audT]);micGranted=true;}catch(e){console.warn("mic",e);}
-  }
+  if(members.find(m=>m.uid===myId)){toast("Already on a seat!");return;}
+  if(!agoraC)await startAgora().catch(e=>console.warn("Agora",e));
+  if(agoraC&&!audT){try{audT=await AgoraRTC.createMicrophoneAudioTrack({encoderConfig:{sampleRate:48000,stereo:true,bitrate:128}});await agoraC.publish([audT]);}catch(e){console.warn("mic",e);}}
+  if(agoraC&&!vidT){try{vidT=await AgoraRTC.createCameraVideoTrack({encoderConfig:"1080p_1",facingMode:camF?"user":"environment"});await agoraC.publish([vidT]);}catch(e){console.warn("cam",e);}}
   await joinSeat(seatIdx);
 }
 
 async function reqJoin(seatIdx){
-  if(seatLocked){
-    const rd=doc(db,"rooms",roomId,"requests",myId);
-    const rs=await getDoc(rd).catch(()=>null);
-    if(rs?.exists()){toast("Request already sent!");return;}
-    await setDoc(rd,{uid:myId,username:myName,photoURL:myPhoto,requestedAt:serverTimestamp(),seatIdx:seatIdx||0});
-    toast("Join request sent to host!");
-  } else {askPermAndJoin(seatIdx||0);}
+  const rd=doc(db,"rooms",roomId,"requests",myId);
+  const rs=await getDoc(rd).catch(()=>null);
+  if(rs?.exists()){toast("Request already sent!");return;}
+  await setDoc(rd,{uid:myId,username:myName,photoURL:myPhoto,requestedAt:serverTimestamp(),seatIdx:seatIdx||0});
+  toast("Join request sent to host!");
 }
 
 async function joinSeat(seatIdx=0){
@@ -758,68 +879,56 @@ async function leaveSeat(){
   const ms=await getDoc(md).catch(()=>null);
   if(ms?.exists()){
     await deleteDoc(md);await updateDoc(roomRef,{users:increment(-1)}).catch(()=>{});
-    // Stop mic/cam when leaving seat
     if(audT){try{await agoraC?.unpublish(audT);audT.close();audT=null;}catch(e){}}
     if(vidT){try{await agoraC?.unpublish(vidT);vidT.close();vidT=null;}catch(e){}}
-    micGranted=false;camGranted=false;micOn=true;camOn=true;
-    G("micTog").checked=true;G("camTog").checked=true;
+    micOn=true;camOn=true;G("micTog").checked=true;G("camTog").checked=true;
     addChatLine(`${myName} left the stage`,true);toast("Left the stage");
   }
 }
 
-// ── Agora Init (for viewers: join channel but don't publish) ──
+// ── Agora ──
 async function startAgora(){
   if(agoraC)return;
   agoraC=AgoraRTC.createClient({mode:"rtc",codec:"vp8"});
   await agoraC.join(APP_ID,roomId,TOKEN,agoraUID);
   agoraC.on("user-published",async(u,mt)=>{
     await agoraC.subscribe(u,mt);
-    if(mt==="video"){remV[u.uid]=u.videoTrack;const c=document.getElementById(`vb-${u.uid}`);if(c){c.innerHTML="";u.videoTrack.play(c);const m=members.find(x=>x.uid==u.uid);const v=c.querySelector("video");if(v&&m) v.style.transform=m.mirrored?"scaleX(-1)":"scaleX(1)";}}
-    if(mt==="audio") u.audioTrack?.play();
+    if(mt==="video"){remV[u.uid]=u.videoTrack;const c=document.getElementById(`vb-${u.uid}`);if(c){c.innerHTML="";u.videoTrack.play(c);const m=members.find(x=>x.uid==u.uid);const v=c.querySelector("video");if(v&&m)v.style.transform=m.mirrored?"scaleX(-1)":"scaleX(1)";}}
+    if(mt==="audio")u.audioTrack?.play();
   });
   agoraC.on("user-unpublished",(u,mt)=>{
-    if(mt==="video"){delete remV[u.uid];const c=document.getElementById(`vb-${u.uid}`);const m=members.find(x=>x.uid==u.uid);if(c&&m) c.innerHTML=`<img class="av-fill" src="${m.photoURL||avu(m.username)}">`;
-    }
+    if(mt==="video"){delete remV[u.uid];const c=document.getElementById(`vb-${u.uid}`);const m=members.find(x=>x.uid==u.uid);if(c&&m)c.innerHTML=`<img class="av-fill" src="${m.photoURL||avu(m.username)}">`;} 
   });
   agoraC.on("user-left",async u=>{
     delete remV[u.uid];
     await deleteDoc(doc(db,"rooms",roomId,"members",u.uid.toString())).catch(()=>{});
   });
-  // Network reconnect
   agoraC.on("connection-state-change",(cs,ps)=>{
-    if(cs==="RECONNECTING") toast("Reconnecting...");
-    if(cs==="CONNECTED"&&ps==="RECONNECTING") toast("Reconnected ✓");
+    if(cs==="RECONNECTING")toast("Reconnecting...");
+    if(cs==="CONNECTED"&&ps==="RECONNECTING")toast("Reconnected ✓");
   });
 }
 
-// ── Mic/Cam Toggles (only work when on seat) ──
+// ── Mic/Cam ──
 G("micTog").onchange=async e=>{
   if(!iAmOnSeat){G("micTog").checked=true;toast("Join a seat first");return;}
-  micOn=e.target.checked;
-  if(audT) await audT.setEnabled(micOn);
+  micOn=e.target.checked;if(audT)await audT.setEnabled(micOn);
   const md=doc(db,"rooms",roomId,"members",myId);
   const ms=await getDoc(md).catch(()=>null);
-  if(ms?.exists()) await updateDoc(md,{micMuted:!micOn});
+  if(ms?.exists())await updateDoc(md,{micMuted:!micOn});
 };
 G("camTog").onchange=async e=>{
   if(!iAmOnSeat){G("camTog").checked=true;toast("Join a seat first");return;}
-  camOn=e.target.checked;
-  if(vidT) await vidT.setEnabled(camOn);
+  camOn=e.target.checked;if(vidT)await vidT.setEnabled(camOn);
   const md=doc(db,"rooms",roomId,"members",myId);
   const ms=await getDoc(md).catch(()=>null);
-  if(ms?.exists()) await updateDoc(md,{camOff:!camOn});
-  renderSeats();
+  if(ms?.exists())await updateDoc(md,{camOff:!camOn});renderSeats();
 };
-
 async function switchCam(){
   if(!iAmOnSeat||!vidT||!agoraC)return;camF=!camF;
-  try{
-    await agoraC.unpublish(vidT);vidT.close();
-    vidT=await AgoraRTC.createCameraVideoTrack({encoderConfig:"1080p_1",facingMode:camF?"user":"environment"});
-    await agoraC.publish(vidT);
-    if(camOn){const c=document.getElementById(`vb-${myId}`);if(c){c.innerHTML="";vidT.play(c);applyMyFilter();}}
-    toast(camF?"Front camera":"Back camera");
-  }catch(e){toast("Switch failed");}
+  try{await agoraC.unpublish(vidT);vidT.close();vidT=await AgoraRTC.createCameraVideoTrack({encoderConfig:"1080p_1",facingMode:camF?"user":"environment"});await agoraC.publish(vidT);
+    if(camOn){const c=document.getElementById(`vb-${myId}`);if(c){c.innerHTML="";vidT.play(c);applyMyFilter();}}toast(camF?"Front camera":"Back camera");}
+  catch(e){toast("Switch failed");}
 }
 
 // ── Filters ──
@@ -834,13 +943,14 @@ function buildFilts(cat){
     sc.appendChild(d);
   });
 }
-G("filtSlider").oninput=e=>{filtStrength=parseInt(e.target.value);G("filtPct").innerText=filtStrength+"%";applyMyFilter();document.querySelectorAll(".fi .ft img").forEach(img=>{const cat=filtCatActive;});};
+G("filtSlider").oninput=e=>{filtStrength=parseInt(e.target.value);G("filtPct").innerText=filtStrength+"%";applyMyFilter();};
 
-// ── Chat (session-only) ──
+// ── Chat (session only) ──
 function addWelcome(){
   const w=document.createElement("div");w.className="welmsg";
   w.innerHTML=`<p>Welcome to Galmet Party Room!<br>⚠️ Pornography, vulgarity, violence, juveniles and other related situations are strictly prohibited. AI system reviews it 24 hours a day. Once violating the regulations, you will be punished severely!</p>`;
   G("chatArea").appendChild(w);
+  scrollChat();
 }
 function addChatLine(text,isSystem=false,senderName=null,senderId=null){
   const area=G("chatArea");
@@ -848,47 +958,32 @@ function addChatLine(text,isSystem=false,senderName=null,senderId=null){
   else{
     const d=document.createElement("div");d.className="chatLine";const isMe=senderId===myId;
     d.innerHTML=`<span class="cn${isMe?" me":""}" data-uid="${senderId||""}">${esc(senderName||"User")}:</span>&nbsp;<span class="ct">${esc(text)}</span>`;
-    d.querySelector(".cn").onclick=()=>showUCbyId(senderId);
-    area.appendChild(d);
+    d.querySelector(".cn").onclick=()=>showUCbyId(senderId);area.appendChild(d);
   }
-  area.scrollTop=area.scrollHeight;
+  scrollChat();
 }
 function addGiftLine(senderName,giftImg,qty,targetName,senderId){
   const area=G("chatArea");
   const d=document.createElement("div");d.className="giftLine";
   d.innerHTML=`<img src="${giftImg}" onerror="this.style.display='none'"><div class="gtx">🎁 <b>${esc(senderName)}</b> → <b>${esc(targetName)}</b> ×${qty}</div>`;
-  d.onclick=()=>showUCbyId(senderId);area.appendChild(d);area.scrollTop=area.scrollHeight;
+  d.onclick=()=>showUCbyId(senderId);area.appendChild(d);scrollChat();
 }
+function scrollChat(){G("chatArea").scrollTop=G("chatArea").scrollHeight;}
 
-// Chat input
 G("cTrig").onclick=showChatInput;
 G("cBarIn").onfocus=()=>{G("cBarIn").blur();showChatInput();};
 function showChatInput(){
-  const inp=document.createElement("input");
-  inp.type="text";inp.placeholder="Say something...";
+  const inp=document.createElement("input");inp.type="text";inp.placeholder="Say something...";
   inp.style.cssText="position:fixed;bottom:0;left:0;right:0;z-index:600;background:#0f161e;border:none;border-top:1px solid rgba(255,255,255,.1);color:#fff;font-size:14px;font-family:inherit;padding:14px 70px 14px 16px;outline:none;";
   inp.style.paddingBottom=`max(14px,calc(14px + env(safe-area-inset-bottom)))`;
-  const sb=document.createElement("button");
-  sb.style.cssText="position:fixed;bottom:0;right:0;z-index:601;padding:14px 18px;color:var(--t2);font-size:14px;font-weight:800;background:#0f161e;";
-  sb.style.paddingBottom=`max(14px,calc(14px + env(safe-area-inset-bottom)))`;
-  sb.innerText="Send";
+  const sb=document.createElement("button");sb.style.cssText="position:fixed;bottom:0;right:0;z-index:601;padding:14px 18px;color:var(--t2);font-size:14px;font-weight:800;background:#0f161e;";
+  sb.style.paddingBottom=`max(14px,calc(14px + env(safe-area-inset-bottom)))`;sb.innerText="Send";
   function send(){const t=inp.value.trim();if(t)addChatLine(t,false,myName,myId);inp.remove();sb.remove();}
   sb.onclick=send;inp.addEventListener("keypress",e=>{if(e.key==="Enter")send();});
   inp.addEventListener("blur",()=>setTimeout(()=>{inp.remove();sb.remove();},150));
   document.body.appendChild(inp);document.body.appendChild(sb);inp.focus();
 }
 G("emojiRow").onclick=e=>{const eq=e.target.closest(".eq");if(!eq)return;addChatLine(eq.dataset.e,false,myName,myId);};
-
-// ── Viewers Panel ──
-function buildViewersPanel(){
-  const grid=G("viewersGrid");grid.innerHTML="";
-  if(!members.length){grid.innerHTML='<p style="color:rgba(255,255,255,.4);padding:20px;text-align:center;font-size:12px;grid-column:span 4;">No one here yet</p>';return;}
-  members.forEach(m=>{
-    const d=document.createElement("div");d.className="ic";
-    d.innerHTML=`<img src="${m.photoURL||avu(m.username)}" loading="lazy"><span>${esc(m.username)}</span>`;
-    d.onclick=()=>{hp("viewerP");showUC(m);};grid.appendChild(d);
-  });
-}
 
 // ── Requests ──
 function listenReqs(){
@@ -919,45 +1014,53 @@ async function openReqPanel(){
 }
 G("reqBtn").onclick=openReqPanel;
 
-// ── Invite (host → pick from live viewers, seat them) ──
+// ── Invite (REAL-TIME viewers from presence collection) ──
 async function openInvite(){
-  G("igrid").innerHTML='<p style="color:rgba(255,255,255,.4);text-align:center;padding:20px;font-size:12px;grid-column:span 4;">Loading live viewers...</p>';
+  G("igrid").innerHTML='<p style="color:rgba(255,255,255,.4);text-align:center;padding:20px;font-size:12px;grid-column:span 4;">Loading...</p>';
   sp("invP");
-  // Show all Agora connected users NOT on seat
+  // Use real-time viewers presence
   const seatedIds=new Set(members.map(m=>m.uid));
-  // We don't have a separate viewers list beyond members
-  // So show members who could be invited to upper seats
   const grid=G("igrid");grid.innerHTML="";
-  const notSeated=members.filter(m=>!seatedIds.has(m.uid));
-  if(!members.length){grid.innerHTML='<p style="color:rgba(255,255,255,.4);padding:16px;grid-column:span 4;text-align:center;font-size:12px;">No live viewers</p>';return;}
-  members.forEach(m=>{
-    if(m.uid===myId)return;
+  const avail=viewers.filter(v=>!seatedIds.has(v.uid)&&v.uid!==myId);
+  if(!avail.length){grid.innerHTML='<p style="color:rgba(255,255,255,.4);padding:16px;grid-column:span 4;text-align:center;font-size:12px;">No viewers to invite</p>';return;}
+  avail.forEach(v=>{
     const d=document.createElement("div");d.className="ic";
-    d.innerHTML=`<img src="${m.photoURL||avu(m.username)}" loading="lazy"><span>${esc(m.username)}</span>`;
+    d.innerHTML=`<img src="${v.photoURL||avu(v.username||"User")}" loading="lazy"><span>${esc(v.username||"User")}</span>`;
     d.onclick=async()=>{
-      // Add them to seat (host can directly seat them)
-      const sorted=sortedMembers();let si=8;
-      for(let x=0;x<8;x++){if(!sorted[x]){si=x;break;}}
-      await setDoc(doc(db,"rooms",roomId,"members",m.uid),{uid:m.uid,username:m.username,photoURL:m.photoURL||"",role:"guest",micMuted:false,camOff:false,mirrored:false,gems:m.gems||0,seatIdx:si,joinedAt:serverTimestamp()});
-      hp("invP");toast(`${m.username} invited to seat #${si+1}!`);
+      const sorted=sortedMembers();let si=0;
+      for(let x=0;x<seatMode;x++){if(!sorted[x]){si=x;break;}}
+      await setDoc(doc(db,"rooms",roomId,"members",v.uid),{uid:v.uid,username:v.username||"User",photoURL:v.photoURL||"",role:"guest",micMuted:false,camOff:false,mirrored:false,gems:0,seatIdx:si,joinedAt:serverTimestamp()});
+      hp("invP");toast(`${v.username||"User"} invited!`);
     };
     grid.appendChild(d);
   });
 }
-function openInviteToSeat(seatIdx){hp("setP");openInvite();}
 
 // ── Gifts ──
+let giftTargetOverride=null;
 G("giftBtn").onclick=async()=>{
+  giftTargetOverride=null;
   const us=await getDoc(doc(db,"users",myId)).catch(()=>null);
   myCoins=us?.data()?.coins||0;G("myCoinsEl").innerText=fn(myCoins);
-  buildGiftTargets();buildGiftGrid(gCat);buildQty();sp("giftP");
+  buildGiftTargets(null);buildGiftGrid(gCat);buildQty();sp("giftP");
 };
+
+function openGiftForUser(m){
+  giftTargetOverride=m;
+  getDoc(doc(db,"users",myId)).then(us=>{myCoins=us?.data()?.coins||0;G("myCoinsEl").innerText=fn(myCoins);}).catch(()=>{});
+  buildGiftTargets(m);buildGiftGrid(gCat);buildQty();sp("giftP");
+}
+
+G("ucGiftBtn").onclick=()=>{if(ucTarget){hp("ucard");openGiftForUser(ucTarget);}};
+
 G("gtabs").onclick=e=>{const t=e.target.closest(".gtab");if(!t)return;document.querySelectorAll(".gtab").forEach(x=>x.classList.remove("active"));t.classList.add("active");gCat=t.dataset.c;buildGiftGrid(gCat);};
 
-function buildGiftTargets(){
-  const row=G("gtRow");row.innerHTML="";selTarget=null;
-  members.filter(m=>m.uid!==myId).forEach(m=>{
-    const d=document.createElement("div");d.className="gtitem";
+function buildGiftTargets(preSelected=null){
+  const row=G("gtRow");row.innerHTML="";selTarget=preSelected||null;
+  // Show all seated members except self
+  const targets=members.filter(m=>m.uid!==myId);
+  targets.forEach(m=>{
+    const d=document.createElement("div");d.className="gtitem"+(preSelected&&preSelected.uid===m.uid?" sel":"");
     d.innerHTML=`<div class="gta"><img src="${m.photoURL||avu(m.username)}" loading="lazy"></div><span>${esc(m.username.substring(0,8))}</span>`;
     d.onclick=()=>{document.querySelectorAll(".gtitem").forEach(x=>x.classList.remove("sel"));d.classList.add("sel");selTarget=m;};
     row.appendChild(d);
@@ -967,7 +1070,7 @@ function buildGiftGrid(cat){
   const grid=G("ggrid");grid.innerHTML="";
   GIFTS.filter(g=>g.c===cat).forEach(g=>{
     const d=document.createElement("div");d.className="gc";
-    d.innerHTML=`<img src="${g.img}" loading="lazy"><div class="gn">${esc(g.n)}</div><div class="gp">${g.p} coins</div>`;
+    d.innerHTML=`<img src="${g.img}" loading="lazy"><div class="gn">${esc(g.n)}</div><div class="gp">${g.p}</div>`;
     d.onclick=()=>{document.querySelectorAll(".gc").forEach(x=>x.classList.remove("sel"));d.classList.add("sel");selGift={...g};};
     grid.appendChild(d);
   });
@@ -981,29 +1084,34 @@ function buildQty(){
   });
 }
 G("sgBtn").onclick=async()=>{
-  if(!selGift){toast("Pick a gift first!");return;}
-  if(!selTarget){toast("Choose who to send to!");return;}
-  if(selTarget.uid===myId){toast("Can't gift yourself");return;}
+  if(!selGift){toast("Pick a gift!");return;}
+  const target=selTarget||giftTargetOverride;
+  if(!target){toast("Choose who to send to!");return;}
+  if(target.uid===myId){toast("Can't gift yourself");return;}
   const price=selGift.p*selQty;
   if(myCoins<price){toast(`Not enough coins! Need ${price}`);return;}
   await updateDoc(doc(db,"users",myId),{coins:increment(-price)}).catch(()=>{});
-  myCoins-=price;G("myCoinsEl").innerText=fn(myCoins);
-  showCoinAnim(-price);
-  const hRef=doc(db,"users",selTarget.uid);
+  myCoins-=price;G("myCoinsEl").innerText=fn(myCoins);showCoinAnim(-price);
+  const hRef=doc(db,"users",target.uid);
   const hSnap=await getDoc(hRef).catch(()=>null);
   const charm=hSnap?.data()?.charmLevel||0;
   const gems=Math.floor(price*(0.30+charm*0.01));
   await updateDoc(hRef,{gems:increment(gems)}).catch(()=>{});
   await updateDoc(roomRef,{totalRoomGems:increment(gems)}).catch(()=>{});
-  const mr=doc(db,"rooms",roomId,"members",selTarget.uid);
-  const ms=await getDoc(mr).catch(()=>null);
-  if(ms?.exists()) await updateDoc(mr,{gems:increment(gems)}).catch(()=>{});
-  await addDoc(txRef,{type:"gift",from:myId,fromName:myName,to:selTarget.uid,toName:selTarget.username,giftId:selGift.id,giftName:selGift.n,coins:price,gems,qty:selQty,roomId,timestamp:serverTimestamp()}).catch(()=>{});
-  await addDoc(gemLogRef,{uid:selTarget.uid,username:selTarget.username,gems,ts:serverTimestamp()}).catch(()=>{});
-  addGiftLine(myName,selGift.img,selQty,selTarget.username,myId);
-  showGiftPop(myName,myPhoto,selGift,selQty,selTarget.username);
+  const mr=doc(db,"rooms",roomId,"members",target.uid);
+  const ms2=await getDoc(mr).catch(()=>null);
+  if(ms2?.exists())await updateDoc(mr,{gems:increment(gems)}).catch(()=>{});
+  await addDoc(txRef,{type:"gift",from:myId,fromName:myName,to:target.uid,toName:target.username,giftId:selGift.id,giftName:selGift.n,coins:price,gems,qty:selQty,roomId,timestamp:serverTimestamp()}).catch(()=>{});
+  await addDoc(gemLogRef,{uid:target.uid,username:target.username,gems,ts:serverTimestamp()}).catch(()=>{});
+  // Update local ranking
+  if(!coinsRanking[myId])coinsRanking[myId]={name:myName,photo:myPhoto,coins:0};
+  coinsRanking[myId].coins+=price;
+  updateTop3Senders();
+  addGiftLine(myName,selGift.img,selQty,target.username,myId);
+  showGiftPop(myName,myPhoto,selGift,selQty,target.username);
   hp("giftP");toast(`Sent ${selGift.n} ×${selQty} 🎁`);
-  selGift=null;document.querySelectorAll(".gc").forEach(x=>x.classList.remove("sel"));
+  selGift=null;selTarget=null;giftTargetOverride=null;
+  document.querySelectorAll(".gc").forEach(x=>x.classList.remove("sel"));
   totalGiftsReceived+=selQty;
 };
 function showGiftPop(sn,sp2,gift,qty,tn){
@@ -1020,9 +1128,9 @@ function showCoinAnim(amount){
 function buildBG(){
   const grid=G("bggrid");grid.innerHTML="";
   BGLST.forEach(url=>{
-    const d=document.createElement("div");d.className="bgo";const bi=G("bgImg");if(bi.src===url)d.classList.add("active");
+    const d=document.createElement("div");d.className="bgo";if(G("bgImg").src===url)d.classList.add("active");
     d.innerHTML=`<img src="${url}" loading="lazy">`;
-    d.onclick=async()=>{bi.style.opacity=".3";setTimeout(()=>{bi.src=url;bi.style.opacity="1";},350);document.querySelectorAll(".bgo").forEach(x=>x.classList.remove("active"));d.classList.add("active");await updateDoc(roomRef,{coverPhoto:url}).catch(()=>{});hp("bgP");toast("Background updated!");};
+    d.onclick=async()=>{G("bgImg").style.opacity=".3";setTimeout(()=>{G("bgImg").src=url;G("bgImg").style.opacity="1";},350);document.querySelectorAll(".bgo").forEach(x=>x.classList.remove("active"));d.classList.add("active");await updateDoc(roomRef,{coverPhoto:url}).catch(()=>{});hp("bgP");toast("Background updated!");};
     grid.appendChild(d);
   });
 }
@@ -1035,13 +1143,20 @@ function openHA(m){
 G("hmuteBtn").onclick=async()=>{if(!popT)return;await updateDoc(doc(db,"rooms",roomId,"members",popT.uid),{micMuted:!popT.micMuted}).catch(()=>{});hp("hact");toast(`${popT.username} ${popT.micMuted?"unmuted":"muted"}`);};
 G("hremBtn").onclick=async()=>{if(!popT)return;await deleteDoc(doc(db,"rooms",roomId,"members",popT.uid));await updateDoc(roomRef,{users:increment(-1)}).catch(()=>{});hp("hact");toast(`${popT.username} removed`);};
 
-// ── User card ──
+// ── User Card ──
 async function showUCbyId(uid){
-  if(!uid)return;const m=members.find(x=>x.uid===uid);if(m){showUC(m);return;}
-  const us=await getDoc(doc(db,"users",uid)).catch(()=>null);
-  showUC(us?.exists()?{uid,username:us.data().username||"User",photoURL:us.data().photoURL||avu(us.data().username||"User"),gems:0}:{uid,username:"User",photoURL:avu("User"),gems:0});
+  if(!uid)return;const m=members.find(x=>x.uid===uid)||viewers.find(x=>x.uid===uid);
+  if(m)showUC({uid:m.uid,username:m.username||m.name||"User",photoURL:m.photoURL||"",gems:m.gems||0});
+  else{const us=await getDoc(doc(db,"users",uid)).catch(()=>null);showUC(us?.exists()?{uid,username:us.data().username||"User",photoURL:us.data().photoURL||"",gems:0}:{uid,username:"User",photoURL:"",gems:0});}
 }
-function showUC(m){G("ucav").src=m.photoURL||avu(m.username||"User");G("ucnam").innerText=m.username||"User";G("ucuid").innerText=`ID: ${m.uid}`;G("ucgems").innerText=fn(m.gems||0);G("uclink").href=`view.html?id=${m.uid}`;sp("ucard");}
+function showUC(m){
+  ucTarget=m;
+  G("ucav").src=m.photoURL||avu(m.username||"User");G("ucnam").innerText=m.username||"User";
+  G("ucuid").innerText=`ID: ${m.uid}`;G("ucgems").innerText=fn(m.gems||0);
+  G("uclink").href=`view.html?id=${m.uid}`;
+  G("ucGiftBtn").style.display=m.uid===myId?"none":"flex";
+  sp("ucard");
+}
 
 // ── Leave / End ──
 async function confirmEnd(){
@@ -1051,7 +1166,8 @@ async function confirmEnd(){
   await deleteDoc(roomRef).catch(()=>{});
 }
 async function confirmLeave(){
-  if(iAmOnSeat) await leaveSeat();
+  if(iAmOnSeat)await leaveSeat();
+  await deleteDoc(doc(db,"rooms",roomId,"viewers",myId)).catch(()=>{});
   await updateDoc(roomRef,{users:increment(-1)}).catch(()=>{});
   try{audT?.close();vidT?.close();await agoraC?.leave();}catch(e){}
   location.href="party.html";
@@ -1068,25 +1184,40 @@ G("chatHalfBtn").onclick=()=>{G("chatIframe").src="chats.html";sp("chatHalf");};
 G("chatHalfTop").onclick=()=>hp("chatHalf");
 G("chatHalfClose").onclick=()=>hp("chatHalf");
 
-// ── Presence / Cleanup ──
-window.addEventListener("beforeunload",()=>{
-  if(iAmOnSeat) deleteDoc(doc(db,"rooms",roomId,"members",myId)).catch(()=>{});
-});
-// Periodic presence heartbeat (keeps user in room even on reconnect)
+// ── Presence heartbeat & cleanup ──
 setInterval(async()=>{
-  if(!iAmOnSeat)return;
-  const md=doc(db,"rooms",roomId,"members",myId);
-  await updateDoc(md,{lastSeen:serverTimestamp()}).catch(()=>{});
+  const vd=doc(db,"rooms",roomId,"viewers",myId);
+  await updateDoc(vd,{lastSeen:serverTimestamp()}).catch(()=>{});
+  if(iAmOnSeat){const md=doc(db,"rooms",roomId,"members",myId);await updateDoc(md,{lastSeen:serverTimestamp()}).catch(()=>{});}
 },30000);
+window.addEventListener("beforeunload",()=>{
+  deleteDoc(doc(db,"rooms",roomId,"viewers",myId)).catch(()=>{});
+  if(iAmOnSeat)deleteDoc(doc(db,"rooms",roomId,"members",myId)).catch(()=>{});
+});
+
+// ── Load historical coins ranking from transactions ──
+async function loadCoinRanking(){
+  try{
+    const q2=query(txRef,orderBy("timestamp","desc"),limit(200));
+    const snap=await getDocs(q2);
+    snap.forEach(d=>{
+      const t=d.data();if(t.roomId!==roomId)return;
+      const uid=t.from;if(!uid)return;
+      if(!coinsRanking[uid])coinsRanking[uid]={name:t.fromName||"User",photo:myPhoto,coins:0};
+      coinsRanking[uid].coins+=t.coins||0;
+    });
+    updateTop3Senders();
+  }catch(e){}
+}
 
 // ── Init ──
 async function init(){
   await loadRoom();
-  // Start Agora for everyone (viewers join channel passively to receive streams)
-  await startAgora().catch(e=>console.warn("Agora viewer join",e));
-  if(isHost){await doJoinSeat(0);}
-  listenMembers();
-  listenReqs();
+  applyMode();
+  await startAgora().catch(e=>console.warn("Agora",e));
+  if(isHost)await doJoinSeat(0);
+  listenMembers();listenViewers();listenReqs();
+  await loadCoinRanking();
   addChatLine(`${myName} joined the room`,true);
 }
 init();
