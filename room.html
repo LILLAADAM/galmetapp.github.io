@@ -1211,6 +1211,7 @@ window.addEventListener("beforeunload", ()=>{
   deleteDoc(doc(db,"rooms",roomId,"viewers",myId)).catch(()=>{});
   if(iAmOnSeat){
     deleteDoc(doc(db,"rooms",roomId,"members",myId)).catch(()=>{});
+    }
 });
   
 // ── Load historical coins ranking from transactions ──
