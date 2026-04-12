@@ -589,14 +589,14 @@ async function loadRoom(){
   const us=await getDoc(doc(db,"users",myId)).catch(()=>null);
   if(us?.exists())myCoins=us.data().coins||0;
   // Register as viewer
-await registerPresence();
+  await registerPresence();
+}
 
-// ✅ THEN start heartbeat
 setInterval(async ()=>{
   await updateDoc(doc(db,"rooms",roomId,"viewers",myId),{
     lastSeen: serverTimestamp()
   }).catch(()=>{});
-},10000);
+}, 10000);
   
 function updateSeatModeLabel(){
   G("seatModeLbl").innerText=seatMode===8?"Switch to 12 Seats":"Switch to 8 Seats";
@@ -1191,29 +1191,16 @@ G("chatHalfTop").onclick=()=>hp("chatHalf");
 G("chatHalfClose").onclick=()=>hp("chatHalf");
 
 // ── Presence heartbeat & cleanup ──
-setInterval(async ()=>{
-  const vd = doc(db,"rooms",roomId,"viewers",myId);
-
-  await updateDoc(vd,{
-    lastSeen: serverTimestamp()
-  }).catch(()=>{});
-
-  if(iAmOnSeat){
-    const md = doc(db,"rooms",roomId,"members",myId);
-
-    await updateDoc(md,{
-      lastSeen: serverTimestamp()
-    }).catch(()=>{});
-  }
-
+setInterval(async()=>{
+  const vd=doc(db,"rooms",roomId,"viewers",myId);
+  await updateDoc(vd,{lastSeen:serverTimestamp()}).catch(()=>{});
+  if(iAmOnSeat){const md=doc(db,"rooms",roomId,"members",myId);await updateDoc(md,{lastSeen:serverTimestamp()}).catch(()=>{});}
 },30000);
-window.addEventListener("beforeunload", ()=>{
+window.addEventListener("beforeunload",()=>{
   deleteDoc(doc(db,"rooms",roomId,"viewers",myId)).catch(()=>{});
-  if(iAmOnSeat){
-    deleteDoc(doc(db,"rooms",roomId,"members",myId)).catch(()=>{});
-    }
+  if(iAmOnSeat)deleteDoc(doc(db,"rooms",roomId,"members",myId)).catch(()=>{});
 });
-  
+
 // ── Load historical coins ranking from transactions ──
 async function loadCoinRanking(){
   try{
@@ -1240,6 +1227,6 @@ async function init(){
   addChatLine(`${myName} joined the room`,true);
 }
 init();
-
+</script>
 </body>
 </html>
