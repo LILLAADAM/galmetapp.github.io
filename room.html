@@ -591,15 +591,6 @@ async function loadRoom(){
   // Register as viewer
 await registerPresence();
 
-// ✅ CREATE viewer FIRST
-await setDoc(doc(db,"rooms",roomId,"viewers",myId),{
-  uid: myId,
-  username: myName || "Guest",
-  photoURL: myPhoto || "",
-  joinedAt: serverTimestamp(),
-  lastSeen: serverTimestamp()
-},{merge:true});
-
 // ✅ THEN start heartbeat
 setInterval(async ()=>{
   await updateDoc(doc(db,"rooms",roomId,"viewers",myId),{
