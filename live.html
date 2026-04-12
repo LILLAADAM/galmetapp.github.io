@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Galmet Live</title>
 <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
-<script type="importmap">{"imports":{"firebase/app":"https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js","firebase/firestore":"https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js"}}</script>
+<script type="importmap">{"imports":{"firebase/app":"https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js","firebase/firestore":"https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js","firebase/storage":"https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js"}}</script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
 <style>
@@ -24,9 +24,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pl
 /* STAGE */
 #stage{position:fixed;inset:0;z-index:0;background:#000;display:flex;align-items:stretch;overflow:hidden;}
 #stage>div{position:absolute;inset:0;}
-#stage video{width:100%;height:100%;object-fit:cover;display:block;transition:filter .4s;}
-#stage.mir>div#local-wrap video{transform:scaleX(-1);}
-/* Filters via class on stage */
+#stage video{width:100%;height:100%;object-fit:cover;display:block;}
+/* Mirror: toggled via JS on the video element directly */
 #stage.fw-warm video{filter:sepia(.42) saturate(1.4) brightness(1.05)!important;}
 #stage.fw-cool video{filter:hue-rotate(22deg) saturate(1.22) brightness(.97)!important;}
 #stage.fw-vivid video{filter:saturate(1.95) contrast(1.08)!important;}
@@ -37,8 +36,18 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pl
 #stage.fw-noir video{filter:grayscale(1) contrast(1.25) brightness(.82)!important;}
 #stage.fw-dreamy video{filter:brightness(1.1) saturate(1.3) hue-rotate(10deg)!important;}
 
-/* Vignette */
+/* VIGNETTE */
 #vg{position:fixed;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(6,8,15,.84) 0%,transparent 26%,transparent 54%,rgba(6,8,15,.95) 100%);}
+
+/* HOST BACK SHORTLY OVERLAY */
+#back-shortly{position:fixed;inset:0;z-index:15;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:rgba(6,8,15,.72);backdrop-filter:blur(8px);}
+#back-shortly.on{display:flex;}
+.bs-pulse{width:64px;height:64px;border-radius:50%;background:var(--surf2);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.1);opacity:.7;}}
+#bs-ava{width:64px;height:64px;border-radius:50%;border:2px solid var(--blue);object-fit:cover;}
+.bs-txt{font-size:15px;font-weight:800;color:#fff;text-align:center;}
+.bs-sub{font-size:12px;color:var(--muted);font-weight:600;}
+.bs-dur{font-size:13px;font-weight:900;color:var(--gold);margin-top:4px;}
 
 /* LOADING */
 #load{position:fixed;inset:0;z-index:200;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .5s;}
@@ -65,6 +74,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pl
 .charm-badge{font-size:8.5px;font-weight:900;color:var(--gold);background:rgba(255,197,49,.14);border:1px solid rgba(255,197,49,.28);padding:1px 5px;border-radius:99px;letter-spacing:.04em;}
 #flw-btn{background:var(--blue);color:#fff;border:none;border-radius:99px;padding:4px 10px;font-size:9.5px;font-weight:900;cursor:pointer;letter-spacing:.04em;font-family:inherit;transition:all .15s;white-space:nowrap;}
 #flw-btn.flwing{background:rgba(255,255,255,.1);border:1px solid var(--border2);color:var(--muted);}
+#flw-btn.hide{display:none;}
 
 /* stat chips */
 .sc-row{display:flex;gap:5px;}
@@ -87,15 +97,12 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pl
 .cmsg .sndr:hover{opacity:.75;}
 .cmsg.jmsg{background:rgba(79,124,255,.14);color:#9ab8ff;font-size:10.5px;}
 .cmsg.gmsg{background:rgba(255,197,49,.1);color:var(--gold);}
+.cmsg.lmsg{background:rgba(255,61,110,.1);color:#ff8cb0;font-size:10.5px;}
 /* wealth badges */
 .wbg{font-size:8.5px;font-weight:900;padding:1px 5px;border-radius:99px;flex-shrink:0;letter-spacing:.04em;}
-.wb0{display:none;}
-.wb1{background:rgba(120,200,255,.16);color:#78c8ff;}
-.wb2{background:rgba(80,255,160,.16);color:#50ffa0;}
-.wb3{background:rgba(255,160,50,.16);color:#ffa032;}
-.wb4{background:rgba(255,80,100,.16);color:#ff5064;}
-.wb5{background:rgba(200,80,255,.16);color:#c850ff;}
-.wb6,.wb7,.wb8,.wb9,.wb10{background:rgba(255,197,49,.2);color:var(--gold);}
+.wb0{display:none;}.wb1{background:rgba(120,200,255,.16);color:#78c8ff;}.wb2{background:rgba(80,255,160,.16);color:#50ffa0;}
+.wb3{background:rgba(255,160,50,.16);color:#ffa032;}.wb4{background:rgba(255,80,100,.16);color:#ff5064;}
+.wb5{background:rgba(200,80,255,.16);color:#c850ff;}.wb6,.wb7,.wb8,.wb9,.wb10{background:rgba(255,197,49,.2);color:var(--gold);}
 
 /* BOTTOM BAR */
 #bbar{position:fixed;bottom:0;left:0;right:0;z-index:30;padding:9px 12px;padding-bottom:max(env(safe-area-inset-bottom,9px),9px);display:flex;align-items:center;gap:7px;}
@@ -142,6 +149,12 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pl
 .tsl::before{content:'';position:absolute;width:14px;height:14px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.26s;}
 .tog input:checked+.tsl{background:var(--blue);}
 .tog input:checked+.tsl::before{transform:translateX(16px);}
+
+/* CALL PRICE SLIDER */
+.price-slider-wrap{padding:10px 13px 14px;}
+.price-slider-wrap input[type=range]{width:100%;-webkit-appearance:none;height:4px;border-radius:99px;background:rgba(255,255,255,.1);outline:none;cursor:pointer;}
+.price-slider-wrap input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--blue);cursor:pointer;}
+.price-disp{font-size:13px;font-weight:900;color:var(--gold);text-align:center;margin-top:6px;}
 
 /* FILTER SHEET */
 #fgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;padding:4px 13px 22px;}
@@ -206,13 +219,14 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pl
 .cactions{display:flex;gap:9px;justify-content:center;margin-top:16px;}
 .cdecline{background:#b01838;color:#fff;border:none;border-radius:99px;padding:10px 20px;font-size:12.5px;font-weight:900;cursor:pointer;font-family:inherit;}
 .caccept{background:#1a9e5c;color:#fff;border:none;border-radius:99px;padding:10px 20px;font-size:12.5px;font-weight:900;cursor:pointer;font-family:inherit;}
+.ccard .cprice{font-size:11px;color:var(--gold);font-weight:800;margin-top:5px;}
 
 /* CALLING OVERLAY */
 #calling-ov{position:fixed;inset:0;z-index:180;background:rgba(6,8,15,.85);backdrop-filter:blur(12px);display:none;align-items:center;justify-content:center;flex-direction:column;gap:13px;}
 #calling-ov.on{display:flex;}
 #cancel-call{background:rgba(255,60,100,.13);color:#ff3c64;border:1px solid rgba(255,60,100,.28);border-radius:99px;padding:8px 20px;font-size:11.5px;font-weight:900;cursor:pointer;font-family:inherit;margin-top:5px;}
 
-/* 30s FACE TIMER */
+/* FACE TIMER */
 #face-warn{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:rgba(6,8,15,.7);backdrop-filter:blur(4px);pointer-events:none;opacity:0;transition:opacity .4s;}
 #face-warn.on{opacity:1;}
 .fw-ring{width:90px;height:90px;position:relative;}
@@ -234,14 +248,34 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pl
 .ga.rain-wrap{top:0;left:0;width:100%;height:100%;}
 .ga-rain-item{position:absolute;animation:gaR linear forwards;}
 @keyframes gaR{from{opacity:1;transform:translateY(-40px) rotate(0);}to{opacity:0;transform:translateY(110vh) rotate(360deg);}}
+
+/* Welcome banner */
+#welcome-banner{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:80;pointer-events:none;opacity:0;text-align:center;transition:opacity .3s;}
+#welcome-banner.on{opacity:1;}
+.wb-inner{background:var(--glass);backdrop-filter:var(--blur);border:1px solid var(--border2);border-radius:18px;padding:18px 28px;}
+.wb-em{font-size:36px;}
+.wb-name{font-size:14px;font-weight:900;color:var(--text);margin-top:6px;}
+.wb-sub{font-size:11px;color:var(--muted);margin-top:2px;}
 </style>
 </head>
 <body>
 
 <div id="stage"></div>
 <div id="vg"></div>
+
+<!-- HOST BACK SHORTLY OVERLAY (visible to viewers during call) -->
+<div id="back-shortly">
+  <div class="bs-pulse"><img id="bs-ava" src="" alt=""></div>
+  <div class="bs-txt" id="bs-name">Host will be back shortly</div>
+  <div class="bs-sub">Currently on a video call</div>
+  <div class="bs-dur" id="bs-call-dur"></div>
+</div>
+
 <div id="load"><div class="spin"></div><p style="font-size:13px;color:var(--muted);font-weight:700;">Joining live…</p></div>
 <div id="toast"></div>
+
+<!-- WELCOME BANNER -->
+<div id="welcome-banner"><div class="wb-inner"><div class="wb-em">✨</div><div class="wb-name" id="wb-name-txt"></div><div class="wb-sub" id="wb-sub-txt"></div></div></div>
 
 <!-- HEADER -->
 <header id="hdr">
@@ -252,7 +286,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pl
         <div class="hcs"><span class="live-dot">● LIVE</span><span class="charm-badge" id="charm-badge">Lv 0</span></div>
         <div class="hcn" id="h-name">Loading…</div>
       </div>
-      <button id="flw-btn">+FOLLOW</button>
+      <button id="flw-btn" class="hide">+FOLLOW</button>
     </div>
     <div class="sc-row">
       <div class="schip"><span class="ms f" style="color:var(--gold);">diamond</span><span id="gems-cnt">0</span></div>
@@ -260,13 +294,13 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pl
     </div>
   </div>
   <div class="hr">
-    <button class="h-ibtn" id="analytics-btn"><span class="ms">bar_chart</span></button>
+    <button class="h-ibtn" id="analytics-btn" style="display:none;"><span class="ms">bar_chart</span></button>
     <button class="h-ibtn" id="share-btn"><span class="ms">ios_share</span></button>
-    <button id="end-btn"><span class="ms f" style="font-size:13px;">cancel</span>END LIVE</button>
+    <button id="end-btn" style="display:none;"><span class="ms f" style="font-size:13px;">cancel</span>END LIVE</button>
   </div>
 </header>
 
-<!-- HOST SETTINGS CORNER BUTTON -->
+<!-- HOST SETTINGS CORNER BUTTON (host only) -->
 <button id="hsb"><span class="ms f" style="font-size:18px;">settings</span></button>
 
 <!-- CHAT -->
@@ -279,7 +313,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pl
     <input id="cinput" type="text" placeholder="Say something…" autocomplete="off" maxlength="200">
     <button id="send-btn"><span class="ms" style="font-size:15px;">send</span></button>
   </div>
-  <button class="bbbtn bb-filter" id="filter-btn"><span class="ms f" style="font-size:18px;">auto_fix_high</span></button>
+  <!-- filter btn is host-only, added via JS -->
   <button class="bbbtn bb-gift" id="gift-btn"><span class="ms f" style="font-size:20px;">card_giftcard</span></button>
 </div>
 
@@ -287,7 +321,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pl
 <div id="bd"></div>
 
 <!-- HOST SETTINGS PANEL -->
-<div class="sheet" id="host-panel" style="max-height:72vh;overflow-y:auto;">
+<div class="sheet" id="host-panel" style="max-height:82vh;overflow-y:auto;">
   <div class="sh-handle"></div>
   <div class="sh-hdr"><span class="sh-title">Host Controls</span><button class="sh-close" id="hp-cl"><span class="ms" style="font-size:14px;">close</span></button></div>
   <div style="padding:0 8px 28px;">
@@ -309,6 +343,14 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pl
       <label class="tog"><input type="checkbox" id="mic-tog" checked><span class="tsl"></span></label>
     </div>
     <div class="mdiv"></div>
+    <div class="msec">Video Call Price (per minute)</div>
+    <div class="price-slider-wrap">
+      <input type="range" id="call-price-slider" min="500" max="5000" step="100" value="1000">
+      <div class="price-disp"><span class="ms f" style="font-size:12px;color:var(--gold);">monetization_on</span> <span id="call-price-disp">1000</span> coins / min</div>
+      <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--muted);margin-top:4px;"><span>500</span><span>5000</span></div>
+      <button id="save-price-btn" style="width:100%;margin-top:10px;background:var(--blue);color:#fff;border:none;border-radius:10px;padding:9px;font-size:12px;font-weight:900;cursor:pointer;font-family:inherit;">Save Call Price</button>
+    </div>
+    <div class="mdiv"></div>
     <div class="msec">Incoming Calls</div>
     <div id="call-pending-area"><p style="font-size:12px;color:var(--muted);padding:7px 13px;">No pending calls</p></div>
     <div class="mdiv"></div>
@@ -320,7 +362,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pl
   </div>
 </div>
 
-<!-- FILTER SHEET -->
+<!-- FILTER SHEET (host only) -->
 <div class="sheet" id="filter-sheet">
   <div class="sh-handle"></div>
   <div class="sh-hdr"><span class="sh-title">Video Filters</span><button class="sh-close" id="fs-cl"><span class="ms" style="font-size:14px;">close</span></button></div>
@@ -364,6 +406,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pl
       <div class="acard"><div class="albl">Live Gems</div><div class="aval" id="st-gems" style="color:var(--gold);">0</div></div>
     </div>
     <div class="acard"><div class="albl">Duration</div><div class="aval" id="st-dur" style="font-size:19px;">00:00</div></div>
+    <div class="acard"><div class="albl">Call Gems Earned</div><div class="aval" id="st-call-gems" style="color:var(--teal);">0</div></div>
   </div>
 </div>
 
@@ -407,6 +450,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pl
     <img id="caller-ava" src="" alt="">
     <h3 id="caller-name">Caller</h3>
     <p>wants to video call</p>
+    <p class="cprice" id="caller-price-info">Cost: 1000 coins/min</p>
     <div class="cactions">
       <button class="cdecline" id="decline-btn">Decline</button>
       <button class="caccept" id="accept-btn">Accept</button>
@@ -418,6 +462,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pl
 <div id="calling-ov">
   <div class="spin"></div>
   <p style="font-size:14px;font-weight:900;">Calling host…</p>
+  <p id="calling-price" style="font-size:11.5px;color:var(--gold);font-weight:700;"></p>
   <button id="cancel-call">Cancel</button>
 </div>
 
@@ -451,14 +496,14 @@ const ROOM=sp.get("room");
 const IS_HOST=sp.get("host")==="true";
 if(!ROOM){alert("Invalid room");location.href="dashboard.html";}
 const APP_ID="873172a9b2064b1ca97b4f45ee6ed9b5";
-const TOKEN="007eJxTYHC/KnpO5rpCFs8c7+nLQ26yuWXEWpnmB9xS+agWbMxiUa/AYGFubGhulGiZZGRgZpJkmJxoaZ5kkmZimppqlppimWT6+fDtzIZARoackF1MjAwQCOLzMhTl5+fGm1oYG5kYWpgyMAAAgbgfZA==";
+const TOKEN="007eJxTYLhY+e9/xCXvlDiXjK68XT+fffPzeFq3eObdpND3cVkiHs8UGCzMjQ3NjRItk4wMzEySDJMTLc2TTNJMTFNTzVJTLJNML3DdzGwIZGTwNnFmYIRCEJ+XoSg/Pzfe1MzE0sDc3IKBAQBvhCPa";
 const API="https://us-central1-galmet-app.cloudfunctions.net";
 
 /* STATE */
 let agora=null,locAudio=null,locVideo=null;
 let isMuted=false,camFront=true,mirrorOn=false;
 let hostId=null,hostData=null;
-let totalGems=0,viewerCount=0;
+let totalGems=0,viewerCount=0,callGemsEarned=0;
 let selGift={id:null,name:'—',price:0,image:'🎁',anim:'float'};
 let giftQty=1,giftTarget=null;
 let activeFilter='none';
@@ -467,6 +512,8 @@ let userPopTarget=null;
 let streamStart=Date.now(),durIv=null;
 let faceTimer=null,faceCD=30,faceActive=false;
 let isFollowing=false;
+let callPrice=1000;
+let isOnCall=false;
 const sessionStart=new Date();
 
 /* DOM */
@@ -487,6 +534,15 @@ function getWealthLevel(t){if(t<4000)return 0;if(t<30000)return 1;if(t<100000)re
 function wbClass(lv){return`wbg wb${Math.min(lv,10)}`;}
 function wbLabel(lv){const n=['','W1','W2','W3','W4','W5','W6','W7','W8','W9','W10'];return lv>0?(n[Math.min(lv,10)]||''):''}
 
+/* WELCOME BANNER */
+function showWelcome(name,isH){
+  const el=document.getElementById('welcome-banner');
+  document.getElementById('wb-name-txt').textContent=`Welcome, ${name}!`;
+  document.getElementById('wb-sub-txt').textContent=isH?`Welcome to your live room`:`You joined ${hostData?.username||'the host'}'s live!`;
+  el.classList.add('on');
+  setTimeout(()=>el.classList.remove('on'),3500);
+}
+
 /* SHEETS */
 const SHEETS=['host-panel','filter-sheet','gift-sheet','analytics-sheet','share-sheet','end-sheet'];
 function openSheet(id){
@@ -494,7 +550,11 @@ function openSheet(id){
   document.getElementById(id)?.classList.add('on');
   document.getElementById('bd').classList.add('on');
   if(id==='gift-sheet')renderGifts();
-  if(id==='analytics-sheet'){document.getElementById('st-views').textContent=viewerCount;document.getElementById('st-gems').textContent=totalGems;}
+  if(id==='analytics-sheet'){
+    document.getElementById('st-views').textContent=viewerCount;
+    document.getElementById('st-gems').textContent=totalGems;
+    document.getElementById('st-call-gems').textContent=callGemsEarned;
+  }
   if(id==='share-sheet')document.getElementById('share-url').textContent=location.href;
 }
 window.closeAll=(closePop=true)=>{
@@ -504,7 +564,7 @@ window.closeAll=(closePop=true)=>{
 };
 document.getElementById('bd').onclick=()=>closeAll();
 
-/* FILTERS */
+/* FILTERS (host only) */
 const FILTERS=[
   {id:'none',  label:'Original',style:'background:#3a3a3a'},
   {id:'warm',  label:'Warm',    style:'background:linear-gradient(135deg,#e8835a,#f4c97a)'},
@@ -526,12 +586,16 @@ function renderFilters(){
     g.appendChild(el);
   });
 }
-function applyFilter(name){
+async function applyFilter(name){
   activeFilter=name;
   FILTERS.forEach(f=>stage.classList.remove('fw-'+f.id));
   if(name!=='none')stage.classList.add('fw-'+name);
   renderFilters();
   toast('Filter: '+name.charAt(0).toUpperCase()+name.slice(1));
+  // Save filter state to Firestore so it can be reflected (host action only)
+  if(IS_HOST&&hostId){
+    await updateDoc(doc(db,'lives',hostId),{activeFilter:name}).catch(()=>{});
+  }
 }
 
 /* HOST INFO */
@@ -545,61 +609,106 @@ async function loadHost(){
       hostData=u.data();
       document.getElementById('h-name').textContent=hostData.username||'Host';
       document.getElementById('h-ava').src=hostData.photoURL||`https://ui-avatars.com/api/?name=${encodeURIComponent(hostData.username||'H')}&background=1a2e6e&color=fff`;
+      document.getElementById('bs-ava').src=document.getElementById('h-ava').src;
+      document.getElementById('bs-name').textContent=`${hostData.username||'Host'} will be back shortly`;
       const lv=hostData.charmLevel||0;
       document.getElementById('charm-badge').textContent=`Lv ${lv}`;
+      // Load saved call price
+      const liveSnap=await getDoc(doc(db,'lives',hostId));
+      if(liveSnap.exists()&&liveSnap.data().callPrice){
+        callPrice=liveSnap.data().callPrice;
+        document.getElementById('call-price-slider').value=callPrice;
+        document.getElementById('call-price-disp').textContent=callPrice;
+      }
       if(!IS_HOST){
         const ms=await getDoc(doc(db,'users',ME));
         const md=ms.data()||{};
         isFollowing=(md.following||[]).includes(hostId);
         updateFlwBtn();
+        document.getElementById('flw-btn').classList.remove('hide');
       }
     }
   }
 }
 
 /* VIEWERS */
-async function addViewer(){if(!IS_HOST)await setDoc(doc(db,'liveViewers',ROOM,'viewers',ME),{userId:ME,username:MY_NAME,photoURL:MY_AVA,wealthLevel:CU.wealthLevel||0,joinedAt:serverTimestamp()});}
+async function addViewer(){
+  if(!IS_HOST){
+    const ms=await getDoc(doc(db,'users',ME));
+    const md=ms.data()||{};
+    const wl=md.wealthLevel||getWealthLevel(md.totalTopup||0);
+    await setDoc(doc(db,'liveViewers',ROOM,'viewers',ME),{userId:ME,username:MY_NAME,photoURL:MY_AVA,wealthLevel:wl,joinedAt:serverTimestamp()});
+  }
+}
 async function removeViewer(){if(!IS_HOST)await deleteDoc(doc(db,'liveViewers',ROOM,'viewers',ME)).catch(()=>{});}
 function listenViewers(){
+  // Real-time for ALL users
   onSnapshot(collection(db,'liveViewers',ROOM,'viewers'),snap=>{
     viewerCount=snap.size;
     document.getElementById('view-cnt').textContent=viewerCount;
   });
 }
 
-/* CHAT - session only (Firestore used for realtime delivery, not persistence) */
-let sessionMsgs=[];
+/* CALL STATUS: host on call → show back shortly to viewers */
+function listenCallStatus(){
+  onSnapshot(doc(db,'lives',IS_HOST?ME:(hostId||'_')),snap=>{
+    if(!snap.exists())return;
+    const d=snap.data();
+    const onCall=d.onCall===true;
+    if(!IS_HOST){
+      document.getElementById('back-shortly').classList.toggle('on',onCall);
+      if(onCall&&d.callStarted){
+        // Show live call duration to viewers
+        const callSt=d.callStarted.toDate?d.callStarted.toDate().getTime():Date.now();
+        const elapsed=Math.floor((Date.now()-callSt)/1000);
+        const m=Math.floor(elapsed/60),s=elapsed%60;
+        document.getElementById('bs-call-dur').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      }else{
+        document.getElementById('bs-call-dur').textContent='';
+      }
+    }
+  });
+}
+
+/* CHAT - realtime for ALL users */
+let seenMsgIds=new Set();
 function listenChat(){
   const q=query(collection(db,'liveChat',ROOM,'messages'),orderBy('ts','desc'),limit(100));
   onSnapshot(q,snap=>{
     const all=[];
     snap.forEach(d=>{
       const dd=d.data();
-      // Only show messages from this session
-      if(dd.ts&&dd.ts.toDate()>=sessionStart)all.push(dd);
+      if(dd.ts&&dd.ts.toDate()>=sessionStart)all.push({id:d.id,...dd});
     });
     all.sort((a,b)=>(a.ts?.toMillis()||0)-(b.ts?.toMillis()||0));
-    sessionMsgs=all;
-    renderChat();
-    // Play gift animations for new gift messages
+    renderChat(all);
+    // Gift anims for new messages from others
     snap.docChanges().forEach(ch=>{
-      if(ch.type==='added'){
+      if(ch.type==='added'&&!seenMsgIds.has(ch.doc.id)){
+        seenMsgIds.add(ch.doc.id);
         const dd=ch.doc.data();
         if(dd.type==='gift'&&dd.ts&&dd.ts.toDate()>=sessionStart&&dd.uid!==ME){
           const g=giftsData.find(x=>x.id===dd.giftId)||(dd.img?{image:dd.img,anim:'float'}:{image:'🎁',anim:'float'});
           playGiftAnim(dd.img||g.image||'🎁',g.anim||'float',dd.name||'',dd.giftName||'',dd.qty||1);
         }
+        // Welcome banner for join messages
+        if(dd.type==='join'&&dd.ts&&dd.ts.toDate()>=sessionStart&&dd.uid===ME){
+          showWelcome(MY_NAME,IS_HOST);
+        }
       }
     });
   });
 }
-function renderChat(){
+function renderChat(msgs){
   chatBox.innerHTML='';
-  sessionMsgs.slice(-35).forEach(m=>{
+  msgs.slice(-35).forEach(m=>{
     const div=document.createElement('div');
     if(m.type==='join'){
       div.className='cmsg jmsg';
       div.innerHTML=`✨ <strong>${esc(m.name)}</strong> joined`;
+    }else if(m.type==='leave'){
+      div.className='cmsg lmsg';
+      div.innerHTML=`👋 <strong>${esc(m.name)}</strong> left`;
     }else if(m.type==='gift'){
       div.className='cmsg gmsg';
       div.innerHTML=`${esc(m.img||'🎁')} <strong>${esc(m.name)}</strong> sent ${esc(m.giftName)}${(m.qty||1)>1?` ×${m.qty}`:''}`;
@@ -627,18 +736,12 @@ async function sendChat(text){
 
 /* GIFTS */
 const BUILTIN=[
-  {id:'rose',  name:'Rose',      coinPrice:1,   image:'🌹',anim:'float'},
-  {id:'heart', name:'Heart',     coinPrice:5,   image:'💝',anim:'float'},
-  {id:'kiss',  name:'Kiss',      coinPrice:10,  image:'💋',anim:'slide'},
-  {id:'star',  name:'Star',      coinPrice:20,  image:'⭐',anim:'float'},
-  {id:'fire',  name:'Fire',      coinPrice:50,  image:'🔥',anim:'float'},
-  {id:'crown', name:'Crown',     coinPrice:100, image:'👑',anim:'slide'},
-  {id:'rocket',name:'Rocket',    coinPrice:200, image:'🚀',anim:'burst'},
-  {id:'gem',   name:'Gem',       coinPrice:500, image:'💎',anim:'burst'},
-  {id:'castle',name:'Castle',    coinPrice:1000,image:'🏰',anim:'rain'},
-  {id:'jet',   name:'Private Jet',coinPrice:2000,image:'✈️',anim:'rain'},
-  {id:'yacht', name:'Yacht',     coinPrice:5000,image:'🛥️',anim:'burst'},
-  {id:'planet',name:'Planet',    coinPrice:10000,image:'🌍',anim:'rain'},
+  {id:'rose',name:'Rose',coinPrice:1,image:'🌹',anim:'float'},{id:'heart',name:'Heart',coinPrice:5,image:'💝',anim:'float'},
+  {id:'kiss',name:'Kiss',coinPrice:10,image:'💋',anim:'slide'},{id:'star',name:'Star',coinPrice:20,image:'⭐',anim:'float'},
+  {id:'fire',name:'Fire',coinPrice:50,image:'🔥',anim:'float'},{id:'crown',name:'Crown',coinPrice:100,image:'👑',anim:'slide'},
+  {id:'rocket',name:'Rocket',coinPrice:200,image:'🚀',anim:'burst'},{id:'gem',name:'Gem',coinPrice:500,image:'💎',anim:'burst'},
+  {id:'castle',name:'Castle',coinPrice:1000,image:'🏰',anim:'rain'},{id:'jet',name:'Private Jet',coinPrice:2000,image:'✈️',anim:'rain'},
+  {id:'yacht',name:'Yacht',coinPrice:5000,image:'🛥️',anim:'burst'},{id:'planet',name:'Planet',coinPrice:10000,image:'🌍',anim:'rain'},
 ];
 let giftsData=[...BUILTIN];
 async function loadGifts(){
@@ -671,10 +774,8 @@ async function doSendGift(targetId){
     const r=await fetch(`${API}/sendGift`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({senderId:ME,receiverId:tid,giftId:selGift.id,quantity:giftQty})});
     const json=await r.json();
     if(json.error){toast('❌ '+json.error);return;}
-    // Refresh my coins
     const ms=await getDoc(doc(db,'users',ME));
     document.getElementById('my-coins').textContent=ms.data()?.coins||0;
-    // Log to live chat
     await addDoc(collection(db,'liveChat',ROOM,'messages'),{type:'gift',uid:ME,name:MY_NAME,ava:MY_AVA,giftId:selGift.id,giftName:selGift.name,img:selGift.image,qty:giftQty,ts:serverTimestamp()});
     playGiftAnim(selGift.image,selGift.anim,MY_NAME,selGift.name,giftQty);
     closeAll();
@@ -733,9 +834,22 @@ function showUpop(el,e){
   pop.classList.add('on');
 }
 function closeUpop(){document.getElementById('upop').classList.remove('on');userPopTarget=null;}
-// Click stage/vg → dismiss everything
 stage.addEventListener('click',()=>{closeUpop();closeAll();});
 document.getElementById('vg').addEventListener('click',()=>{closeUpop();closeAll();});
+
+/* MIRROR: apply mirror to video element directly (affects own view, not remote stream) */
+function applyMirror(){
+  const lw=document.getElementById('local-wrap');
+  if(lw){
+    const vids=lw.querySelectorAll('video');
+    vids.forEach(v=>v.style.transform=mirrorOn?'scaleX(-1)':'none');
+  }
+  document.getElementById('mir-lbl').textContent=mirrorOn?'On':'Off';
+  // Save to Firestore so viewers know
+  if(IS_HOST&&hostId){
+    updateDoc(doc(db,'lives',hostId),{mirrorMode:mirrorOn}).catch(()=>{});
+  }
+}
 
 /* AGORA */
 async function startAgora(){
@@ -743,47 +857,59 @@ async function startAgora(){
   await agora.setClientRole(IS_HOST?'host':'audience');
   await agora.join(APP_ID,ROOM,TOKEN,null);
   if(IS_HOST){
-    [locAudio,locVideo]=await AgoraRTC.createMicrophoneAndCameraTracks({},{facingMode:camFront?'user':'environment',encoderConfig:'720p_1'});
+    try{
+      [locAudio,locVideo]=await AgoraRTC.createMicrophoneAndCameraTracks({},{facingMode:camFront?'user':'environment',encoderConfig:'720p_1'});
+    }catch(e){
+      toast('Camera/mic error: '+e.message);
+      load.classList.add('gone');return;
+    }
     const lw=document.createElement('div');lw.id='local-wrap';lw.style.cssText='position:absolute;inset:0;';
     stage.appendChild(lw);
     locVideo.play('local-wrap');
-    syncMirror();
     await agora.publish([locAudio,locVideo]);
-    // Camera enabled monitoring for face timer
     monitorFace();
   }
   agora.on('user-published',async(user,mt)=>{
     await agora.subscribe(user,mt);
-    if(mt==='video'){const w=document.createElement('div');w.id='rem-'+user.uid;w.style.cssText='position:absolute;inset:0;';stage.appendChild(w);user.videoTrack.play('rem-'+user.uid);}
+    if(mt==='video'){
+      const w=document.createElement('div');w.id='rem-'+user.uid;w.style.cssText='position:absolute;inset:0;';
+      stage.appendChild(w);
+      user.videoTrack.play('rem-'+user.uid);
+    }
     if(mt==='audio')user.audioTrack.play();
   });
   agora.on('user-unpublished',user=>{document.getElementById('rem-'+user.uid)?.remove();});
   agora.on('user-left',user=>{document.getElementById('rem-'+user.uid)?.remove();});
   load.classList.add('gone');setTimeout(()=>load.style.display='none',550);
 }
-function syncMirror(){
-  const lw=document.getElementById('local-wrap');
-  if(lw){lw.style.transform=mirrorOn?'scaleX(-1)':'none';}
-}
+
 async function toggleMic(){
-  if(!locAudio)return;isMuted=!isMuted;await locAudio.setEnabled(!isMuted);
+  if(!locAudio)return;
+  isMuted=!isMuted;
+  await locAudio.setEnabled(!isMuted);
   document.getElementById('mic-icon').textContent=isMuted?'mic_off':'mic';
   document.getElementById('mic-lbl').textContent=isMuted?'Muted':'Active';
   document.getElementById('mic-tog').checked=!isMuted;
-  toast(isMuted?'Mic muted':'Mic on');
+  toast(isMuted?'🔇 Mic muted':'🎙️ Mic on');
 }
+
 async function flipCamera(){
-  if(!locVideo)return;camFront=!camFront;
-  const nt=await AgoraRTC.createCameraVideoTrack({facingMode:camFront?'user':'environment',encoderConfig:'720p_1'});
-  await agora.unpublish(locVideo);locVideo.close();locVideo=nt;
-  locVideo.play('local-wrap');syncMirror();await agora.publish(locVideo);
-  document.getElementById('cam-lbl').textContent=camFront?'Front-facing':'Rear-facing';
-  toast('Camera: '+(camFront?'Front':'Rear'));
+  if(!locVideo||!agora)return;
+  camFront=!camFront;
+  try{
+    await agora.unpublish(locVideo);
+    locVideo.close();
+    locVideo=await AgoraRTC.createCameraVideoTrack({facingMode:camFront?'user':'environment',encoderConfig:'720p_1'});
+    locVideo.play('local-wrap');
+    if(mirrorOn)applyMirror();
+    await agora.publish(locVideo);
+    document.getElementById('cam-lbl').textContent=camFront?'Front-facing':'Rear-facing';
+    toast('Camera: '+(camFront?'Front':'Rear'));
+  }catch(e){toast('Camera flip failed: '+e.message);}
 }
 
 /* FACE TIMER */
 function monitorFace(){
-  // Check every second if camera is enabled
   setInterval(()=>{
     if(!locVideo)return;
     if(!locVideo.enabled){if(!faceActive)startFaceCD();}
@@ -798,7 +924,6 @@ function startFaceCD(){
     faceCD--;
     document.getElementById('fw-num').textContent=faceCD;
     document.getElementById('fw-sec').textContent=faceCD;
-    // circumference of r=40 circle: 2*π*40≈251
     document.getElementById('fw-prog').style.strokeDashoffset=251*(1-faceCD/30);
     if(faceCD<=0){clearInterval(faceTimer);endStream();}
   },1000);
@@ -814,9 +939,12 @@ async function requestCall(){
   if(ME===hostId)return;
   try{await navigator.mediaDevices.getUserMedia({video:true,audio:true});}catch{toast('Camera permission required');return;}
   const ms=await getDoc(doc(db,'users',ME));
-  if((ms.data()?.coins||0)<1000){toast('Need 1000 coins to call');return;}
+  const coins=ms.data()?.coins||0;
+  if(coins<callPrice){toast(`Need at least ${callPrice} coins to call`);return;}
+  // Show price in calling overlay
+  document.getElementById('calling-price').textContent=`${callPrice} coins/min`;
   const ref=doc(db,'calls',ROOM);
-  await setDoc(ref,{callerId:ME,callerName:MY_NAME,callerAvatar:MY_AVA,hostId,status:'waiting',createdAt:serverTimestamp()});
+  await setDoc(ref,{callerId:ME,callerName:MY_NAME,callerAvatar:MY_AVA,hostId,callPrice,status:'waiting',createdAt:serverTimestamp()});
   document.getElementById('calling-ov').classList.add('on');
   onSnapshot(ref,s=>{
     if(!s.exists()){document.getElementById('calling-ov').classList.remove('on');return;}
@@ -825,19 +953,21 @@ async function requestCall(){
     else if(d.status==='rejected'){toast('Call declined');document.getElementById('calling-ov').classList.remove('on');deleteDoc(ref).catch(()=>{});}
   });
 }
+
 function listenCalls(){
   if(!IS_HOST)return;
   onSnapshot(doc(db,'calls',ROOM),snap=>{
     if(snap.exists()&&snap.data().status==='waiting'){
       callDoc=snap.data();
+      const price=callDoc.callPrice||callPrice;
       document.getElementById('caller-ava').src=callDoc.callerAvatar||'';
       document.getElementById('caller-name').textContent=callDoc.callerName||'Caller';
+      document.getElementById('caller-price-info').textContent=`Cost: ${price} coins/min`;
       document.getElementById('cmodal').classList.add('on');
-      // Show in settings panel
       const area=document.getElementById('call-pending-area');
       area.innerHTML=`<div class="mrow" style="background:rgba(26,160,92,.1);border:1px solid rgba(26,160,92,.2);border-radius:12px;margin:0 3px;">
         <span class="ms" style="color:#1a9e5c;">video_call</span>
-        <div class="ml"><p>${esc(callDoc.callerName)}</p><small style="color:#1a9e5c;">Waiting…</small></div>
+        <div class="ml"><p>${esc(callDoc.callerName)}</p><small style="color:#1a9e5c;">${price} coins/min · Waiting…</small></div>
         <div style="display:flex;gap:5px;">
           <button onclick="acceptCall()" style="background:#1a9e5c;color:#fff;border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:900;cursor:pointer;font-family:inherit;">Accept</button>
           <button onclick="declineCall()" style="background:#b01838;color:#fff;border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:900;cursor:pointer;font-family:inherit;">Decline</button>
@@ -849,13 +979,24 @@ function listenCalls(){
     }
   });
 }
-window.acceptCall=async()=>{await updateDoc(doc(db,'calls',ROOM),{status:'accepted'});location.href=`call.html?room=${ROOM}&callerId=${callDoc.callerId}&hostId=${ME}`;};
-window.declineCall=async()=>{await updateDoc(doc(db,'calls',ROOM),{status:'rejected'});document.getElementById('cmodal').classList.remove('on');};
+
+window.acceptCall=async()=>{
+  await updateDoc(doc(db,'calls',ROOM),{status:'accepted'});
+  // Mark host as on call
+  if(hostId)await updateDoc(doc(db,'lives',hostId),{onCall:true,callStarted:serverTimestamp()}).catch(()=>{});
+  location.href=`call.html?room=${ROOM}&callerId=${callDoc.callerId}&hostId=${ME}`;
+};
+window.declineCall=async()=>{
+  await updateDoc(doc(db,'calls',ROOM),{status:'rejected'});
+  document.getElementById('cmodal').classList.remove('on');
+};
 
 /* END */
 async function endStream(){
   clearInterval(faceTimer);clearInterval(durIv);
   if(IS_HOST)await deleteDoc(doc(db,'lives',ME)).catch(()=>{});
+  // Leave chat message
+  await addDoc(collection(db,'liveChat',ROOM,'messages'),{type:'leave',uid:ME,name:MY_NAME+(IS_HOST?' (Host)':''),ava:MY_AVA,ts:serverTimestamp()}).catch(()=>{});
   await removeViewer();
   if(agora){locAudio?.close();locVideo?.close();await agora.leave().catch(()=>{});}
   location.href='dashboard.html';
@@ -873,25 +1014,33 @@ function startDur(){
 cinput.addEventListener('input',()=>{cinput.value.trim()?sendBtn.classList.add('vis'):sendBtn.classList.remove('vis');});
 cinput.addEventListener('keypress',e=>{if(e.key==='Enter')sendChat(cinput.value);});
 sendBtn.onclick=()=>sendChat(cinput.value);
-document.getElementById('filter-btn').onclick=()=>{renderFilters();openSheet('filter-sheet');};
 document.getElementById('gift-btn').onclick=()=>{giftTarget=null;document.getElementById('do-gift').onclick=()=>doSendGift(null);openSheet('gift-sheet');};
-document.getElementById('analytics-btn').onclick=()=>openSheet('analytics-sheet');
 document.getElementById('share-btn').onclick=()=>openSheet('share-sheet');
-document.getElementById('end-btn').onclick=()=>openSheet('end-sheet');
 document.getElementById('flw-btn').onclick=toggleFollow;
 document.getElementById('hsb').onclick=()=>openSheet('host-panel');
-// Sheet closes
 ['hp-cl','fs-cl','gs-cl','as-cl','ss-cl','es-cl'].forEach(id=>document.getElementById(id).onclick=closeAll);
 document.getElementById('end-save').onclick=endStream;
 document.getElementById('end-now').onclick=endStream;
 document.getElementById('end-cancel').onclick=closeAll;
 document.getElementById('copy-link').onclick=()=>{navigator.clipboard.writeText(location.href);toast('Link copied!');};
-// Host panel
-document.getElementById('mir-tog').onchange=e=>{mirrorOn=e.target.checked;syncMirror();document.getElementById('mir-lbl').textContent=mirrorOn?'On':'Off';};
-document.getElementById('mic-tog').onchange=toggleMic;
+// Host panel controls
+document.getElementById('mir-tog').onchange=e=>{mirrorOn=e.target.checked;applyMirror();};
+document.getElementById('mic-tog').onchange=()=>toggleMic();
 document.getElementById('flip-row').onclick=flipCamera;
 document.getElementById('fs-row').onclick=()=>{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();closeAll();};
-// Calls
+// Call price slider
+document.getElementById('call-price-slider').oninput=e=>{
+  callPrice=parseInt(e.target.value);
+  document.getElementById('call-price-disp').textContent=callPrice;
+};
+document.getElementById('save-price-btn').onclick=async()=>{
+  if(hostId){
+    await updateDoc(doc(db,'lives',hostId),{callPrice}).catch(()=>{});
+    toast(`Call price set: ${callPrice} coins/min ✓`);
+    closeAll();
+  }
+};
+// Call actions
 document.getElementById('accept-btn').onclick=()=>window.acceptCall();
 document.getElementById('decline-btn').onclick=()=>window.declineCall();
 document.getElementById('cancel-call').onclick=async()=>{document.getElementById('calling-ov').classList.remove('on');await deleteDoc(doc(db,'calls',ROOM)).catch(()=>{});};
@@ -899,19 +1048,26 @@ document.getElementById('cancel-call').onclick=async()=>{document.getElementById
 document.getElementById('upop-gift-btn').onclick=()=>{if(!userPopTarget)return;const t=userPopTarget;closeUpop();giftTarget=t.uid;document.getElementById('do-gift').onclick=()=>doSendGift(t.uid);openSheet('gift-sheet');};
 document.getElementById('upop-view-btn').onclick=()=>{if(userPopTarget)location.href=`view.html?uid=${userPopTarget.uid}`;};
 
-/* HOST / VIEWER UI */
+/* HOST / VIEWER UI SETUP */
 if(IS_HOST){
   document.getElementById('hsb').classList.add('show');
+  document.getElementById('end-btn').style.display='flex';
+  document.getElementById('analytics-btn').style.display='flex';
+  // Add filter button for host only
+  const fb=document.createElement('button');
+  fb.className='bbbtn bb-filter';
+  fb.id='filter-btn';
+  fb.innerHTML='<span class="ms f" style="font-size:18px;">auto_fix_high</span>';
+  fb.onclick=()=>{renderFilters();openSheet('filter-sheet');};
+  document.getElementById('bbar').insertBefore(fb,document.getElementById('gift-btn'));
 }else{
-  document.getElementById('end-btn').style.display='none';
-  document.getElementById('analytics-btn').style.display='none';
-  document.getElementById('hsb').style.display='none';
   // Add call button for viewers
   const cb=document.createElement('button');
   cb.className='bbbtn bb-call';
   cb.innerHTML='<span class="ms f" style="font-size:18px;">video_call</span>';
-  cb.onclick=requestCall;cb.title='Call Host (1000 coins)';
-  document.getElementById('bbar').insertBefore(cb,document.getElementById('filter-btn'));
+  cb.onclick=requestCall;
+  cb.title='Call Host';
+  document.getElementById('bbar').insertBefore(cb,document.getElementById('gift-btn'));
 }
 
 /* INIT */
@@ -924,13 +1080,25 @@ if(IS_HOST){
     listenViewers();
     listenChat();
     listenCalls();
+    listenCallStatus();
     startDur();
     // My coins
     const ms=await getDoc(doc(db,'users',ME));
     const md=ms.data()||{};
     document.getElementById('my-coins').textContent=md.coins||0;
-    // Live gems + charm badge realtime
-    if(hostId){
+    // Track call gems for host
+    if(IS_HOST&&hostId){
+      onSnapshot(doc(db,'users',hostId),snap=>{
+        const d=snap.data()||{};
+        document.getElementById('gems-cnt').textContent=d.gems||0;
+        totalGems=d.gems||0;
+        const earned=d.callGemsEarned||0;
+        callGemsEarned=earned;
+        const lv=d.charmLevel||getCharmLevel(Math.max(d.monthlyGems||0,d.lastMonthGems||0));
+        document.getElementById('charm-badge').textContent=`Lv ${lv}`;
+      });
+    }else if(hostId){
+      // Viewers also see gems in real time
       onSnapshot(doc(db,'users',hostId),snap=>{
         const d=snap.data()||{};
         document.getElementById('gems-cnt').textContent=d.gems||0;
@@ -939,16 +1107,27 @@ if(IS_HOST){
         document.getElementById('charm-badge').textContent=`Lv ${lv}`;
       });
     }
-    // Join message
+    // Join message (everyone)
     const wl=md.wealthLevel||getWealthLevel(md.totalTopup||0);
     await addDoc(collection(db,'liveChat',ROOM,'messages'),{type:'join',uid:ME,name:MY_NAME+(IS_HOST?' (Host)':''),ava:MY_AVA,wealthLevel:wl,ts:serverTimestamp()});
+    // Call price update for viewer UI
+    if(!IS_HOST&&hostId){
+      onSnapshot(doc(db,'lives',hostId),snap=>{
+        if(snap.exists()&&snap.data().callPrice){
+          callPrice=snap.data().callPrice;
+        }
+      });
+    }
   }catch(err){
     console.error(err);
     load.innerHTML=`<div style="text-align:center;padding:24px;"><p style="color:#ff3d6e;font-size:13px;font-weight:700;">Failed to join</p><p style="color:var(--muted);font-size:11px;margin-top:6px;">${err.message}</p><a href="dashboard.html" style="color:var(--blue);font-size:12px;margin-top:12px;display:block;">← Back</a></div>`;
   }
 })();
 
-window.addEventListener('beforeunload',()=>removeViewer().catch(()=>{}));
+window.addEventListener('beforeunload',()=>{
+  removeViewer().catch(()=>{});
+  if(IS_HOST)updateDoc(doc(db,'lives',ME),{onCall:false}).catch(()=>{});
+});
 </script>
 </body>
 </html>
