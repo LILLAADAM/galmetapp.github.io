@@ -591,7 +591,12 @@ async function loadRoom(){
   // Register as viewer
   await registerPresence();
 }
-
+setInterval(async ()=>{
+  await updateDoc(doc(db,"rooms",roomId,"viewers",myId),{
+    lastSeen: serverTimestamp()
+  }).catch(()=>{});
+}, 10000);
+  
 function updateSeatModeLabel(){
   G("seatModeLbl").innerText=seatMode===8?"Switch to 12 Seats":"Switch to 8 Seats";
 }
@@ -1195,6 +1200,10 @@ window.addEventListener("beforeunload",()=>{
   if(iAmOnSeat)deleteDoc(doc(db,"rooms",roomId,"members",myId)).catch(()=>{});
 });
 
+window.addEventListener("beforeunload", async ()=>{
+  await deleteDoc(doc(db,"rooms",roomId,"viewers",myId));
+});
+  
 // ── Load historical coins ranking from transactions ──
 async function loadCoinRanking(){
   try{
