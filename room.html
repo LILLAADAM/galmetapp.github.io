@@ -1200,10 +1200,21 @@ G("chatHalfTop").onclick=()=>hp("chatHalf");
 G("chatHalfClose").onclick=()=>hp("chatHalf");
 
 // ── Presence heartbeat & cleanup ──
-setInterval(async()=>{
-  const vd=doc(db,"rooms",roomId,"viewers",myId);
-  await updateDoc(vd,{lastSeen:serverTimestamp()}).catch(()=>{});
-  if(iAmOnSeat){const md=doc(db,"rooms",roomId,"members",myId);await updateDoc(md,{lastSeen:serverTimestamp()}).catch(()=>{});}
+setInterval(async ()=>{
+  const vd = doc(db,"rooms",roomId,"viewers",myId);
+
+  await updateDoc(vd,{
+    lastSeen: serverTimestamp()
+  }).catch(()=>{});
+
+  if(iAmOnSeat){
+    const md = doc(db,"rooms",roomId,"members",myId);
+
+    await updateDoc(md,{
+      lastSeen: serverTimestamp()
+    }).catch(()=>{});
+  }
+
 },30000);
 window.addEventListener("beforeunload", ()=>{
   deleteDoc(doc(db,"rooms",roomId,"viewers",myId)).catch(()=>{});
