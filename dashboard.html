@@ -9,50 +9,36 @@
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script>
     tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            "surface": "#f3f7fb",
-            "surface-container-low": "#ecf1f6",
-            "surface-container-lowest": "#ffffff",
-            "on-surface": "#2a2f32",
-            "on-surface-variant": "#575c60",
-            "primary": "#006571",
-            "primary-container": "#00e3fd",
-            "primary-dim": "#005863",
-            "secondary": "#755700",
-            "tertiary": "#b60051",
-            "outline": "#73777b",
-            "outline-variant": "#a9aeb1",
-            "error": "#b31b25"
-          },
-          fontFamily: {
-            "headline": ["Plus Jakarta Sans"],
-            "body": ["Be Vietnam Pro"],
-            "label": ["Plus Jakarta Sans"]
-          },
-          borderRadius: { DEFAULT: "1rem", lg: "2rem", xl: "3rem", full: "9999px" }
-        }
-      }
+      darkMode:"class",
+      theme:{extend:{colors:{"surface":"#f3f7fb","surface-container-low":"#ecf1f6","surface-container-lowest":"#ffffff","on-surface":"#2a2f32","on-surface-variant":"#575c60","primary":"#006571","primary-container":"#00e3fd","primary-dim":"#005863","secondary":"#755700","tertiary":"#b60051","outline":"#73777b","outline-variant":"#a9aeb1","error":"#b31b25"},fontFamily:{"headline":["Plus Jakarta Sans"],"body":["Be Vietnam Pro"],"label":["Plus Jakarta Sans"]},borderRadius:{DEFAULT:"1rem",lg:"2rem",xl:"3rem",full:"9999px"}}}
     }
   </script>
   <style>
-    .material-symbols-outlined {
-      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-    }
-    .hide-scrollbar::-webkit-scrollbar { display: none; }
-    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    body {
-      min-height: 100dvh;
-      background: #f3f7fb;
-    }
+    .material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;}
+    .filled{font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;}
+    .hide-scrollbar::-webkit-scrollbar{display:none;}
+    .hide-scrollbar{-ms-overflow-style:none;scrollbar-width:none;}
+    body{min-height:100dvh;background:#f3f7fb;}
+    /* Charm badge colours matching view.html */
+    .cl0{background:linear-gradient(135deg,#9ca3af,#6b7280);color:#fff;}
+    .cl1{background:linear-gradient(135deg,#a7f3d0,#34d399);color:#065f46;}
+    .cl2{background:linear-gradient(135deg,#99f6e4,#2dd4bf);color:#134e4a;}
+    .cl3{background:linear-gradient(135deg,#93c5fd,#3b82f6);color:#1e3a5f;}
+    .cl4{background:linear-gradient(135deg,#c4b5fd,#8b5cf6);color:#fff;}
+    .cl5{background:linear-gradient(135deg,#f0abfc,#d946ef);color:#fff;}
+    .cl6{background:linear-gradient(135deg,#fbcfe8,#f472b6);color:#831843;}
+    .cl7{background:linear-gradient(135deg,#fecaca,#ef4444);color:#fff;}
+    .cl8{background:linear-gradient(135deg,#fed7aa,#f97316);color:#fff;}
+    .cl9{background:linear-gradient(135deg,#fde68a,#f59e0b);color:#78350f;}
+    .cl10{background:linear-gradient(135deg,#fef08a,#eab308);color:#713f12;}
+    .live-card-badge{font-size:7px;font-weight:900;padding:1.5px 5px;border-radius:99px;display:inline-block;}
+    #lives-grid{background:#e8ecf0;}
   </style>
 </head>
 <body class="bg-background text-on-background font-body selection:bg-primary-container">
 
-<!-- ================= TOP APP BAR ================= -->
-<header class="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-xl flex justify-between items-center px-4 py-2.5 border-b border-surface-container-high">
+<!-- TOP APP BAR -->
+<header class="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-xl flex justify-between items-center px-4 py-2.5 border-b border-slate-100">
   <div class="flex items-center gap-2">
     <div id="balancePill" class="bg-surface-container-low px-3 py-1 rounded-full flex items-center gap-1.5 border border-surface-container">
       <span id="balanceIcon" class="material-symbols-outlined text-primary text-base">monetization_on</span>
@@ -61,38 +47,21 @@
     </div>
   </div>
   <div class="flex items-center gap-1.5">
-    <button onclick="alert('Leaderboard coming soon')" class="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container-high/40 hover:bg-surface-container-high/60 transition-colors">
+    <button onclick="location.href='invitesrank.html'" class="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container-high/40 hover:bg-surface-container-high/60 transition-colors">
       <span class="material-symbols-outlined text-primary text-lg">trophy</span>
     </button>
-    <button onclick="alert('Calendar coming soon')" class="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container-high/40 hover:bg-surface-container-high/60 transition-colors">
-      <span class="material-symbols-outlined text-primary text-lg">calendar_today</span>
-    </button>
-    <!-- CREATE BUTTON (replaces topup) -->
-    <button onclick="openCreateOptions()" class="w-8 h-8 flex items-center justify-center rounded-full bg-primary text-on-primary shadow-sm active:scale-95 transition-transform ml-0.5">
-      <span class="material-symbols-outlined text-lg">add</span>
+    <button onclick="location.href='chats.html'" class="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container-high/40 hover:bg-surface-container-high/60 transition-colors">
+      <span class="material-symbols-outlined text-primary text-lg">chat_bubble</span>
     </button>
   </div>
 </header>
 
-<main class="pt-14 pb-28 px-0 max-w-2xl mx-auto">
+<main class="pt-14 pb-36 px-0 max-w-2xl mx-auto">
   <!-- Filter Tabs -->
-  <div class="flex gap-6 px-4 py-2 sticky top-12.5 z-40 bg-background/90 backdrop-blur-md overflow-x-auto hide-scrollbar border-b border-surface-container">
-    <button class="font-headline font-bold text-slate-400 text-[13px] whitespace-nowrap">New</button>
-    <button class="font-headline font-bold text-primary dark:text-primary-fixed text-[13px] border-b-2 border-primary pb-0.5 whitespace-nowrap">Popular</button>
-    <button class="font-headline font-bold text-slate-400 text-[13px] whitespace-nowrap">For you</button>
-  </div>
-
-  <!-- Live Streams Section (REAL TIME) -->
-  <div class="px-4 mb-6">
-    <div class="flex justify-between items-center mb-3">
-      <h2 class="font-headline font-bold text-[11px] flex items-center gap-2 uppercase tracking-[0.15em] text-on-surface">
-        <span class="material-symbols-outlined text-red-500 text-lg" style="font-variation-settings:'FILL'1">fiber_manual_record</span> LIVE NOW
-      </h2>
-      <span id="liveCount" class="text-[9px] text-outline">0 active</span>
-    </div>
-    <div id="liveStreamsContainer" class="flex gap-3 overflow-x-auto hide-scrollbar pb-2">
-      <p class="text-xs text-outline">Loading live streams...</p>
-    </div>
+  <div class="flex gap-6 px-4 py-2 sticky top-12 z-40 bg-white/90 backdrop-blur-md overflow-x-auto hide-scrollbar border-b border-slate-100">
+    <button id="tab-popular" class="font-headline font-bold text-primary text-[13px] border-b-2 border-primary pb-0.5 whitespace-nowrap">Popular</button>
+    <button id="tab-new" class="font-headline font-bold text-slate-400 text-[13px] whitespace-nowrap">New</button>
+    <button id="tab-foryou" class="font-headline font-bold text-slate-400 text-[13px] whitespace-nowrap">For you</button>
   </div>
 
   <!-- Banner -->
@@ -101,90 +70,58 @@
       <img alt="Promo Banner" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGQy2tG8boynppF4-SdmUIA6Jbd5zPAxfMopCDz0A67AZmZC6LXfZh7iXVnmk6YuvYzmoF2pM96uKY9IquY62hJzzoc8692ayS1qEkw0OW9NUJRYBVoTd2uNL6kEI0zXIj3RUaRnVxuDVuC61qYCgY8PIYm1CFDf_h3lqCUDLik-hjT6FpDwZlrlxuNiBAHJeVAjUlVsXRih6qfEsRKPtTGROVrFChcE-eSv8fw1ORRHmYGWI8IpyASfrGvJgupjhfpOTcgBWEPraZ">
       <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent flex flex-col justify-center p-4">
         <h3 class="text-white font-headline font-extrabold text-sm leading-tight">To be Agent<br/>To be Millionaire</h3>
-        <button onclick="window.location.href='invitesrank.html'" class="mt-1.5 bg-secondary text-on-secondary-fixed text-[9px] font-bold px-2.5 py-0.5 rounded-none w-fit uppercase tracking-wider">Join Now</button>
+        <button onclick="window.location.href='invitesrank.html'" class="mt-1.5 bg-secondary text-white text-[9px] font-bold px-2.5 py-0.5 rounded-none w-fit uppercase tracking-wider">Join Now</button>
       </div>
     </div>
     <div class="min-w-full h-24 relative overflow-hidden snap-center flex-shrink-0">
-      <img alt="Promo Banner 2" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGQy2tG8boynppF4-SdmUIA6Jbd5zPAxfMopCDz0A67AZmZC6LXfZh7iXVnmk6YuvYzmoF2pM96uKY9IquY62hJzzoc8692ayS1qEkw0OW9NUJRYBVoTd2uNL6kEI0zXIj3RUaRnVxuDVuC61qYCgY8PIYm1CFDf_h3lqCUDLik-hjT6FpDwZlrlxuNiBAHJeVAjUlVsXRih6qfEsRKPtTGROVrFChcE-eSv8fw1ORRHmYGWI8IpyASfrGvJgupjhfpOTcgBWEPraZ">
-      <div class="absolute inset-0 bg-gradient-to-r from-primary/90 to-transparent flex flex-col justify-center p-4">
+      <div class="w-full h-full bg-gradient-to-r from-primary to-teal-400 flex flex-col justify-center p-4">
         <h3 class="text-white font-headline font-extrabold text-sm leading-tight">Summer Carnival<br/>Gifts &amp; Rewards</h3>
         <button onclick="alert('Coming soon')" class="mt-1.5 bg-white text-primary text-[9px] font-bold px-2.5 py-0.5 rounded-none w-fit uppercase tracking-wider">View Rules</button>
       </div>
     </div>
   </div>
 
-  <!-- Rising Stars (static) -->
-  <section class="mb-6 px-4">
+  <!-- Rising Stars (real live users) -->
+  <section class="mb-5 px-4">
     <div class="flex justify-between items-center mb-3">
       <h2 class="font-headline font-bold text-[11px] flex items-center gap-2 uppercase tracking-[0.15em] text-on-surface">
-        <span class="material-symbols-outlined text-tertiary text-lg" style="font-variation-settings:'FILL'1">stars</span> RISING STARS
+        <span class="material-symbols-outlined filled text-tertiary text-lg">stars</span> RISING STARS
       </h2>
+      <span id="rising-count" class="text-[9px] text-outline">0 live</span>
     </div>
-    <div class="flex gap-5 overflow-x-auto hide-scrollbar pb-1">
-      <!-- static profiles – you can later replace with real data -->
-      <div class="flex flex-col items-center gap-1 min-w-[56px] cursor-pointer" onclick="window.location.href='view.html?id=1'">
-        <div class="relative w-14 h-14">
-          <div class="absolute -top-1 right-0 z-10 w-3 h-3 bg-tertiary border-2 border-white rounded-full animate-pulse"></div>
-          <div class="w-full h-full rounded-full p-[2px] bg-gradient-to-tr from-primary to-tertiary">
-            <div class="w-full h-full rounded-full border border-background overflow-hidden bg-surface-container">
-              <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDW8MDVC4oGcpdfL3Z-Rdwc3TdbWTUo5LMbi7ySLA_Qd53zDpuJJF1gNoFtSTdljQ8SM2me4-bMt7xzSSZ1-9fJwG33dYXNZVz1CY3JwqafzMw4maTz9CbaKX8cCSAZGPNBfVeDNr7IO2QewLCz0jfxUhVbBmx4pxjZCpP8sgb5-1YOn8foOPHgs8QOxvf5n_HznI6MCCBHXkyRyP0pHzJvmNnO_TVmIRtaSnHfL9msKKlhRzRHZPgLzTbE1pUVaOhGE3OKhwbrQVvh">
-            </div>
-          </div>
-        </div>
-        <span class="text-[10px] font-bold text-on-surface truncate w-full text-center">🇦🇪 Layla</span>
-      </div>
-      <!-- additional static items... -->
+    <div id="rising-stars-container" class="flex gap-5 overflow-x-auto hide-scrollbar pb-1">
+      <p class="text-xs text-outline py-2">No live users yet</p>
     </div>
   </section>
 
   <!-- Regional Filters -->
   <div class="flex gap-2 overflow-x-auto hide-scrollbar mb-3.5 px-4">
-    <button class="px-5 py-1.5 bg-primary text-on-primary font-bold text-[10px] tracking-[0.1em] rounded-none">ALL</button>
-    <button class="px-4 py-1.5 bg-surface-container-high text-on-surface-variant font-bold text-[10px] tracking-[0.1em] flex items-center gap-1.5 rounded-none"><span class="text-xs">🇦🇪</span> UAE</button>
-    <button class="px-4 py-1.5 bg-surface-container-high text-on-surface-variant font-bold text-[10px] tracking-[0.1em] flex items-center gap-1.5 rounded-none"><span class="text-xs">🇮🇳</span> INDIA</button>
-    <button class="px-4 py-1.5 bg-surface-container-high text-on-surface-variant font-bold text-[10px] tracking-[0.1em] flex items-center gap-1.5 rounded-none"><span class="text-xs">🇸🇦</span> KSA</button>
-    <button class="px-4 py-1.5 bg-surface-container-high text-on-surface-variant font-bold text-[10px] tracking-[0.1em] flex items-center gap-1.5 rounded-none"><span class="text-xs">🇵🇰</span> PK</button>
+    <button id="rgn-all" class="px-5 py-1.5 bg-primary text-white font-bold text-[10px] tracking-[0.1em] rounded-none" onclick="filterRegion(null, this)">ALL</button>
+    <button class="px-4 py-1.5 bg-slate-100 text-on-surface-variant font-bold text-[10px] tracking-[0.1em] flex items-center gap-1.5 rounded-none" onclick="filterRegion('AE', this)"><span class="text-xs">🇦🇪</span> UAE</button>
+    <button class="px-4 py-1.5 bg-slate-100 text-on-surface-variant font-bold text-[10px] tracking-[0.1em] flex items-center gap-1.5 rounded-none" onclick="filterRegion('IN', this)"><span class="text-xs">🇮🇳</span> INDIA</button>
+    <button class="px-4 py-1.5 bg-slate-100 text-on-surface-variant font-bold text-[10px] tracking-[0.1em] flex items-center gap-1.5 rounded-none" onclick="filterRegion('SA', this)"><span class="text-xs">🇸🇦</span> KSA</button>
+    <button class="px-4 py-1.5 bg-slate-100 text-on-surface-variant font-bold text-[10px] tracking-[0.1em] flex items-center gap-1.5 rounded-none" onclick="filterRegion('PK', this)"><span class="text-xs">🇵🇰</span> PK</button>
   </div>
 
-  <!-- Feed Grid (static cards) -->
-  <div class="grid grid-cols-2 gap-[1px] px-0 bg-surface-container-highest">
-    <!-- card example -->
-    <div class="relative aspect-[3/4] bg-surface-container-low overflow-hidden">
-      <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDeiwZHX_SH8tl8GR_az1X1NokmS1OCUAbd1zMVHHvaObMWwYGbXMi6WTuew0l4SeeANt5gnRwK1emFKe0u_IAjaXnJDax1licPKkrGfr0N849VQ3VoXasWhJn_XDcS4X3xYtpUKpEV624VKZJQlFfmgrnsQVpmbHSKmJcz3ivF2WfD6mkDWa3EGNFlHnYH0Jxk2RHlhCIbZGocxz1YuLq8Redfw_RXxj_MeywJrv42fdqKoe0JGRTDdqXtUoO9fdx_YyTtIcbQWcfN">
-      <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20"></div>
-      <div class="absolute top-2 left-2 flex flex-col gap-1">
-        <div class="bg-tertiary text-white text-[8px] font-extrabold px-1.5 py-0.5 flex items-center gap-1 w-fit">
-          <span class="w-1 h-1 bg-white rounded-full animate-pulse"></span> LIVE
-        </div>
-        <div class="bg-black/40 backdrop-blur-sm text-white text-[8px] font-bold px-1.5 py-0.5 w-fit">Lv.12</div>
-      </div>
-      <div class="absolute top-2 right-2 flex items-center gap-1 bg-black/30 px-1 py-0.5">
-        <span class="text-[9px]">🇦🇪</span>
-        <span class="text-[7px] text-white font-bold uppercase">UAE</span>
-      </div>
-      <div class="absolute bottom-2 left-2 right-10 text-white">
-        <h4 class="font-headline font-bold text-xs truncate">Piper's Live</h4>
-        <p class="text-[9px] opacity-80 truncate">PetalHearts please 🌸</p>
-      </div>
-      <button onclick="window.location.href='party.html'" class="absolute bottom-2 right-2 w-7 h-7 bg-primary text-on-primary flex items-center justify-center active:scale-90 transition-transform">
-        <span class="material-symbols-outlined text-base">videocam</span>
-      </button>
+  <!-- Live Streams Grid -->
+  <div id="lives-grid" class="grid grid-cols-2 gap-[1px] px-0">
+    <div class="col-span-2 flex items-center justify-center py-12 bg-surface-container-low">
+      <p class="text-xs text-outline">Loading live streams…</p>
     </div>
-    <!-- more cards... (kept as in original) -->
   </div>
 </main>
 
-<!-- FLOATING BUTTON: GO LIVE (instead of Match button) -->
-<div class="fixed bottom-22 left-1/2 -translate-x-1/2 z-50 w-auto px-4">
-  <button onclick="createLive()" class="bg-gradient-to-r from-red-500 to-pink-500 text-white font-headline font-bold px-7 py-3 shadow-xl flex items-center gap-2 active:scale-95 transition-all border border-white/20 whitespace-nowrap text-[11px] uppercase tracking-[0.15em] rounded-none">
-    <span class="material-symbols-outlined text-lg">fiber_manual_record</span> GO LIVE
+<!-- GO LIVE BUTTON (above nav) -->
+<div class="fixed bottom-[72px] left-1/2 -translate-x-1/2 z-50 w-auto px-4">
+  <button onclick="goLive()" class="bg-gradient-to-r from-red-500 to-pink-500 text-white font-headline font-bold px-8 py-3 shadow-xl flex items-center gap-2 active:scale-95 transition-all border border-white/20 whitespace-nowrap text-[11px] uppercase tracking-[0.18em] rounded-full">
+    <span class="material-symbols-outlined text-lg filled">fiber_manual_record</span> GO LIVE
   </button>
 </div>
 
 <!-- Bottom Navigation -->
-<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 bg-white/80 backdrop-blur-xl rounded-t-2xl shadow-[0_-4px_24px_rgba(0,101,113,0.06)]">
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2.5 bg-white/80 backdrop-blur-xl rounded-t-2xl shadow-[0_-4px_24px_rgba(0,101,113,0.06)]">
   <button id="navHome" class="flex flex-col items-center text-primary transition">
-    <span class="material-symbols-outlined" style="font-variation-settings:'FILL'1">home</span>
+    <span class="material-symbols-outlined filled">home</span>
     <span class="text-[10px] font-label font-bold">Home</span>
   </button>
   <button onclick="location.href='party.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
@@ -201,175 +138,184 @@
   </button>
 </nav>
 
-<!-- Withdraw Panel (hidden) -->
-<div id="withdrawPanel" class="fixed bottom-28 left-1/2 -translate-x-1/2 w-[90%] max-w-md bg-surface-container-lowest rounded-2xl p-5 border border-outline-variant/30 shadow-xl z-50 hidden">
-  <h3 class="font-headline font-bold text-on-surface">Withdraw Coins</h3>
-  <p class="text-xs text-on-surface-variant mt-1">Minimum 65,000 coins (10 USDT) • TRC20 only</p>
-  <input id="withdrawAmount" type="number" placeholder="Amount (coins)" class="w-full mt-3 bg-surface-container-high rounded-xl px-4 py-3 text-on-surface border-none focus:ring-2 focus:ring-primary">
-  <input id="withdrawWallet" placeholder="TRC20 USDT Wallet Address" class="w-full mt-3 bg-surface-container-high rounded-xl px-4 py-3 text-on-surface border-none focus:ring-2 focus:ring-primary">
-  <button onclick="submitWithdraw()" class="w-full bg-primary text-on-primary font-bold py-3 rounded-full mt-4 active:scale-95 transition">Submit Withdraw</button>
+<!-- Withdraw Panel -->
+<div id="withdrawPanel" class="fixed bottom-28 left-1/2 -translate-x-1/2 w-[90%] max-w-md bg-white rounded-2xl p-5 border border-slate-200 shadow-xl z-50 hidden">
+  <h3 class="font-headline font-bold text-on-surface">Withdraw Gems</h3>
+  <p class="text-xs text-on-surface-variant mt-1">Minimum 65,000 gems (10 USDT) • TRC20 only</p>
+  <input id="withdrawAmount" type="number" placeholder="Amount (gems)" class="w-full mt-3 bg-slate-50 rounded-xl px-4 py-3 text-on-surface border border-slate-200 focus:ring-2 focus:ring-primary focus:border-transparent outline-none">
+  <input id="withdrawWallet" placeholder="TRC20 USDT Wallet Address" class="w-full mt-2 bg-slate-50 rounded-xl px-4 py-3 text-on-surface border border-slate-200 focus:ring-2 focus:ring-primary outline-none">
+  <button onclick="submitWithdraw()" class="w-full bg-primary text-white font-bold py-3 rounded-full mt-4 active:scale-95 transition">Submit Withdraw</button>
   <button onclick="loadWithdrawHistory()" class="w-full text-primary font-bold text-sm mt-3 underline">View Withdraw History</button>
   <div id="withdrawHistory" class="mt-3 text-sm text-on-surface-variant"></div>
-  <button onclick="toggleWithdraw()" class="w-full mt-2 text-error text-sm font-bold">Close</button>
-</div>
-
-<!-- ================= CREATE MODAL ================= -->
-<div id="createOptions" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
-  <div class="bg-surface-container-lowest rounded-2xl p-6 w-[90%] max-w-sm text-center shadow-2xl border border-outline-variant/20">
-    <h2 class="font-headline font-bold text-xl text-on-surface mb-4">Create</h2>
-    <button onclick="createLive()" class="w-full bg-gradient-to-r from-red-500 to-pink-500 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 mb-3 active:scale-95 transition">
-      <span class="material-symbols-outlined">fiber_manual_record</span> Go Live
-    </button>
-    <button onclick="closeCreateOptions()" class="mt-2 text-sm text-outline hover:text-primary transition">Cancel</button>
-  </div>
+  <button onclick="toggleWithdraw()" class="w-full mt-2 text-red-500 text-sm font-bold">Close</button>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-  import { getFirestore, doc, onSnapshot, updateDoc, collection, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+  import { getFirestore, doc, onSnapshot, updateDoc, collection, setDoc, deleteDoc, getDocs, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-  const app = initializeApp({
-    apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
-    authDomain: "galmet-app.firebaseapp.com",
-    projectId: "galmet-app"
-  });
+  const app = initializeApp({ apiKey:"AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY", authDomain:"galmet-app.firebaseapp.com", projectId:"galmet-app", storageBucket:"galmet-app.firebasestorage.app" });
   const db = getFirestore(app);
 
   const localUser = JSON.parse(localStorage.getItem("user"));
-  if (!localUser || !localUser.userId) window.location.replace("login.html");
-  const userIdStr = localUser.userId.toString();
-  const userRef = doc(db, "users", userIdStr);
-  let unsubscribeSnapshot = null;
+  if (!localUser?.userId) window.location.replace("login.html");
+  const ME = localUser.userId.toString();
+  const userRef = doc(db, "users", ME);
+  let unsubUser = null;
+  let allLives = [];
+  let regionFilter = null;
 
-  // ==================== BALANCE & GENDER ====================
+  function esc(s){ return s ? s.replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) : ''; }
+
+  // ──────── BALANCE ────────────────────────────────────
   function startRealtimeDashboard() {
-    updateDoc(userRef, { online: true }).catch(() => {});
-    unsubscribeSnapshot = onSnapshot(userRef, (snap) => {
+    updateDoc(userRef, { online: true }).catch(()=>{});
+    unsubUser = onSnapshot(userRef, snap => {
       if (!snap.exists()) return;
       const d = snap.data();
-      const gender = d.gender;
       const coins = d.coins ?? 0;
       const gems = d.gems ?? 0;
-      const balanceIcon = document.getElementById("balanceIcon");
-      const balanceValue = document.getElementById("balanceValue");
-      const balanceLabel = document.getElementById("balanceLabel");
-
-      if (gender === 'male') {
-        balanceIcon.innerText = "monetization_on";
-        balanceIcon.classList.remove("text-red-400");
-        balanceValue.innerText = coins.toLocaleString();
-        balanceLabel.innerText = "Coins";
-      } else if (gender === 'female') {
-        balanceIcon.innerText = "diamond";
-        balanceIcon.classList.add("text-red-400");
-        balanceValue.innerText = gems.toLocaleString();
-        balanceLabel.innerText = "Gems";
+      const icon = document.getElementById("balanceIcon");
+      const val = document.getElementById("balanceValue");
+      const lbl = document.getElementById("balanceLabel");
+      if (d.gender === 'female') {
+        icon.innerText = "diamond"; icon.classList.add("text-red-400");
+        val.innerText = gems.toLocaleString(); lbl.innerText = "Gems";
       } else {
-        balanceIcon.innerText = "monetization_on";
-        balanceIcon.classList.remove("text-red-400");
-        balanceValue.innerText = coins.toLocaleString();
-        balanceLabel.innerText = "Coins";
+        icon.innerText = "monetization_on"; icon.classList.remove("text-red-400");
+        val.innerText = coins.toLocaleString(); lbl.innerText = "Coins";
       }
     });
   }
   startRealtimeDashboard();
 
-  // ==================== LIVE STREAMS (REAL TIME) ====================
-  const livesRef = collection(db, "lives");
-  onSnapshot(livesRef, (snapshot) => {
-    const container = document.getElementById("liveStreamsContainer");
-    const liveCountSpan = document.getElementById("liveCount");
-    const liveStreams = [];
-    snapshot.forEach(docSnap => {
-      const live = docSnap.data();
-      if (live.status === "live") {
-        liveStreams.push(live);
-      }
-    });
-    liveCountSpan.innerText = `${liveStreams.length} active`;
-    if (liveStreams.length === 0) {
-      container.innerHTML = '<p class="text-xs text-outline">No live streams at the moment</p>';
+  // ──────── CHARM BADGE CLASS ───────────────────────────
+  function charmBadgeClass(lv) { return 'live-card-badge cl' + Math.min(lv||0, 10); }
+  function charmLabel(lv) { return 'Lv ' + (lv||0); }
+
+  // ──────── LIVE STREAMS REALTIME ───────────────────────
+  onSnapshot(collection(db, "lives"), snap => {
+    allLives = [];
+    snap.forEach(d => { const dd = d.data(); if (dd.status === 'live') allLives.push({id: d.id, ...dd}); });
+    renderGrid();
+    renderRisingStars();
+  });
+
+  function renderGrid() {
+    const grid = document.getElementById('lives-grid');
+    const lives = regionFilter
+      ? allLives.filter(l => l.countryCode === regionFilter || (l.countryFlag && l.countryCode === regionFilter))
+      : allLives;
+
+    if (lives.length === 0) {
+      grid.innerHTML = '<div class="col-span-2 flex items-center justify-center py-16 bg-surface-container-low"><p class="text-xs text-outline">No live streams at the moment</p></div>';
       return;
     }
-    container.innerHTML = "";
-    liveStreams.forEach(live => {
-      const card = document.createElement("div");
-      card.className = "flex flex-col items-center gap-1 min-w-[70px] cursor-pointer";
+    grid.innerHTML = '';
+    lives.forEach(live => {
+      const card = document.createElement('div');
+      card.className = 'relative aspect-[3/4] bg-slate-100 overflow-hidden cursor-pointer group';
       card.onclick = () => joinLive(live.roomId);
+      const poster = live.posterURL || '';
+      const ava = live.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(live.username||'L')}&background=006571&color=fff&size=400`;
+      const bg = poster || ava;
+      const cl = live.charmLevel || 0;
+      const flag = live.countryFlag || '';
+      const viewers = live.viewerCount || 0;
+      const title = live.title || '';
+      const username = live.username || 'Live';
+
       card.innerHTML = `
+        <img class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" src="${esc(bg)}" onerror="this.src='${esc(ava)}'">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/25"></div>
+        <div class="absolute top-2 left-2 flex flex-col gap-1">
+          <div class="bg-red-500 text-white text-[8px] font-extrabold px-1.5 py-0.5 flex items-center gap-1 w-fit">
+            <span class="w-1 h-1 bg-white rounded-full animate-pulse"></span> LIVE
+          </div>
+          <div class="${charmBadgeClass(cl)}">${charmLabel(cl)}</div>
+        </div>
+        ${flag ? `<div class="absolute top-2 right-2 flex items-center gap-1 bg-black/35 px-1.5 py-0.5"><span class="text-[11px]">${esc(flag)}</span></div>` : ''}
+        <div class="absolute bottom-2 left-2 right-10 text-white">
+          <h4 class="font-headline font-bold text-xs truncate">${esc(username)}</h4>
+          ${title ? `<p class="text-[9px] opacity-80 truncate">${esc(title)}</p>` : ''}
+          ${viewers > 0 ? `<p class="text-[8px] opacity-60 mt-0.5">👁 ${viewers}</p>` : ''}
+        </div>
+        <button class="absolute bottom-2 right-2 w-7 h-7 bg-primary text-white flex items-center justify-center active:scale-90 transition-transform rounded-sm" onclick="event.stopPropagation(); joinLive('${esc(live.roomId)}')">
+          <span class="material-symbols-outlined text-base">videocam</span>
+        </button>`;
+      grid.appendChild(card);
+    });
+  }
+
+  function renderRisingStars() {
+    const container = document.getElementById('rising-stars-container');
+    const count = document.getElementById('rising-count');
+    const lives = allLives.slice(0, 10);
+    count.innerText = lives.length + ' live';
+    if (lives.length === 0) {
+      container.innerHTML = '<p class="text-xs text-outline py-2">No live users yet</p>';
+      return;
+    }
+    container.innerHTML = '';
+    lives.forEach(live => {
+      const ava = live.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(live.username||'L')}&background=006571&color=fff`;
+      const div = document.createElement('div');
+      div.className = 'flex flex-col items-center gap-1 min-w-[56px] cursor-pointer';
+      div.onclick = () => joinLive(live.roomId);
+      div.innerHTML = `
         <div class="relative w-14 h-14">
-          <div class="absolute -top-1 left-0 z-10 w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-          <div class="w-full h-full rounded-full p-[2px] bg-gradient-to-tr from-red-500 to-pink-500">
-            <div class="w-full h-full rounded-full border border-background overflow-hidden bg-surface-container">
-              <img class="w-full h-full object-cover" src="https://ui-avatars.com/api/?name=${encodeURIComponent(live.username)}&background=006571&color=fff">
+          <div class="absolute -top-1 right-0 z-10 w-3 h-3 bg-red-500 border-2 border-white rounded-full animate-pulse"></div>
+          <div class="w-full h-full rounded-full p-[2px] bg-gradient-to-tr from-primary to-tertiary">
+            <div class="w-full h-full rounded-full border border-white overflow-hidden bg-slate-100">
+              <img class="w-full h-full object-cover" src="${esc(ava)}">
             </div>
           </div>
         </div>
-        <span class="text-[10px] font-bold text-on-surface truncate w-full text-center">${live.username}</span>
-      `;
-      container.appendChild(card);
+        <span class="text-[10px] font-bold text-on-surface truncate w-full text-center">${esc(live.username||'Live')}</span>`;
+      container.appendChild(div);
     });
-  });
+  }
 
-  // ==================== CREATE LIVE (Go Live) ====================
-  window.createLive = async () => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    const userId = user.userId.toString();
-    const username = user.username || "User";
+  // ──────── REGION FILTER ──────────────────────────────
+  window.filterRegion = function(code, btn) {
+    regionFilter = code;
+    document.querySelectorAll('[onclick^="filterRegion"]').forEach(b => {
+      b.className = b.className.replace('bg-primary text-white','bg-slate-100 text-on-surface-variant');
+    });
+    btn.className = btn.className.replace('bg-slate-100 text-on-surface-variant','bg-primary text-white');
+    renderGrid();
+  };
 
-    // Ask camera + microphone permission first
+  // ──────── GO LIVE ─────────────────────────────────────
+  window.goLive = async () => {
     try {
       await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-    } catch (e) {
+    } catch(e) {
       alert("Camera / Microphone permission denied ❌");
       return;
     }
-
-    const roomId = "room_" + userId;
-
-    // Save live to Firestore
-    await setDoc(doc(db, "lives", userId), {
-      userId: userId,
-      username: username,
-      roomId: roomId,
-      status: "live",
-      createdAt: new Date()
-    });
-
-    // Redirect to live page as host
-    window.location.href = `live.html?room=${roomId}&host=true`;
+    window.location.href = 'createlive.html';
   };
 
-  // ==================== JOIN LIVE ====================
-  window.joinLive = (roomId) => {
+  // ──────── JOIN LIVE ──────────────────────────────────
+  window.joinLive = roomId => {
     window.location.href = `live.html?room=${roomId}`;
   };
 
-  // ==================== CREATE MODAL CONTROLS ====================
-  window.openCreateOptions = () => {
-    document.getElementById("createOptions").classList.remove("hidden");
-    document.getElementById("createOptions").classList.add("flex");
-  };
-  window.closeCreateOptions = () => {
-    document.getElementById("createOptions").classList.add("hidden");
-    document.getElementById("createOptions").classList.remove("flex");
-  };
-
-  // ==================== OTHER FUNCTIONS ====================
+  // ──────── CLEANUP ────────────────────────────────────
   window.addEventListener("beforeunload", () => {
-    if (unsubscribeSnapshot) unsubscribeSnapshot();
-    updateDoc(userRef, { online: false }).catch(() => {});
+    if (unsubUser) unsubUser();
+    updateDoc(userRef, { online: false }).catch(()=>{});
   });
 
-  window.toggleWithdraw = () => {
-    document.getElementById("withdrawPanel").classList.toggle("hidden");
-  };
+  // ──────── WITHDRAW ───────────────────────────────────
+  window.toggleWithdraw = () => document.getElementById("withdrawPanel").classList.toggle("hidden");
   window.submitWithdraw = () => {
     const amount = document.getElementById("withdrawAmount").value;
     const wallet = document.getElementById("withdrawWallet").value;
-    if (!amount || amount < 65000) { alert("Minimum 65,000 coins"); return; }
+    if (!amount || amount < 65000) { alert("Minimum 65,000 gems"); return; }
     if (!wallet.startsWith("T") || wallet.length < 30) { alert("Invalid TRC20 wallet"); return; }
-    alert(`Withdraw request for ${amount} coins sent`);
+    alert(`Withdraw request for ${amount} gems sent`);
   };
   window.loadWithdrawHistory = () => {
     document.getElementById("withdrawHistory").innerHTML = "📜 Coming soon...";
