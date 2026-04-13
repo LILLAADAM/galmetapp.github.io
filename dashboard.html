@@ -9,36 +9,57 @@
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script>
     tailwind.config = {
-      darkMode:"class",
-      theme:{extend:{colors:{"surface":"#f3f7fb","surface-container-low":"#ecf1f6","surface-container-lowest":"#ffffff","on-surface":"#2a2f32","on-surface-variant":"#575c60","primary":"#006571","primary-container":"#00e3fd","primary-dim":"#005863","secondary":"#755700","tertiary":"#b60051","outline":"#73777b","outline-variant":"#a9aeb1","error":"#b31b25"},fontFamily:{"headline":["Plus Jakarta Sans"],"body":["Be Vietnam Pro"],"label":["Plus Jakarta Sans"]},borderRadius:{DEFAULT:"1rem",lg:"2rem",xl:"3rem",full:"9999px"}}}
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface": "#f3f7fb", "surface-container-low": "#ecf1f6",
+            "surface-container-lowest": "#ffffff", "on-surface": "#2a2f32",
+            "on-surface-variant": "#575c60", "primary": "#006571",
+            "primary-container": "#00e3fd", "primary-dim": "#005863",
+            "secondary": "#755700", "tertiary": "#b60051",
+            "outline": "#73777b", "outline-variant": "#a9aeb1", "error": "#b31b25"
+          },
+          fontFamily: { "headline": ["Plus Jakarta Sans"], "body": ["Be Vietnam Pro"], "label": ["Plus Jakarta Sans"] },
+          borderRadius: { DEFAULT: "1rem", lg: "2rem", xl: "3rem", full: "9999px" }
+        }
+      }
     }
   </script>
   <style>
-    .material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;}
-    .filled{font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;}
-    .hide-scrollbar::-webkit-scrollbar{display:none;}
-    .hide-scrollbar{-ms-overflow-style:none;scrollbar-width:none;}
-    body{min-height:100dvh;background:#f3f7fb;}
-    /* Charm badge colours matching view.html */
-    .cl0{background:linear-gradient(135deg,#9ca3af,#6b7280);color:#fff;}
-    .cl1{background:linear-gradient(135deg,#a7f3d0,#34d399);color:#065f46;}
-    .cl2{background:linear-gradient(135deg,#99f6e4,#2dd4bf);color:#134e4a;}
-    .cl3{background:linear-gradient(135deg,#93c5fd,#3b82f6);color:#1e3a5f;}
-    .cl4{background:linear-gradient(135deg,#c4b5fd,#8b5cf6);color:#fff;}
-    .cl5{background:linear-gradient(135deg,#f0abfc,#d946ef);color:#fff;}
-    .cl6{background:linear-gradient(135deg,#fbcfe8,#f472b6);color:#831843;}
-    .cl7{background:linear-gradient(135deg,#fecaca,#ef4444);color:#fff;}
-    .cl8{background:linear-gradient(135deg,#fed7aa,#f97316);color:#fff;}
-    .cl9{background:linear-gradient(135deg,#fde68a,#f59e0b);color:#78350f;}
-    .cl10{background:linear-gradient(135deg,#fef08a,#eab308);color:#713f12;}
-    .live-card-badge{font-size:7px;font-weight:900;padding:1.5px 5px;border-radius:99px;display:inline-block;}
-    #lives-grid{background:#e8ecf0;}
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    body { min-height: 100dvh; background: #f3f7fb; }
+    /* Wealth/charm level badges matching view.html */
+    .wl0{background:linear-gradient(135deg,#9ca3af,#6b7280);}
+    .wl1{background:linear-gradient(135deg,#84cc16,#65a30d);}
+    .wl2{background:linear-gradient(135deg,#14b8a6,#0d9488);}
+    .wl3{background:linear-gradient(135deg,#3b82f6,#2563eb);}
+    .wl4{background:linear-gradient(135deg,#6366f1,#4f46e5);}
+    .wl5{background:linear-gradient(135deg,#8b5cf6,#7c3aed);}
+    .wl6{background:linear-gradient(135deg,#ec4899,#db2777);}
+    .wl7{background:linear-gradient(135deg,#f43f5e,#e11d48);}
+    .wl8{background:linear-gradient(135deg,#f97316,#ea580c);}
+    .wl9{background:linear-gradient(135deg,#f59e0b,#d97706);}
+    .wl10{background:linear-gradient(135deg,#eab308,#ca8a04);}
+    .cl0{background:linear-gradient(135deg,#9ca3af,#6b7280);}
+    .cl1{background:linear-gradient(135deg,#a7f3d0,#34d399);color:#065f46!important;}
+    .cl2{background:linear-gradient(135deg,#99f6e4,#2dd4bf);color:#134e4a!important;}
+    .cl3{background:linear-gradient(135deg,#93c5fd,#3b82f6);color:#1e3a5f!important;}
+    .cl4{background:linear-gradient(135deg,#c4b5fd,#8b5cf6);}
+    .cl5{background:linear-gradient(135deg,#f0abfc,#d946ef);}
+    .cl6{background:linear-gradient(135deg,#fbcfe8,#f472b6);color:#831843!important;}
+    .cl7{background:linear-gradient(135deg,#fecaca,#ef4444);}
+    .cl8{background:linear-gradient(135deg,#fed7aa,#f97316);}
+    .cl9{background:linear-gradient(135deg,#fde68a,#f59e0b);color:#78350f!important;}
+    .cl10{background:linear-gradient(135deg,#fef08a,#eab308);color:#713f12!important;}
   </style>
 </head>
-<body class="bg-background text-on-background font-body selection:bg-primary-container">
+<body class="bg-surface font-body text-on-surface selection:bg-primary-container">
 
 <!-- TOP APP BAR -->
-<header class="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-xl flex justify-between items-center px-4 py-2.5 border-b border-slate-100">
+<header class="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-xl flex justify-between items-center px-4 py-2.5 border-b border-surface-container-high">
   <div class="flex items-center gap-2">
     <div id="balancePill" class="bg-surface-container-low px-3 py-1 rounded-full flex items-center gap-1.5 border border-surface-container">
       <span id="balanceIcon" class="material-symbols-outlined text-primary text-base">monetization_on</span>
@@ -47,81 +68,83 @@
     </div>
   </div>
   <div class="flex items-center gap-1.5">
-    <button onclick="location.href='invitesrank.html'" class="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container-high/40 hover:bg-surface-container-high/60 transition-colors">
+    <button onclick="alert('Leaderboard coming soon')" class="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container-high/40 hover:bg-surface-container-high/60 transition-colors">
       <span class="material-symbols-outlined text-primary text-lg">trophy</span>
     </button>
-    <button onclick="location.href='chats.html'" class="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container-high/40 hover:bg-surface-container-high/60 transition-colors">
-      <span class="material-symbols-outlined text-primary text-lg">chat_bubble</span>
+    <button onclick="alert('Calendar coming soon')" class="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container-high/40 hover:bg-surface-container-high/60 transition-colors">
+      <span class="material-symbols-outlined text-primary text-lg">calendar_today</span>
+    </button>
+    <button onclick="location.href='createlive.html'" class="w-8 h-8 flex items-center justify-center rounded-full bg-primary text-white shadow-sm active:scale-95 transition-transform ml-0.5">
+      <span class="material-symbols-outlined text-lg">add</span>
     </button>
   </div>
 </header>
 
-<main class="pt-14 pb-36 px-0 max-w-2xl mx-auto">
+<main class="pt-14 pb-32 px-0 max-w-2xl mx-auto">
   <!-- Filter Tabs -->
-  <div class="flex gap-6 px-4 py-2 sticky top-12 z-40 bg-white/90 backdrop-blur-md overflow-x-auto hide-scrollbar border-b border-slate-100">
-    <button id="tab-popular" class="font-headline font-bold text-primary text-[13px] border-b-2 border-primary pb-0.5 whitespace-nowrap">Popular</button>
-    <button id="tab-new" class="font-headline font-bold text-slate-400 text-[13px] whitespace-nowrap">New</button>
-    <button id="tab-foryou" class="font-headline font-bold text-slate-400 text-[13px] whitespace-nowrap">For you</button>
+  <div class="flex gap-6 px-4 py-2 sticky top-12 z-40 bg-white/90 backdrop-blur-md overflow-x-auto hide-scrollbar border-b border-surface-container-high">
+    <button class="font-headline font-bold text-slate-400 text-[13px] whitespace-nowrap">New</button>
+    <button class="font-headline font-bold text-primary text-[13px] border-b-2 border-primary pb-0.5 whitespace-nowrap">Popular</button>
+    <button class="font-headline font-bold text-slate-400 text-[13px] whitespace-nowrap">For you</button>
   </div>
 
+  <!-- RISING STARS (real live users) -->
+  <section class="mb-4 px-4 pt-3">
+    <div class="flex justify-between items-center mb-2">
+      <h2 class="font-headline font-bold text-[11px] flex items-center gap-2 uppercase tracking-[0.15em] text-on-surface">
+        <span class="material-symbols-outlined text-tertiary text-lg" style="font-variation-settings:'FILL'1">stars</span> LIVE NOW
+      </h2>
+      <span id="liveCount" class="text-[9px] text-outline font-bold">0 active</span>
+    </div>
+    <div id="risingStarsContainer" class="flex gap-4 overflow-x-auto hide-scrollbar pb-2">
+      <p class="text-xs text-outline">No live streams yet</p>
+    </div>
+  </section>
+
   <!-- Banner -->
-  <div class="overflow-x-auto hide-scrollbar flex snap-x snap-mandatory mb-4">
+  <div class="overflow-x-auto hide-scrollbar flex snap-x snap-mandatory mb-4 mx-0">
     <div class="min-w-full h-24 relative overflow-hidden snap-center flex-shrink-0">
-      <img alt="Promo Banner" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGQy2tG8boynppF4-SdmUIA6Jbd5zPAxfMopCDz0A67AZmZC6LXfZh7iXVnmk6YuvYzmoF2pM96uKY9IquY62hJzzoc8692ayS1qEkw0OW9NUJRYBVoTd2uNL6kEI0zXIj3RUaRnVxuDVuC61qYCgY8PIYm1CFDf_h3lqCUDLik-hjT6FpDwZlrlxuNiBAHJeVAjUlVsXRih6qfEsRKPtTGROVrFChcE-eSv8fw1ORRHmYGWI8IpyASfrGvJgupjhfpOTcgBWEPraZ">
+      <img alt="Promo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGQy2tG8boynppF4-SdmUIA6Jbd5zPAxfMopCDz0A67AZmZC6LXfZh7iXVnmk6YuvYzmoF2pM96uKY9IquY62hJzzoc8692ayS1qEkw0OW9NUJRYBVoTd2uNL6kEI0zXIj3RUaRnVxuDVuC61qYCgY8PIYm1CFDf_h3lqCUDLik-hjT6FpDwZlrlxuNiBAHJeVAjUlVsXRih6qfEsRKPtTGROVrFChcE-eSv8fw1ORRHmYGWI8IpyASfrGvJgupjhfpOTcgBWEPraZ">
       <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent flex flex-col justify-center p-4">
         <h3 class="text-white font-headline font-extrabold text-sm leading-tight">To be Agent<br/>To be Millionaire</h3>
         <button onclick="window.location.href='invitesrank.html'" class="mt-1.5 bg-secondary text-white text-[9px] font-bold px-2.5 py-0.5 rounded-none w-fit uppercase tracking-wider">Join Now</button>
       </div>
     </div>
     <div class="min-w-full h-24 relative overflow-hidden snap-center flex-shrink-0">
-      <div class="w-full h-full bg-gradient-to-r from-primary to-teal-400 flex flex-col justify-center p-4">
+      <img alt="Promo 2" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGQy2tG8boynppF4-SdmUIA6Jbd5zPAxfMopCDz0A67AZmZC6LXfZh7iXVnmk6YuvYzmoF2pM96uKY9IquY62hJzzoc8692ayS1qEkw0OW9NUJRYBVoTd2uNL6kEI0zXIj3RUaRnVxuDVuC61qYCgY8PIYm1CFDf_h3lqCUDLik-hjT6FpDwZlrlxuNiBAHJeVAjUlVsXRih6qfEsRKPtTGROVrFChcE-eSv8fw1ORRHmYGWI8IpyASfrGvJgupjhfpOTcgBWEPraZ">
+      <div class="absolute inset-0 bg-gradient-to-r from-primary/90 to-transparent flex flex-col justify-center p-4">
         <h3 class="text-white font-headline font-extrabold text-sm leading-tight">Summer Carnival<br/>Gifts &amp; Rewards</h3>
         <button onclick="alert('Coming soon')" class="mt-1.5 bg-white text-primary text-[9px] font-bold px-2.5 py-0.5 rounded-none w-fit uppercase tracking-wider">View Rules</button>
       </div>
     </div>
   </div>
 
-  <!-- Rising Stars (real live users) -->
-  <section class="mb-5 px-4">
-    <div class="flex justify-between items-center mb-3">
-      <h2 class="font-headline font-bold text-[11px] flex items-center gap-2 uppercase tracking-[0.15em] text-on-surface">
-        <span class="material-symbols-outlined filled text-tertiary text-lg">stars</span> RISING STARS
-      </h2>
-      <span id="rising-count" class="text-[9px] text-outline">0 live</span>
-    </div>
-    <div id="rising-stars-container" class="flex gap-5 overflow-x-auto hide-scrollbar pb-1">
-      <p class="text-xs text-outline py-2">No live users yet</p>
-    </div>
-  </section>
-
   <!-- Regional Filters -->
   <div class="flex gap-2 overflow-x-auto hide-scrollbar mb-3.5 px-4">
-    <button id="rgn-all" class="px-5 py-1.5 bg-primary text-white font-bold text-[10px] tracking-[0.1em] rounded-none" onclick="filterRegion(null, this)">ALL</button>
-    <button class="px-4 py-1.5 bg-slate-100 text-on-surface-variant font-bold text-[10px] tracking-[0.1em] flex items-center gap-1.5 rounded-none" onclick="filterRegion('AE', this)"><span class="text-xs">🇦🇪</span> UAE</button>
-    <button class="px-4 py-1.5 bg-slate-100 text-on-surface-variant font-bold text-[10px] tracking-[0.1em] flex items-center gap-1.5 rounded-none" onclick="filterRegion('IN', this)"><span class="text-xs">🇮🇳</span> INDIA</button>
-    <button class="px-4 py-1.5 bg-slate-100 text-on-surface-variant font-bold text-[10px] tracking-[0.1em] flex items-center gap-1.5 rounded-none" onclick="filterRegion('SA', this)"><span class="text-xs">🇸🇦</span> KSA</button>
-    <button class="px-4 py-1.5 bg-slate-100 text-on-surface-variant font-bold text-[10px] tracking-[0.1em] flex items-center gap-1.5 rounded-none" onclick="filterRegion('PK', this)"><span class="text-xs">🇵🇰</span> PK</button>
+    <button onclick="filterRegion('ALL')" class="region-btn px-5 py-1.5 bg-primary text-white font-bold text-[10px] tracking-[0.1em] rounded-none" data-r="ALL">ALL</button>
+    <button onclick="filterRegion('UAE')" class="region-btn px-4 py-1.5 bg-surface-container-high text-on-surface-variant font-bold text-[10px] tracking-[0.1em] flex items-center gap-1.5 rounded-none" data-r="UAE"><span class="text-xs">🇦🇪</span>UAE</button>
+    <button onclick="filterRegion('INDIA')" class="region-btn px-4 py-1.5 bg-surface-container-high text-on-surface-variant font-bold text-[10px] tracking-[0.1em] flex items-center gap-1.5 rounded-none" data-r="INDIA"><span class="text-xs">🇮🇳</span>INDIA</button>
+    <button onclick="filterRegion('KSA')" class="region-btn px-4 py-1.5 bg-surface-container-high text-on-surface-variant font-bold text-[10px] tracking-[0.1em] flex items-center gap-1.5 rounded-none" data-r="KSA"><span class="text-xs">🇸🇦</span>KSA</button>
+    <button onclick="filterRegion('PK')" class="region-btn px-4 py-1.5 bg-surface-container-high text-on-surface-variant font-bold text-[10px] tracking-[0.1em] flex items-center gap-1.5 rounded-none" data-r="PK"><span class="text-xs">🇵🇰</span>PK</button>
   </div>
 
-  <!-- Live Streams Grid -->
-  <div id="lives-grid" class="grid grid-cols-2 gap-[1px] px-0">
-    <div class="col-span-2 flex items-center justify-center py-12 bg-surface-container-low">
-      <p class="text-xs text-outline">Loading live streams…</p>
-    </div>
+  <!-- LIVE GRID (real users) -->
+  <div id="liveGrid" class="grid grid-cols-2 gap-[2px] px-0 bg-surface-container-highest">
+    <p class="col-span-2 text-center text-xs text-outline py-10">Loading live streams...</p>
   </div>
 </main>
 
-<!-- GO LIVE BUTTON (above nav) -->
-<div class="fixed bottom-[72px] left-1/2 -translate-x-1/2 z-50 w-auto px-4">
-  <button onclick="goLive()" class="bg-gradient-to-r from-red-500 to-pink-500 text-white font-headline font-bold px-8 py-3 shadow-xl flex items-center gap-2 active:scale-95 transition-all border border-white/20 whitespace-nowrap text-[11px] uppercase tracking-[0.18em] rounded-full">
-    <span class="material-symbols-outlined text-lg filled">fiber_manual_record</span> GO LIVE
+<!-- GO LIVE FLOATING BUTTON -->
+<div class="fixed z-50" style="bottom: calc(68px + max(env(safe-area-inset-bottom), 0px) + 12px); left: 50%; transform: translateX(-50%);">
+  <button onclick="location.href='createlive.html'" class="bg-gradient-to-r from-red-500 to-pink-500 text-white font-headline font-bold px-7 py-3 shadow-2xl flex items-center gap-2 active:scale-95 transition-all border border-white/20 whitespace-nowrap text-[11px] uppercase tracking-[0.15em] rounded-full">
+    <span class="material-symbols-outlined text-lg" style="font-variation-settings:'FILL'1">fiber_manual_record</span> GO LIVE
   </button>
 </div>
 
 <!-- Bottom Navigation -->
-<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2.5 bg-white/80 backdrop-blur-xl rounded-t-2xl shadow-[0_-4px_24px_rgba(0,101,113,0.06)]">
-  <button id="navHome" class="flex flex-col items-center text-primary transition">
-    <span class="material-symbols-outlined filled">home</span>
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 bg-white/90 backdrop-blur-xl rounded-t-2xl shadow-[0_-4px_24px_rgba(0,101,113,0.08)] border-t border-surface-container-high">
+  <button class="flex flex-col items-center text-primary transition">
+    <span class="material-symbols-outlined" style="font-variation-settings:'FILL'1">home</span>
     <span class="text-[10px] font-label font-bold">Home</span>
   </button>
   <button onclick="location.href='party.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
@@ -138,188 +161,159 @@
   </button>
 </nav>
 
-<!-- Withdraw Panel -->
-<div id="withdrawPanel" class="fixed bottom-28 left-1/2 -translate-x-1/2 w-[90%] max-w-md bg-white rounded-2xl p-5 border border-slate-200 shadow-xl z-50 hidden">
-  <h3 class="font-headline font-bold text-on-surface">Withdraw Gems</h3>
-  <p class="text-xs text-on-surface-variant mt-1">Minimum 65,000 gems (10 USDT) • TRC20 only</p>
-  <input id="withdrawAmount" type="number" placeholder="Amount (gems)" class="w-full mt-3 bg-slate-50 rounded-xl px-4 py-3 text-on-surface border border-slate-200 focus:ring-2 focus:ring-primary focus:border-transparent outline-none">
-  <input id="withdrawWallet" placeholder="TRC20 USDT Wallet Address" class="w-full mt-2 bg-slate-50 rounded-xl px-4 py-3 text-on-surface border border-slate-200 focus:ring-2 focus:ring-primary outline-none">
-  <button onclick="submitWithdraw()" class="w-full bg-primary text-white font-bold py-3 rounded-full mt-4 active:scale-95 transition">Submit Withdraw</button>
-  <button onclick="loadWithdrawHistory()" class="w-full text-primary font-bold text-sm mt-3 underline">View Withdraw History</button>
-  <div id="withdrawHistory" class="mt-3 text-sm text-on-surface-variant"></div>
-  <button onclick="toggleWithdraw()" class="w-full mt-2 text-red-500 text-sm font-bold">Close</button>
-</div>
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-  import { getFirestore, doc, onSnapshot, updateDoc, collection, setDoc, deleteDoc, getDocs, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+  import { getFirestore, doc, onSnapshot, updateDoc, collection, setDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-  const app = initializeApp({ apiKey:"AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY", authDomain:"galmet-app.firebaseapp.com", projectId:"galmet-app", storageBucket:"galmet-app.firebasestorage.app" });
+  const app = initializeApp({ apiKey:"AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY", authDomain:"galmet-app.firebaseapp.com", projectId:"galmet-app" });
   const db = getFirestore(app);
 
   const localUser = JSON.parse(localStorage.getItem("user"));
-  if (!localUser?.userId) window.location.replace("login.html");
-  const ME = localUser.userId.toString();
-  const userRef = doc(db, "users", ME);
+  if (!localUser || !localUser.userId) window.location.replace("login.html");
+  const myId = localUser.userId.toString();
+  const userRef = doc(db, "users", myId);
+
+  // Balance
   let unsubUser = null;
-  let allLives = [];
-  let regionFilter = null;
-
-  function esc(s){ return s ? s.replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) : ''; }
-
-  // ──────── BALANCE ────────────────────────────────────
-  function startRealtimeDashboard() {
-    updateDoc(userRef, { online: true }).catch(()=>{});
-    unsubUser = onSnapshot(userRef, snap => {
-      if (!snap.exists()) return;
-      const d = snap.data();
-      const coins = d.coins ?? 0;
-      const gems = d.gems ?? 0;
-      const icon = document.getElementById("balanceIcon");
-      const val = document.getElementById("balanceValue");
-      const lbl = document.getElementById("balanceLabel");
-      if (d.gender === 'female') {
-        icon.innerText = "diamond"; icon.classList.add("text-red-400");
-        val.innerText = gems.toLocaleString(); lbl.innerText = "Gems";
-      } else {
-        icon.innerText = "monetization_on"; icon.classList.remove("text-red-400");
-        val.innerText = coins.toLocaleString(); lbl.innerText = "Coins";
-      }
-    });
-  }
-  startRealtimeDashboard();
-
-  // ──────── CHARM BADGE CLASS ───────────────────────────
-  function charmBadgeClass(lv) { return 'live-card-badge cl' + Math.min(lv||0, 10); }
-  function charmLabel(lv) { return 'Lv ' + (lv||0); }
-
-  // ──────── LIVE STREAMS REALTIME ───────────────────────
-  onSnapshot(collection(db, "lives"), snap => {
-    allLives = [];
-    snap.forEach(d => { const dd = d.data(); if (dd.status === 'live') allLives.push({id: d.id, ...dd}); });
-    renderGrid();
-    renderRisingStars();
+  updateDoc(userRef, { online: true }).catch(() => {});
+  unsubUser = onSnapshot(userRef, (snap) => {
+    if (!snap.exists()) return;
+    const d = snap.data();
+    const gender = d.gender, coins = d.coins ?? 0, gems = d.gems ?? 0;
+    const bi = document.getElementById("balanceIcon");
+    const bv = document.getElementById("balanceValue");
+    const bl = document.getElementById("balanceLabel");
+    if (gender === 'female') { bi.innerText = "diamond"; bi.classList.add("text-red-400"); bv.innerText = gems.toLocaleString(); bl.innerText = "Gems"; }
+    else { bi.innerText = "monetization_on"; bi.classList.remove("text-red-400"); bv.innerText = coins.toLocaleString(); bl.innerText = "Coins"; }
   });
 
-  function renderGrid() {
-    const grid = document.getElementById('lives-grid');
-    const lives = regionFilter
-      ? allLives.filter(l => l.countryCode === regionFilter || (l.countryFlag && l.countryCode === regionFilter))
-      : allLives;
+  // Level badge class
+  function lvBadge(charmLv, wealthLv) {
+    const lv = Math.max(charmLv||0, wealthLv||0);
+    const type = (charmLv||0) >= (wealthLv||0) ? 'cl' : 'wl';
+    return `${type}${Math.min(lv,10)}`;
+  }
+  function countryFlag(country) {
+    if (!country) return '';
+    if (typeof country === 'object') return country.flag || '';
+    return '';
+  }
 
-    if (lives.length === 0) {
-      grid.innerHTML = '<div class="col-span-2 flex items-center justify-center py-16 bg-surface-container-low"><p class="text-xs text-outline">No live streams at the moment</p></div>';
+  let allLives = [];
+  let activeRegion = 'ALL';
+
+  // Listen to lives collection
+  onSnapshot(collection(db, "lives"), (snapshot) => {
+    allLives = [];
+    snapshot.forEach(docSnap => {
+      const live = docSnap.data();
+      if (live.status === "live") allLives.push(live);
+    });
+    document.getElementById("liveCount").innerText = `${allLives.length} active`;
+    renderRisingStars();
+    renderGrid();
+  });
+
+  function renderRisingStars() {
+    const container = document.getElementById("risingStarsContainer");
+    if (allLives.length === 0) { container.innerHTML = '<p class="text-xs text-outline">No live streams at the moment</p>'; return; }
+    container.innerHTML = "";
+    allLives.slice(0, 10).forEach(live => {
+      const card = document.createElement("div");
+      card.className = "flex flex-col items-center gap-1 min-w-[56px] cursor-pointer";
+      card.onclick = () => joinLive(live.roomId);
+      const ava = live.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(live.username)}&background=006571&color=fff`;
+      const flag = countryFlag(live.country);
+      card.innerHTML = `
+        <div class="relative w-14 h-14">
+          <div class="absolute -top-1 left-0 z-10 w-3 h-3 bg-red-500 rounded-full animate-pulse border-2 border-white"></div>
+          <div class="w-full h-full rounded-full p-[2px] bg-gradient-to-tr from-red-500 to-pink-400">
+            <div class="w-full h-full rounded-full overflow-hidden bg-surface-container border-2 border-white">
+              <img class="w-full h-full object-cover" src="${ava}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(live.username)}&background=006571&color=fff'">
+            </div>
+          </div>
+        </div>
+        <span class="text-[10px] font-bold text-on-surface truncate w-full text-center">${flag} ${live.username||'Live'}</span>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function renderGrid() {
+    const grid = document.getElementById("liveGrid");
+    if (allLives.length === 0) {
+      grid.innerHTML = '<p class="col-span-2 text-center text-xs text-outline py-12">No live streams right now.<br>Be the first to go live! 🎥</p>';
       return;
     }
-    grid.innerHTML = '';
-    lives.forEach(live => {
-      const card = document.createElement('div');
-      card.className = 'relative aspect-[3/4] bg-slate-100 overflow-hidden cursor-pointer group';
-      card.onclick = () => joinLive(live.roomId);
-      const poster = live.posterURL || '';
-      const ava = live.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(live.username||'L')}&background=006571&color=fff&size=400`;
-      const bg = poster || ava;
+    const filtered = activeRegion === 'ALL' ? allLives : allLives.filter(l => {
+      const c = l.country;
+      if (!c) return false;
+      const name = typeof c === 'object' ? (c.name||'') : c;
+      const regionMap = {'UAE':'United Arab Emirates','INDIA':'India','KSA':'Saudi Arabia','PK':'Pakistan'};
+      return name.toLowerCase().includes((regionMap[activeRegion]||activeRegion).toLowerCase());
+    });
+    if (filtered.length === 0) {
+      grid.innerHTML = '<p class="col-span-2 text-center text-xs text-outline py-10">No live streams in this region</p>';
+      return;
+    }
+    grid.innerHTML = "";
+    filtered.forEach(live => {
+      const banner = live.bannerImage || live.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(live.username)}&background=006571&color=fff&size=400`;
+      const flag = countryFlag(live.country);
+      const countryName = live.country ? (typeof live.country === 'object' ? (live.country.name||'') : live.country) : '';
       const cl = live.charmLevel || 0;
-      const flag = live.countryFlag || '';
-      const viewers = live.viewerCount || 0;
-      const title = live.title || '';
-      const username = live.username || 'Live';
-
+      const wl = live.wealthLevel || 0;
+      const lvClass = lvBadge(cl, wl);
+      const lvNum = Math.max(cl, wl);
+      const title = live.title || (live.username + "'s Live");
+      const card = document.createElement("div");
+      card.className = "relative overflow-hidden bg-surface-container-low cursor-pointer group";
+      card.style.aspectRatio = '3/4';
+      card.onclick = () => joinLive(live.roomId);
       card.innerHTML = `
-        <img class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" src="${esc(bg)}" onerror="this.src='${esc(ava)}'">
-        <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/25"></div>
+        <img class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" src="${banner}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(live.username)}&background=1a2e6e&color=fff&size=400'">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/30"></div>
+        <!-- Live badge + level -->
         <div class="absolute top-2 left-2 flex flex-col gap-1">
-          <div class="bg-red-500 text-white text-[8px] font-extrabold px-1.5 py-0.5 flex items-center gap-1 w-fit">
-            <span class="w-1 h-1 bg-white rounded-full animate-pulse"></span> LIVE
+          <div class="bg-red-500 text-white text-[8px] font-extrabold px-1.5 py-0.5 flex items-center gap-1 w-fit rounded-sm">
+            <span class="w-1 h-1 bg-white rounded-full animate-pulse"></span>LIVE
           </div>
-          <div class="${charmBadgeClass(cl)}">${charmLabel(cl)}</div>
+          ${lvNum > 0 ? `<div class="${lvClass} text-white text-[7px] font-extrabold px-1.5 py-0.5 rounded-sm w-fit">Lv.${lvNum}</div>` : ''}
         </div>
-        ${flag ? `<div class="absolute top-2 right-2 flex items-center gap-1 bg-black/35 px-1.5 py-0.5"><span class="text-[11px]">${esc(flag)}</span></div>` : ''}
-        <div class="absolute bottom-2 left-2 right-10 text-white">
-          <h4 class="font-headline font-bold text-xs truncate">${esc(username)}</h4>
-          ${title ? `<p class="text-[9px] opacity-80 truncate">${esc(title)}</p>` : ''}
-          ${viewers > 0 ? `<p class="text-[8px] opacity-60 mt-0.5">👁 ${viewers}</p>` : ''}
+        <!-- Country flag -->
+        ${flag ? `<div class="absolute top-2 right-2 flex items-center gap-1 bg-black/35 backdrop-blur-sm px-1.5 py-0.5 rounded-sm">
+          <span class="text-[10px]">${flag}</span>
+          <span class="text-[7px] text-white font-bold">${countryName.substring(0,3).toUpperCase()}</span>
+        </div>` : ''}
+        <!-- Bottom info -->
+        <div class="absolute bottom-2 left-2 right-10">
+          <h4 class="font-headline font-bold text-xs text-white truncate">${title}</h4>
+          <p class="text-[9px] text-white/75 truncate mt-0.5">${live.username || 'Host'}</p>
         </div>
-        <button class="absolute bottom-2 right-2 w-7 h-7 bg-primary text-white flex items-center justify-center active:scale-90 transition-transform rounded-sm" onclick="event.stopPropagation(); joinLive('${esc(live.roomId)}')">
-          <span class="material-symbols-outlined text-base">videocam</span>
-        </button>`;
+        <!-- Video call icon -->
+        <button onclick="event.stopPropagation();joinLive('${live.roomId}')" class="absolute bottom-2 right-2 w-7 h-7 bg-primary text-white flex items-center justify-center rounded-sm active:scale-90 transition-transform">
+          <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL'1">videocam</span>
+        </button>
+      `;
       grid.appendChild(card);
     });
   }
 
-  function renderRisingStars() {
-    const container = document.getElementById('rising-stars-container');
-    const count = document.getElementById('rising-count');
-    const lives = allLives.slice(0, 10);
-    count.innerText = lives.length + ' live';
-    if (lives.length === 0) {
-      container.innerHTML = '<p class="text-xs text-outline py-2">No live users yet</p>';
-      return;
-    }
-    container.innerHTML = '';
-    lives.forEach(live => {
-      const ava = live.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(live.username||'L')}&background=006571&color=fff`;
-      const div = document.createElement('div');
-      div.className = 'flex flex-col items-center gap-1 min-w-[56px] cursor-pointer';
-      div.onclick = () => joinLive(live.roomId);
-      div.innerHTML = `
-        <div class="relative w-14 h-14">
-          <div class="absolute -top-1 right-0 z-10 w-3 h-3 bg-red-500 border-2 border-white rounded-full animate-pulse"></div>
-          <div class="w-full h-full rounded-full p-[2px] bg-gradient-to-tr from-primary to-tertiary">
-            <div class="w-full h-full rounded-full border border-white overflow-hidden bg-slate-100">
-              <img class="w-full h-full object-cover" src="${esc(ava)}">
-            </div>
-          </div>
-        </div>
-        <span class="text-[10px] font-bold text-on-surface truncate w-full text-center">${esc(live.username||'Live')}</span>`;
-      container.appendChild(div);
+  window.filterRegion = function(r) {
+    activeRegion = r;
+    document.querySelectorAll('.region-btn').forEach(b => {
+      if (b.dataset.r === r) b.classList.replace('bg-surface-container-high', 'bg-primary'), b.classList.replace('text-on-surface-variant', 'text-white');
+      else b.classList.replace('bg-primary', 'bg-surface-container-high'), b.classList.replace('text-white', 'text-on-surface-variant');
     });
-  }
-
-  // ──────── REGION FILTER ──────────────────────────────
-  window.filterRegion = function(code, btn) {
-    regionFilter = code;
-    document.querySelectorAll('[onclick^="filterRegion"]').forEach(b => {
-      b.className = b.className.replace('bg-primary text-white','bg-slate-100 text-on-surface-variant');
-    });
-    btn.className = btn.className.replace('bg-slate-100 text-on-surface-variant','bg-primary text-white');
     renderGrid();
   };
 
-  // ──────── GO LIVE ─────────────────────────────────────
-  window.goLive = async () => {
-    try {
-      await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-    } catch(e) {
-      alert("Camera / Microphone permission denied ❌");
-      return;
-    }
-    window.location.href = 'createlive.html';
-  };
+  window.joinLive = (roomId) => { window.location.href = `live.html?room=${roomId}`; };
 
-  // ──────── JOIN LIVE ──────────────────────────────────
-  window.joinLive = roomId => {
-    window.location.href = `live.html?room=${roomId}`;
-  };
-
-  // ──────── CLEANUP ────────────────────────────────────
   window.addEventListener("beforeunload", () => {
     if (unsubUser) unsubUser();
-    updateDoc(userRef, { online: false }).catch(()=>{});
+    updateDoc(userRef, { online: false }).catch(() => {});
   });
-
-  // ──────── WITHDRAW ───────────────────────────────────
-  window.toggleWithdraw = () => document.getElementById("withdrawPanel").classList.toggle("hidden");
-  window.submitWithdraw = () => {
-    const amount = document.getElementById("withdrawAmount").value;
-    const wallet = document.getElementById("withdrawWallet").value;
-    if (!amount || amount < 65000) { alert("Minimum 65,000 gems"); return; }
-    if (!wallet.startsWith("T") || wallet.length < 30) { alert("Invalid TRC20 wallet"); return; }
-    alert(`Withdraw request for ${amount} gems sent`);
-  };
-  window.loadWithdrawHistory = () => {
-    document.getElementById("withdrawHistory").innerHTML = "📜 Coming soon...";
-  };
 </script>
 </body>
 </html>
