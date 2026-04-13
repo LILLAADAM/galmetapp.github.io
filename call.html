@@ -25,21 +25,24 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pl
 /* VIDEO */
 #remote-wrap{position:fixed;inset:0;z-index:0;background:#0a0a12;}
 #remote-wrap video{width:100%;height:100%;object-fit:cover;display:block;}
-/* Agora wraps video in a div - target both */
-#remote-wrap.fw-warm div video,#remote-wrap.fw-warm video{filter:sepia(.42) saturate(1.4) brightness(1.05)!important;}
-#remote-wrap.fw-cool div video,#remote-wrap.fw-cool video{filter:hue-rotate(22deg) saturate(1.22) brightness(.97)!important;}
-#remote-wrap.fw-vivid div video,#remote-wrap.fw-vivid video{filter:saturate(1.95) contrast(1.08)!important;}
-#remote-wrap.fw-mono div video,#remote-wrap.fw-mono video{filter:grayscale(1) contrast(1.06)!important;}
-#remote-wrap.fw-golden div video,#remote-wrap.fw-golden video{filter:sepia(.62) saturate(1.5) brightness(1.08) hue-rotate(-8deg)!important;}
-#remote-wrap.fw-rose div video,#remote-wrap.fw-rose video{filter:hue-rotate(-22deg) saturate(1.45) brightness(1.04)!important;}
-#remote-wrap.fw-beauty div video,#remote-wrap.fw-beauty video{filter:brightness(1.12) saturate(1.1) contrast(.96)!important;}
+/* Filters on remote - target Agora's div>video structure */
+#remote-wrap.fw-beauty video,#remote-wrap.fw-beauty>div video{filter:brightness(1.12) saturate(1.1) contrast(.96)!important;}
+#remote-wrap.fw-warm video,#remote-wrap.fw-warm>div video{filter:sepia(.42) saturate(1.4) brightness(1.05)!important;}
+#remote-wrap.fw-cool video,#remote-wrap.fw-cool>div video{filter:hue-rotate(22deg) saturate(1.22) brightness(.97)!important;}
+#remote-wrap.fw-vivid video,#remote-wrap.fw-vivid>div video{filter:saturate(1.95) contrast(1.08)!important;}
+#remote-wrap.fw-mono video,#remote-wrap.fw-mono>div video{filter:grayscale(1) contrast(1.06)!important;}
+#remote-wrap.fw-golden video,#remote-wrap.fw-golden>div video{filter:sepia(.62) saturate(1.5) brightness(1.08) hue-rotate(-8deg)!important;}
+#remote-wrap.fw-rose video,#remote-wrap.fw-rose>div video{filter:hue-rotate(-22deg) saturate(1.45) brightness(1.04)!important;}
+/* Filters on local */
+#local-wrap.fw-beauty video{filter:brightness(1.12) saturate(1.1) contrast(.96)!important;}
 #local-wrap.fw-warm video{filter:sepia(.42) saturate(1.4) brightness(1.05)!important;}
 #local-wrap.fw-cool video{filter:hue-rotate(22deg) saturate(1.22) brightness(.97)!important;}
 #local-wrap.fw-vivid video{filter:saturate(1.95) contrast(1.08)!important;}
 #local-wrap.fw-mono video{filter:grayscale(1) contrast(1.06)!important;}
 #local-wrap.fw-golden video{filter:sepia(.62) saturate(1.5) brightness(1.08) hue-rotate(-8deg)!important;}
 #local-wrap.fw-rose video{filter:hue-rotate(-22deg) saturate(1.45) brightness(1.04)!important;}
-#local-wrap.fw-beauty video{filter:brightness(1.12) saturate(1.1) contrast(.96)!important;}
+/* Mirror for local preview in call */
+#local-wrap.mirrored video{transform:scaleX(-1)!important;}
 
 #local-wrap{position:fixed;bottom:108px;right:16px;width:120px;height:168px;z-index:20;border-radius:18px;overflow:hidden;border:2px solid rgba(79,124,255,.5);box-shadow:0 8px 30px rgba(0,0,0,.6);cursor:move;background:#1a2030;}
 #local-wrap video{width:100%;height:100%;object-fit:cover;display:block;}
@@ -56,7 +59,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pl
 .spin{width:32px;height:32px;border:3px solid rgba(79,124,255,.18);border-top-color:var(--blue);border-radius:50%;animation:sp .75s linear infinite;}
 @keyframes sp{to{transform:rotate(360deg);}}
 
-/* BACK TO LIVE */
+/* BACK TO LIVE POPUP */
 #back-live-popup{position:fixed;inset:0;z-index:200;background:rgba(6,8,15,.9);backdrop-filter:blur(16px);display:none;flex-direction:column;align-items:center;justify-content:center;}
 #back-live-popup.on{display:flex;}
 .blp-card{background:var(--surf);border:1px solid var(--border2);border-radius:24px;padding:32px 28px;text-align:center;width:300px;max-width:90vw;}
@@ -84,10 +87,10 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pl
 .timer-chip{background:var(--glass);backdrop-filter:var(--blur);border:1px solid var(--border2);border-radius:99px;padding:6px 14px;font-size:16px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:.04em;}
 .gems-chip{display:flex;align-items:center;gap:4px;background:rgba(255,197,49,.12);border:1px solid rgba(255,197,49,.22);border-radius:99px;padding:5px 10px;}
 .gems-chip .ms{font-size:12px;color:var(--gold);}
-.gems-chip-txt{font-size:10px;font-weight:900;color:var(--gold);}
+.gems-chip-txt{font-size:11px;font-weight:900;color:var(--gold);}
 .cost-chip{display:flex;align-items:center;gap:4px;background:rgba(255,61,110,.1);border:1px solid rgba(255,61,110,.22);border-radius:99px;padding:5px 10px;}
 .cost-chip .ms{font-size:12px;color:var(--pink);}
-.cost-chip-txt{font-size:10px;font-weight:900;color:var(--pink);}
+.cost-chip-txt{font-size:11px;font-weight:900;color:var(--pink);}
 
 /* SCROLLING IMAGES */
 #img-scroll-overlay{position:fixed;inset:0;z-index:22;pointer-events:none;background:rgba(6,8,15,.4);display:none;}
@@ -112,12 +115,12 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pl
 .chat-msg-item .sender{font-size:9px;font-weight:900;color:var(--muted);margin-bottom:2px;}
 .chat-msg-item .msgtext{color:var(--text);}
 .trans-row{display:flex;align-items:center;gap:5px;margin-top:4px;flex-wrap:wrap;}
-.trans-btn-inline{background:rgba(79,124,255,.15);border:1px solid rgba(79,124,255,.25);color:var(--blue);font-size:9px;font-weight:700;border-radius:99px;padding:2px 8px;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0;}
+.trans-btn-inline{background:rgba(79,124,255,.15);border:1px solid rgba(79,124,255,.25);color:var(--blue);font-size:9px;font-weight:700;border-radius:99px;padding:2px 8px;cursor:pointer;font-family:inherit;}
 .translated-text{font-size:9.5px;color:var(--gold);font-style:italic;}
 #lang-row{display:flex;align-items:center;gap:5px;padding:4px 10px 0;pointer-events:auto;}
-#lang-row label{font-size:9px;color:var(--muted);font-weight:700;white-space:nowrap;}
+#lang-row label{font-size:9px;color:var(--muted);font-weight:700;}
 #lang-sel{background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:8px;padding:3px 6px;color:var(--text);font-size:10px;font-family:inherit;outline:none;max-width:110px;}
-#chat-input-row{display:flex;align-items:center;gap:6px;background:var(--glass);backdrop-filter:var(--blur);border:1px solid var(--border2);border-radius:13px;padding:8px 10px;margin-top:6px;pointer-events:auto;transition:border-color .2s;}
+#chat-input-row{display:flex;align-items:center;gap:6px;background:var(--glass);backdrop-filter:var(--blur);border:1px solid var(--border2);border-radius:13px;padding:8px 10px;margin-top:6px;pointer-events:auto;}
 #chat-input-row:focus-within{border-color:rgba(79,124,255,.5);}
 #call-chat-input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-size:13px;font-family:inherit;}
 #call-chat-input::placeholder{color:var(--muted);}
@@ -129,14 +132,15 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pl
 .ctrl-btn{width:50px;height:50px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,transform .1s;flex-shrink:0;}
 .ctrl-btn:active{transform:scale(.91);}
 .cb-default{background:rgba(255,255,255,.1);border:1px solid var(--border2);color:var(--text);}
-.cb-active{background:rgba(79,124,255,.2);border:1px solid rgba(79,124,255,.4);color:var(--blue);}
 .cb-off{background:rgba(255,61,110,.15);border:1px solid rgba(255,61,110,.3);color:var(--pink);}
 #end-call-btn{background:var(--pink);color:#fff;border:none;border-radius:99px;padding:0 20px;height:50px;font-size:13px;font-weight:900;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;box-shadow:0 5px 18px rgba(255,61,110,.3);}
+/* MIRROR TOGGLE for call */
+.cb-active{background:rgba(79,124,255,.2);border:1px solid rgba(79,124,255,.4);color:var(--blue);}
 
 /* SETTINGS SHEET */
 #sh-bd{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.65);backdrop-filter:blur(5px);opacity:0;pointer-events:none;transition:opacity .26s;}
 #sh-bd.on{opacity:1;pointer-events:auto;}
-.sheet{position:fixed;bottom:0;left:0;right:0;z-index:60;background:var(--surf);border:1px solid var(--border2);border-radius:20px 20px 0 0;transform:translateY(102%);transition:transform .34s cubic-bezier(.32,1,.46,1);max-height:78vh;overflow-y:auto;}
+.sheet{position:fixed;bottom:0;left:0;right:0;z-index:60;background:var(--surf);border:1px solid var(--border2);border-radius:20px 20px 0 0;transform:translateY(102%);transition:transform .34s cubic-bezier(.32,1,.46,1);max-height:80vh;overflow-y:auto;}
 .sheet.on{transform:translateY(0);}
 .sh-handle{width:32px;height:4px;background:rgba(255,255,255,.13);border-radius:99px;margin:10px auto 0;}
 .sh-hdr{display:flex;justify-content:space-between;align-items:center;padding:12px 16px 8px;}
@@ -150,25 +154,19 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pl
 .mrow .ml p{font-size:12.5px;font-weight:700;}
 .mrow .ml small{font-size:9.5px;color:var(--blue);font-weight:700;}
 .mdiv{height:1px;background:rgba(255,255,255,.06);margin:4px 14px;}
+.tog{position:relative;display:inline-block;width:36px;height:20px;flex-shrink:0;}
+.tog input{opacity:0;width:0;height:0;}
+.tsl{position:absolute;cursor:pointer;inset:0;background:rgba(255,255,255,.1);border-radius:99px;transition:.26s;}
+.tsl::before{content:'';position:absolute;width:14px;height:14px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.26s;}
+.tog input:checked+.tsl{background:var(--blue);}
+.tog input:checked+.tsl::before{transform:translateX(16px);}
 /* FILTER GRID */
 #call-fgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;padding:4px 14px 18px;}
-.cfi{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;transition:transform .13s;}
-.cfi:hover{transform:scale(1.07);}
+.cfi{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;}
 .cfi.sel .cfsw{outline:2px solid var(--blue);outline-offset:2px;}
 .cfsw{width:100%;aspect-ratio:1;border-radius:10px;border:1px solid rgba(255,255,255,.1);}
 .cfi span{font-size:9px;color:var(--muted);font-weight:700;}
 .cfi.sel span{color:var(--text);}
-/* IMG SHEET */
-#img-sheet{position:fixed;bottom:0;left:0;right:0;z-index:60;background:var(--surf);border:1px solid var(--border2);border-radius:20px 20px 0 0;transform:translateY(102%);transition:transform .34s cubic-bezier(.32,1,.46,1);padding-bottom:max(env(safe-area-inset-bottom),14px);}
-#img-sheet.on{transform:translateY(0);}
-#img-preview-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:4px 13px 10px;max-height:200px;overflow-y:auto;}
-#img-preview-grid::-webkit-scrollbar{display:none;}
-.prev-img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;border:1px solid var(--border);}
-.img-sheet-row{padding:8px 13px;display:flex;gap:8px;}
-.isa-upload{flex:1;background:rgba(255,255,255,.07);border:1px solid var(--border2);border-radius:12px;padding:11px;text-align:center;cursor:pointer;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:5px;color:var(--text);}
-.isa-start{flex:1;background:var(--blue);color:#fff;border:none;border-radius:12px;padding:11px;font-size:12px;font-weight:900;cursor:pointer;font-family:inherit;}
-#stop-scroll-btn{width:calc(100% - 26px);margin:0 13px 8px;background:rgba(255,61,110,.12);color:var(--pink);border:1px solid rgba(255,61,110,.3);border-radius:12px;padding:10px;font-size:12px;font-weight:900;cursor:pointer;font-family:inherit;display:none;}
-#stop-scroll-btn.on{display:block;}
 </style>
 </head>
 <body>
@@ -190,14 +188,14 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pl
 <!-- BACK TO LIVE -->
 <div id="back-live-popup">
   <div class="blp-card">
-    <div class="blp-icon">&#128250;</div>
+    <div class="blp-icon">📺</div>
     <div class="blp-title">Call Ended</div>
     <div class="blp-sub">Your viewers are waiting. Return to your live stream.</div>
     <div class="blp-stats">
       <div class="blp-stat"><div class="sv" id="blp-dur">0:00</div><div class="sl">Duration</div></div>
       <div class="blp-stat"><div class="sv" id="blp-gems">0</div><div class="sl">Gems Earned</div></div>
     </div>
-    <button id="back-live-btn">&#127916; Back to Live</button>
+    <button id="back-live-btn">🎬 Back to Live</button>
   </div>
 </div>
 
@@ -258,6 +256,11 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pl
     <span class="ms">flip_camera_ios</span>
     <div class="ml"><p>Flip Camera</p><small id="cam-side-lbl">Front-facing</small></div>
   </div>
+  <div class="mrow">
+    <span class="ms">camera_front</span>
+    <div class="ml"><p>Mirror Preview</p><small id="mir-call-lbl">Off</small></div>
+    <label class="tog"><input type="checkbox" id="mir-call-tog"><span class="tsl"></span></label>
+  </div>
   <div class="mdiv"></div>
   <div class="msec">Video Filters</div>
   <div id="call-fgrid"></div>
@@ -265,25 +268,27 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pl
   <div class="msec" id="img-sec" style="display:none;">Scroll Images</div>
   <div class="mrow" id="img-open-row" style="display:none;">
     <span class="ms f">photo_library</span>
-    <div class="ml"><p>Upload &amp; Scroll Images</p><small>Show images to viewers</small></div>
+    <div class="ml"><p>Upload &amp; Scroll Images</p><small>Show images to both sides</small></div>
   </div>
   <div class="mdiv" style="margin-bottom:10px;"></div>
 </div>
 
-<!-- IMAGE SHEET -->
-<div id="img-sheet">
+<!-- IMAGE SHEET (inside settings) -->
+<div class="sheet" id="img-sheet">
   <div class="sh-handle"></div>
   <div class="sh-hdr">
-    <span class="sh-title">&#128247; Scroll Images</span>
+    <span class="sh-title">📷 Scroll Images</span>
     <button class="sh-close" id="img-sh-close"><span class="ms" style="font-size:14px;">close</span></button>
   </div>
-  <div id="img-preview-grid"></div>
-  <div class="img-sheet-row">
-    <label class="isa-upload" for="img-file-input"><span class="ms f" style="font-size:15px;">add_photo_alternate</span> Add Photos</label>
+  <div id="img-preview-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:4px 13px 10px;max-height:200px;overflow-y:auto;"></div>
+  <div style="padding:8px 13px;display:flex;gap:8px;">
+    <label style="flex:1;background:rgba(255,255,255,.07);border:1px solid var(--border2);border-radius:12px;padding:11px;text-align:center;cursor:pointer;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:5px;" for="img-file-input">
+      <span class="ms f" style="font-size:15px;">add_photo_alternate</span> Add Photos
+    </label>
     <input type="file" id="img-file-input" accept="image/*" multiple style="display:none;">
-    <button class="isa-start" id="do-scroll-btn">&#9654; Start</button>
+    <button style="flex:1;background:var(--blue);color:#fff;border:none;border-radius:12px;padding:11px;font-size:12px;font-weight:900;cursor:pointer;font-family:inherit;" id="do-scroll-btn">▶ Start</button>
   </div>
-  <button id="stop-scroll-btn">&#9632; Stop</button>
+  <button id="stop-scroll-btn" style="width:calc(100% - 26px);margin:0 13px 10px;background:rgba(255,61,110,.12);color:var(--pink);border:1px solid rgba(255,61,110,.3);border-radius:12px;padding:10px;font-size:12px;font-weight:900;cursor:pointer;font-family:inherit;display:none;">■ Stop Scrolling</button>
 </div>
 
 <!-- CONTROLS -->
@@ -291,453 +296,320 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pl
   <button class="ctrl-btn cb-default" id="mic-btn"><span class="ms" style="font-size:21px;">mic</span></button>
   <button class="ctrl-btn cb-default" id="cam-btn"><span class="ms" style="font-size:21px;">videocam</span></button>
   <button id="end-call-btn"><span class="ms" style="font-size:19px;">call_end</span>End</button>
+  <button class="ctrl-btn cb-default" id="mir-btn" title="Mirror preview"><span class="ms">camera_front</span></button>
   <button class="ctrl-btn cb-default" id="settings-btn"><span class="ms f" style="font-size:21px;">settings</span></button>
 </div>
 
 <script>
-// ─── FIREBASE ───────────────────────────────────────────────────────────
-var FBC = { apiKey:"AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY", authDomain:"galmet-app.firebaseapp.com", projectId:"galmet-app", storageBucket:"galmet-app.firebasestorage.app" };
-if (!firebase.apps.length) firebase.initializeApp(FBC);
-var db = firebase.firestore();
+// ─── FIREBASE ─────────────────────────────────────────────────────────────
+var FBC={apiKey:"AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",authDomain:"galmet-app.firebaseapp.com",projectId:"galmet-app",storageBucket:"galmet-app.firebasestorage.app"};
+if(!firebase.apps.length)firebase.initializeApp(FBC);
+var db=firebase.firestore();
 
-// ─── AUTH ────────────────────────────────────────────────────────────────
-var CU = JSON.parse(localStorage.getItem("user") || "null");
-if (!CU || !CU.userId) { location.replace("login.html"); }
-var ME = String(CU.userId);
-var MY_NAME = CU.username || "User";
-var MY_AVA = CU.photoURL || ("https://ui-avatars.com/api/?name=" + encodeURIComponent(MY_NAME) + "&background=1a2e6e&color=fff");
-var sp = new URLSearchParams(location.search);
-var roomId = sp.get("room"), callerId = sp.get("callerId"), hostId = sp.get("hostId");
-if (!roomId || !callerId || !hostId) { alert("Invalid call"); location.href = "dashboard.html"; }
-var IS_HOST = ME === hostId, IS_CALLER = ME === callerId;
-var peerId = IS_HOST ? callerId : hostId;
+// ─── AUTH ─────────────────────────────────────────────────────────────────
+var CU=JSON.parse(localStorage.getItem("user")||"null");
+if(!CU||!CU.userId){location.replace("login.html");}
+var ME=String(CU.userId);
+var MY_NAME=CU.username||"User";
+var MY_AVA=CU.photoURL||("https://ui-avatars.com/api/?name="+encodeURIComponent(MY_NAME)+"&background=1a2e6e&color=fff");
+var sp=new URLSearchParams(location.search);
+var roomId=sp.get("room"),callerId=sp.get("callerId"),hostId=sp.get("hostId");
+var chatRoom=sp.get("chatRoom"); // unique per call session - prevents old chat showing
+if(!roomId||!callerId||!hostId){alert("Invalid call");location.href="dashboard.html";}
+var IS_HOST=ME===hostId,IS_CALLER=ME===callerId;
+var peerId=IS_HOST?callerId:hostId;
+var APP_ID="873172a9b2064b1ca97b4f45ee6ed9b5";
+var TOKEN="007eJxTYHC/KnpO5rpCFs8c7"+"+nLQ26yuWXEWpnmB9xS"+"+agWbMxiUa/AYGFubGhulGiZZGRgZpJkmJxoaZ5kkmZimppqlppimWT6"+"+fDtzIZARoackF1MjAwQCOLzMhTl5"+"+fGm1oYG5kYWpgyMAAAgbgfZA==";
 
-var APP_ID = "873172a9b2064b1ca97b4f45ee6ed9b5";
-var TOKEN = "007eJxTYHC/KnpO5rpCFs8c7" + "+nLQ26yuWXEWpnmB9xS" + "+agWbMxiUa/AYGFubGhulGiZZGRgZpJkmJxoaZ5kkmZimppqlppimWT6" + "+fDtzIZARoackF1MjAwQCOLzMhTl5" + "+fGm1oYG5kYWpgyMAAAgbgfZA==";
-
-// ─── STATE ────────────────────────────────────────────────────────────────
-var agora = null, locAudio = null, locVideo = null;
-var isMuted = false, camEnabled = true, camFront = true;
-var callActive = false, bothConnected = false, startTime = null;
-var timerInterval = null, deductInterval = null;
-var callPrice = 1000, gemsEarned = 0;
-var chatUnsub = null, readyUnsub = null, callEndUnsub = null;
-var localImgURLs = [], scrollRunning = false;
-var callRoomId = 'callchat_' + roomId;
-var activeFilter = 'none';
-var chatHideTimer = null, chatVisible = true;
-
-var connectOv = document.getElementById('connect-ov');
-var backPopup = document.getElementById('back-live-popup');
-var timerEl = document.getElementById('timer');
-var chatMsgs = document.getElementById('chat-msgs');
-var chatWrap = document.getElementById('chat-wrap');
+// ─── STATE ─────────────────────────────────────────────────────────────────
+var agora=null,locAudio=null,locVideo=null;
+var isMuted=false,camEnabled=true,camFront=true,mirrorOn=false;
+var callActive=false,bothConnected=false,startTime=null;
+var timerInterval=null,deductInterval=null;
+var callPrice=1000,gemsEarned=0,hostCharmLevel=0;
+var chatUnsub=null,readyUnsub=null,callEndUnsub=null;
+var localImgURLs=[],scrollRunning=false;
+var activeFilter='none';
+var chatHideTimer=null,chatVisible=true;
+// chatRoom is unique per call session - prevents showing previous call's messages
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────
-function esc(s) {
-  if (!s) return '';
-  return String(s).replace(/[&<>"']/g, function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];});
-}
-var toastT = null;
-function toast(msg, dur) {
-  dur = dur || 2500;
-  var el = document.getElementById('toast'); el.textContent = msg; el.classList.add('on');
-  clearTimeout(toastT); toastT = setTimeout(function(){el.classList.remove('on');}, dur);
-}
-function fmtTime(ms) {
-  var s = Math.floor(ms/1000);
-  return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
-}
+function esc(s){if(!s)return'';return String(s).replace(/[&<>"']/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];});}
+var toastT=null;
+function toast(msg,dur){dur=dur||2500;var el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');clearTimeout(toastT);toastT=setTimeout(function(){el.classList.remove('on');},dur);}
+function fmtTime(ms){var s=Math.floor(ms/1000);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+// Gem rate: based on host's charm level
+function getGemRate(cl){if(cl<=0)return 0.30;if(cl<=2)return 0.32;if(cl<=4)return 0.35;if(cl<=6)return 0.37;if(cl<=8)return 0.39;return 0.40;}
 
 // ─── CHAT AUTO-HIDE ───────────────────────────────────────────────────────
-function showChat() {
-  chatWrap.classList.remove('hidden'); chatWrap.classList.add('visible'); chatVisible = true;
-  clearTimeout(chatHideTimer);
-  chatHideTimer = setTimeout(function() {
-    if (!document.getElementById('call-chat-input').value.trim()) hideChat();
-  }, 5000);
-}
-function hideChat() { chatWrap.classList.remove('visible'); chatWrap.classList.add('hidden'); chatVisible = false; }
-document.getElementById('remote-wrap').addEventListener('click', function(){ if(chatVisible) hideChat(); else showChat(); });
-document.getElementById('vg').addEventListener('click', function(){ if(chatVisible) hideChat(); else showChat(); });
-document.getElementById('call-chat-input').addEventListener('focus', showChat);
-document.getElementById('call-chat-input').addEventListener('input', function() {
-  showChat();
-  var btn = document.getElementById('call-send-btn');
-  if (this.value.trim()) btn.classList.add('vis'); else btn.classList.remove('vis');
-});
+function showChat(){chatWrap.classList.remove('hidden');chatWrap.classList.add('visible');chatVisible=true;clearTimeout(chatHideTimer);chatHideTimer=setTimeout(function(){if(!document.getElementById('call-chat-input').value.trim())hideChat();},5000);}
+function hideChat(){chatWrap.classList.remove('visible');chatWrap.classList.add('hidden');chatVisible=false;}
+var chatWrap=document.getElementById('chat-wrap');
+document.getElementById('remote-wrap').addEventListener('click',function(){if(chatVisible)hideChat();else showChat();});
+document.getElementById('vg').addEventListener('click',function(){if(chatVisible)hideChat();else showChat();});
+document.getElementById('call-chat-input').addEventListener('focus',showChat);
+document.getElementById('call-chat-input').addEventListener('input',function(){showChat();var btn=document.getElementById('call-send-btn');if(this.value.trim())btn.classList.add('vis');else btn.classList.remove('vis');});
 
 // ─── LOAD PEER ────────────────────────────────────────────────────────────
-function loadPeer() {
-  return db.doc('users/' + peerId).get().then(function(snap) {
-    if (snap.exists) {
-      var d = snap.data();
-      var ava = d.photoURL || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(d.username||'User') + '&background=1a2e6e&color=fff');
-      document.getElementById('peer-ava').src = ava;
-      document.getElementById('peer-name').textContent = d.username || 'User';
-      document.getElementById('conn-ava').src = ava;
-      document.getElementById('conn-name').textContent = d.username || 'User';
-    }
-    document.getElementById('peer-role').textContent = IS_HOST ? 'Caller' : 'Host';
-    return db.doc('calls/' + roomId).get();
-  }).then(function(cs) {
-    if (cs.exists && cs.data().callPrice) callPrice = cs.data().callPrice;
-    if (IS_CALLER) {
-      document.getElementById('caller-cost-chip').style.display = 'flex';
-      document.getElementById('cost-display').textContent = callPrice + ' coins/min';
-    } else {
-      document.getElementById('host-gems-chip').style.display = 'flex';
-      document.getElementById('live-gems-earned').textContent = '0 gems';
-    }
+function loadPeer(){
+  return db.doc('users/'+peerId).get().then(function(snap){
+    if(snap.exists){var d=snap.data();var ava=d.photoURL||('https://ui-avatars.com/api/?name='+encodeURIComponent(d.username||'User')+'&background=1a2e6e&color=fff');document.getElementById('peer-ava').src=ava;document.getElementById('peer-name').textContent=d.username||'User';document.getElementById('conn-ava').src=ava;document.getElementById('conn-name').textContent=d.username||'User';}
+    document.getElementById('peer-role').textContent=IS_HOST?'Caller':'Host';
+    // Load host charm level for gem rate
+    if(IS_HOST){hostCharmLevel=(snap.exists&&snap.data().charmLevel)||0;}
+    else{return db.doc('users/'+hostId).get().then(function(hs){hostCharmLevel=(hs.exists&&hs.data().charmLevel)||0;});}
+    return db.doc('calls/'+roomId).get();
+  }).then(function(cs){
+    if(cs&&cs.exists&&cs.data().callPrice)callPrice=cs.data().callPrice;
+    if(IS_CALLER){document.getElementById('caller-cost-chip').style.display='flex';document.getElementById('cost-display').textContent=callPrice+' coins/min';}
+    else{document.getElementById('host-gems-chip').style.display='flex';document.getElementById('live-gems-earned').textContent='0 gems';}
   }).catch(function(){});
 }
 
-// ─── TIMER (starts only when BOTH connected via Firestore handshake) ───────
-function startTimer() {
-  startTime = Date.now();
-  timerInterval = setInterval(function() {
-    if (!callActive) return;
-    timerEl.textContent = fmtTime(Date.now() - startTime);
-    if (IS_HOST) document.getElementById('live-gems-earned').textContent = gemsEarned + ' gems';
-  }, 1000);
+// ─── TIMER ────────────────────────────────────────────────────────────────
+function startTimer(){
+  startTime=Date.now();
+  timerInterval=setInterval(function(){
+    if(!callActive)return;
+    document.getElementById('timer').textContent=fmtTime(Date.now()-startTime);
+    if(IS_HOST){document.getElementById('live-gems-earned').textContent=gemsEarned+' gems';}
+  },1000);
 }
 
-// ─── PROPORTIONAL DEDUCTION (pro-rata per second) ─────────────────────────
-// Charge based on actual call duration, not whole minutes
-// We deduct per-minute but track start time for final settlement
-function startDeduction() {
-  if (!IS_CALLER) return;
-  // Deduct per minute
-  deductInterval = setInterval(function() {
-    if (!callActive) return;
-    db.doc('users/' + ME).get().then(function(snap) {
-      var coins = snap.exists ? (snap.data().coins||0) : 0;
-      if (coins < callPrice) { toast('Insufficient coins - call ending'); setTimeout(function(){endCall(true);}, 1500); return; }
-      db.doc('users/' + ME).update({ coins: firebase.firestore.FieldValue.increment(-callPrice) });
-      db.doc('users/' + hostId).update({
-        gems: firebase.firestore.FieldValue.increment(callPrice),
-        totalGemsEarned: firebase.firestore.FieldValue.increment(callPrice),
-        callGemsEarned: firebase.firestore.FieldValue.increment(callPrice)
-      }).catch(function(){});
-      // Record transaction
-      db.collection('transactions').add({
-        type:'callGems', senderId:ME, receiverId:hostId,
-        coins:-callPrice, gems:callPrice, roomId:roomId,
-        note:'Video call per minute charge',
-        createdAt:firebase.firestore.FieldValue.serverTimestamp()
-      });
-      gemsEarned += callPrice;
-      document.getElementById('blp-gems').textContent = gemsEarned;
+// ─── BILLING (per-minute deduction + pro-rata final) ──────────────────────
+function startDeduction(){
+  if(!IS_CALLER)return;
+  deductInterval=setInterval(function(){
+    if(!callActive)return;
+    db.doc('users/'+ME).get().then(function(snap){
+      var coins=snap.exists?(snap.data().coins||0):0;
+      if(coins<callPrice){toast('Insufficient coins - ending call');setTimeout(function(){endCall(true);},1500);return;}
+      var gemRate=getGemRate(hostCharmLevel);
+      var gemsToHost=Math.round(callPrice*gemRate);
+      db.doc('users/'+ME).update({coins:firebase.firestore.FieldValue.increment(-callPrice)});
+      db.doc('users/'+hostId).update({gems:firebase.firestore.FieldValue.increment(gemsToHost),totalGemsEarned:firebase.firestore.FieldValue.increment(gemsToHost),callGemsEarned:firebase.firestore.FieldValue.increment(gemsToHost)}).catch(function(){});
+      db.collection('transactions').add({type:'callGems',senderId:ME,senderName:MY_NAME,receiverId:hostId,coins:-callPrice,gems:gemsToHost,gemRate:gemRate,roomId:roomId,note:'Video call 1 min charge',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+      gemsEarned+=gemsToHost;
+      document.getElementById('blp-gems').textContent=gemsEarned;
     });
-  }, 60000);
+  },60000);
 }
 
-// Pro-rata settlement on call end
-function settleProRata() {
-  if (!IS_CALLER || !startTime) return Promise.resolve();
-  var duration = Date.now() - startTime;
-  var durationSecs = Math.floor(duration / 1000);
-  // Already charged for full minutes; calculate fraction of current minute
-  var fullMinutes = Math.floor(durationSecs / 60);
-  var remainingSecs = durationSecs % 60;
-  if (remainingSecs === 0) return Promise.resolve(); // exact minute, already charged
-  // Charge fraction: e.g., 30s = 50%, 15s = 25%, 45s = 75%
-  var fraction = remainingSecs / 60;
-  var partialCharge = Math.round(callPrice * fraction);
-  if (partialCharge <= 0) return Promise.resolve();
-  return db.doc('users/' + ME).get().then(function(snap) {
-    var coins = snap.exists ? (snap.data().coins||0) : 0;
-    var charge = Math.min(partialCharge, coins);
-    if (charge <= 0) return;
-    db.doc('users/' + ME).update({ coins: firebase.firestore.FieldValue.increment(-charge) });
-    db.doc('users/' + hostId).update({ gems:firebase.firestore.FieldValue.increment(charge), totalGemsEarned:firebase.firestore.FieldValue.increment(charge), callGemsEarned:firebase.firestore.FieldValue.increment(charge) }).catch(function(){});
-    db.collection('transactions').add({ type:'callGems', senderId:ME, receiverId:hostId, coins:-charge, gems:charge, roomId:roomId, note:'Call partial minute (' + remainingSecs + 's)', createdAt:firebase.firestore.FieldValue.serverTimestamp() });
-    gemsEarned += charge;
+// Pro-rata for final partial minute
+function settleProRata(){
+  if(!IS_CALLER||!startTime)return Promise.resolve();
+  var durationMs=Date.now()-startTime;
+  var totalSecs=Math.floor(durationMs/1000);
+  var remainSecs=totalSecs%60;
+  if(remainSecs<5)return Promise.resolve(); // less than 5s, skip
+  var fraction=remainSecs/60;
+  var partialCharge=Math.round(callPrice*fraction);
+  if(partialCharge<=0)return Promise.resolve();
+  return db.doc('users/'+ME).get().then(function(snap){
+    var coins=snap.exists?(snap.data().coins||0):0;
+    var charge=Math.min(partialCharge,coins);
+    if(charge<=0)return;
+    var gemRate=getGemRate(hostCharmLevel);
+    var gemsToHost=Math.round(charge*gemRate);
+    db.doc('users/'+ME).update({coins:firebase.firestore.FieldValue.increment(-charge)});
+    db.doc('users/'+hostId).update({gems:firebase.firestore.FieldValue.increment(gemsToHost),totalGemsEarned:firebase.firestore.FieldValue.increment(gemsToHost),callGemsEarned:firebase.firestore.FieldValue.increment(gemsToHost)}).catch(function(){});
+    db.collection('transactions').add({type:'callGems',senderId:ME,receiverId:hostId,coins:-charge,gems:gemsToHost,gemRate:gemRate,roomId:roomId,note:'Call partial ('+remainSecs+'s = '+Math.round(fraction*100)+'%)',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    gemsEarned+=gemsToHost;
   }).catch(function(){});
 }
 
 // ─── BOTH-READY HANDSHAKE ─────────────────────────────────────────────────
-function signalReady() {
-  var myKey = IS_HOST ? 'hostReady' : 'callerReady';
-  db.doc('calls/' + roomId).update({ [myKey]: true }).catch(function(){});
-  readyUnsub = db.doc('calls/' + roomId).onSnapshot(function(snap) {
-    if (!snap.exists) return;
-    var d = snap.data();
-    if (d.hostReady && d.callerReady && !bothConnected) {
-      bothConnected = true;
-      connectOv.classList.add('out');
-      setTimeout(function(){connectOv.style.display='none';}, 600);
-      callActive = true;
-      startTimer();
-      if (IS_CALLER) startDeduction();
-      if (readyUnsub) { readyUnsub(); readyUnsub = null; }
+function signalReady(){
+  var myKey=IS_HOST?'hostReady':'callerReady';
+  db.doc('calls/'+roomId).update({[myKey]:true}).catch(function(){});
+  readyUnsub=db.doc('calls/'+roomId).onSnapshot(function(snap){
+    if(!snap.exists)return;
+    var d=snap.data();
+    if(d.hostReady&&d.callerReady&&!bothConnected){
+      bothConnected=true;
+      document.getElementById('connect-ov').classList.add('out');
+      setTimeout(function(){document.getElementById('connect-ov').style.display='none';},600);
+      callActive=true;startTimer();
+      if(IS_CALLER)startDeduction();
+      if(readyUnsub){readyUnsub();readyUnsub=null;}
     }
   });
 }
 
-// ─── AGORA ───────────────────────────────────────────────────────────────
-function startCall() {
-  agora = AgoraRTC.createClient({ mode:'rtc', codec:'vp8' });
-  return agora.join(APP_ID, roomId, TOKEN, null).then(function() {
-    return AgoraRTC.createMicrophoneAndCameraTracks(
-      { AEC:true, ANS:true, AGC:true },
-      { encoderConfig:'720p_2', optimizationMode:'detail' }
-    );
-  }).then(function(tracks) {
-    locAudio = tracks[0]; locVideo = tracks[1];
+// ─── AGORA ────────────────────────────────────────────────────────────────
+function startCall(){
+  agora=AgoraRTC.createClient({mode:'rtc',codec:'vp8'});
+  return agora.join(APP_ID,roomId,TOKEN,null).then(function(){
+    // Both sides start with FRONT camera
+    return AgoraRTC.createMicrophoneAndCameraTracks({AEC:true,ANS:true,AGC:true},{facingMode:'user',encoderConfig:'720p_2',optimizationMode:'detail'});
+  }).then(function(tracks){
+    locAudio=tracks[0];locVideo=tracks[1];
     locVideo.play('local-wrap');
-    return agora.publish([locAudio, locVideo]);
-  }).then(function() {
+    watchMirror();
+    return agora.publish([locAudio,locVideo]);
+  }).then(function(){
     signalReady();
-    agora.on('user-published', function(user, mt) {
-      agora.subscribe(user, mt).then(function() {
-        if (mt === 'video') {
-          var d = document.createElement('div'); d.id = 'rv-'+user.uid; d.style.cssText = 'width:100%;height:100%;';
-          document.getElementById('remote-wrap').appendChild(d);
-          user.videoTrack.play('rv-'+user.uid);
-          applyRemoteFilter(activeFilter);
-        }
-        if (mt === 'audio') user.audioTrack.play();
+    agora.on('user-published',function(user,mt){
+      agora.subscribe(user,mt).then(function(){
+        if(mt==='video'){var d=document.createElement('div');d.id='rv-'+user.uid;d.style.cssText='width:100%;height:100%;';document.getElementById('remote-wrap').appendChild(d);user.videoTrack.play('rv-'+user.uid);applyRemoteFilter(activeFilter);}
+        if(mt==='audio')user.audioTrack.play();
       });
     });
-    agora.on('user-unpublished', function(user, mt) {
-      if (mt === 'video') { var el = document.getElementById('rv-'+user.uid); if(el) el.remove(); }
-    });
-    agora.on('user-left', function() { if (callActive || !bothConnected) endCall(false, true); });
-    setTimeout(function() { if (!bothConnected) { toast('No answer - ending call'); endCall(); } }, 40000);
-  }).catch(function(e) { toast('Camera/mic error: ' + (e.message||e)); setTimeout(function(){connectOv.style.display='none';}, 500); });
+    agora.on('user-unpublished',function(user,mt){if(mt==='video'){var el=document.getElementById('rv-'+user.uid);if(el)el.remove();}});
+    agora.on('user-left',function(){if(callActive||!bothConnected)endCall(false,true);});
+    setTimeout(function(){if(!bothConnected){toast('No answer - ending call');endCall();}},40000);
+  }).catch(function(e){toast('Camera/mic error: '+(e.message||e));setTimeout(function(){document.getElementById('connect-ov').style.display='none';},500);});
 }
 
-// ─── FILTERS ─────────────────────────────────────────────────────────────
-var FILTERS = [
-  {id:'none',  label:'Original', style:'background:#333'},
-  {id:'beauty',label:'Beauty',   style:'background:linear-gradient(135deg,#fff9f0,#ffe4d6)'},
-  {id:'warm',  label:'Warm',     style:'background:linear-gradient(135deg,#e8835a,#f4c97a)'},
-  {id:'cool',  label:'Cool',     style:'background:linear-gradient(135deg,#5ab9e8,#a0c8ff)'},
-  {id:'vivid', label:'Vivid',    style:'background:linear-gradient(135deg,#e85af0,#f4a030)'},
-  {id:'mono',  label:'Mono',     style:'background:linear-gradient(135deg,#888,#ccc)'},
-  {id:'golden',label:'Golden',   style:'background:linear-gradient(135deg,#d4a017,#f5d76e)'},
-  {id:'rose',  label:'Rose',     style:'background:linear-gradient(135deg,#e85a8a,#ffb3c8)'},
+// ─── MIRROR ───────────────────────────────────────────────────────────────
+function applyMirrorCall(){
+  var lw=document.getElementById('local-wrap');
+  if(!lw)return;
+  if(mirrorOn){
+    lw.classList.add('mirrored');
+    lw.querySelectorAll('video').forEach(function(v){v.style.setProperty('transform','scaleX(-1)','important');});
+  } else {
+    lw.classList.remove('mirrored');
+    lw.querySelectorAll('video').forEach(function(v){v.style.transform='';});
+  }
+  var lbl=document.getElementById('mir-call-lbl');if(lbl)lbl.textContent=mirrorOn?'On':'Off';
+  document.getElementById('mir-call-tog').checked=mirrorOn;
+  document.getElementById('mir-btn').className='ctrl-btn '+(mirrorOn?'cb-active':'cb-default');
+}
+function watchMirror(){
+  var lw=document.getElementById('local-wrap');if(!lw)return;
+  var obs=new MutationObserver(function(){if(mirrorOn)applyMirrorCall();});
+  obs.observe(lw,{childList:true,subtree:true});
+}
+document.getElementById('mir-btn').onclick=function(){mirrorOn=!mirrorOn;applyMirrorCall();toast(mirrorOn?'Mirror: On (local only)':'Mirror: Off');};
+document.getElementById('mir-call-tog').onchange=function(){mirrorOn=this.checked;applyMirrorCall();};
+
+// ─── FILTERS ──────────────────────────────────────────────────────────────
+var FILTERS=[
+  {id:'none',label:'Original',style:'background:#333'},
+  {id:'beauty',label:'Beauty',style:'background:linear-gradient(135deg,#fff9f0,#ffe4d6)'},
+  {id:'warm',label:'Warm',style:'background:linear-gradient(135deg,#e8835a,#f4c97a)'},
+  {id:'cool',label:'Cool',style:'background:linear-gradient(135deg,#5ab9e8,#a0c8ff)'},
+  {id:'vivid',label:'Vivid',style:'background:linear-gradient(135deg,#e85af0,#f4a030)'},
+  {id:'mono',label:'Mono',style:'background:linear-gradient(135deg,#888,#ccc)'},
+  {id:'golden',label:'Golden',style:'background:linear-gradient(135deg,#d4a017,#f5d76e)'},
+  {id:'rose',label:'Rose',style:'background:linear-gradient(135deg,#e85a8a,#ffb3c8)'},
 ];
-function renderFilters() {
-  var g = document.getElementById('call-fgrid'); g.innerHTML = '';
-  FILTERS.forEach(function(f) {
-    var el = document.createElement('div');
-    el.className = 'cfi' + (f.id === activeFilter ? ' sel' : '');
-    el.innerHTML = '<div class="cfsw" style="' + f.style + '"></div><span>' + f.label + '</span>';
-    el.onclick = function() { applyFilter(f.id); };
-    g.appendChild(el);
-  });
+function renderFilters(){
+  var g=document.getElementById('call-fgrid');g.innerHTML='';
+  FILTERS.forEach(function(f){var el=document.createElement('div');el.className='cfi'+(f.id===activeFilter?' sel':'');el.innerHTML='<div class="cfsw" style="'+f.style+'"></div><span>'+f.label+'</span>';el.onclick=function(){applyFilter(f.id);};g.appendChild(el);});
 }
-function applyFilter(name) {
-  activeFilter = name;
-  var lw = document.getElementById('local-wrap');
-  FILTERS.forEach(function(f){ lw.classList.remove('fw-'+f.id); });
-  if (name !== 'none') lw.classList.add('fw-'+name);
-  applyRemoteFilter(name);
-  renderFilters();
-  toast('Filter: ' + name.charAt(0).toUpperCase() + name.slice(1));
+function applyFilter(name){
+  activeFilter=name;var lw=document.getElementById('local-wrap');
+  FILTERS.forEach(function(f){lw.classList.remove('fw-'+f.id);});
+  if(name!=='none')lw.classList.add('fw-'+name);
+  applyRemoteFilter(name);renderFilters();
+  toast('Filter: '+name.charAt(0).toUpperCase()+name.slice(1));
 }
-function applyRemoteFilter(name) {
-  var rw = document.getElementById('remote-wrap');
-  FILTERS.forEach(function(f){ rw.classList.remove('fw-'+f.id); });
-  if (name !== 'none') rw.classList.add('fw-'+name);
-}
+function applyRemoteFilter(name){var rw=document.getElementById('remote-wrap');FILTERS.forEach(function(f){rw.classList.remove('fw-'+f.id);});if(name!=='none')rw.classList.add('fw-'+name);}
 
-// ─── FLIP CAMERA (does NOT close audio track) ─────────────────────────────
-function flipCamera() {
-  if (!locVideo || !agora) return;
-  camFront = !camFront;
-  agora.unpublish(locVideo).then(function() {
-    locVideo.close();
-    return AgoraRTC.createCameraVideoTrack({ facingMode:camFront?'user':'environment', encoderConfig:'720p_2', optimizationMode:'detail' });
-  }).then(function(newTrack) {
-    locVideo = newTrack;
-    locVideo.play('local-wrap');
-    var lw = document.getElementById('local-wrap');
-    FILTERS.forEach(function(f){ lw.classList.remove('fw-'+f.id); });
-    if (activeFilter !== 'none') lw.classList.add('fw-'+activeFilter);
-    return agora.publish(locVideo);
-  }).then(function() {
-    document.getElementById('cam-side-lbl').textContent = camFront ? 'Front-facing' : 'Rear-facing';
-    toast('Camera: ' + (camFront ? 'Front' : 'Rear'));
-  }).catch(function(e){ toast('Camera flip failed: ' + (e.message||e)); });
+// ─── FLIP CAMERA (audio stays untouched) ──────────────────────────────────
+function flipCamera(){
+  if(!locVideo||!agora)return;camFront=!camFront;
+  agora.unpublish(locVideo).then(function(){locVideo.close();return AgoraRTC.createCameraVideoTrack({facingMode:camFront?'user':'environment',encoderConfig:'720p_2',optimizationMode:'detail'});})
+  .then(function(newTrack){locVideo=newTrack;locVideo.play('local-wrap');setTimeout(function(){if(mirrorOn)applyMirrorCall();},300);FILTERS.forEach(function(f){document.getElementById('local-wrap').classList.remove('fw-'+f.id);});if(activeFilter!=='none')document.getElementById('local-wrap').classList.add('fw-'+activeFilter);return agora.publish(locVideo);})
+  .then(function(){document.getElementById('cam-side-lbl').textContent=camFront?'Front-facing':'Rear-facing';toast('Camera: '+(camFront?'Front':'Rear'));})
+  .catch(function(e){toast('Flip failed: '+(e.message||e));});
 }
 
 // ─── LOCAL DRAG ───────────────────────────────────────────────────────────
-(function() {
-  var el = document.getElementById('local-wrap');
-  var dragging = false, ox = 0, oy = 0, sx = 0, sy = 0;
-  function startDrag(cx,cy) { dragging=true; sx=cx; sy=cy; var r=el.getBoundingClientRect(); ox=r.left; oy=r.top; el.style.right='auto'; el.style.bottom='auto'; el.style.left=ox+'px'; el.style.top=oy+'px'; }
-  function doDrag(cx,cy) { if(!dragging) return; el.style.left=(ox+cx-sx)+'px'; el.style.top=(oy+cy-sy)+'px'; }
-  el.addEventListener('touchstart',function(e){startDrag(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});
-  el.addEventListener('touchmove',function(e){doDrag(e.touches[0].clientX,e.touches[0].clientY);e.preventDefault();},{passive:false});
-  el.addEventListener('touchend',function(){dragging=false;});
-  el.addEventListener('mousedown',function(e){startDrag(e.clientX,e.clientY);});
-  document.addEventListener('mousemove',function(e){doDrag(e.clientX,e.clientY);});
-  document.addEventListener('mouseup',function(){dragging=false;});
-})();
+(function(){var el=document.getElementById('local-wrap'),dragging=false,ox=0,oy=0,sx=0,sy=0;function startDrag(cx,cy){dragging=true;sx=cx;sy=cy;var r=el.getBoundingClientRect();ox=r.left;oy=r.top;el.style.right='auto';el.style.bottom='auto';el.style.left=ox+'px';el.style.top=oy+'px';}function doDrag(cx,cy){if(!dragging)return;el.style.left=(ox+cx-sx)+'px';el.style.top=(oy+cy-sy)+'px';}el.addEventListener('touchstart',function(e){startDrag(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});el.addEventListener('touchmove',function(e){doDrag(e.touches[0].clientX,e.touches[0].clientY);e.preventDefault();},{passive:false});el.addEventListener('touchend',function(){dragging=false;});el.addEventListener('mousedown',function(e){startDrag(e.clientX,e.clientY);});document.addEventListener('mousemove',function(e){doDrag(e.clientX,e.clientY);});document.addEventListener('mouseup',function(){dragging=false;});})();
 
-// ─── MIC (independent) ────────────────────────────────────────────────────
-document.getElementById('mic-btn').onclick = function() {
-  if (!locAudio) return;
-  isMuted = !isMuted;
-  locAudio.setEnabled(!isMuted).then(function() {
-    var btn = document.getElementById('mic-btn');
-    btn.querySelector('.ms').textContent = isMuted ? 'mic_off' : 'mic';
-    btn.className = 'ctrl-btn ' + (isMuted ? 'cb-off' : 'cb-default');
-    toast(isMuted ? 'Mic muted' : 'Mic on');
-  });
-};
-// ─── CAM (independent) ────────────────────────────────────────────────────
-document.getElementById('cam-btn').onclick = function() {
-  if (!locVideo) return;
-  camEnabled = !camEnabled;
-  locVideo.setEnabled(camEnabled).then(function() {
-    var btn = document.getElementById('cam-btn');
-    btn.querySelector('.ms').textContent = camEnabled ? 'videocam' : 'videocam_off';
-    btn.className = 'ctrl-btn ' + (camEnabled ? 'cb-default' : 'cb-off');
-    toast(camEnabled ? 'Camera on' : 'Camera off');
-  });
-};
+// ─── MIC / CAM (fully independent) ───────────────────────────────────────
+document.getElementById('mic-btn').onclick=function(){if(!locAudio)return;isMuted=!isMuted;locAudio.setEnabled(!isMuted).then(function(){var btn=document.getElementById('mic-btn');btn.querySelector('.ms').textContent=isMuted?'mic_off':'mic';btn.className='ctrl-btn '+(isMuted?'cb-off':'cb-default');toast(isMuted?'Mic muted':'Mic on');});};
+document.getElementById('cam-btn').onclick=function(){if(!locVideo)return;camEnabled=!camEnabled;locVideo.setEnabled(camEnabled).then(function(){var btn=document.getElementById('cam-btn');btn.querySelector('.ms').textContent=camEnabled?'videocam':'videocam_off';btn.className='ctrl-btn '+(camEnabled?'cb-default':'cb-off');toast(camEnabled?'Camera on':'Camera off');});};
 
 // ─── SETTINGS ─────────────────────────────────────────────────────────────
-function openSettings() { renderFilters(); document.getElementById('settings-sheet').classList.add('on'); document.getElementById('sh-bd').classList.add('on'); }
-function closeSettings() { document.getElementById('settings-sheet').classList.remove('on'); document.getElementById('img-sheet').classList.remove('on'); document.getElementById('sh-bd').classList.remove('on'); }
-document.getElementById('settings-btn').onclick = openSettings;
-document.getElementById('settings-close').onclick = closeSettings;
-document.getElementById('sh-bd').onclick = closeSettings;
-document.getElementById('flip-cam-row').onclick = function(){ flipCamera(); closeSettings(); };
-document.getElementById('img-open-row').onclick = function(){ document.getElementById('settings-sheet').classList.remove('on'); document.getElementById('img-sheet').classList.add('on'); };
-document.getElementById('img-sh-close').onclick = function(){ document.getElementById('img-sheet').classList.remove('on'); document.getElementById('sh-bd').classList.remove('on'); };
+function openSettings(){renderFilters();document.getElementById('settings-sheet').classList.add('on');document.getElementById('sh-bd').classList.add('on');}
+function closeSettings(){document.getElementById('settings-sheet').classList.remove('on');document.getElementById('img-sheet').classList.remove('on');document.getElementById('sh-bd').classList.remove('on');}
+document.getElementById('settings-btn').onclick=openSettings;
+document.getElementById('settings-close').onclick=closeSettings;
+document.getElementById('sh-bd').onclick=closeSettings;
+document.getElementById('flip-cam-row').onclick=function(){flipCamera();closeSettings();};
+document.getElementById('img-open-row').onclick=function(){document.getElementById('settings-sheet').classList.remove('on');document.getElementById('img-sheet').classList.add('on');};
+document.getElementById('img-sh-close').onclick=function(){document.getElementById('img-sheet').classList.remove('on');document.getElementById('sh-bd').classList.remove('on');};
 
 // ─── IMAGE SCROLLING ──────────────────────────────────────────────────────
-document.getElementById('img-file-input').onchange = function(e) {
-  var files = Array.from(e.target.files);
-  var grid = document.getElementById('img-preview-grid'); grid.innerHTML = ''; localImgURLs = [];
-  files.forEach(function(f) { var url = URL.createObjectURL(f); localImgURLs.push(url); var img = document.createElement('img'); img.src=url; img.className='prev-img'; grid.appendChild(img); });
-};
-document.getElementById('do-scroll-btn').onclick = function() { if (!localImgURLs.length){ toast('Add images first'); return; } startScrollImages(); closeSettings(); };
-document.getElementById('stop-scroll-btn').onclick = stopScrollImages;
-function startScrollImages() {
-  if (scrollRunning) return; scrollRunning = true;
-  var track = document.getElementById('img-scroll-track'); track.innerHTML = '';
-  function buildSet(){ localImgURLs.forEach(function(u){ var img=document.createElement('img'); img.src=u; img.className='scroll-img'; track.appendChild(img); }); }
-  buildSet(); buildSet();
-  document.getElementById('img-scroll-wrap').classList.add('on');
-  document.getElementById('img-scroll-overlay').classList.add('on');
-  document.getElementById('stop-scroll-btn').classList.add('on');
-  toast('Images scrolling!');
-}
-function stopScrollImages() {
-  scrollRunning = false;
-  document.getElementById('img-scroll-wrap').classList.remove('on');
-  document.getElementById('img-scroll-overlay').classList.remove('on');
-  document.getElementById('stop-scroll-btn').classList.remove('on');
-}
+document.getElementById('img-file-input').onchange=function(e){var files=Array.from(e.target.files);var grid=document.getElementById('img-preview-grid');grid.innerHTML='';localImgURLs=[];files.forEach(function(f){var url=URL.createObjectURL(f);localImgURLs.push(url);var img=document.createElement('img');img.src=url;img.style.cssText='width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;border:1px solid var(--border);';grid.appendChild(img);});};
+document.getElementById('do-scroll-btn').onclick=function(){if(!localImgURLs.length){toast('Add images first');return;}startScrollImages();closeSettings();};
+document.getElementById('stop-scroll-btn').onclick=stopScrollImages;
+function startScrollImages(){if(scrollRunning)return;scrollRunning=true;var track=document.getElementById('img-scroll-track');track.innerHTML='';function buildSet(){localImgURLs.forEach(function(u){var img=document.createElement('img');img.src=u;img.className='scroll-img';track.appendChild(img);});}buildSet();buildSet();document.getElementById('img-scroll-wrap').classList.add('on');document.getElementById('img-scroll-overlay').classList.add('on');document.getElementById('stop-scroll-btn').style.display='block';toast('Images scrolling!');}
+function stopScrollImages(){scrollRunning=false;document.getElementById('img-scroll-wrap').classList.remove('on');document.getElementById('img-scroll-overlay').classList.remove('on');document.getElementById('stop-scroll-btn').style.display='none';}
 
 // ─── END CALL ─────────────────────────────────────────────────────────────
-function endCall(insufficientCoins, peerLeft) {
-  if (callEndUnsub) { callEndUnsub(); callEndUnsub = null; }
-  callActive = false;
-  clearInterval(timerInterval); clearInterval(deductInterval);
-  if (readyUnsub) { readyUnsub(); readyUnsub = null; }
+function endCall(insufficientCoins,peerLeft){
+  if(callEndUnsub){callEndUnsub();callEndUnsub=null;}
+  callActive=false;clearInterval(timerInterval);clearInterval(deductInterval);
+  if(readyUnsub){readyUnsub();readyUnsub=null;}
   stopScrollImages();
-  var duration = startTime ? Date.now() - startTime : 0;
-  // Pro-rata settlement
-  var settle = IS_CALLER ? settleProRata() : Promise.resolve();
-  settle.then(function() {
-    db.doc('calls/'+roomId).update({ status:'ended', duration:Math.floor(duration/1000), endedAt:firebase.firestore.FieldValue.serverTimestamp() }).catch(function(){});
-    setTimeout(function(){ db.doc('calls/'+roomId).delete().catch(function(){}); }, 1500);
-    db.doc('lives/'+hostId).update({ onCall:false, callStarted:null }).catch(function(){});
-    // Record call transaction
-    db.collection('transactions').add({
-      type:'call', callerId:IS_CALLER?ME:peerId, hostId:IS_HOST?ME:peerId,
-      duration:Math.floor(duration/1000), gemsEarned:gemsEarned,
-      roomId:roomId, createdAt:firebase.firestore.FieldValue.serverTimestamp()
-    });
-    if (agora) { if(locAudio) locAudio.close(); if(locVideo) locVideo.close(); agora.leave().catch(function(){}); }
-    if (chatUnsub) chatUnsub();
-    if (insufficientCoins) toast('Call ended: insufficient coins');
-    if (peerLeft) toast('Other person ended the call');
-    document.getElementById('blp-dur').textContent = fmtTime(duration);
-    document.getElementById('blp-gems').textContent = gemsEarned;
-    if (IS_HOST) { backPopup.classList.add('on'); }
-    else { location.href = 'live.html?room=' + roomId; }
+  var duration=startTime?Date.now()-startTime:0;
+  settleProRata().then(function(){
+    db.doc('calls/'+roomId).update({status:'ended',duration:Math.floor(duration/1000),endedAt:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){});
+    setTimeout(function(){db.doc('calls/'+roomId).delete().catch(function(){});},1500);
+    db.doc('lives/'+hostId).update({onCall:false,callStarted:null}).catch(function(){});
+    db.collection('transactions').add({type:'call',callerId:IS_CALLER?ME:peerId,callerName:MY_NAME,hostId:IS_HOST?ME:peerId,duration:Math.floor(duration/1000),gemsEarned:gemsEarned,callPrice:callPrice,gemRate:getGemRate(hostCharmLevel),roomId:roomId,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    if(agora){if(locAudio)locAudio.close();if(locVideo)locVideo.close();agora.leave().catch(function(){});}
+    if(chatUnsub)chatUnsub();
+    if(insufficientCoins)toast('Call ended: insufficient coins');
+    if(peerLeft)toast('Other person ended the call');
+    document.getElementById('blp-dur').textContent=fmtTime(duration);
+    document.getElementById('blp-gems').textContent=gemsEarned;
+    if(IS_HOST){document.getElementById('back-live-popup').classList.add('on');}
+    else{location.href='live.html?room='+roomId;}
   });
 }
-document.getElementById('end-call-btn').onclick = function(){ endCall(); };
-document.getElementById('back-live-btn').onclick = function(){ location.href = 'live.html?room=' + roomId + '&host=true'; };
+document.getElementById('end-call-btn').onclick=function(){endCall();};
+document.getElementById('back-live-btn').onclick=function(){location.href='live.html?room='+roomId+'&host=true';};
 
-// ─── CALL CHAT ────────────────────────────────────────────────────────────
-function listenCallChat() {
-  chatUnsub = db.collection('callchat/' + callRoomId + '/messages').orderBy('ts','asc').onSnapshot(function(snap) {
-    snap.docChanges().forEach(function(ch) { if (ch.type==='added') renderCallMsg(ch.doc.id, ch.doc.data()); });
-    chatMsgs.scrollTop = chatMsgs.scrollHeight;
+// ─── CALL CHAT (isolated by chatRoom param = unique per call session) ──────
+function listenCallChat(){
+  // chatRoom is unique per call - ensures no previous call's messages show
+  var chatPath=chatRoom||('callchat_'+roomId);
+  chatUnsub=db.collection('callchat/'+chatPath+'/messages').orderBy('ts','asc').onSnapshot(function(snap){
+    snap.docChanges().forEach(function(ch){if(ch.type==='added')renderCallMsg(ch.doc.id,ch.doc.data());});
+    document.getElementById('chat-msgs').scrollTop=document.getElementById('chat-msgs').scrollHeight;
     showChat();
   });
 }
-function renderCallMsg(id, d) {
-  var mine = d.uid === ME;
-  var div = document.createElement('div');
-  div.id = 'cmsg-' + id;
-  div.className = 'chat-msg-item ' + (mine ? 'mine' : 'theirs');
-  var transHtml = (!mine) ?
-    '<div class="trans-row"><button class="trans-btn-inline" id="tbtn-'+id+'">&#127760; Translate</button><span class="translated-text" id="tr-'+id+'" style="display:none;"></span></div>' : '';
-  div.innerHTML = '<div class="sender">' + esc(d.name) + '</div><div class="msgtext">' + esc(d.text) + '</div>' + transHtml;
-  chatMsgs.appendChild(div);
-  var tbtn = document.getElementById('tbtn-'+id);
-  if (tbtn) tbtn.onclick = function(){ doTranslate(id, d.text, tbtn); };
-  chatMsgs.scrollTop = chatMsgs.scrollHeight;
+function renderCallMsg(id,d){
+  var mine=d.uid===ME;
+  var div=document.createElement('div');div.id='cmsg-'+id;div.className='chat-msg-item '+(mine?'mine':'theirs');
+  var transHtml=(!mine)?'<div class="trans-row"><button class="trans-btn-inline" id="tbtn-'+id+'">🌐 Translate</button><span class="translated-text" id="tr-'+id+'" style="display:none;"></span></div>':'';
+  div.innerHTML='<div class="sender">'+esc(d.name)+'</div><div class="msgtext">'+esc(d.text)+'</div>'+transHtml;
+  document.getElementById('chat-msgs').appendChild(div);
+  var tbtn=document.getElementById('tbtn-'+id);if(tbtn)tbtn.onclick=function(){doTranslate(id,d.text,tbtn);};
+  document.getElementById('chat-msgs').scrollTop=document.getElementById('chat-msgs').scrollHeight;
 }
-function sendCallChat(text) {
-  if (!text.trim()) return;
-  db.collection('callchat/' + callRoomId + '/messages').add({ uid:ME, name:MY_NAME, ava:MY_AVA, text:text.trim(), ts:firebase.firestore.FieldValue.serverTimestamp() });
+function sendCallChat(text){
+  if(!text.trim())return;
+  var chatPath=chatRoom||('callchat_'+roomId);
+  db.collection('callchat/'+chatPath+'/messages').add({uid:ME,name:MY_NAME,ava:MY_AVA,text:text.trim(),ts:firebase.firestore.FieldValue.serverTimestamp()});
 }
-document.getElementById('call-send-btn').onclick = function() {
-  var inp = document.getElementById('call-chat-input');
-  if (!inp.value.trim()) return;
-  sendCallChat(inp.value); inp.value = '';
-  document.getElementById('call-send-btn').classList.remove('vis');
-};
-document.getElementById('call-chat-input').addEventListener('keypress', function(e) {
-  if (e.key==='Enter' && this.value.trim()) { sendCallChat(this.value); this.value=''; document.getElementById('call-send-btn').classList.remove('vis'); }
-});
+document.getElementById('call-send-btn').onclick=function(){var inp=document.getElementById('call-chat-input');if(!inp.value.trim())return;sendCallChat(inp.value);inp.value='';document.getElementById('call-send-btn').classList.remove('vis');};
+document.getElementById('call-chat-input').addEventListener('keypress',function(e){if(e.key==='Enter'&&this.value.trim()){sendCallChat(this.value);this.value='';document.getElementById('call-send-btn').classList.remove('vis');}});
 
 // ─── TRANSLATE ────────────────────────────────────────────────────────────
-function doTranslate(msgId, text, btn) {
-  var lang = document.getElementById('lang-sel').value;
-  if (!lang) { toast('Select a language first'); return; }
-  var el = document.getElementById('tr-'+msgId);
-  if (!el) return;
-  btn.textContent = '...'; btn.disabled = true; el.style.display = 'none';
-  fetch('https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl='+lang+'&dt=t&q='+encodeURIComponent(text))
-    .then(function(r){return r.json();})
-    .then(function(j) {
-      var out=''; if(j&&j[0]) j[0].forEach(function(x){if(x[0])out+=x[0];});
-      el.textContent = out || 'Translation unavailable'; el.style.display='inline';
-      btn.innerHTML='&#127760;'; btn.disabled=false;
-    }).catch(function(){ el.textContent='Failed'; el.style.display='inline'; btn.innerHTML='&#127760;'; btn.disabled=false; });
+function doTranslate(msgId,text,btn){
+  var lang=document.getElementById('lang-sel').value;if(!lang){toast('Select a language first');return;}
+  var el=document.getElementById('tr-'+msgId);if(!el)return;
+  btn.textContent='...';btn.disabled=true;el.style.display='none';
+  fetch('https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl='+lang+'&dt=t&q='+encodeURIComponent(text)).then(function(r){return r.json();}).then(function(j){var out='';if(j&&j[0])j[0].forEach(function(x){if(x[0])out+=x[0];});el.textContent=out||'Translation unavailable';el.style.display='inline';btn.innerHTML='🌐';btn.disabled=false;}).catch(function(){el.textContent='Failed';el.style.display='inline';btn.innerHTML='🌐';btn.disabled=false;});
 }
 
 // ─── LISTEN FOR REMOTE END ────────────────────────────────────────────────
-callEndUnsub = db.doc('calls/' + roomId).onSnapshot(function(snap) {
-  if (!snap.exists && (callActive || !bothConnected)) endCall(false, true);
+callEndUnsub=db.doc('calls/'+roomId).onSnapshot(function(snap){
+  if(!snap.exists&&(callActive||!bothConnected))endCall(false,true);
 });
 
-// ─── INIT ────────────────────────────────────────────────────────────────
-if (IS_HOST) {
-  document.getElementById('img-sec').style.display = 'block';
-  document.getElementById('img-open-row').style.display = 'flex';
-}
-loadPeer().then(function() {
-  return startCall();
-}).then(function() {
-  listenCallChat();
-  showChat();
-}).catch(function(e) { console.error('Init error:', e); toast('Failed: ' + (e.message||e)); });
-
-window.addEventListener('beforeunload', function() { if (callActive) endCall(); });
+// ─── INIT ─────────────────────────────────────────────────────────────────
+if(IS_HOST){document.getElementById('img-sec').style.display='block';document.getElementById('img-open-row').style.display='flex';}
+loadPeer().then(function(){return startCall();}).then(function(){listenCallChat();showChat();}).catch(function(e){console.error('Init error:',e);toast('Failed: '+(e.message||e));});
+window.addEventListener('beforeunload',function(){if(callActive)endCall();});
 </script>
 </body>
 </html>
