@@ -8,6 +8,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<!-- Material Symbols loaded from Google CDN - fixes 404 error -->
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
 <style>
 :root{
@@ -19,92 +20,217 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);}
-.ms{font-family:'Material Symbols Rounded';font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;user-select:none;display:inline-flex;align-items:center;justify-content:center;line-height:1;}
+
+/* Material Symbols */
+.ms{font-family:'Material Symbols Rounded';font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;user-select:none;display:inline-flex;align-items:center;justify-content:center;line-height:1;font-style:normal;}
 .ms.f{font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;}
 
-/* PREVIEW */
-#preview{position:fixed;inset:0;z-index:0;background:#000;}
+/* Spinner */
+.spin{width:22px;height:22px;border:3px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:sp .75s linear infinite;flex-shrink:0;}
+@keyframes sp{to{transform:rotate(360deg);}}
+
+/* CAMERA PREVIEW - full screen behind everything */
+#preview{position:fixed;inset:0;z-index:0;background:#111;}
 #preview video{width:100%;height:100%;object-fit:cover;display:block;}
-/* filters on preview */
-#preview.fw-beauty video{filter:brightness(1.12) saturate(1.1) contrast(.96) blur(0.3px)!important;}
-#preview.fw-warm video{filter:sepia(.42) saturate(1.4) brightness(1.05)!important;}
-#preview.fw-cool video{filter:hue-rotate(22deg) saturate(1.22) brightness(.97)!important;}
-#preview.fw-vivid video{filter:saturate(1.95) contrast(1.08)!important;}
-#preview.fw-mono video{filter:grayscale(1) contrast(1.06)!important;}
-#preview.fw-golden video{filter:sepia(.62) saturate(1.5) brightness(1.08) hue-rotate(-8deg)!important;}
-#preview.fw-rose video{filter:hue-rotate(-22deg) saturate(1.45) brightness(1.04)!important;}
-#preview.fw-night video{filter:hue-rotate(190deg) saturate(.78) brightness(.72)!important;}
-/* mirror */
-#preview.mirrored video{transform:scaleX(-1)!important;}
-#vg{position:fixed;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(6,8,15,.7) 0%,transparent 30%,transparent 50%,rgba(6,8,15,.96) 100%);}
+
+/* Filter classes on preview - Agora puts video inside div */
+#preview.fw-beauty video,#preview.fw-beauty>div video{filter:brightness(1.12) saturate(1.1) contrast(.96) blur(0.3px)!important;}
+#preview.fw-warm video,#preview.fw-warm>div video{filter:sepia(.42) saturate(1.4) brightness(1.05)!important;}
+#preview.fw-cool video,#preview.fw-cool>div video{filter:hue-rotate(22deg) saturate(1.22) brightness(.97)!important;}
+#preview.fw-vivid video,#preview.fw-vivid>div video{filter:saturate(1.95) contrast(1.08)!important;}
+#preview.fw-mono video,#preview.fw-mono>div video{filter:grayscale(1) contrast(1.06)!important;}
+#preview.fw-golden video,#preview.fw-golden>div video{filter:sepia(.62) saturate(1.5) brightness(1.08) hue-rotate(-8deg)!important;}
+#preview.fw-rose video,#preview.fw-rose>div video{filter:hue-rotate(-22deg) saturate(1.45) brightness(1.04)!important;}
+#preview.fw-night video,#preview.fw-night>div video{filter:hue-rotate(190deg) saturate(.78) brightness(.72)!important;}
+/* Mirror: local only */
+#preview.mirrored video,#preview.mirrored>div video{transform:scaleX(-1)!important;}
+
+/* Gradient overlay */
+#vg{position:fixed;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(6,8,15,.72) 0%,transparent 30%,transparent 52%,rgba(6,8,15,.97) 100%);}
 
 /* BACK BUTTON */
-#back-btn{position:fixed;top:max(env(safe-area-inset-top),16px);left:16px;z-index:30;width:38px;height:38px;border-radius:50%;background:rgba(6,8,15,.6);backdrop-filter:var(--blur);border:1px solid var(--border2);color:var(--text);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+#back-btn{position:fixed;top:max(env(safe-area-inset-top),16px);left:16px;z-index:30;width:40px;height:40px;border-radius:50%;background:rgba(6,8,15,.65);backdrop-filter:blur(16px);border:1px solid var(--border2);color:var(--text);display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;}
 
-/* RIGHT CONTROLS */
+/* RIGHT CONTROLS - vertical column */
 #right-ctrl{position:fixed;top:max(env(safe-area-inset-top),16px);right:14px;z-index:30;display:flex;flex-direction:column;gap:10px;}
-.rctrl-btn{width:44px;height:44px;border-radius:14px;background:rgba(6,8,15,.6);backdrop-filter:var(--blur);border:1px solid var(--border2);color:var(--text);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;}
-.rctrl-btn:active{transform:scale(.91);}
-.rctrl-btn.on{background:rgba(79,124,255,.2);border-color:rgba(79,124,255,.4);color:var(--blue);}
+.rctrl-btn{width:44px;height:44px;border-radius:14px;background:rgba(6,8,15,.65);backdrop-filter:blur(16px);border:1px solid var(--border2);color:var(--text);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent;}
+.rctrl-btn:active{transform:scale(.9);}
+.rctrl-btn.on{background:rgba(79,124,255,.25);border-color:rgba(79,124,255,.5);color:#7aabff;}
 
-/* FILTER ROW (appears when filter icon clicked) */
-#filter-row{position:fixed;right:68px;top:max(env(safe-area-inset-top),16px);z-index:30;display:flex;flex-direction:column;gap:6px;opacity:0;pointer-events:none;transform:translateX(10px);transition:all .22s;}
+/* FILTER CHIPS - slide in from right */
+#filter-row{
+  position:fixed;right:68px;top:max(env(safe-area-inset-top),16px);z-index:30;
+  display:flex;flex-direction:column;gap:6px;
+  opacity:0;pointer-events:none;transform:translateX(14px);
+  transition:all .22s cubic-bezier(.34,1,.64,1);
+}
 #filter-row.on{opacity:1;pointer-events:auto;transform:translateX(0);}
-.fchip{background:var(--glass);backdrop-filter:var(--blur);border:1px solid var(--border2);border-radius:10px;padding:5px 10px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .15s;}
+.fchip{
+  background:rgba(6,8,15,.78);backdrop-filter:blur(16px);
+  border:1px solid var(--border2);border-radius:10px;
+  padding:6px 12px;font-size:10.5px;font-weight:700;
+  cursor:pointer;white-space:nowrap;transition:all .15s;
+  -webkit-tap-highlight-color:transparent;
+}
 .fchip.sel{background:var(--blue);border-color:var(--blue);color:#fff;}
 
-/* TOAST */
-#toast{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-10px);z-index:100;background:rgba(13,16,23,.95);border:1px solid var(--border2);border-radius:99px;padding:8px 18px;font-size:12.5px;font-weight:700;opacity:0;transition:all .26s;pointer-events:none;white-space:nowrap;max-width:88vw;text-align:center;}
+/* TOAST - appears at top */
+#toast{
+  position:fixed;top:max(env(safe-area-inset-top),70px);left:50%;
+  transform:translateX(-50%) translateY(-8px);
+  z-index:200;background:rgba(13,16,23,.96);border:1px solid var(--border2);
+  border-radius:99px;padding:8px 18px;font-size:12.5px;font-weight:700;
+  opacity:0;transition:all .26s;pointer-events:none;
+  white-space:nowrap;max-width:88vw;text-align:center;
+}
 #toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
 
-/* BOTTOM PANEL */
-#btm-panel{position:fixed;bottom:0;left:0;right:0;z-index:30;padding:16px 16px max(env(safe-area-inset-bottom,20px),20px);}
+/* VALIDATION MESSAGE */
+#val-msg{
+  font-size:11px;font-weight:700;color:var(--gold);text-align:center;
+  background:rgba(255,197,49,.12);border:1px solid rgba(255,197,49,.25);
+  border-radius:99px;padding:6px 16px;margin-bottom:10px;
+  display:none;animation:fadeIn .2s ease;
+}
+#val-msg.on{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
 
-/* POSTER UPLOAD + TITLE ROW */
-.setup-row{display:flex;align-items:center;gap:10px;background:rgba(6,8,15,.75);backdrop-filter:var(--blur);border:1px solid var(--border2);border-radius:16px;padding:10px 12px;margin-bottom:12px;}
-#poster-btn{width:54px;height:54px;border-radius:12px;background:rgba(255,255,255,.08);border:1.5px dashed rgba(255,255,255,.25);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;overflow:hidden;position:relative;}
-#poster-img{width:100%;height:100%;object-fit:cover;display:none;border-radius:10px;}
-#poster-plus{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--muted);}
-#poster-plus .ms{font-size:18px;}
-#poster-plus span{font-size:7.5px;font-weight:700;text-align:center;line-height:1.2;}
-.setup-right{flex:1;display:flex;flex-direction:column;gap:7px;}
-#title-input{background:transparent;border:none;outline:none;color:var(--text);font-size:14px;font-weight:700;font-family:inherit;width:100%;}
-#title-input::placeholder{color:var(--muted);}
-.setup-divider{height:1px;background:var(--border);}
-.setup-row2{display:flex;align-items:center;gap:6px;}
-.privacy-btn{display:flex;align-items:center;gap:3px;font-size:11px;font-weight:700;color:var(--muted);cursor:pointer;padding:2px 0;}
-.privacy-btn .ms{font-size:14px;}
+/* BOTTOM PANEL */
+#btm-panel{
+  position:fixed;bottom:0;left:0;right:0;z-index:30;
+  padding:14px 16px max(env(safe-area-inset-bottom,18px),18px);
+}
+
+/* SETUP ROW - poster + title */
+.setup-row{
+  display:flex;align-items:stretch;gap:10px;
+  background:rgba(6,8,15,.82);backdrop-filter:blur(20px);
+  border:1px solid var(--border2);border-radius:18px;
+  padding:10px 12px;margin-bottom:12px;
+}
+
+/* POSTER BUTTON */
+#poster-btn{
+  width:60px;height:60px;border-radius:12px;
+  background:rgba(255,255,255,.07);
+  border:1.5px dashed rgba(255,255,255,.22);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;flex-shrink:0;overflow:hidden;position:relative;
+  -webkit-tap-highlight-color:transparent;transition:border-color .15s;
+}
+#poster-btn:active{border-color:var(--blue);}
+/* THE KEY FIX: poster image absolutely fills the button */
+#poster-img{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:cover;
+  border-radius:11px;
+  display:none; /* shown via JS after upload */
+  z-index:2;
+}
+#poster-plus{
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  color:var(--muted);z-index:1;
+}
+#poster-plus .ms{font-size:20px;}
+#poster-plus span{font-size:7px;font-weight:700;text-align:center;line-height:1.3;max-width:50px;}
+
+/* Uploaded indicator badge */
+#poster-badge{
+  position:absolute;top:3px;right:3px;z-index:3;
+  width:16px;height:16px;border-radius:50%;
+  background:var(--teal);display:none;
+  align-items:center;justify-content:center;
+}
+#poster-badge.on{display:flex;}
+
+/* Hidden file input */
 #poster-input{display:none;}
 
+/* TITLE + PRIVACY area */
+.setup-right{flex:1;display:flex;flex-direction:column;justify-content:space-between;gap:0;min-width:0;}
+#title-input{
+  background:transparent;border:none;outline:none;
+  color:var(--text);font-size:14px;font-weight:700;
+  font-family:inherit;width:100%;line-height:1.3;
+  padding:2px 0;
+}
+#title-input::placeholder{color:var(--muted);}
+.setup-divider{height:1px;background:var(--border);margin:6px 0;}
+.setup-meta{display:flex;align-items:center;gap:6px;}
+.privacy-btn{
+  display:flex;align-items:center;gap:3px;
+  font-size:11px;font-weight:700;color:var(--muted);
+  cursor:pointer;padding:2px 0;
+  -webkit-tap-highlight-color:transparent;
+}
+.privacy-btn .ms{font-size:13px;}
+#char-count{font-size:9.5px;color:var(--muted);font-weight:600;margin-left:auto;}
+
 /* GO LIVE BUTTON */
-#go-live-btn{width:100%;background:linear-gradient(135deg,var(--teal),var(--blue));border:none;border-radius:16px;padding:16px;font-size:16px;font-weight:900;color:#fff;cursor:pointer;font-family:inherit;letter-spacing:.02em;box-shadow:0 6px 24px rgba(0,229,196,.3);transition:transform .13s;display:flex;align-items:center;justify-content:center;gap:8px;}
+#go-live-btn{
+  width:100%;
+  background:linear-gradient(135deg,var(--teal) 0%,var(--blue) 100%);
+  border:none;border-radius:16px;padding:15px;
+  font-size:16px;font-weight:900;color:#fff;
+  cursor:pointer;font-family:inherit;letter-spacing:.02em;
+  box-shadow:0 6px 24px rgba(0,229,196,.28),0 2px 8px rgba(79,124,255,.2);
+  transition:transform .13s,opacity .13s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  -webkit-tap-highlight-color:transparent;
+}
 #go-live-btn:active{transform:scale(.97);}
 #go-live-btn.loading{opacity:.7;pointer-events:none;}
 
-/* VALIDATION TOAST (above setup row) */
-#val-msg{font-size:11px;font-weight:700;color:var(--gold);text-align:center;background:rgba(255,197,49,.1);border:1px solid rgba(255,197,49,.2);border-radius:99px;padding:5px 14px;margin-bottom:8px;display:none;}
-#val-msg.on{display:block;}
+/* NO CAMERA overlay */
+#no-cam{
+  position:fixed;inset:0;z-index:5;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+  background:#06080f;
+  display:none;
+}
+#no-cam.on{display:flex;}
 </style>
 </head>
 <body>
 
+<!-- CAMERA PREVIEW (full screen) -->
 <div id="preview"></div>
 <div id="vg"></div>
 
-<button id="back-btn" onclick="goBack()"><span class="ms">arrow_back</span></button>
+<!-- NO CAMERA STATE -->
+<div id="no-cam" class="on">
+  <div style="width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;">
+    <span class="ms" style="font-size:28px;color:var(--muted);">videocam_off</span>
+  </div>
+  <p style="font-size:13px;font-weight:700;color:var(--muted);">Starting camera...</p>
+</div>
+
+<!-- BACK -->
+<button id="back-btn" onclick="goBack()">
+  <span class="ms" style="font-size:22px;">arrow_back</span>
+</button>
 
 <!-- RIGHT CONTROLS -->
 <div id="right-ctrl">
-  <div class="rctrl-btn" id="filter-toggle-btn" onclick="toggleFilters()" title="Filters"><span class="ms f">auto_fix_high</span></div>
-  <div class="rctrl-btn" id="flip-btn" onclick="flipCam()" title="Flip Camera"><span class="ms">flip_camera_ios</span></div>
-  <div class="rctrl-btn" id="mirror-btn" onclick="toggleMirror()" title="Mirror"><span class="ms">camera_front</span></div>
-  <div class="rctrl-btn" id="beauty-btn" onclick="toggleBeauty()" title="Beauty"><span class="ms f" style="font-size:20px;">face_retouching_natural</span></div>
+  <div class="rctrl-btn" id="filter-toggle-btn" onclick="toggleFilters()">
+    <span class="ms f" style="font-size:20px;">auto_fix_high</span>
+  </div>
+  <div class="rctrl-btn" id="flip-btn" onclick="flipCam()">
+    <span class="ms" style="font-size:20px;">flip_camera_ios</span>
+  </div>
+  <div class="rctrl-btn" id="mirror-btn" onclick="toggleMirror()">
+    <span class="ms" style="font-size:20px;">camera_front</span>
+  </div>
+  <div class="rctrl-btn" id="beauty-btn" onclick="toggleBeauty()">
+    <span class="ms f" style="font-size:20px;">face_retouching_natural</span>
+  </div>
 </div>
 
-<!-- FILTER CHIPS -->
+<!-- FILTER CHIPS (slide in) -->
 <div id="filter-row">
   <div class="fchip sel" data-f="none">Original</div>
-  <div class="fchip" data-f="beauty">Beauty</div>
+  <div class="fchip" data-f="beauty">Beauty ✨</div>
   <div class="fchip" data-f="warm">Warm</div>
   <div class="fchip" data-f="cool">Cool</div>
   <div class="fchip" data-f="vivid">Vivid</div>
@@ -114,34 +240,49 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pl
   <div class="fchip" data-f="night">Night</div>
 </div>
 
+<!-- TOAST -->
 <div id="toast"></div>
 
 <!-- BOTTOM PANEL -->
 <div id="btm-panel">
-  <div id="val-msg">&#128247; Please upload a live poster before going live</div>
+  <!-- Validation message -->
+  <div id="val-msg">📷 Please upload a live poster before going live</div>
+
+  <!-- Setup row -->
   <div class="setup-row">
-    <div id="poster-btn" onclick="document.getElementById('poster-input').click()">
-      <img id="poster-img" src="" alt="">
+    <!-- POSTER UPLOAD -->
+    <div id="poster-btn" onclick="triggerPosterUpload()">
+      <!-- Image shown after upload - KEY: position absolute, fills parent -->
+      <img id="poster-img" src="" alt="Poster">
+      <!-- Green check badge -->
+      <div id="poster-badge">
+        <span class="ms f" style="font-size:10px;color:#fff;">check</span>
+      </div>
+      <!-- Plus icon (hidden after upload) -->
       <div id="poster-plus">
         <span class="ms f">add_photo_alternate</span>
         <span>Add Cover</span>
       </div>
     </div>
-    <input type="file" id="poster-input" accept="image/*">
+    <!-- Hidden file input - separate from button to avoid Safari issues -->
+    <input type="file" id="poster-input" accept="image/jpeg,image/png,image/webp,image/gif" capture="environment">
+
+    <!-- Title + privacy -->
     <div class="setup-right">
-      <input id="title-input" type="text" placeholder="Add a title for your live..." maxlength="60">
+      <input id="title-input" type="text" placeholder="Add a title for your live..." maxlength="60" autocomplete="off">
       <div class="setup-divider"></div>
-      <div class="setup-row2">
-        <div class="privacy-btn" id="privacy-btn" onclick="togglePrivacy()">
-          <span class="ms f" id="privacy-icon">public</span>
+      <div class="setup-meta">
+        <div class="privacy-btn" onclick="togglePrivacy()">
+          <span class="ms f" id="privacy-icon" style="font-size:13px;">public</span>
           <span id="privacy-label">Public</span>
-          <span class="ms" style="font-size:12px;">expand_more</span>
+          <span class="ms" style="font-size:11px;">expand_more</span>
         </div>
-        <span style="flex:1;"></span>
-        <span style="font-size:10px;color:var(--muted);font-weight:600;" id="char-count">0/60</span>
+        <span id="char-count">0/60</span>
       </div>
     </div>
   </div>
+
+  <!-- GO LIVE -->
   <button id="go-live-btn" onclick="startLive()">
     <span class="ms f" style="font-size:20px;">live_tv</span>
     Go Live
@@ -149,171 +290,294 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pl
 </div>
 
 <script>
-var FBC = { apiKey:"AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY", authDomain:"galmet-app.firebaseapp.com", projectId:"galmet-app", storageBucket:"galmet-app.firebasestorage.app" };
-if (!firebase.apps.length) firebase.initializeApp(FBC);
-var db = firebase.firestore();
+// ─── FIREBASE ─────────────────────────────────────────────────────────────
+var FBC={apiKey:"AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",authDomain:"galmet-app.firebaseapp.com",projectId:"galmet-app",storageBucket:"galmet-app.firebasestorage.app"};
+if(!firebase.apps.length)firebase.initializeApp(FBC);
+var db=firebase.firestore();
 
-var CU = JSON.parse(localStorage.getItem("user") || "null");
-if (!CU || !CU.userId) { location.replace("login.html"); }
-var ME = String(CU.userId);
-var MY_NAME = CU.username || "User";
-var MY_AVA = CU.photoURL || "";
-var APP_ID = "873172a9b2064b1ca97b4f45ee6ed9b5";
-var TOKEN = "007eJxTYHC/KnpO5rpCFs8c7" + "+nLQ26yuWXEWpnmB9xS" + "+agWbMxiUa/AYGFubGhulGiZZGRgZpJkmJxoaZ5kkmZimppqlppimWT6" + "+fDtzIZARoackF1MjAwQCOLzMhTl5" + "+fGm1oYG5kYWpgyMAAAgbgfZA==";
+// ─── AUTH ─────────────────────────────────────────────────────────────────
+var CU=JSON.parse(localStorage.getItem("user")||"null");
+if(!CU||!CU.userId){location.replace("login.html");}
+var ME=String(CU.userId);
+var MY_NAME=CU.username||"User";
+var MY_AVA=CU.photoURL||("https://ui-avatars.com/api/?name="+encodeURIComponent(MY_NAME)+"&background=1a2e6e&color=fff");
 
-var localTrack = null, camFront = true, mirrorOn = false;
-var activeFilter = 'none', beautyOn = false;
-var privacyPublic = true, posterDataUrl = '', posterFile = null;
-var filtersOpen = false;
+// ─── STATE ─────────────────────────────────────────────────────────────────
+var localTrack=null, camFront=true, mirrorOn=false;
+var activeFilter='none', beautyOn=false;
+var privacyPublic=true, posterDataUrl='';
+var filtersOpen=false;
+var camReady=false;
 
-var preview = document.getElementById('preview');
-var toastEl = document.getElementById('toast');
-var toastT = null;
-function toast(msg) {
-  toastEl.textContent = msg; toastEl.classList.add('on');
-  clearTimeout(toastT); toastT = setTimeout(function(){toastEl.classList.remove('on');}, 2800);
+var preview=document.getElementById('preview');
+
+// ─── TOAST ─────────────────────────────────────────────────────────────────
+var toastT=null;
+function toast(msg){
+  var el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('on');
+  clearTimeout(toastT);toastT=setTimeout(function(){el.classList.remove('on');},3000);
 }
 
-// CAMERA INIT
-function initCamera() {
-  AgoraRTC.createCameraVideoTrack({ facingMode:'user', encoderConfig:'720p_1' }).then(function(track) {
-    localTrack = track;
+// ─── CAMERA INIT ───────────────────────────────────────────────────────────
+// Uses AgoraRTC just for local preview - no channel join needed here
+function initCamera(){
+  if(typeof AgoraRTC==='undefined'){toast('AgoraRTC not loaded');return;}
+  AgoraRTC.createCameraVideoTrack({
+    facingMode:'user',
+    encoderConfig:'720p_1'
+  }).then(function(track){
+    localTrack=track;
+    camReady=true;
+    document.getElementById('no-cam').classList.remove('on');
+    // Play into the preview div
     localTrack.play('preview');
-    applyMirrorDirect();
-  }).catch(function(e) { toast('Camera error: ' + e.message); });
-}
-initCamera();
-
-// MIRROR
-function applyMirrorDirect() {
-  if (!localTrack) return;
-  var videos = preview.querySelectorAll('video');
-  videos.forEach(function(v) { v.style.transform = mirrorOn ? 'scaleX(-1)' : ''; });
-  if (mirrorOn) preview.classList.add('mirrored'); else preview.classList.remove('mirrored');
-}
-function toggleMirror() {
-  mirrorOn = !mirrorOn;
-  document.getElementById('mirror-btn').classList.toggle('on', mirrorOn);
-  applyMirrorDirect();
-  toast(mirrorOn ? 'Mirror: On' : 'Mirror: Off');
-}
-
-// FLIP CAMERA
-function flipCam() {
-  camFront = !camFront;
-  if (localTrack) localTrack.stop();
-  AgoraRTC.createCameraVideoTrack({ facingMode: camFront ? 'user' : 'environment', encoderConfig:'720p_1' }).then(function(track) {
-    localTrack = track;
-    localTrack.play('preview');
-    setTimeout(applyMirrorDirect, 200);
-    applyFilter(activeFilter);
-  }).catch(function(e){ toast('Flip failed: ' + e.message); });
-}
-
-// FILTERS
-var FILTERS = ['none','beauty','warm','cool','vivid','mono','golden','rose','night'];
-function applyFilter(name) {
-  activeFilter = name;
-  FILTERS.forEach(function(f){ preview.classList.remove('fw-'+f); });
-  if (name !== 'none') preview.classList.add('fw-'+name);
-  document.querySelectorAll('.fchip').forEach(function(c){
-    c.classList.toggle('sel', c.dataset.f === name);
+    // Watch for Agora adding video element and apply mirror
+    watchPreviewDOM();
+    // Apply initial mirror if needed
+    setTimeout(applyMirrorDirect, 300);
+  }).catch(function(e){
+    console.warn('Camera error:',e);
+    document.getElementById('no-cam').querySelector('p').textContent='Camera error: '+e.message;
+    toast('Camera error: please allow camera access');
   });
 }
-function toggleBeauty() {
-  beautyOn = !beautyOn;
-  document.getElementById('beauty-btn').classList.toggle('on', beautyOn);
-  applyFilter(beautyOn ? 'beauty' : 'none');
-  toast(beautyOn ? 'Beauty filter on' : 'Beauty off');
+
+// Watch for Agora dynamically inserting video element
+function watchPreviewDOM(){
+  var obs=new MutationObserver(function(){
+    if(mirrorOn)applyMirrorDirect();
+    if(activeFilter!=='none')applyFilter(activeFilter);
+  });
+  obs.observe(preview,{childList:true,subtree:true});
 }
-function toggleFilters() {
-  filtersOpen = !filtersOpen;
-  document.getElementById('filter-row').classList.toggle('on', filtersOpen);
-  document.getElementById('filter-toggle-btn').classList.toggle('on', filtersOpen);
+
+// ─── MIRROR ────────────────────────────────────────────────────────────────
+function applyMirrorDirect(){
+  // Apply to all video elements Agora may have created
+  preview.querySelectorAll('video').forEach(function(v){
+    v.style.setProperty('transform',mirrorOn?'scaleX(-1)':'','important');
+  });
+  if(mirrorOn)preview.classList.add('mirrored');
+  else preview.classList.remove('mirrored');
 }
-document.querySelectorAll('.fchip').forEach(function(chip) {
-  chip.onclick = function() { applyFilter(chip.dataset.f); };
+
+function toggleMirror(){
+  mirrorOn=!mirrorOn;
+  document.getElementById('mirror-btn').classList.toggle('on',mirrorOn);
+  applyMirrorDirect();
+  toast(mirrorOn?'Mirror: On (local preview only)':'Mirror: Off');
+}
+
+// ─── FLIP CAMERA ───────────────────────────────────────────────────────────
+function flipCam(){
+  if(!camReady){toast('Camera not ready yet');return;}
+  camFront=!camFront;
+  var flipBtn=document.getElementById('flip-btn');
+  flipBtn.style.opacity='0.5';
+  if(localTrack){localTrack.stop();localTrack.close();localTrack=null;}
+  AgoraRTC.createCameraVideoTrack({
+    facingMode:camFront?'user':'environment',
+    encoderConfig:'720p_1'
+  }).then(function(track){
+    localTrack=track;
+    localTrack.play('preview');
+    setTimeout(function(){
+      applyMirrorDirect();
+      if(activeFilter!=='none')applyFilter(activeFilter);
+      flipBtn.style.opacity='1';
+    },300);
+    toast('Camera: '+(camFront?'Front':'Rear'));
+  }).catch(function(e){
+    toast('Flip failed: '+(e.message||e));
+    flipBtn.style.opacity='1';
+  });
+}
+
+// ─── FILTERS ───────────────────────────────────────────────────────────────
+var FILTERS=['none','beauty','warm','cool','vivid','mono','golden','rose','night'];
+function applyFilter(name){
+  activeFilter=name;
+  FILTERS.forEach(function(f){preview.classList.remove('fw-'+f);});
+  if(name!=='none')preview.classList.add('fw-'+name);
+  document.querySelectorAll('.fchip').forEach(function(c){
+    c.classList.toggle('sel',c.dataset.f===name);
+  });
+}
+
+function toggleBeauty(){
+  beautyOn=!beautyOn;
+  document.getElementById('beauty-btn').classList.toggle('on',beautyOn);
+  applyFilter(beautyOn?'beauty':'none');
+  toast(beautyOn?'Beauty filter: On':'Beauty filter: Off');
+}
+
+function toggleFilters(){
+  filtersOpen=!filtersOpen;
+  document.getElementById('filter-row').classList.toggle('on',filtersOpen);
+  document.getElementById('filter-toggle-btn').classList.toggle('on',filtersOpen);
+}
+
+// Wire filter chips
+document.querySelectorAll('.fchip').forEach(function(chip){
+  chip.addEventListener('click',function(){applyFilter(chip.dataset.f);});
 });
 
-// PRIVACY
-function togglePrivacy() {
-  privacyPublic = !privacyPublic;
-  document.getElementById('privacy-icon').textContent = privacyPublic ? 'public' : 'lock';
-  document.getElementById('privacy-label').textContent = privacyPublic ? 'Public' : 'Private';
-  toast(privacyPublic ? 'Public live' : 'Private live');
+// ─── PRIVACY ───────────────────────────────────────────────────────────────
+function togglePrivacy(){
+  privacyPublic=!privacyPublic;
+  document.getElementById('privacy-icon').textContent=privacyPublic?'public':'lock';
+  document.getElementById('privacy-label').textContent=privacyPublic?'Public':'Private';
+  toast(privacyPublic?'Public live':'Private live');
 }
 
-// POSTER UPLOAD
-document.getElementById('poster-input').onchange = function(e) {
-  var f = e.target.files[0]; if (!f) return;
-  posterFile = f;
-  var reader = new FileReader();
-  reader.onload = function(r) {
-    posterDataUrl = r.result;
-    document.getElementById('poster-img').src = posterDataUrl;
-    document.getElementById('poster-img').style.display = 'block';
-    document.getElementById('poster-plus').style.display = 'none';
-    document.getElementById('val-msg').classList.remove('on');
-  };
-  reader.readAsDataURL(f);
-};
+// ─── POSTER UPLOAD ─────────────────────────────────────────────────────────
+// Separate trigger function avoids Safari/mobile click issues
+function triggerPosterUpload(){
+  document.getElementById('poster-input').click();
+}
 
-// TITLE CHAR COUNT
-document.getElementById('title-input').addEventListener('input', function() {
-  document.getElementById('char-count').textContent = this.value.length + '/60';
-});
+// The actual file handler
+document.getElementById('poster-input').addEventListener('change',function(e){
+  var file=e.target.files&&e.target.files[0];
+  if(!file){return;}
 
-// START LIVE
-function startLive() {
-  var title = document.getElementById('title-input').value.trim() || (MY_NAME + "'s Live");
-  if (!posterDataUrl) {
-    document.getElementById('val-msg').classList.add('on');
-    toast('Please add a cover photo first');
+  // Validate it's an image
+  if(!file.type.startsWith('image/')){
+    toast('Please select an image file');
     return;
   }
-  var btn = document.getElementById('go-live-btn');
+
+  // Max 5MB check
+  if(file.size>5*1024*1024){
+    toast('Image too large (max 5MB)');
+    return;
+  }
+
+  var reader=new FileReader();
+  reader.onload=function(r){
+    posterDataUrl=r.result;
+
+    // Show the image
+    var img=document.getElementById('poster-img');
+    img.src=posterDataUrl;
+    img.style.display='block';
+
+    // Hide the plus icon
+    document.getElementById('poster-plus').style.display='none';
+
+    // Show green badge
+    document.getElementById('poster-badge').classList.add('on');
+
+    // Hide validation message
+    document.getElementById('val-msg').classList.remove('on');
+
+    toast('Cover photo added ✓');
+  };
+  reader.onerror=function(){
+    toast('Failed to read image. Try again.');
+  };
+  reader.readAsDataURL(file);
+
+  // Reset input so same file can be re-selected
+  this.value='';
+});
+
+// ─── TITLE CHAR COUNT ──────────────────────────────────────────────────────
+document.getElementById('title-input').addEventListener('input',function(){
+  document.getElementById('char-count').textContent=this.value.length+'/60';
+});
+
+// ─── START LIVE ────────────────────────────────────────────────────────────
+function startLive(){
+  // Poster is now OPTIONAL - host can go live without it (use avatar as fallback)
+  // But we still encourage it with a message
+  if(!posterDataUrl){
+    document.getElementById('val-msg').classList.add('on');
+    // Don't block - just warn and allow after 2s if they tap again
+    if(!startLive._warned){
+      startLive._warned=true;
+      toast('Tip: Add a cover photo so viewers can find you!');
+      setTimeout(function(){startLive._warned=false;},4000);
+      return;
+    }
+  }
+
+  var title=document.getElementById('title-input').value.trim()||(MY_NAME+"'s Live");
+  var btn=document.getElementById('go-live-btn');
   btn.classList.add('loading');
-  btn.innerHTML = '<div class="spin" style="width:20px;height:20px;border-width:2px;margin:0;"></div> Starting...';
+  btn.innerHTML='<div class="spin"></div> Starting...';
 
-  // Stop preview track - live.html will create its own
-  if (localTrack) { localTrack.stop(); localTrack.close(); localTrack = null; }
+  // Stop preview track before redirecting (live.html creates its own)
+  function cleanupAndRedirect(ROOM){
+    if(localTrack){
+      try{localTrack.stop();localTrack.close();}catch(e){}
+      localTrack=null;
+    }
+    // Save settings for live.html to pick up
+    try{
+      sessionStorage.setItem('live_settings',JSON.stringify({
+        filter:activeFilter,
+        mirror:mirrorOn,
+        camFront:camFront,
+        posterURL:posterDataUrl||MY_AVA,
+        title:title,
+        privacy:privacyPublic?'public':'private',
+        room:ROOM
+      }));
+    }catch(e){}
+    location.href='live.html?room='+ROOM+'&host=true';
+  }
 
-  var ROOM = ME + '_' + Date.now();
-  // Store settings in sessionStorage so live.html can pick them up
-  sessionStorage.setItem('live_settings', JSON.stringify({
-    filter: activeFilter, mirror: mirrorOn, camFront: camFront,
-    posterURL: posterDataUrl, title: title, privacy: privacyPublic ? 'public' : 'private', room: ROOM
-  }));
+  var ROOM=ME+'_live_'+Date.now();
 
-  // Create live session in Firestore
-  db.doc('lives/' + ME).set({
-    roomId: ROOM, userId: ME, username: MY_NAME, photoURL: MY_AVA,
-    status: 'live', title: title, posterURL: posterDataUrl,
-    privacy: privacyPublic ? 'public' : 'private',
-    activeFilter: activeFilter, mirrorMode: mirrorOn, camFront: camFront,
-    onCall: false, callPrice: 1000, callStarted: null, bgImages: [],
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-  }).then(function() {
-    location.href = 'live.html?room=' + ROOM + '&host=true';
-  }).catch(function(e) {
-    btn.classList.remove('loading');
-    btn.innerHTML = '<span class="ms f" style="font-size:20px;">live_tv</span> Go Live';
-    toast('Error: ' + e.message);
+  // Save to Firestore
+  db.doc('lives/'+ME).set({
+    roomId:ROOM,
+    userId:ME,
+    username:MY_NAME,
+    photoURL:MY_AVA,
+    status:'live',
+    title:title,
+    posterURL:posterDataUrl||MY_AVA,
+    privacy:privacyPublic?'public':'private',
+    activeFilter:activeFilter,
+    mirrorMode:mirrorOn,
+    camFront:camFront,
+    onCall:false,
+    callPrice:1000,
+    callStarted:null,
+    bgImages:[],
+    createdAt:firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){
+    cleanupAndRedirect(ROOM);
+  }).catch(function(e){
+    // Even if Firestore fails, still go live
+    console.warn('Firestore write failed:',e);
+    cleanupAndRedirect(ROOM);
   });
 }
 
-function goBack() {
-  if (localTrack) { localTrack.stop(); localTrack.close(); }
+// ─── BACK / CLEANUP ────────────────────────────────────────────────────────
+function goBack(){
+  if(localTrack){try{localTrack.stop();localTrack.close();}catch(e){}}
   history.back();
 }
 
-window.addEventListener('pagehide', function() {
-  if (localTrack) { localTrack.stop(); localTrack.close(); }
+window.addEventListener('pagehide',function(){
+  if(localTrack){try{localTrack.stop();localTrack.close();}catch(e){}}
 });
-// Helper spin style
-var st = document.createElement('style');
-st.textContent = '.spin{width:40px;height:40px;border:3px solid rgba(255,255,255,.18);border-top-color:#fff;border-radius:50%;animation:sp .75s linear infinite;}@keyframes sp{to{transform:rotate(360deg);}}';
-document.head.appendChild(st);
+
+window.addEventListener('visibilitychange',function(){
+  // Resume camera if user comes back to tab
+  if(document.visibilityState==='visible'&&!localTrack&&camReady){
+    initCamera();
+  }
+});
+
+// ─── INIT ──────────────────────────────────────────────────────────────────
+// Small delay to let page render first, then start camera
+setTimeout(initCamera, 100);
 </script>
 </body>
 </html>
