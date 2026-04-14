@@ -270,20 +270,22 @@ var MY_NAME=CU.username||"User";
 var MY_AVA=CU.photoURL||("https://ui-avatars.com/api/?name="+encodeURIComponent(MY_NAME)+"&background=1a2e6e&color=fff");
 var sp=new URLSearchParams(location.search);
 var roomId=sp.get("room"),callerId=sp.get("callerId"),hostId=sp.get("hostId");
+const CALL_CHANNEL = "call_" + roomId;
 var chatRoom=sp.get("chatRoom"); // UNIQUE per call — prevents old messages showing
 if(!roomId||!callerId||!hostId){alert("Invalid call");location.href="dashboard.html";}
 var IS_HOST=ME===hostId,IS_CALLER=ME===callerId;
 var peerId=IS_HOST?callerId:hostId;
 
 var APP_ID="873172a9b2064b1ca97b4f45ee6ed9b5";
-// Call uses a PRIVATE channel: "call_" + roomId so it NEVER conflicts with live channel
-async function fetchToken(channel){
-  const res = await fetch(
-    "https://us-central1-galmet-app.cloudfunctions.net/getToken?channel=" + channel
-  );
+var API = "https://us-central1-galmet-app.cloudfunctions.net/getToken";
+
+async function fetchToken(channelName, uid = 0) {
+  const url = `${API}?channel=${channelName}&uid=${uid}`;
+  const res = await fetch(url);
   const data = await res.json();
   return data.token;
 }
+
 
 // ─── STATE ───────────────────────────────────────────────────────────────
 var agora=null,locAudio=null,locVideo=null;
