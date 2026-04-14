@@ -514,7 +514,7 @@ var APP_ID="873172a9b2064b1ca97b4f45ee6ed9b5";
 
 // ✅ ADD THIS BELOW
 async function fetchToken(channelName, uid = 0) {
-  const url = `http://localhost:8080/rtc/${channelName}/publisher/uid/${uid}`;
+  const url = `https://uncertain-afterglow-uphill.ngrok-free.dev/rtc/${channelName}/publisher/uid/${uid}`;
   const res = await fetch(url);
   const data = await res.json();
   return data.rtcToken;
