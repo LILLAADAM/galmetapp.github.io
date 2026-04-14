@@ -246,6 +246,8 @@ document.getElementById("googleLoginBtn").onclick = async () => {
             const existingUser = checkData.user;
             localStorage.setItem("user", JSON.stringify(existingUser));
 
+            await new Promise(r => setTimeout(r, 100));
+
             // 🔁 SAME REDIRECT LOGIC
             if (!existingUser.gender || !existingUser.username || !existingUser.country || !existingUser.dob || !existingUser.age) {
                 window.location.href = "basic-info.html";
