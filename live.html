@@ -531,14 +531,15 @@ var HOST_ID_PARAM=sp.get("hostId");
 if(!ROOM){alert("Invalid room");location.href="dashboard.html";}
 
 var APP_ID="873172a9b2064b1ca97b4f45ee6ed9b5";
+async function fetchToken(channel, uid) {
+  const res = await fetch(
+    `https://us-central1-galmet-app.cloudfunctions.net/getToken?channel=${channel}&uid=${uid}`
+  );
 
-async function fetchToken(channelName,uid){
-  uid=uid||0;
-  var url="https://us-central1-galmet-app.cloudfunctions.net/getToken"+channelName+"/publisher/uid/"+uid;
-  var res=await fetch(url);
-  var data=await res.json();
-  return data.rtcToken;
+  const data = await res.json();
+  return data.token;
 }
+
 
 var API="https://us-central1-galmet-app.cloudfunctions.net";
 
@@ -1043,8 +1044,12 @@ document.getElementById('vg').addEventListener('click',function(){closeUpop();cl
 function startAgora(){
   agora=AgoraRTC.createClient({mode:'live',codec:'vp8'});
   return agora.setClientRole(IS_HOST?'host':'audience').then(async function(){
-    var token=await fetchToken(ROOM);
-    return agora.join(APP_ID,ROOM,token,null);
+    const LIVE_CHANNEL = "live_" + ROOM;
+    const uid = parseInt(ME);
+
+    const token = await fetchToken(LIVE_CHANNEL, uid);
+
+    return agora.join(APP_ID, LIVE_CHANNEL, token, uid);
   }).then(function(){
     if(IS_HOST){
       var faceMode=liveSettings.camFront===false?'environment':'user';
