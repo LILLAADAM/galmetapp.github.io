@@ -612,22 +612,48 @@ function applyFilter(name){
 // Mirror flips the host's own preview. Agora publishes natural (unmirrored) stream.
 // Viewers always see the natural, unmirrored video.
 function applyMirror(){
-  var lw=document.getElementById('local-wrap');if(!lw)return;
-  // Apply via both CSS class and direct JS for reliability across browsers
-  if(mirrorOn){
-    lw.classList.add('mirrored');
-    lw.querySelectorAll('video').forEach(function(v){v.style.setProperty('transform','scaleX(-1)','important');});
-  } else {
-    lw.classList.remove('mirrored');
-    lw.querySelectorAll('video').forEach(function(v){v.style.removeProperty('transform');});
-  }
-  document.getElementById('mir-lbl').textContent=mirrorOn?'On (local only)':'Off';
-  if(IS_HOST&&hostId)db.doc('lives/'+hostId).update({mirrorMode:mirrorOn}).catch(function(){});
+  const lw = document.getElementById('local-wrap');
+  if(!lw) return;
+
+  const videos = lw.querySelectorAll('video');
+
+  videos.forEach(v => {
+    if(mirrorOn){
+      v.style.transform = "scaleX(-1)";
+    } else {
+      v.style.transform = "scaleX(1)";
+    }
+  });
+
+  document.getElementById('mir-lbl').textContent =
+    mirrorOn ? 'On (local only)' : 'Off';
+
+  setTimeout(() => {
+    const vids = lw.querySelectorAll('video');
+    vids.forEach(v => {
+      if(mirrorOn){
+        v.style.transform = "scaleX(-1)";
+      } else {
+        v.style.transform = "scaleX(1)";
+      }
+    });
+  }, 500);
 }
 // Watch for Agora adding video elements dynamically
 function watchLocalWrap(){
-  var lw=document.getElementById('local-wrap');if(!lw)return;
-  new MutationObserver(function(){if(mirrorOn)applyMirror();}).observe(lw,{childList:true,subtree:true});
+  const lw = document.getElementById('local-wrap');
+  if(!lw) return;
+
+  const observer = new MutationObserver(() => {
+    if(mirrorOn){
+      applyMirror();
+    }
+  });
+
+  observer.observe(lw, {
+    childList: true,
+    subtree: true
+  });
 }
 
 // ─── HOST INFO ────────────────────────────────────────────────────────────
@@ -942,7 +968,9 @@ function startAgora(){
         locVideo.play('local-wrap');
         watchLocalWrap();
 
-        setTimeout(function(){applyMirror();},400);
+        setTimeout(applyMirror, 300);
+        setTimeout(applyMirror, 800);
+        setTimeout(applyMirror, 1500);
 
         if(liveSettings.filter && liveSettings.filter!=='none'){
           applyFilter(liveSettings.filter);
