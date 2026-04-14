@@ -1,319 +1,394 @@
 <!DOCTYPE html>
-<html class="light" lang="en">
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Galmet – Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-  <script>
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            "surface": "#f3f7fb", "surface-container-low": "#ecf1f6",
-            "surface-container-lowest": "#ffffff", "on-surface": "#2a2f32",
-            "on-surface-variant": "#575c60", "primary": "#006571",
-            "primary-container": "#00e3fd", "primary-dim": "#005863",
-            "secondary": "#755700", "tertiary": "#b60051",
-            "outline": "#73777b", "outline-variant": "#a9aeb1", "error": "#b31b25"
-          },
-          fontFamily: { "headline": ["Plus Jakarta Sans"], "body": ["Be Vietnam Pro"], "label": ["Plus Jakarta Sans"] },
-          borderRadius: { DEFAULT: "1rem", lg: "2rem", xl: "3rem", full: "9999px" }
-        }
-      }
-    }
-  </script>
-  <style>
-    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-    .hide-scrollbar::-webkit-scrollbar { display: none; }
-    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    body { min-height: 100dvh; background: #f3f7fb; }
-    /* Wealth/charm level badges matching view.html */
-    .wl0{background:linear-gradient(135deg,#9ca3af,#6b7280);}
-    .wl1{background:linear-gradient(135deg,#84cc16,#65a30d);}
-    .wl2{background:linear-gradient(135deg,#14b8a6,#0d9488);}
-    .wl3{background:linear-gradient(135deg,#3b82f6,#2563eb);}
-    .wl4{background:linear-gradient(135deg,#6366f1,#4f46e5);}
-    .wl5{background:linear-gradient(135deg,#8b5cf6,#7c3aed);}
-    .wl6{background:linear-gradient(135deg,#ec4899,#db2777);}
-    .wl7{background:linear-gradient(135deg,#f43f5e,#e11d48);}
-    .wl8{background:linear-gradient(135deg,#f97316,#ea580c);}
-    .wl9{background:linear-gradient(135deg,#f59e0b,#d97706);}
-    .wl10{background:linear-gradient(135deg,#eab308,#ca8a04);}
-    .cl0{background:linear-gradient(135deg,#9ca3af,#6b7280);}
-    .cl1{background:linear-gradient(135deg,#a7f3d0,#34d399);color:#065f46!important;}
-    .cl2{background:linear-gradient(135deg,#99f6e4,#2dd4bf);color:#134e4a!important;}
-    .cl3{background:linear-gradient(135deg,#93c5fd,#3b82f6);color:#1e3a5f!important;}
-    .cl4{background:linear-gradient(135deg,#c4b5fd,#8b5cf6);}
-    .cl5{background:linear-gradient(135deg,#f0abfc,#d946ef);}
-    .cl6{background:linear-gradient(135deg,#fbcfe8,#f472b6);color:#831843!important;}
-    .cl7{background:linear-gradient(135deg,#fecaca,#ef4444);}
-    .cl8{background:linear-gradient(135deg,#fed7aa,#f97316);}
-    .cl9{background:linear-gradient(135deg,#fde68a,#f59e0b);color:#78350f!important;}
-    .cl10{background:linear-gradient(135deg,#fef08a,#eab308);color:#713f12!important;}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Galmet</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<style>
+:root{
+  --bg:#f3f7fb;--surf:#fff;--surf2:#ecf1f6;
+  --primary:#006571;--tertiary:#b60051;--secondary:#755700;
+  --text:#2a2f32;--muted:#575c60;--outline:#73777b;
+  --border:#e2e8f0;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;min-height:100%;background:var(--bg);font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);overflow-x:hidden;}
+.ms{font-family:'Material Symbols Rounded';font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;user-select:none;display:inline-flex;align-items:center;justify-content:center;line-height:1;font-style:normal;}
+.ms.f{font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;}
+.hide-scroll{scrollbar-width:none;-ms-overflow-style:none;}
+.hide-scroll::-webkit-scrollbar{display:none;}
+
+/* TOP BAR */
+#topbar{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(255,255,255,.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:10px 16px;padding-top:max(env(safe-area-inset-top),10px);}
+#balance-pill{display:flex;align-items:center;gap:5px;background:var(--surf2);border:1px solid var(--border);border-radius:99px;padding:5px 12px;}
+#balance-pill .ms{font-size:16px;color:var(--primary);}
+#balance-val{font-size:11px;font-weight:800;color:var(--text);}
+#balance-lbl{font-size:11px;font-weight:700;color:var(--muted);}
+.tb-right{display:flex;gap:6px;align-items:center;}
+.tb-btn{width:32px;height:32px;border-radius:50%;background:rgba(0,101,113,.08);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.tb-btn .ms{font-size:18px;color:var(--primary);}
+
+/* MAIN */
+#main{padding-top:60px;padding-bottom:calc(72px + max(env(safe-area-inset-bottom),0px) + 60px);}
+
+/* FILTER TABS */
+.filter-tabs{display:flex;gap:20px;padding:10px 16px;overflow-x:auto;border-bottom:1px solid var(--border);background:#fff;position:sticky;top:54px;z-index:40;}
+.filter-tabs::-webkit-scrollbar{display:none;}
+.ftab{font-size:13px;font-weight:700;color:var(--muted);padding-bottom:6px;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;}
+.ftab.act{color:var(--primary);border-bottom-color:var(--primary);}
+
+/* BANNER */
+.banner-wrap{overflow-x:auto;display:flex;scroll-snap-type:x mandatory;margin-bottom:16px;}
+.banner-wrap::-webkit-scrollbar{display:none;}
+.banner-slide{min-width:100%;height:96px;position:relative;scroll-snap-align:start;flex-shrink:0;overflow:hidden;}
+.banner-slide img{width:100%;height:100%;object-fit:cover;}
+.banner-grad{position:absolute;inset:0;background:linear-gradient(to right,rgba(0,0,0,.72) 0%,rgba(0,0,0,.25) 60%,transparent 100%);}
+.banner-txt{position:absolute;left:16px;top:50%;transform:translateY(-50%);}
+.banner-txt h3{color:#fff;font-size:13px;font-weight:900;line-height:1.3;}
+.banner-btn{display:inline-block;margin-top:6px;background:var(--secondary);color:#fff;font-size:8px;font-weight:900;padding:3px 8px;text-transform:uppercase;letter-spacing:.08em;border:none;cursor:pointer;font-family:inherit;}
+
+/* SECTION HEADER */
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 8px;}
+.sec-title{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.15em;display:flex;align-items:center;gap:6px;}
+.sec-count{font-size:9px;color:var(--outline);}
+
+/* RISING STARS */
+#rising-scroll{display:flex;gap:14px;overflow-x:auto;padding:0 16px 8px;}
+#rising-scroll::-webkit-scrollbar{display:none;}
+.rs-card{flex-shrink:0;width:56px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.rs-ring{width:56px;height:56px;border-radius:50%;padding:2px;background:linear-gradient(135deg,var(--primary),var(--tertiary));position:relative;}
+.rs-ring .rs-img{width:100%;height:100%;border-radius:50%;object-fit:cover;border:2px solid #fff;}
+.rs-live-dot{position:absolute;top:-2px;right:-2px;width:12px;height:12px;background:#ef4444;border:2px solid #fff;border-radius:50%;animation:pulse .9s ease-in-out infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.5);}50%{box-shadow:0 0 0 5px rgba(239,68,68,0);}}
+.rs-name{font-size:9.5px;font-weight:700;color:var(--text);text-align:center;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* REGION FILTER */
+.region-row{display:flex;gap:6px;overflow-x:auto;padding:0 16px 8px;}
+.region-row::-webkit-scrollbar{display:none;}
+.rgn-btn{padding:5px 14px;font-size:10px;font-weight:800;letter-spacing:.08em;border:none;cursor:pointer;font-family:inherit;border-radius:0;white-space:nowrap;display:flex;align-items:center;gap:5px;flex-shrink:0;}
+.rgn-btn.act{background:var(--primary);color:#fff;}
+.rgn-btn:not(.act){background:#f0f4f8;color:var(--muted);}
+
+/* LIVES GRID */
+#lives-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#d1d5db;}
+.live-card{position:relative;aspect-ratio:3/4;overflow:hidden;cursor:pointer;background:#e5e7eb;}
+.live-card img{width:100%;height:100%;object-fit:cover;transition:transform .3s;}
+.live-card:active img{transform:scale(1.03);}
+.live-grad{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.55) 0%,transparent 35%,transparent 55%,rgba(0,0,0,.85) 100%);}
+.live-top{position:absolute;top:8px;left:8px;display:flex;flex-direction:column;gap:4px;}
+.live-badge-red{background:#ef4444;color:#fff;font-size:7px;font-weight:900;padding:2px 5px;display:flex;align-items:center;gap:3px;width:fit-content;}
+.live-badge-red span.dot{width:4px;height:4px;background:#fff;border-radius:50%;animation:pulse .9s infinite;}
+.live-lvl-badge{font-size:7.5px;font-weight:900;padding:2px 6px;border-radius:99px;color:#fff;width:fit-content;}
+/* Level colours from backend */
+.lvl-0{background:linear-gradient(135deg,#9ca3af,#6b7280);}
+.lvl-1{background:linear-gradient(135deg,#a7f3d0,#34d399);color:#065f46!important;}
+.lvl-2{background:linear-gradient(135deg,#99f6e4,#2dd4bf);color:#134e4a!important;}
+.lvl-3{background:linear-gradient(135deg,#93c5fd,#3b82f6);}
+.lvl-4{background:linear-gradient(135deg,#c4b5fd,#8b5cf6);}
+.lvl-5{background:linear-gradient(135deg,#f0abfc,#d946ef);}
+.lvl-6{background:linear-gradient(135deg,#fbcfe8,#f472b6);color:#831843!important;}
+.lvl-7{background:linear-gradient(135deg,#fecaca,#ef4444);}
+.lvl-8{background:linear-gradient(135deg,#fed7aa,#f97316);}
+.lvl-9{background:linear-gradient(135deg,#fde68a,#f59e0b);color:#78350f!important;}
+.lvl-10{background:linear-gradient(135deg,#fef08a,#eab308);color:#713f12!important;}
+.live-flag{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.38);padding:2px 5px;font-size:10px;}
+.live-btm{position:absolute;bottom:8px;left:8px;right:36px;}
+.live-uname{color:#fff;font-size:11.5px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.live-title{color:rgba(255,255,255,.7);font-size:9px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.live-vcall-btn{position:absolute;bottom:8px;right:8px;width:28px;height:28px;background:var(--primary);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:2px;}
+.live-vcall-btn .ms{font-size:16px;color:#fff;}
+.live-empty{grid-column:1/-1;padding:48px;text-align:center;background:#fff;}
+.live-empty p{font-size:13px;color:var(--outline);}
+
+/* GO LIVE BUTTON */
+#go-live-wrap{position:fixed;bottom:calc(72px + max(env(safe-area-inset-bottom),0px));left:50%;transform:translateX(-50%);z-index:48;}
+#go-live-btn{background:linear-gradient(135deg,#ef4444,#ec4899);color:#fff;border:none;border-radius:99px;padding:12px 28px;font-size:12px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;display:flex;align-items:center;gap:7px;cursor:pointer;font-family:inherit;box-shadow:0 6px 20px rgba(239,68,68,.35),0 2px 8px rgba(0,0,0,.15);transition:transform .13s;}
+#go-live-btn:active{transform:scale(.95);}
+#go-live-btn .ms{font-size:18px;}
+
+/* BOTTOM NAV */
+#nav{position:fixed;bottom:0;left:0;right:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(16px);border-top:1px solid var(--border);display:flex;padding:8px 0;padding-bottom:max(env(safe-area-inset-bottom),8px);}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 0;}
+.nav-item .ms{font-size:24px;color:var(--muted);}
+.nav-item.act .ms{color:var(--primary);}
+.nav-item span.nl{font-size:9.5px;font-weight:700;color:var(--muted);}
+.nav-item.act span.nl{color:var(--primary);}
+</style>
 </head>
-<body class="bg-surface font-body text-on-surface selection:bg-primary-container">
+<body>
 
-<!-- TOP APP BAR -->
-<header class="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-xl flex justify-between items-center px-4 py-2.5 border-b border-surface-container-high">
-  <div class="flex items-center gap-2">
-    <div id="balancePill" class="bg-surface-container-low px-3 py-1 rounded-full flex items-center gap-1.5 border border-surface-container">
-      <span id="balanceIcon" class="material-symbols-outlined text-primary text-base">monetization_on</span>
-      <span id="balanceValue" class="font-label text-[11px] font-bold text-on-surface">0</span>
-      <span id="balanceLabel" class="font-label text-[11px] font-bold text-on-surface">Coins</span>
-    </div>
+<!-- TOP BAR -->
+<div id="topbar">
+  <div id="balance-pill">
+    <span class="ms f" id="balance-icon">monetization_on</span>
+    <span id="balance-val">0</span>
+    <span id="balance-lbl">Coins</span>
   </div>
-  <div class="flex items-center gap-1.5">
-    <button onclick="alert('Leaderboard coming soon')" class="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container-high/40 hover:bg-surface-container-high/60 transition-colors">
-      <span class="material-symbols-outlined text-primary text-lg">trophy</span>
-    </button>
-    <button onclick="alert('Calendar coming soon')" class="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container-high/40 hover:bg-surface-container-high/60 transition-colors">
-      <span class="material-symbols-outlined text-primary text-lg">calendar_today</span>
-    </button>
-    <button onclick="location.href='createlive.html'" class="w-8 h-8 flex items-center justify-center rounded-full bg-primary text-white shadow-sm active:scale-95 transition-transform ml-0.5">
-      <span class="material-symbols-outlined text-lg">add</span>
-    </button>
+  <div class="tb-right">
+    <button class="tb-btn" onclick="location.href='invitesrank.html'"><span class="ms">trophy</span></button>
+    <button class="tb-btn" onclick="location.href='chats.html'"><span class="ms">chat_bubble</span></button>
   </div>
-</header>
+</div>
 
-<main class="pt-14 pb-32 px-0 max-w-2xl mx-auto">
-  <!-- Filter Tabs -->
-  <div class="flex gap-6 px-4 py-2 sticky top-12 z-40 bg-white/90 backdrop-blur-md overflow-x-auto hide-scrollbar border-b border-surface-container-high">
-    <button class="font-headline font-bold text-slate-400 text-[13px] whitespace-nowrap">New</button>
-    <button class="font-headline font-bold text-primary text-[13px] border-b-2 border-primary pb-0.5 whitespace-nowrap">Popular</button>
-    <button class="font-headline font-bold text-slate-400 text-[13px] whitespace-nowrap">For you</button>
+<div id="main">
+  <!-- FILTER TABS -->
+  <div class="filter-tabs">
+    <div class="ftab act">Popular</div>
+    <div class="ftab">New</div>
+    <div class="ftab">For You</div>
   </div>
 
-  <!-- RISING STARS (real live users) -->
-  <section class="mb-4 px-4 pt-3">
-    <div class="flex justify-between items-center mb-2">
-      <h2 class="font-headline font-bold text-[11px] flex items-center gap-2 uppercase tracking-[0.15em] text-on-surface">
-        <span class="material-symbols-outlined text-tertiary text-lg" style="font-variation-settings:'FILL'1">stars</span> LIVE NOW
-      </h2>
-      <span id="liveCount" class="text-[9px] text-outline font-bold">0 active</span>
-    </div>
-    <div id="risingStarsContainer" class="flex gap-4 overflow-x-auto hide-scrollbar pb-2">
-      <p class="text-xs text-outline">No live streams yet</p>
-    </div>
-  </section>
-
-  <!-- Banner -->
-  <div class="overflow-x-auto hide-scrollbar flex snap-x snap-mandatory mb-4 mx-0">
-    <div class="min-w-full h-24 relative overflow-hidden snap-center flex-shrink-0">
-      <img alt="Promo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGQy2tG8boynppF4-SdmUIA6Jbd5zPAxfMopCDz0A67AZmZC6LXfZh7iXVnmk6YuvYzmoF2pM96uKY9IquY62hJzzoc8692ayS1qEkw0OW9NUJRYBVoTd2uNL6kEI0zXIj3RUaRnVxuDVuC61qYCgY8PIYm1CFDf_h3lqCUDLik-hjT6FpDwZlrlxuNiBAHJeVAjUlVsXRih6qfEsRKPtTGROVrFChcE-eSv8fw1ORRHmYGWI8IpyASfrGvJgupjhfpOTcgBWEPraZ">
-      <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent flex flex-col justify-center p-4">
-        <h3 class="text-white font-headline font-extrabold text-sm leading-tight">To be Agent<br/>To be Millionaire</h3>
-        <button onclick="window.location.href='invitesrank.html'" class="mt-1.5 bg-secondary text-white text-[9px] font-bold px-2.5 py-0.5 rounded-none w-fit uppercase tracking-wider">Join Now</button>
+  <!-- BANNER -->
+  <div class="banner-wrap">
+    <div class="banner-slide">
+      <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGQy2tG8boynppF4-SdmUIA6Jbd5zPAxfMopCDz0A67AZmZC6LXfZh7iXVnmk6YuvYzmoF2pM96uKY9IquY62hJzzoc8692ayS1qEkw0OW9NUJRYBVoTd2uNL6kEI0zXIj3RUaRnVxuDVuC61qYCgY8PIYm1CFDf_h3lqCUDLik-hjT6FpDwZlrlxuNiBAHJeVAjUlVsXRih6qfEsRKPtTGROVrFChcE-eSv8fw1ORRHmYGWI8IpyASfrGvJgupjhfpOTcgBWEPraZ" alt="">
+      <div class="banner-grad"></div>
+      <div class="banner-txt">
+        <h3>To be Agent<br>To be Millionaire</h3>
+        <button class="banner-btn" onclick="location.href='invitesrank.html'">Join Now</button>
       </div>
     </div>
-    <div class="min-w-full h-24 relative overflow-hidden snap-center flex-shrink-0">
-      <img alt="Promo 2" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGQy2tG8boynppF4-SdmUIA6Jbd5zPAxfMopCDz0A67AZmZC6LXfZh7iXVnmk6YuvYzmoF2pM96uKY9IquY62hJzzoc8692ayS1qEkw0OW9NUJRYBVoTd2uNL6kEI0zXIj3RUaRnVxuDVuC61qYCgY8PIYm1CFDf_h3lqCUDLik-hjT6FpDwZlrlxuNiBAHJeVAjUlVsXRih6qfEsRKPtTGROVrFChcE-eSv8fw1ORRHmYGWI8IpyASfrGvJgupjhfpOTcgBWEPraZ">
-      <div class="absolute inset-0 bg-gradient-to-r from-primary/90 to-transparent flex flex-col justify-center p-4">
-        <h3 class="text-white font-headline font-extrabold text-sm leading-tight">Summer Carnival<br/>Gifts &amp; Rewards</h3>
-        <button onclick="alert('Coming soon')" class="mt-1.5 bg-white text-primary text-[9px] font-bold px-2.5 py-0.5 rounded-none w-fit uppercase tracking-wider">View Rules</button>
+    <div class="banner-slide" style="background:linear-gradient(135deg,#006571,#00b4c5);">
+      <div class="banner-grad" style="background:none;"></div>
+      <div class="banner-txt">
+        <h3 style="color:#fff;">Summer Carnival<br>Gifts &amp; Rewards</h3>
+        <button class="banner-btn" style="background:#fff;color:var(--primary);" onclick="alert('Coming soon')">View Rules</button>
       </div>
     </div>
   </div>
 
-  <!-- Regional Filters -->
-  <div class="flex gap-2 overflow-x-auto hide-scrollbar mb-3.5 px-4">
-    <button onclick="filterRegion('ALL')" class="region-btn px-5 py-1.5 bg-primary text-white font-bold text-[10px] tracking-[0.1em] rounded-none" data-r="ALL">ALL</button>
-    <button onclick="filterRegion('UAE')" class="region-btn px-4 py-1.5 bg-surface-container-high text-on-surface-variant font-bold text-[10px] tracking-[0.1em] flex items-center gap-1.5 rounded-none" data-r="UAE"><span class="text-xs">🇦🇪</span>UAE</button>
-    <button onclick="filterRegion('INDIA')" class="region-btn px-4 py-1.5 bg-surface-container-high text-on-surface-variant font-bold text-[10px] tracking-[0.1em] flex items-center gap-1.5 rounded-none" data-r="INDIA"><span class="text-xs">🇮🇳</span>INDIA</button>
-    <button onclick="filterRegion('KSA')" class="region-btn px-4 py-1.5 bg-surface-container-high text-on-surface-variant font-bold text-[10px] tracking-[0.1em] flex items-center gap-1.5 rounded-none" data-r="KSA"><span class="text-xs">🇸🇦</span>KSA</button>
-    <button onclick="filterRegion('PK')" class="region-btn px-4 py-1.5 bg-surface-container-high text-on-surface-variant font-bold text-[10px] tracking-[0.1em] flex items-center gap-1.5 rounded-none" data-r="PK"><span class="text-xs">🇵🇰</span>PK</button>
+  <!-- RISING STARS -->
+  <div class="sec-hdr">
+    <div class="sec-title"><span class="ms f" style="font-size:16px;color:var(--tertiary);">stars</span> Rising Stars</div>
+    <span class="sec-count" id="rising-count">0 live</span>
+  </div>
+  <div id="rising-scroll"><p style="font-size:12px;color:var(--outline);padding:4px 0;">No live users</p></div>
+
+  <!-- REGION FILTER -->
+  <div class="region-row" style="margin-top:8px;">
+    <button class="rgn-btn act" onclick="filterRegion(null,this)">ALL</button>
+    <button class="rgn-btn" onclick="filterRegion('AE',this)">🇦🇪 UAE</button>
+    <button class="rgn-btn" onclick="filterRegion('IN',this)">🇮🇳 India</button>
+    <button class="rgn-btn" onclick="filterRegion('SA',this)">🇸🇦 KSA</button>
+    <button class="rgn-btn" onclick="filterRegion('PK',this)">🇵🇰 PK</button>
+    <button class="rgn-btn" onclick="filterRegion('TR',this)">🇹🇷 Turkey</button>
+    <button class="rgn-btn" onclick="filterRegion('EG',this)">🇪🇬 Egypt</button>
   </div>
 
-  <!-- LIVE GRID (real users) -->
-  <div id="liveGrid" class="grid grid-cols-2 gap-[2px] px-0 bg-surface-container-highest">
-    <p class="col-span-2 text-center text-xs text-outline py-10">Loading live streams...</p>
+  <!-- LIVE GRID -->
+  <div id="lives-grid">
+    <div class="live-empty"><p>Loading lives…</p></div>
   </div>
-</main>
+</div>
 
-<!-- GO LIVE FLOATING BUTTON -->
-<div class="fixed z-50" style="bottom: calc(68px + max(env(safe-area-inset-bottom), 0px) + 12px); left: 50%; transform: translateX(-50%);">
-  <button onclick="location.href='createlive.html'" class="bg-gradient-to-r from-red-500 to-pink-500 text-white font-headline font-bold px-7 py-3 shadow-2xl flex items-center gap-2 active:scale-95 transition-all border border-white/20 whitespace-nowrap text-[11px] uppercase tracking-[0.15em] rounded-full">
-    <span class="material-symbols-outlined text-lg" style="font-variation-settings:'FILL'1">fiber_manual_record</span> GO LIVE
+<!-- GO LIVE -->
+<div id="go-live-wrap">
+  <button id="go-live-btn" onclick="goLive()">
+    <span class="ms f">fiber_manual_record</span> GO LIVE
   </button>
 </div>
 
-<!-- Bottom Navigation -->
-<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 bg-white/90 backdrop-blur-xl rounded-t-2xl shadow-[0_-4px_24px_rgba(0,101,113,0.08)] border-t border-surface-container-high">
-  <button class="flex flex-col items-center text-primary transition">
-    <span class="material-symbols-outlined" style="font-variation-settings:'FILL'1">home</span>
-    <span class="text-[10px] font-label font-bold">Home</span>
-  </button>
-  <button onclick="location.href='party.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
-    <span class="material-symbols-outlined">sports_esports</span>
-    <span class="text-[10px] font-label">Party</span>
-  </button>
-  <button onclick="location.href='chats.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
-    <span class="material-symbols-outlined">chat_bubble</span>
-    <span class="text-[10px] font-label">Chats</span>
-  </button>
-  <button onclick="location.href='ownprofile.html'" class="flex flex-col items-center text-slate-400 hover:text-primary transition">
-    <span class="material-symbols-outlined">person</span>
-    <span class="text-[10px] font-label">Profile</span>
-  </button>
+<!-- BOTTOM NAV -->
+<nav id="nav">
+  <div class="nav-item act">
+    <span class="ms f">home</span><span class="nl">Home</span>
+  </div>
+  <div class="nav-item" onclick="location.href='party.html'">
+    <span class="ms">sports_esports</span><span class="nl">Party</span>
+  </div>
+  <div class="nav-item" onclick="location.href='chats.html'">
+    <span class="ms">chat_bubble</span><span class="nl">Chats</span>
+  </div>
+  <div class="nav-item" onclick="location.href='ownprofile.html'">
+    <span class="ms">person</span><span class="nl">Me</span>
+  </div>
 </nav>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-  import { getFirestore, doc, onSnapshot, updateDoc, collection, setDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+<script>
+var FBC={apiKey:"AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",authDomain:"galmet-app.firebaseapp.com",projectId:"galmet-app",storageBucket:"galmet-app.firebasestorage.app"};
+if(!firebase.apps.length)firebase.initializeApp(FBC);
+var db=firebase.firestore();
 
-  const app = initializeApp({ apiKey:"AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY", authDomain:"galmet-app.firebaseapp.com", projectId:"galmet-app" });
-  const db = getFirestore(app);
+var CU=JSON.parse(localStorage.getItem("user")||"null");
+if(!CU||!CU.userId){location.replace("login.html");}
+var ME=String(CU.userId);
 
-  const localUser = JSON.parse(localStorage.getItem("user"));
-  if (!localUser || !localUser.userId) window.location.replace("login.html");
-  const myId = localUser.userId.toString();
-  const userRef = doc(db, "users", myId);
+var allLives=[], regionFilter=null;
 
-  // Balance
-  let unsubUser = null;
-  updateDoc(userRef, { online: true }).catch(() => {});
-  unsubUser = onSnapshot(userRef, (snap) => {
-    if (!snap.exists()) return;
-    const d = snap.data();
-    const gender = d.gender, coins = d.coins ?? 0, gems = d.gems ?? 0;
-    const bi = document.getElementById("balanceIcon");
-    const bv = document.getElementById("balanceValue");
-    const bl = document.getElementById("balanceLabel");
-    if (gender === 'female') { bi.innerText = "diamond"; bi.classList.add("text-red-400"); bv.innerText = gems.toLocaleString(); bl.innerText = "Gems"; }
-    else { bi.innerText = "monetization_on"; bi.classList.remove("text-red-400"); bv.innerText = coins.toLocaleString(); bl.innerText = "Coins"; }
+// Level helpers — matches backend exactly
+function getCharmLevel(g){if(g<10000)return 0;if(g<30000)return 1;if(g<100000)return 2;if(g<300000)return 3;if(g<1000000)return 4;if(g<3000000)return 5;if(g<10000000)return 6;if(g<30000000)return 7;if(g<100000000)return 8;if(g<300000000)return 9;return 10;}
+function getWealthLevel(t){if(t<4000)return 0;if(t<30000)return 1;if(t<100000)return 2;if(t<300000)return 3;if(t<1000000)return 4;if(t<3000000)return 5;if(t<10000000)return 6;if(t<30000000)return 7;if(t<100000000)return 8;if(t<300000000)return 9;return 10;}
+function getHighestLevel(data){
+  var cl=data.charmLevel||getCharmLevel(Math.max(data.monthlyGems||0,data.lastMonthGems||0));
+  var wl=data.wealthLevel||getWealthLevel(data.totalTopup||0);
+  return Math.max(cl,wl);
+}
+function esc(s){if(!s)return'';return String(s).replace(/[&<>"']/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];});}
+
+// Country code → flag emoji
+function codeToFlag(code){
+  if(!code)return '';
+  try{return code.toUpperCase().split('').map(c=>String.fromCodePoint(c.charCodeAt(0)+127397)).join('');}catch(e){return '';}
+}
+// Get flag from user data
+function getUserFlag(userData){
+  if(!userData)return '';
+  if(userData.countryCode)return codeToFlag(userData.countryCode);
+  if(userData.country&&typeof userData.country==='object'&&userData.country.flag)return userData.country.flag;
+  if(userData.country&&typeof userData.country==='object'&&userData.country.code)return codeToFlag(userData.country.code);
+  return '';
+}
+// Get country code from user data
+function getUserCountryCode(userData){
+  if(!userData)return '';
+  if(userData.countryCode)return userData.countryCode;
+  if(userData.country&&typeof userData.country==='object'&&userData.country.code)return userData.country.code;
+  return '';
+}
+
+// BALANCE real-time
+db.doc('users/'+ME).onSnapshot(function(snap){
+  if(!snap.exists)return;
+  var d=snap.data();
+  var coins=d.coins||0, gems=d.gems||0;
+  var icon=document.getElementById('balance-icon');
+  var val=document.getElementById('balance-val');
+  var lbl=document.getElementById('balance-lbl');
+  if(d.gender==='female'){
+    icon.textContent='diamond';icon.style.color='#ec4899';
+    val.textContent=gems.toLocaleString();lbl.textContent='Gems';
+  } else {
+    icon.textContent='monetization_on';icon.style.color='';
+    val.textContent=coins.toLocaleString();lbl.textContent='Coins';
+  }
+});
+
+// LIVE STREAMS real-time
+db.collection('lives').onSnapshot(function(snap){
+  allLives=[];
+  snap.forEach(function(d){
+    var dd=d.data();
+    if(dd.status==='live')allLives.push({id:d.id,...dd});
   });
+  renderGrid();
+  renderRising();
+});
 
-  // Level badge class
-  function lvBadge(charmLv, wealthLv) {
-    const lv = Math.max(charmLv||0, wealthLv||0);
-    const type = (charmLv||0) >= (wealthLv||0) ? 'cl' : 'wl';
-    return `${type}${Math.min(lv,10)}`;
-  }
-  function countryFlag(country) {
-    if (!country) return '';
-    if (typeof country === 'object') return country.flag || '';
-    return '';
-  }
+// Fetch user live level from users collection
+var userLevelCache={};
+function getUserLevelData(userId,cb){
+  if(userLevelCache[userId]){cb(userLevelCache[userId]);return;}
+  db.doc('users/'+userId).get().then(function(snap){
+    var d=snap.exists?snap.data():{};
+    userLevelCache[userId]=d;
+    cb(d);
+  }).catch(function(){cb({});});
+}
 
-  let allLives = [];
-  let activeRegion = 'ALL';
-
-  // Listen to lives collection
-  onSnapshot(collection(db, "lives"), (snapshot) => {
-    allLives = [];
-    snapshot.forEach(docSnap => {
-      const live = docSnap.data();
-      if (live.status === "live") allLives.push(live);
+function renderGrid(){
+  var grid=document.getElementById('lives-grid');
+  var lives=regionFilter?allLives.filter(function(l){return getUserCountryCode(l)===regionFilter;}):allLives;
+  if(lives.length===0){grid.innerHTML='<div class="live-empty"><p>No live streams right now 📡</p></div>';return;}
+  grid.innerHTML='';
+  lives.forEach(function(live){
+    var uid=live.userId||live.id;
+    var card=document.createElement('div');
+    card.className='live-card';
+    card.onclick=function(){joinLive(live.roomId);};
+    var ava=live.photoURL||('https://ui-avatars.com/api/?name='+encodeURIComponent(live.username||'L')+'&background=006571&color=fff&size=400');
+    var bg=live.posterURL||ava;
+    var flag=getUserFlag(live)||'';
+    var lv=Math.max(live.charmLevel||0,live.wealthLevel||0);
+    var isBusy=live.onCall===true;
+    card.innerHTML=
+      '<img src="'+esc(bg)+'" onerror="this.src=\''+esc(ava)+'\'" loading="lazy">'+
+      '<div class="live-grad"></div>'+
+      '<div class="live-top">'+
+        '<div class="live-badge-red" style="background:'+(isBusy?'#f97316':'#ef4444')+'"><span class="dot"></span>'+(isBusy?'BUSY':'LIVE')+'</div>'+
+        '<div class="live-lvl-badge lvl-'+Math.min(lv,10)+'">Lv '+lv+'</div>'+
+      '</div>'+
+      (flag?'<div class="live-flag">'+flag+'</div>':'')+
+      '<div class="live-btm">'+
+        '<div class="live-uname">'+esc(live.username||'Live')+'</div>'+
+        (live.title?'<div class="live-title">'+esc(live.title)+'</div>':'')+
+      '</div>'+
+      '<button class="live-vcall-btn" title="Video Call"><span class="ms f">video_call</span></button>';
+    // Wire call button
+    card.querySelector('.live-vcall-btn').onclick=function(e){
+      e.stopPropagation();
+      startVideoCall(uid, live.roomId);
+    };
+    // Fetch real level from users collection and update badge
+    getUserLevelData(uid,function(userData){
+      var realLv=getHighestLevel(userData);
+      var badge=card.querySelector('.live-lvl-badge');
+      if(badge){badge.className='live-lvl-badge lvl-'+Math.min(realLv,10);badge.textContent='Lv '+realLv;}
     });
-    document.getElementById("liveCount").innerText = `${allLives.length} active`;
-    renderRisingStars();
-    renderGrid();
+    grid.appendChild(card);
   });
+}
 
-  function renderRisingStars() {
-    const container = document.getElementById("risingStarsContainer");
-    if (allLives.length === 0) { container.innerHTML = '<p class="text-xs text-outline">No live streams at the moment</p>'; return; }
-    container.innerHTML = "";
-    allLives.slice(0, 10).forEach(live => {
-      const card = document.createElement("div");
-      card.className = "flex flex-col items-center gap-1 min-w-[56px] cursor-pointer";
-      card.onclick = () => joinLive(live.roomId);
-      const ava = live.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(live.username)}&background=006571&color=fff`;
-      const flag = countryFlag(live.country);
-      card.innerHTML = `
-        <div class="relative w-14 h-14">
-          <div class="absolute -top-1 left-0 z-10 w-3 h-3 bg-red-500 rounded-full animate-pulse border-2 border-white"></div>
-          <div class="w-full h-full rounded-full p-[2px] bg-gradient-to-tr from-red-500 to-pink-400">
-            <div class="w-full h-full rounded-full overflow-hidden bg-surface-container border-2 border-white">
-              <img class="w-full h-full object-cover" src="${ava}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(live.username)}&background=006571&color=fff'">
-            </div>
-          </div>
-        </div>
-        <span class="text-[10px] font-bold text-on-surface truncate w-full text-center">${flag} ${live.username||'Live'}</span>
-      `;
-      container.appendChild(card);
-    });
-  }
-
-  function renderGrid() {
-    const grid = document.getElementById("liveGrid");
-    if (allLives.length === 0) {
-      grid.innerHTML = '<p class="col-span-2 text-center text-xs text-outline py-12">No live streams right now.<br>Be the first to go live! 🎥</p>';
-      return;
-    }
-    const filtered = activeRegion === 'ALL' ? allLives : allLives.filter(l => {
-      const c = l.country;
-      if (!c) return false;
-      const name = typeof c === 'object' ? (c.name||'') : c;
-      const regionMap = {'UAE':'United Arab Emirates','INDIA':'India','KSA':'Saudi Arabia','PK':'Pakistan'};
-      return name.toLowerCase().includes((regionMap[activeRegion]||activeRegion).toLowerCase());
-    });
-    if (filtered.length === 0) {
-      grid.innerHTML = '<p class="col-span-2 text-center text-xs text-outline py-10">No live streams in this region</p>';
-      return;
-    }
-    grid.innerHTML = "";
-    filtered.forEach(live => {
-      const banner = live.bannerImage || live.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(live.username)}&background=006571&color=fff&size=400`;
-      const flag = countryFlag(live.country);
-      const countryName = live.country ? (typeof live.country === 'object' ? (live.country.name||'') : live.country) : '';
-      const cl = live.charmLevel || 0;
-      const wl = live.wealthLevel || 0;
-      const lvClass = lvBadge(cl, wl);
-      const lvNum = Math.max(cl, wl);
-      const title = live.title || (live.username + "'s Live");
-      const card = document.createElement("div");
-      card.className = "relative overflow-hidden bg-surface-container-low cursor-pointer group";
-      card.style.aspectRatio = '3/4';
-      card.onclick = () => joinLive(live.roomId);
-      card.innerHTML = `
-        <img class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" src="${banner}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(live.username)}&background=1a2e6e&color=fff&size=400'">
-        <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/30"></div>
-        <!-- Live badge + level -->
-        <div class="absolute top-2 left-2 flex flex-col gap-1">
-          <div class="bg-red-500 text-white text-[8px] font-extrabold px-1.5 py-0.5 flex items-center gap-1 w-fit rounded-sm">
-            <span class="w-1 h-1 bg-white rounded-full animate-pulse"></span>LIVE
-          </div>
-          ${lvNum > 0 ? `<div class="${lvClass} text-white text-[7px] font-extrabold px-1.5 py-0.5 rounded-sm w-fit">Lv.${lvNum}</div>` : ''}
-        </div>
-        <!-- Country flag -->
-        ${flag ? `<div class="absolute top-2 right-2 flex items-center gap-1 bg-black/35 backdrop-blur-sm px-1.5 py-0.5 rounded-sm">
-          <span class="text-[10px]">${flag}</span>
-          <span class="text-[7px] text-white font-bold">${countryName.substring(0,3).toUpperCase()}</span>
-        </div>` : ''}
-        <!-- Bottom info -->
-        <div class="absolute bottom-2 left-2 right-10">
-          <h4 class="font-headline font-bold text-xs text-white truncate">${title}</h4>
-          <p class="text-[9px] text-white/75 truncate mt-0.5">${live.username || 'Host'}</p>
-        </div>
-        <!-- Video call icon -->
-        <button onclick="event.stopPropagation();joinLive('${live.roomId}')" class="absolute bottom-2 right-2 w-7 h-7 bg-primary text-white flex items-center justify-center rounded-sm active:scale-90 transition-transform">
-          <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL'1">videocam</span>
-        </button>
-      `;
-      grid.appendChild(card);
-    });
-  }
-
-  window.filterRegion = function(r) {
-    activeRegion = r;
-    document.querySelectorAll('.region-btn').forEach(b => {
-      if (b.dataset.r === r) b.classList.replace('bg-surface-container-high', 'bg-primary'), b.classList.replace('text-on-surface-variant', 'text-white');
-      else b.classList.replace('bg-primary', 'bg-surface-container-high'), b.classList.replace('text-white', 'text-on-surface-variant');
-    });
-    renderGrid();
-  };
-
-  window.joinLive = (roomId) => { window.location.href = `live.html?room=${roomId}`; };
-
-  window.addEventListener("beforeunload", () => {
-    if (unsubUser) unsubUser();
-    updateDoc(userRef, { online: false }).catch(() => {});
+function renderRising(){
+  var container=document.getElementById('rising-scroll');
+  var count=document.getElementById('rising-count');
+  count.textContent=allLives.length+' live';
+  if(allLives.length===0){container.innerHTML='<p style="font-size:12px;color:var(--outline);padding:4px 0;">No live users right now</p>';return;}
+  container.innerHTML='';
+  var shuffled=allLives.slice().sort(function(){return Math.random()-.5;}).slice(0,12);
+  shuffled.forEach(function(live){
+    var uid=live.userId||live.id;
+    var ava=live.photoURL||('https://ui-avatars.com/api/?name='+encodeURIComponent(live.username||'L')+'&background=006571&color=fff');
+    var flag=getUserFlag(live)||'';
+    var div=document.createElement('div');
+    div.className='rs-card';
+    div.onclick=function(){joinLive(live.roomId);};
+    div.innerHTML=
+      '<div class="rs-ring"><img class="rs-img" src="'+esc(ava)+'" loading="lazy"><div class="rs-live-dot"></div></div>'+
+      '<div class="rs-name">'+(flag?flag+' ':'')+esc(live.username||'Live')+'</div>';
+    container.appendChild(div);
   });
+}
+
+window.filterRegion=function(code,btn){
+  regionFilter=code;
+  document.querySelectorAll('.rgn-btn').forEach(function(b){b.classList.remove('act');});
+  btn.classList.add('act');
+  renderGrid();
+};
+
+window.joinLive=function(roomId){
+  location.href='live.html?room='+roomId;
+};
+
+// Video call from dashboard → go to live room and auto-request call
+window.startVideoCall=function(hostUserId, roomId){
+  // Check if host is in a live session
+  db.doc('users/'+hostUserId).get().then(function(snap){
+    if(!snap.exists){alert('User not found');return;}
+    var d=snap.data();
+    // Go to live room and auto-start call
+    location.href='live.html?room='+roomId+'&startcall=1&hostId='+hostUserId;
+  });
+};
+
+window.goLive=async function(){
+  try{
+    await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+    location.href='createlive.html';
+  }catch(e){
+    alert('Camera/Microphone permission required to go live');
+  }
+};
+
+// Online presence
+db.doc('users/'+ME).update({online:true}).catch(function(){});
+window.addEventListener('beforeunload',function(){
+  db.doc('users/'+ME).update({online:false}).catch(function(){});
+});
 </script>
 </body>
 </html>
