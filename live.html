@@ -534,7 +534,7 @@ var APP_ID="873172a9b2064b1ca97b4f45ee6ed9b5";
 
 async function fetchToken(channelName,uid){
   uid=uid||0;
-  var url="https://uncertain-afterglow-uphill.ngrok-free.dev/rtc/"+channelName+"/publisher/uid/"+uid;
+  var url="https://us-central1-galmet-app.cloudfunctions.net/getToken"+channelName+"/publisher/uid/"+uid;
   var res=await fetch(url);
   var data=await res.json();
   return data.rtcToken;
