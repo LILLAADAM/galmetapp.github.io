@@ -244,7 +244,22 @@ document.getElementById("googleLoginBtn").onclick = async () => {
 
         if (checkData.exists) {
             const existingUser = checkData.user;
-            localStorage.setItem("user", JSON.stringify(existingUser));
+            const safeUser = {
+    userId: existingUser.userId || Math.floor(10000000 + Math.random() * 90000000),
+    email: existingUser.email || email,
+    coins: existingUser.coins || 0,
+    username: existingUser.username || "",
+    gender: existingUser.gender || "",
+    country: existingUser.country || null,
+    dob: existingUser.dob || null,
+    age: existingUser.age || null,
+    photoURL: existingUser.photoURL || user.photoURL || "",
+    profileCompleted: existingUser.profileCompleted || false
+};
+
+localStorage.setItem("user", JSON.stringify(safeUser));
+
+await new Promise(r => setTimeout(r, 100));
 
             await new Promise(r => setTimeout(r, 100));
 
