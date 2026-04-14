@@ -924,6 +924,7 @@ function startAgora(){
   return agora.join(APP_ID, ROOM, token, null);
 
 }).then(function(){
+    
     if(IS_HOST){
       var faceMode=liveSettings.camFront===false?'environment':'user';
       camFront=faceMode==='user';mirrorOn=liveSettings.mirror||false;
