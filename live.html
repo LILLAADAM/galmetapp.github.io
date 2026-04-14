@@ -638,6 +638,7 @@ function applyMirror(){
       }
     });
   }, 500);
+if(IS_HOST&&hostId)db.doc('lives/'+hostId).update({mirrorMode:mirrorOn})
 }
 // Watch for Agora adding video elements dynamically
 function watchLocalWrap(){
@@ -656,6 +657,17 @@ function watchLocalWrap(){
   });
 }
 
+function applyRemoteMirror(mirror){
+  const remote = document.querySelectorAll('[id^="rem-"] video');
+
+  remote.forEach(v=>{
+    if(mirror){
+      v.style.transform = "scaleX(-1)";
+    } else {
+      v.style.transform = "scaleX(1)";
+    }
+  });
+}
 // ─── HOST INFO ────────────────────────────────────────────────────────────
 function loadHost(){
   return db.collection('lives').get().then(function(snap){
@@ -692,6 +704,16 @@ function loadHost(){
   });
 }
 
+if(!IS_HOST && hostId){
+  db.doc('lives/'+hostId).onSnapshot((snap)=>{
+    if(!snap.exists) return;
+
+    const data = snap.data();
+    const mirror = data.mirrorMode === true;
+
+    applyRemoteMirror(mirror);
+  });
+}
 // ─── VIEWERS ──────────────────────────────────────────────────────────────
 function addViewer(){
   if(IS_HOST)return Promise.resolve();
@@ -1000,6 +1022,14 @@ function startAgora(){
           w.style.cssText='position:absolute;inset:0;';
           stage.appendChild(w);
           user.videoTrack.play('rem-'+user.uid);
+
+setTimeout(()=>{
+  db.doc('lives/'+hostId).get().then(snap=>{
+    if(!snap.exists) return;
+    const mirror = snap.data().mirrorMode === true;
+    applyRemoteMirror(mirror);
+  });
+},500);
         }
         if(mt==='audio') user.audioTrack.play();
       });
