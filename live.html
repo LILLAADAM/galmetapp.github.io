@@ -914,44 +914,86 @@ document.getElementById('vg').addEventListener('click',function(){closeUpop();cl
 
 // ─── AGORA ────────────────────────────────────────────────────────────────
 function startAgora(){
-  agora=AgoraRTC.createClient({mode:'live',codec:'vp8'});
-  return agora.setClientRole(IS_HOST?'host':'audience').then(function(){return agora.setClientRole(IS_HOST?'host':'audience').then(async function(){
+  agora = AgoraRTC.createClient({mode:'live', codec:'vp8'});
 
-  // ✅ Get token from your local server
-  const token = await fetchToken(ROOM);
+  return agora.setClientRole(IS_HOST ? 'host' : 'audience').then(async function () {
 
-  // ✅ Join with dynamic token
-  return agora.join(APP_ID, ROOM, token, null);
+    const token = await fetchToken(ROOM);
+    return agora.join(APP_ID, ROOM, token, null);
 
-}).then(function(){
-    
+  }).then(function () {
+
     if(IS_HOST){
-      var faceMode=liveSettings.camFront===false?'environment':'user';
-      camFront=faceMode==='user';mirrorOn=liveSettings.mirror||false;
-      return AgoraRTC.createMicrophoneAndCameraTracks({AEC:true,ANS:true,AGC:true},{facingMode:faceMode,encoderConfig:'720p_1'}).then(function(tracks){
-        locAudio=tracks[0];locVideo=tracks[1];
-        var lw=document.createElement('div');lw.id='local-wrap';lw.style.cssText='position:absolute;inset:0;';
-        stage.appendChild(lw);locVideo.play('local-wrap');
+      var faceMode = liveSettings.camFront===false ? 'environment' : 'user';
+      camFront = faceMode === 'user';
+      mirrorOn = liveSettings.mirror || false;
+
+      return AgoraRTC.createMicrophoneAndCameraTracks(
+        {AEC:true,ANS:true,AGC:true},
+        {facingMode:faceMode,encoderConfig:'720p_1'}
+      ).then(function(tracks){
+
+        locAudio = tracks[0];
+        locVideo = tracks[1];
+
+        var lw = document.createElement('div');
+        lw.id='local-wrap';
+        lw.style.cssText='position:absolute;inset:0;';
+        stage.appendChild(lw);
+
+        locVideo.play('local-wrap');
         watchLocalWrap();
+
         setTimeout(function(){applyMirror();},400);
-        if(liveSettings.filter&&liveSettings.filter!=='none')applyFilter(liveSettings.filter);
-        if(mirrorOn){document.getElementById('mir-tog').checked=true;}
+
+        if(liveSettings.filter && liveSettings.filter!=='none'){
+          applyFilter(liveSettings.filter);
+        }
+
+        if(mirrorOn){
+          document.getElementById('mir-tog').checked=true;
+        }
+
         return agora.publish([locAudio,locVideo]);
+
       }).then(function(){
-        // Face detection: wait 60s before starting face check (so host can arrange themselves)
         startFaceMonitor();
-      }).catch(function(e){toast('Camera/mic error: '+e.message);load.classList.add('gone');});
+      }).catch(function(e){
+        toast('Camera/mic error: '+e.message);
+        load.classList.add('gone');
+      });
     }
+
   }).then(function(){
+
     agora.on('user-published',function(user,mt){
       agora.subscribe(user,mt).then(function(){
-        if(mt==='video'){var w=document.createElement('div');w.id='rem-'+user.uid;w.style.cssText='position:absolute;inset:0;';stage.appendChild(w);user.videoTrack.play('rem-'+user.uid);}
-        if(mt==='audio')user.audioTrack.play();
+        if(mt==='video'){
+          var w=document.createElement('div');
+          w.id='rem-'+user.uid;
+          w.style.cssText='position:absolute;inset:0;';
+          stage.appendChild(w);
+          user.videoTrack.play('rem-'+user.uid);
+        }
+        if(mt==='audio') user.audioTrack.play();
       });
     });
-    agora.on('user-unpublished',function(user,mt){if(mt==='video'){var el=document.getElementById('rem-'+user.uid);if(el)el.remove();}});
-    agora.on('user-left',function(user){var el=document.getElementById('rem-'+user.uid);if(el)el.remove();});
-    load.classList.add('gone');setTimeout(function(){load.style.display='none';},550);
+
+    agora.on('user-unpublished',function(user,mt){
+      if(mt==='video'){
+        var el=document.getElementById('rem-'+user.uid);
+        if(el) el.remove();
+      }
+    });
+
+    agora.on('user-left',function(user){
+      var el=document.getElementById('rem-'+user.uid);
+      if(el) el.remove();
+    });
+
+    load.classList.add('gone');
+    setTimeout(function(){load.style.display='none';},550);
+
   });
 }
 
