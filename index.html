@@ -232,8 +232,84 @@ document.getElementById("emailLoginBtn").onclick = () => {
     window.location.href = "login.html";
 };
 
-document.getElementById("googleLoginBtn").onclick = () => {
-    alert("Google login coming soon 🚀");
+import { GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+
+const provider = new GoogleAuthProvider();
+
+document.getElementById("googleLoginBtn").onclick = async () => {
+    try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+
+        const email = user.email;
+
+        console.log("Google user:", email);
+
+        // 🔁 SAME LOGIC LIKE OTP
+        const checkRes = await fetch("https://us-central1-galmet-app.cloudfunctions.net/getUserByEmail?email=" + encodeURIComponent(email));
+        const checkData = await checkRes.json();
+
+        if (checkData.exists) {
+            const existingUser = checkData.user;
+            localStorage.setItem("user", JSON.stringify(existingUser));
+
+            // 🔁 SAME REDIRECT LOGIC
+            if (!existingUser.gender || !existingUser.username || !existingUser.country || !existingUser.dob || !existingUser.age) {
+                window.location.href = "basic-info.html";
+                return;
+            }
+
+            if (!existingUser.photoURL || !existingUser.profileCompleted) {
+                window.location.href = "setup.html";
+                return;
+            }
+
+            window.location.href = "dashboard.html";
+
+        } else {
+            // 🆕 CREATE NEW USER (SAME AS OTP)
+            const userId = Math.floor(10000000 + Math.random() * 90000000);
+
+            const referralCode = localStorage.getItem("referral");
+
+            const newUser = {
+                email: email,
+                userId: userId,
+                coins: 500,
+                username: "",
+                gender: "",
+                country: null,
+                dob: null,
+                age: null,
+                photoURL: user.photoURL || "",
+                profileCompleted: false,
+                inviteCode: userId.toString(),
+                referredBy: referralCode && referralCode !== userId.toString() ? referralCode : null,
+                totalInvites: 0,
+                totalEarned: 0,
+                firstTopup: false
+            };
+
+            const createRes = await fetch("https://us-central1-galmet-app.cloudfunctions.net/createUser", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(newUser)
+            });
+
+            const createData = await createRes.json();
+
+            if (createData.success) {
+                localStorage.setItem("user", JSON.stringify(newUser));
+                window.location.href = "basic-info.html";
+            } else {
+                alert("Failed to create account");
+            }
+        }
+
+    } catch (error) {
+        console.error(error);
+        alert("Google login failed");
+    }
 };
 
 // ✅ HELP BUTTON
