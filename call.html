@@ -277,8 +277,13 @@ var peerId=IS_HOST?callerId:hostId;
 
 var APP_ID="873172a9b2064b1ca97b4f45ee6ed9b5";
 // Call uses a PRIVATE channel: "call_" + roomId so it NEVER conflicts with live channel
-var CALL_CHANNEL="call_"+roomId;
-var TOKEN="007eJxTYJiwctr6gz0TSpjnT8w8WXbdel0J24z03aLnP4tu+qsjF3NSgcHC3NjQ3CjRMsnIwMwkyTA50dI8ySTNxDQ11Sw1xTLJVOrW3cyGQEaG968rGBkZIBDEl2YwtTA2MjG0MI3PySxLjTc0NzczNDGzMDeyMDNhYAAAB1Umxw==";
+async function fetchToken(channel){
+  const res = await fetch(
+    "https://us-central1-galmet-app.cloudfunctions.net/getToken?channel=" + channel
+  );
+  const data = await res.json();
+  return data.token;
+}
 
 // ─── STATE ───────────────────────────────────────────────────────────────
 var agora=null,locAudio=null,locVideo=null;
@@ -417,39 +422,97 @@ function signalReady(){
   });
 }
 
+db.doc('calls/'+roomId).onSnapshot(function(snap){
+  if(!snap.exists) return;
+
+  const data = snap.data();
+
+  const myMirror = data['mirror_'+ME] === true;
+  const peerMirror = data['mirror_'+peerId] === true;
+
+  // ✅ MY CAMERA
+  mirrorOn = myMirror;
+  applyMirrorDirect();
+
+  // ✅ OTHER USER CAMERA
+  applyRemoteMirror(peerMirror);
+});
 // ─── AGORA — PRIVATE CHANNEL ─────────────────────────────────────────────
 // Uses "call_roomId" channel — COMPLETELY SEPARATE from the live stream channel
 // Live channel is "roomId" only. Call channel is "call_roomId".
 // This ensures NO camera from call ever leaks onto live screen.
-function startCall(){
-  agora=AgoraRTC.createClient({mode:'rtc',codec:'vp8'});
-  return agora.join(APP_ID,CALL_CHANNEL,TOKEN,null).then(function(){
-    // Both sides start FRONT camera by default
-    return AgoraRTC.createMicrophoneAndCameraTracks({AEC:true,ANS:true,AGC:true},{facingMode:'user',encoderConfig:'720p_2',optimizationMode:'detail'});
-  }).then(function(tracks){
-    locAudio=tracks[0];locVideo=tracks[1];
+async function startCall(){
+  agora = AgoraRTC.createClient({mode:'rtc', codec:'vp8'});
+
+  const token = await fetchToken(CALL_CHANNEL);
+
+  return agora.join(APP_ID, CALL_CHANNEL, token, null)
+
+  .then(function(){
+    return AgoraRTC.createMicrophoneAndCameraTracks(
+      {AEC:true,ANS:true,AGC:true},
+      {facingMode:'user',encoderConfig:'720p_2',optimizationMode:'detail'}
+    );
+  })
+
+  .then(function(tracks){
+    locAudio = tracks[0];
+    locVideo = tracks[1];
+
     locVideo.play('local-wrap');
-    // Watch for Agora inserting video elements (apply mirror if on)
-    new MutationObserver(function(){if(mirrorOn)applyMirrorDirect();}).observe(document.getElementById('local-wrap'),{childList:true,subtree:true});
+
+    new MutationObserver(function(){
+      if(mirrorOn) applyMirrorDirect();
+    }).observe(document.getElementById('local-wrap'),{childList:true,subtree:true});
+
     return agora.publish([locAudio,locVideo]);
-  }).then(function(){
+  })
+
+  .then(function(){
     signalReady();
+
     agora.on('user-published',function(user,mt){
       agora.subscribe(user,mt).then(function(){
+
         if(mt==='video'){
-          // Peer's camera — show on remote-wrap (fills full screen)
-          var d=document.createElement('div');d.id='rv-'+user.uid;d.style.cssText='width:100%;height:100%;';
+          var d=document.createElement('div');
+          d.id='rv-'+user.uid;
+          d.style.cssText='width:100%;height:100%;';
           document.getElementById('remote-wrap').appendChild(d);
+
           user.videoTrack.play('rv-'+user.uid);
+
           applyRemoteFilter(activeFilter);
+
+          // ✅ APPLY MIRROR WHEN VIDEO LOADS
+          setTimeout(()=>{
+            db.doc('calls/'+roomId).get().then(snap=>{
+              if(!snap.exists) return;
+
+              const peerMirror = snap.data()['mirror_'+peerId] === true;
+              applyRemoteMirror(peerMirror);
+            });
+          },500);
         }
-        if(mt==='audio')user.audioTrack.play();
+
+        if(mt==='audio') user.audioTrack.play();
       });
     });
-    agora.on('user-unpublished',function(user,mt){if(mt==='video'){var el=document.getElementById('rv-'+user.uid);if(el)el.remove();}});
-    agora.on('user-left',function(){if(!ended)endCall(false,true);});
-    setTimeout(function(){if(!bothConnected&&!ended){toast('No answer');endCall();}},40000);
-  }).catch(function(e){toast('Camera/mic error: '+(e.message||e));setTimeout(function(){document.getElementById('connect-ov').style.display='none';},500);});
+
+    agora.on('user-unpublished',function(user,mt){
+      if(mt==='video'){
+        var el=document.getElementById('rv-'+user.uid);
+        if(el) el.remove();
+      }
+    });
+
+    agora.on('user-left',function(){
+      if(!ended) endCall(false,true);
+    });
+
+  }).catch(function(e){
+    toast('Camera/mic error: '+(e.message||e));
+  });
 }
 
 // ─── MIRROR (local preview only) ─────────────────────────────────────────
@@ -465,7 +528,19 @@ function applyMirrorDirect(){
   document.getElementById('mir-tog').checked=mirrorOn;
   document.getElementById('mir-ctrl-btn').className='ctrl '+(mirrorOn?'act':'def');
 }
-document.getElementById('mir-ctrl-btn').onclick=function(){mirrorOn=!mirrorOn;applyMirrorDirect();toast(mirrorOn?'Mirror: On':'Mirror: Off');};
+document.getElementById('mir-ctrl-btn').onclick=function(){
+
+  mirrorOn = !mirrorOn;
+
+  applyMirrorDirect();
+
+  // ✅ SAVE ONLY THIS USER MIRROR
+  db.doc('calls/'+roomId).update({
+    ['mirror_'+ME]: mirrorOn
+  }).catch(()=>{});
+
+  toast(mirrorOn ? 'Mirror: On' : 'Mirror: Off');
+};
 document.getElementById('mir-tog').onchange=function(){mirrorOn=this.checked;applyMirrorDirect();};
 
 // ─── FILTERS ─────────────────────────────────────────────────────────────
@@ -505,6 +580,19 @@ function flipCamera(){
   .catch(function(e){toast('Flip failed: '+(e.message||e));});
 }
 
+// FLIP VIDEO
+function applyRemoteMirror(mirror){
+  const vids = document.querySelectorAll('#remote-wrap video');
+
+  vids.forEach(v=>{
+    if(mirror){
+      v.style.transform = "scaleX(-1)";
+    } else {
+      v.style.transform = "scaleX(1)";
+    }
+  });
+}
+  
 // ─── DRAG LOCAL PIP ──────────────────────────────────────────────────────
 (function(){
   var el=document.getElementById('local-wrap'),dragging=false,ox=0,oy=0,sx=0,sy=0;
