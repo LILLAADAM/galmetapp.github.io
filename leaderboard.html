@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Galmet · Leaderboard</title>
+  <!-- Tailwind + Fonts -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface": "#f3f7fb",
+            "surface-container-low": "#ecf1f6",
+            "surface-container-lowest": "#ffffff",
+            "on-surface": "#2a2f32",
+            "on-surface-variant": "#575c60",
+            "primary": "#006571",
+            "primary-container": "#00e3fd",
+            "primary-dim": "#005863",
+            "on-primary": "#d8f8ff",
+            "secondary": "#755700",
+            "secondary-container": "#ffca4d",
+            "tertiary": "#b60051",
+            "outline": "#73777b",
+            "outline-variant": "#a9aeb1",
+          },
+          fontFamily: {
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Be Vietnam Pro"],
+            "label": ["Plus Jakarta Sans"]
+          },
+          borderRadius: { DEFAULT: "1rem", lg: "2rem", xl: "3rem", full: "9999px" }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    /* Podium glow */
+    .podium-glow {
+      box-shadow: 0 8px 20px rgba(0,227,253,0.15), 0 0 0 2px rgba(255,202,77,0.2);
+    }
+    .rank-1 {
+      background: linear-gradient(145deg, #FFD700 0%, #FFA500 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-weight: 800;
+    }
+    /* shimmer for loading */
+    .skeleton {
+      background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  </style>
+</head>
+<body class="bg-surface font-body text-on-surface min-h-screen flex flex-col">
+
+<!-- Fixed Header with Tabs -->
+<header class="sticky top-0 z-30 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/20 px-4 py-2">
+  <div class="flex items-center justify-between">
+    <button onclick="history.back()" class="p-2 -ml-2 text-primary">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h1 class="font-headline font-bold text-primary text-xl">Leaderboard</h1>
+    <div class="w-10"></div>
+  </div>
+  <!-- Tabs -->
+  <div class="flex gap-2 mt-1">
+    <button id="tabWealth" class="flex-1 py-3 font-headline font-bold text-lg rounded-full transition-all bg-primary-container text-on-primary-container shadow-md">💰 Wealth</button>
+    <button id="tabCharm" class="flex-1 py-3 font-headline font-bold text-lg rounded-full transition-all text-on-surface-variant bg-surface-container-low">💎 Charm</button>
+  </div>
+</header>
+
+<!-- Main Content -->
+<main class="flex-1 px-3 pb-24 pt-3">
+  <!-- Top 3 Podium -->
+  <div id="podiumContainer" class="flex items-end justify-center gap-2 sm:gap-4 my-4 min-h-[200px]">
+    <!-- JS will inject podium (rank 2,1,3) -->
+  </div>
+  
+  <!-- Rank List (4-30) -->
+  <div class="bg-surface-container-lowest/70 backdrop-blur-sm rounded-3xl p-3 border border-white/40 shadow-lg">
+    <div class="flex justify-between px-4 py-2 text-xs font-bold text-outline uppercase tracking-wider">
+      <span>Rank</span>
+      <span>User</span>
+      <span id="metricHeader">Spent</span>
+    </div>
+    <div id="rankListContainer" class="divide-y divide-outline-variant/20 max-h-[50vh] overflow-y-auto no-scrollbar">
+      <!-- JS inject ranks 4-30 -->
+      <div class="py-8 text-center text-outline">Loading rankings...</div>
+    </div>
+  </div>
+</main>
+
+<!-- Sticky Own Rank Footer -->
+<footer class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-outline-variant/20 px-4 py-3 z-40">
+  <div id="ownRankContainer" class="flex items-center justify-between">
+    <!-- dynamic own rank -->
+  </div>
+</footer>
+
+<!-- Firebase + Main Script -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+  import { getFirestore, collection, query, orderBy, limit, onSnapshot, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
+    authDomain: "galmet-app.firebaseapp.com",
+    projectId: "galmet-app",
+    storageBucket: "galmet-app.firebasestorage.app",
+    databaseURL: "https://galmet-app-default-rtdb.asia-southeast1.firebasedatabase.app"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Current user
+  const currentUser = JSON.parse(localStorage.getItem("user"));
+  const myUserId = currentUser?.userId || null;
+  
+  // State
+  let currentMode = 'wealth'; // 'wealth' or 'charm'
+  let usersMap = new Map(); // cache user data (name, avatar, level)
+  let rankings = [];
+  let ownRankData = null;
+  let unsubscribe = null;
+  
+  // DOM elements
+  const podiumDiv = document.getElementById('podiumContainer');
+  const rankListDiv = document.getElementById('rankListContainer');
+  const ownRankDiv = document.getElementById('ownRankContainer');
+  const metricHeader = document.getElementById('metricHeader');
+  const tabWealth = document.getElementById('tabWealth');
+  const tabCharm = document.getElementById('tabCharm');
+  
+  // Helper: format number (K, M, B)
+  function formatNumber(num) {
+    if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+    if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+    if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
+    return num.toString();
+  }
+  
+  // Fetch user details (name, avatar, level) from users collection
+  async function getUserInfo(uid) {
+    if (usersMap.has(uid)) return usersMap.get(uid);
+    try {
+      const snap = await getDoc(doc(db, "users", uid));
+      if (snap.exists()) {
+        const data = snap.data();
+        const info = {
+          name: data.username || data.displayName || 'User',
+          avatar: data.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.username || 'U')}&background=006571&color=fff`,
+          level: data.level || 1
+        };
+        usersMap.set(uid, info);
+        return info;
+      }
+    } catch (e) { console.warn(e); }
+    const fallback = { name: 'User', avatar: 'https://ui-avatars.com/api/?name=U&background=006571&color=fff', level: 1 };
+    usersMap.set(uid, fallback);
+    return fallback;
+  }
+  
+  // Render podium (top 3)
+  async function renderPodium(top3) {
+    if (!top3 || top3.length < 3) {
+      podiumDiv.innerHTML = '<div class="text-center py-10 text-outline">Not enough data</div>';
+      return;
+    }
+    const [first, second, third] = top3;
+    
+    // Fetch user info
+    const [user1, user2, user3] = await Promise.all([
+      getUserInfo(first.uid),
+      getUserInfo(second.uid),
+      getUserInfo(third.uid)
+    ]);
+    
+    const metricValue = (u) => currentMode === 'wealth' ? u.totalSpentCoins : u.totalReceivedGems;
+    
+    podiumDiv.innerHTML = `
+      <!-- Rank 2 (left) -->
+      <div class="flex flex-col items-center w-24 sm:w-28">
+        <div class="relative">
+          <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 border-gray-300 bg-gray-100 overflow-hidden podium-glow">
+            <img src="${user2.avatar}" class="w-full h-full object-cover">
+          </div>
+          <span class="absolute -bottom-1 -right-1 bg-gray-400 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center border-2 border-white">2</span>
+        </div>
+        <p class="font-bold text-sm mt-1 truncate max-w-full">${user2.name}</p>
+        <p class="text-xs text-primary font-semibold">Lv.${user2.level}</p>
+        <p class="text-sm font-headline font-bold text-on-surface-variant">${formatNumber(metricValue(second))}</p>
+      </div>
+      <!-- Rank 1 (center) -->
+      <div class="flex flex-col items-center w-28 sm:w-32 -mt-4">
+        <div class="relative">
+          <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-yellow-400 bg-yellow-50 overflow-hidden podium-glow" style="box-shadow:0 0 20px gold;">
+            <img src="${user1.avatar}" class="w-full h-full object-cover">
+          </div>
+          <span class="absolute -bottom-1 -right-1 bg-yellow-500 text-white text-sm font-bold w-7 h-7 rounded-full flex items-center justify-center border-2 border-white">1</span>
+        </div>
+        <p class="font-bold text-base mt-1 truncate max-w-full flex items-center gap-1"><span class="material-symbols-outlined text-yellow-500 text-sm">crown</span>${user1.name}</p>
+        <p class="text-xs text-primary font-semibold">Lv.${user1.level}</p>
+        <p class="text-lg font-headline font-extrabold rank-1">${formatNumber(metricValue(first))}</p>
+      </div>
+      <!-- Rank 3 (right) -->
+      <div class="flex flex-col items-center w-24 sm:w-28">
+        <div class="relative">
+          <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 border-amber-600 bg-amber-50 overflow-hidden podium-glow">
+            <img src="${user3.avatar}" class="w-full h-full object-cover">
+          </div>
+          <span class="absolute -bottom-1 -right-1 bg-amber-700 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center border-2 border-white">3</span>
+        </div>
+        <p class="font-bold text-sm mt-1 truncate max-w-full">${user3.name}</p>
+        <p class="text-xs text-primary font-semibold">Lv.${user3.level}</p>
+        <p class="text-sm font-headline font-bold text-on-surface-variant">${formatNumber(metricValue(third))}</p>
+      </div>
+    `;
+  }
+  
+  // Render list ranks 4-30
+  async function renderRankList(rankingsArray, startRank = 4) {
+    if (!rankingsArray || rankingsArray.length < startRank) {
+      rankListDiv.innerHTML = '<div class="py-8 text-center text-outline">No more rankings</div>';
+      return;
+    }
+    const listItems = rankingsArray.slice(startRank - 1, 30); // 0-indexed
+    const metricFn = (u) => currentMode === 'wealth' ? u.totalSpentCoins : u.totalReceivedGems;
+    
+    const htmlPromises = listItems.map(async (user, idx) => {
+      const rank = startRank + idx;
+      const info = await getUserInfo(user.uid);
+      return `
+        <div class="flex items-center justify-between py-3 px-2 hover:bg-surface-container-low/30 rounded-xl transition">
+          <div class="flex items-center gap-3 w-1/3">
+            <span class="font-bold text-sm w-8 text-outline">#${rank}</span>
+            <div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant">
+              <img src="${info.avatar}" class="w-full h-full object-cover">
+            </div>
+          </div>
+          <div class="flex-1">
+            <p class="font-medium text-sm">${info.name}</p>
+            <p class="text-[10px] text-primary">Lv.${info.level}</p>
+          </div>
+          <div class="font-headline font-bold text-primary-dim">${formatNumber(metricFn(user))}</div>
+        </div>
+      `;
+    });
+    const htmls = await Promise.all(htmlPromises);
+    rankListDiv.innerHTML = htmls.join('');
+  }
+  
+  // Render own rank footer
+  async function renderOwnRank() {
+    if (!myUserId) {
+      ownRankDiv.innerHTML = '<p class="text-center text-sm text-outline">Login to see your rank</p>';
+      return;
+    }
+    if (!ownRankData) {
+      ownRankDiv.innerHTML = '<p class="text-center text-sm">Loading your rank...</p>';
+      return;
+    }
+    const { rank, value, totalUsers } = ownRankData;
+    const userInfo = await getUserInfo(myUserId);
+    const displayRank = rank > 30 ? '30+' : `#${rank}`;
+    const metricLabel = currentMode === 'wealth' ? 'Spent' : 'Received';
+    
+    ownRankDiv.innerHTML = `
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-primary-container">
+          <img src="${userInfo.avatar}" class="w-full h-full object-cover">
+        </div>
+        <div>
+          <p class="font-bold">${userInfo.name} <span class="text-xs font-normal text-outline">Lv.${userInfo.level}</span></p>
+          <p class="text-xs text-on-surface-variant">Your rank: <span class="font-bold text-primary">${displayRank}</span> / ${totalUsers}</p>
+        </div>
+      </div>
+      <div class="text-right">
+        <p class="text-xs text-outline">${metricLabel}</p>
+        <p class="font-headline font-bold text-lg text-primary">${formatNumber(value || 0)}</p>
+      </div>
+    `;
+  }
+  
+  // Main function to load rankings
+  function loadLeaderboard() {
+    if (unsubscribe) unsubscribe();
+    
+    const field = currentMode === 'wealth' ? 'totalSpentCoins' : 'totalReceivedGems';
+    metricHeader.innerText = currentMode === 'wealth' ? 'Spent' : 'Received';
+    
+    const usersRef = collection(db, "users");
+    const q = query(usersRef, orderBy(field, "desc"), limit(31)); // get 31 to know if own rank >30
+    
+    unsubscribe = onSnapshot(q, async (snapshot) => {
+      const users = [];
+      snapshot.forEach(doc => {
+        users.push({ uid: doc.id, ...doc.data() });
+      });
+      rankings = users;
+      
+      // Calculate own rank if logged in
+      if (myUserId) {
+        const ownIndex = users.findIndex(u => u.uid === myUserId);
+        let ownValue = 0;
+        if (ownIndex !== -1) {
+          ownValue = currentMode === 'wealth' ? users[ownIndex].totalSpentCoins : users[ownIndex].totalReceivedGems;
+        } else {
+          // fetch single doc if not in top 31
+          const ownDoc = await getDoc(doc(db, "users", myUserId));
+          if (ownDoc.exists()) {
+            ownValue = currentMode === 'wealth' ? ownDoc.data().totalSpentCoins : ownDoc.data().totalReceivedGems;
+          }
+        }
+        // For total count we need another query? We'll approximate
+        const totalCount = snapshot.size; // not accurate total, but for display fine
+        ownRankData = {
+          rank: ownIndex !== -1 ? ownIndex + 1 : 31,
+          value: ownValue || 0,
+          totalUsers: totalCount
+        };
+      }
+      
+      // Render components
+      const top3 = rankings.slice(0, 3);
+      await renderPodium(top3);
+      await renderRankList(rankings, 4);
+      await renderOwnRank();
+    }, (error) => {
+      console.error("Leaderboard error:", error);
+      rankListDiv.innerHTML = '<div class="py-8 text-center text-error">Failed to load</div>';
+    });
+  }
+  
+  // Tab switching
+  tabWealth.addEventListener('click', () => {
+    currentMode = 'wealth';
+    tabWealth.className = 'flex-1 py-3 font-headline font-bold text-lg rounded-full transition-all bg-primary-container text-on-primary-container shadow-md';
+    tabCharm.className = 'flex-1 py-3 font-headline font-bold text-lg rounded-full transition-all text-on-surface-variant bg-surface-container-low';
+    loadLeaderboard();
+  });
+  
+  tabCharm.addEventListener('click', () => {
+    currentMode = 'charm';
+    tabCharm.className = 'flex-1 py-3 font-headline font-bold text-lg rounded-full transition-all bg-primary-container text-on-primary-container shadow-md';
+    tabWealth.className = 'flex-1 py-3 font-headline font-bold text-lg rounded-full transition-all text-on-surface-variant bg-surface-container-low';
+    loadLeaderboard();
+  });
+  
+  // Initialize
+  loadLeaderboard();
+  
+  // Re-fetch user cache periodically? Not necessary.
+</script>
+
+<!-- Firebase fields explanation -->
+<div class="hidden">
+  <!-- 
+    REQUIRED FIRESTORE FIELDS in 'users' collection:
+    - totalSpentCoins (number): total coins spent by user (for Wealth ranking)
+    - totalReceivedGems (number): total gems received (for Charm ranking)
+    - username / displayName (string)
+    - photoURL (string, optional)
+    - level (number, optional)
+    
+    To update these fields when transactions occur:
+    - When user spends coins (e.g., sending gift), increment totalSpentCoins.
+    - When user receives gift (gems), increment totalReceivedGems.
+    Use Firestore transactions or cloud functions for accuracy.
+  -->
+</div>
+</body>
+</html>
