@@ -44,7 +44,7 @@ html,body{width:100%;min-height:100%;background:var(--bg);font-family:'Plus Jaka
 /* BANNER */
 .banner-wrap{overflow-x:auto;display:flex;scroll-snap-type:x mandatory;margin-bottom:16px;}
 .banner-wrap::-webkit-scrollbar{display:none;}
-.banner-slide{min-width:100%;height:96px;position:relative;scroll-snap-align:start;flex-shrink:0;overflow:hidden;}
+.banner-slide{min-width:100%;height:96px;position:relative;scroll-snap-align:start;flex-shrink:0;overflow:hidden;cursor:pointer;}
 .banner-slide img{width:100%;height:100%;object-fit:cover;}
 .banner-grad{position:absolute;inset:0;background:linear-gradient(to right,rgba(0,0,0,.72) 0%,rgba(0,0,0,.25) 60%,transparent 100%);}
 .banner-txt{position:absolute;left:16px;top:50%;transform:translateY(-50%);}
@@ -83,7 +83,6 @@ html,body{width:100%;min-height:100%;background:var(--bg);font-family:'Plus Jaka
 .live-badge-red{background:#ef4444;color:#fff;font-size:7px;font-weight:900;padding:2px 5px;display:flex;align-items:center;gap:3px;width:fit-content;}
 .live-badge-red span.dot{width:4px;height:4px;background:#fff;border-radius:50%;animation:pulse .9s infinite;}
 .live-lvl-badge{font-size:7.5px;font-weight:900;padding:2px 6px;border-radius:99px;color:#fff;width:fit-content;}
-/* Level colours from backend */
 .lvl-0{background:linear-gradient(135deg,#9ca3af,#6b7280);}
 .lvl-1{background:linear-gradient(135deg,#a7f3d0,#34d399);color:#065f46!important;}
 .lvl-2{background:linear-gradient(135deg,#99f6e4,#2dd4bf);color:#134e4a!important;}
@@ -99,16 +98,78 @@ html,body{width:100%;min-height:100%;background:var(--bg);font-family:'Plus Jaka
 .live-btm{position:absolute;bottom:8px;left:8px;right:36px;}
 .live-uname{color:#fff;font-size:11.5px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .live-title{color:rgba(255,255,255,.7);font-size:9px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.live-vcall-btn{position:absolute;bottom:8px;right:8px;width:28px;height:28px;background:var(--primary);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:2px;}
-.live-vcall-btn .ms{font-size:16px;color:#fff;}
+
+/* CALL BUTTON — glowing */
+@keyframes callGlow{0%,100%{box-shadow:0 0 0 0 rgba(0,101,113,.65),0 2px 8px rgba(0,0,0,.3);}50%{box-shadow:0 0 0 7px rgba(0,101,113,0),0 2px 8px rgba(0,0,0,.3);}}
+.live-vcall-btn{position:absolute;bottom:8px;right:8px;width:30px;height:30px;background:var(--primary);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%;animation:callGlow 1.6s ease-in-out infinite;z-index:2;}
+.live-vcall-btn .ms{font-size:17px;color:#fff;}
 .live-empty{grid-column:1/-1;padding:48px;text-align:center;background:#fff;}
 .live-empty p{font-size:13px;color:var(--outline);}
+
+/* MINI CALL POPUP */
+#mini-call-pop{position:fixed;bottom:calc(72px + max(env(safe-area-inset-bottom),0px) + 66px);left:50%;transform:translateX(-50%);z-index:80;width:min(320px,90vw);background:#fff;border:1px solid var(--border);border-radius:16px;padding:14px;box-shadow:0 12px 40px rgba(0,0,0,.18);display:none;}
+#mini-call-pop.on{display:block;animation:popUp .22s cubic-bezier(.34,1.56,.64,1);}
+@keyframes popUp{from{opacity:0;transform:translateX(-50%) scale(.9) translateY(10px);}to{opacity:1;transform:translateX(-50%) scale(1) translateY(0);}}
+.mcp-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.mcp-ava{width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid var(--primary);}
+.mcp-name{font-size:14px;font-weight:900;color:var(--text);}
+.mcp-price{font-size:11px;font-weight:700;color:var(--muted);display:flex;align-items:center;gap:3px;margin-top:2px;}
+.mcp-price-coin{font-size:13px;color:#f59e0b;}
+.mcp-btns{display:flex;gap:8px;}
+.mcp-btns button{flex:1;padding:9px;font-size:12px;font-weight:900;border:none;border-radius:10px;cursor:pointer;font-family:inherit;}
+.mcp-cancel{background:#f0f4f8;color:var(--muted);}
+.mcp-connect{background:var(--primary);color:#fff;}
 
 /* GO LIVE BUTTON */
 #go-live-wrap{position:fixed;bottom:calc(72px + max(env(safe-area-inset-bottom),0px));left:50%;transform:translateX(-50%);z-index:48;}
 #go-live-btn{background:linear-gradient(135deg,#ef4444,#ec4899);color:#fff;border:none;border-radius:99px;padding:12px 28px;font-size:12px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;display:flex;align-items:center;gap:7px;cursor:pointer;font-family:inherit;box-shadow:0 6px 20px rgba(239,68,68,.35),0 2px 8px rgba(0,0,0,.15);transition:transform .13s;}
 #go-live-btn:active{transform:scale(.95);}
 #go-live-btn .ms{font-size:18px;}
+
+/* CALLING OVERLAY */
+#calling-ov{position:fixed;inset:0;z-index:200;background:rgba(6,8,15,.9);backdrop-filter:blur(16px);display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;}
+#calling-ov.on{display:flex;}
+.calling-ring{width:84px;height:84px;border-radius:50%;border:3px solid rgba(79,124,255,.5);overflow:hidden;animation:cRing 1.6s ease-in-out infinite;}
+@keyframes cRing{0%,100%{box-shadow:0 0 0 0 rgba(79,124,255,.5);}50%{box-shadow:0 0 0 16px rgba(79,124,255,0);}}
+.calling-ring img{width:100%;height:100%;object-fit:cover;}
+#calling-name{font-size:16px;font-weight:900;color:#fff;}
+#calling-price{font-size:11.5px;color:#ffc531;font-weight:700;}
+#calling-status{font-size:12px;color:rgba(255,255,255,.6);font-weight:600;}
+.call-spin{width:22px;height:22px;border:2px solid rgba(79,124,255,.2);border-top-color:#4f7cff;border-radius:50%;animation:sp .75s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg);}}
+#cancel-caller-btn{background:rgba(255,61,110,.15);color:#ff3d6e;border:1px solid rgba(255,61,110,.3);border-radius:99px;padding:9px 22px;font-size:12px;font-weight:900;cursor:pointer;font-family:inherit;margin-top:4px;}
+
+/* GLOBAL INCOMING CALL POPUP */
+#gcall{position:fixed;bottom:calc(72px + max(env(safe-area-inset-bottom),0px) + 8px);right:12px;z-index:999;width:258px;background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:0 16px 50px rgba(0,0,0,.22);display:none;flex-direction:column;overflow:hidden;}
+#gcall.on{display:flex;animation:slideInR .32s cubic-bezier(.32,1,.46,1);}
+@keyframes slideInR{from{opacity:0;transform:translateX(60px);}to{opacity:1;transform:translateX(0);}}
+#gcall-prog-bar{height:3px;background:var(--tertiary);width:100%;transform-origin:left;transition:width 1s linear;}
+.gcall-body{padding:12px 12px 14px;}
+.gcall-top{display:flex;align-items:center;gap:9px;margin-bottom:10px;}
+.gcall-top img{width:40px;height:40px;border-radius:50%;border:2px solid var(--primary);object-fit:cover;flex-shrink:0;}
+.gcall-info{flex:1;min-width:0;}
+.gcall-caller{font-size:12.5px;font-weight:900;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.gcall-type{font-size:10px;font-weight:700;color:#f59e0b;margin-top:1px;}
+.gcall-timer{font-size:20px;font-weight:900;color:var(--tertiary);flex-shrink:0;font-variant-numeric:tabular-nums;}
+.gcall-btns{display:flex;gap:6px;}
+.gcall-btns button{flex:1;padding:8px 6px;font-size:11px;font-weight:900;border:none;border-radius:9px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:4px;}
+#gcall-reject{background:rgba(182,0,81,.1);color:var(--tertiary);border:2px solid var(--tertiary);}
+#gcall-accept{background:var(--primary);color:#fff;border:2px solid transparent;}
+
+/* RANDOM MATCH OVERLAY */
+#rm-ov{position:fixed;inset:0;z-index:200;background:rgba(6,8,15,.92);backdrop-filter:blur(18px);display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;}
+#rm-ov.on{display:flex;}
+.rm-pulse-ring{width:100px;height:100px;border-radius:50%;background:rgba(79,124,255,.1);border:2px solid rgba(79,124,255,.3);display:flex;align-items:center;justify-content:center;animation:rmPulse 1.4s ease-in-out infinite;}
+@keyframes rmPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
+.rm-inner-ring{width:70px;height:70px;border-radius:50%;background:rgba(79,124,255,.15);border:2px solid rgba(79,124,255,.5);display:flex;align-items:center;justify-content:center;}
+#rm-title{font-size:20px;font-weight:900;color:#fff;}
+#rm-sub{font-size:12px;color:rgba(255,255,255,.55);font-weight:600;}
+#cancel-rm-btn{background:rgba(255,61,110,.12);color:#ff3d6e;border:1px solid rgba(255,61,110,.28);border-radius:99px;padding:10px 26px;font-size:12px;font-weight:900;cursor:pointer;font-family:inherit;margin-top:6px;}
+
+/* REJECTED TOAST */
+#rej-toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.9);z-index:300;background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px 28px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.2);display:none;flex-direction:column;align-items:center;gap:8px;}
+#rej-toast.on{display:flex;animation:rtIn .25s cubic-bezier(.34,1.56,.64,1) forwards;}
+@keyframes rtIn{from{opacity:0;transform:translate(-50%,-50%) scale(.85);}to{opacity:1;transform:translate(-50%,-50%) scale(1);}}
 
 /* BOTTOM NAV */
 #nav{position:fixed;bottom:0;left:0;right:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(16px);border-top:1px solid var(--border);display:flex;padding:8px 0;padding-bottom:max(env(safe-area-inset-bottom),8px);}
@@ -129,34 +190,34 @@ html,body{width:100%;min-height:100%;background:var(--bg);font-family:'Plus Jaka
     <span id="balance-lbl">Coins</span>
   </div>
   <div class="tb-right">
-    <button class="tb-btn" onclick="location.href='invitesrank.html'"><span class="ms">trophy</span></button>
-    <button class="tb-btn" onclick="location.href='chats.html'"><span class="ms">chat_bubble</span></button>
+    <button class="tb-btn" onclick="location.href='leaderboard.html'"><span class="ms">trophy</span></button>
+    <button class="tb-btn" onclick="location.href='tasks.html'"><span class="ms f">task_alt</span></button>
   </div>
 </div>
 
 <div id="main">
   <!-- FILTER TABS -->
   <div class="filter-tabs">
-    <div class="ftab act">Popular</div>
-    <div class="ftab">New</div>
-    <div class="ftab">For You</div>
+    <div class="ftab act" id="tab-popular" onclick="switchTab('popular',this)">Popular</div>
+    <div class="ftab" id="tab-new" onclick="switchTab('new',this)">New</div>
+    <div class="ftab" id="tab-foryou" onclick="switchTab('foryou',this)">For You</div>
   </div>
 
   <!-- BANNER -->
   <div class="banner-wrap">
-    <div class="banner-slide">
+    <div class="banner-slide" onclick="location.href='invitesrank.html'">
       <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGQy2tG8boynppF4-SdmUIA6Jbd5zPAxfMopCDz0A67AZmZC6LXfZh7iXVnmk6YuvYzmoF2pM96uKY9IquY62hJzzoc8692ayS1qEkw0OW9NUJRYBVoTd2uNL6kEI0zXIj3RUaRnVxuDVuC61qYCgY8PIYm1CFDf_h3lqCUDLik-hjT6FpDwZlrlxuNiBAHJeVAjUlVsXRih6qfEsRKPtTGROVrFChcE-eSv8fw1ORRHmYGWI8IpyASfrGvJgupjhfpOTcgBWEPraZ" alt="">
       <div class="banner-grad"></div>
       <div class="banner-txt">
         <h3>To be Agent<br>To be Millionaire</h3>
-        <button class="banner-btn" onclick="location.href='invitesrank.html'">Join Now</button>
+        <button class="banner-btn" onclick="event.stopPropagation();location.href='invitesrank.html'">Join Now</button>
       </div>
     </div>
-    <div class="banner-slide" style="background:linear-gradient(135deg,#006571,#00b4c5);">
+    <div class="banner-slide" style="background:linear-gradient(135deg,#006571,#00b4c5);" onclick="location.href='invitesrank.html'">
       <div class="banner-grad" style="background:none;"></div>
       <div class="banner-txt">
-        <h3 style="color:#fff;">Summer Carnival<br>Gifts &amp; Rewards</h3>
-        <button class="banner-btn" style="background:#fff;color:var(--primary);" onclick="alert('Coming soon')">View Rules</button>
+        <h3 style="color:#fff;">Galmet Rewards<br>Gifts &amp; Special Events</h3>
+        <button class="banner-btn" style="background:#fff;color:var(--primary);" onclick="event.stopPropagation();location.href='invitesrank.html'">View Rules</button>
       </div>
     </div>
   </div>
@@ -175,8 +236,6 @@ html,body{width:100%;min-height:100%;background:var(--bg);font-family:'Plus Jaka
     <button class="rgn-btn" onclick="filterRegion('IN',this)">🇮🇳 India</button>
     <button class="rgn-btn" onclick="filterRegion('SA',this)">🇸🇦 KSA</button>
     <button class="rgn-btn" onclick="filterRegion('PK',this)">🇵🇰 PK</button>
-    <button class="rgn-btn" onclick="filterRegion('TR',this)">🇹🇷 Turkey</button>
-    <button class="rgn-btn" onclick="filterRegion('EG',this)">🇪🇬 Egypt</button>
   </div>
 
   <!-- LIVE GRID -->
@@ -185,11 +244,74 @@ html,body{width:100%;min-height:100%;background:var(--bg);font-family:'Plus Jaka
   </div>
 </div>
 
-<!-- GO LIVE -->
+<!-- GO LIVE / RANDOM MATCH -->
 <div id="go-live-wrap">
   <button id="go-live-btn" onclick="goLive()">
     <span class="ms f">fiber_manual_record</span> GO LIVE
   </button>
+</div>
+
+<!-- MINI CALL POPUP -->
+<div id="mini-call-pop">
+  <div class="mcp-row">
+    <img class="mcp-ava" id="mcp-ava" src="" alt="">
+    <div>
+      <div class="mcp-name" id="mcp-name">Host</div>
+      <div class="mcp-price"><span class="ms f mcp-price-coin" style="font-size:14px;color:#f59e0b;">monetization_on</span><span id="mcp-price-val">1000</span> coins/min</div>
+    </div>
+  </div>
+  <div class="mcp-btns">
+    <button class="mcp-cancel" onclick="closeMiniPop()">Cancel</button>
+    <button class="mcp-connect" id="mcp-connect-btn">📞 Call</button>
+  </div>
+</div>
+
+<!-- CALLING OVERLAY -->
+<div id="calling-ov">
+  <div class="calling-ring"><img id="calling-ava" src="" alt=""></div>
+  <div class="call-spin"></div>
+  <div id="calling-name">Connecting…</div>
+  <div id="calling-status">Calling host…</div>
+  <div id="calling-price"></div>
+  <button id="cancel-caller-btn" onclick="cancelOutgoingCall()">Cancel Call</button>
+</div>
+
+<!-- RANDOM MATCH OVERLAY -->
+<div id="rm-ov">
+  <div class="rm-pulse-ring">
+    <div class="rm-inner-ring">
+      <span class="ms f" style="font-size:32px;color:#4f7cff;">shuffle</span>
+    </div>
+  </div>
+  <div id="rm-title">Finding a Match…</div>
+  <div id="rm-sub">Searching for available hosts</div>
+  <button id="cancel-rm-btn" onclick="cancelRandomMatch()">Cancel</button>
+</div>
+
+<!-- GLOBAL INCOMING CALL POPUP -->
+<div id="gcall">
+  <div id="gcall-prog-bar"></div>
+  <div class="gcall-body">
+    <div class="gcall-top">
+      <img id="gcall-ava" src="" alt="">
+      <div class="gcall-info">
+        <div class="gcall-caller" id="gcall-caller">Caller</div>
+        <div class="gcall-type" id="gcall-type">Incoming Call</div>
+      </div>
+      <div class="gcall-timer" id="gcall-timer">15</div>
+    </div>
+    <div class="gcall-btns">
+      <button id="gcall-reject"><span class="ms" style="font-size:14px;">call_end</span> Reject</button>
+      <button id="gcall-accept"><span class="ms" style="font-size:14px;">call</span> Accept</button>
+    </div>
+  </div>
+</div>
+
+<!-- REJECTED TOAST -->
+<div id="rej-toast">
+  <span style="font-size:32px;">📵</span>
+  <div style="font-size:14px;font-weight:900;color:var(--text);">Call Rejected</div>
+  <div style="font-size:11px;color:var(--muted);" id="rej-msg">Host declined the call</div>
 </div>
 
 <!-- BOTTOM NAV -->
@@ -216,94 +338,135 @@ var db=firebase.firestore();
 var CU=JSON.parse(localStorage.getItem("user")||"null");
 if(!CU||!CU.userId){location.replace("login.html");}
 var ME=String(CU.userId);
+var MY_NAME=CU.username||"User";
+var MY_AVA=CU.photoURL||("https://ui-avatars.com/api/?name="+encodeURIComponent(MY_NAME)+"&background=006571&color=fff");
 
-var allLives=[], regionFilter=null;
+var allLives=[], regionFilter=null, activeTab='popular';
+var userGender='male', userCoins=0, miniPopTarget=null;
+var callerUnsubscribe=null, rmCancelFlag=false, rmCurrentUnsub=null;
+var gcallUnsubscribe=null, gcallTimerIv=null, gcallRoomId=null, gcallCallerId=null;
 
-// Level helpers — matches backend exactly
-function getCharmLevel(g){if(g<10000)return 0;if(g<30000)return 1;if(g<100000)return 2;if(g<300000)return 3;if(g<1000000)return 4;if(g<3000000)return 5;if(g<10000000)return 6;if(g<30000000)return 7;if(g<100000000)return 8;if(g<300000000)return 9;return 10;}
-function getWealthLevel(t){if(t<4000)return 0;if(t<30000)return 1;if(t<100000)return 2;if(t<300000)return 3;if(t<1000000)return 4;if(t<3000000)return 5;if(t<10000000)return 6;if(t<30000000)return 7;if(t<100000000)return 8;if(t<300000000)return 9;return 10;}
-function getHighestLevel(data){
-  var cl=data.charmLevel||getCharmLevel(Math.max(data.monthlyGems||0,data.lastMonthGems||0));
-  var wl=data.wealthLevel||getWealthLevel(data.totalTopup||0);
-  return Math.max(cl,wl);
+// ─── NUMBER FORMAT ────────────────────────────────────────────────────────
+function formatNumber(n){
+  n=parseInt(n)||0;
+  if(n<=99999)return n.toLocaleString();
+  if(n<1000000){var k=(n/1000).toFixed(2).replace(/\.?0+$/,'');return k+'k';}
+  var m=(n/1000000).toFixed(2).replace(/\.?0+$/,'');return m+'M';
 }
+
+// ─── ESC ──────────────────────────────────────────────────────────────────
 function esc(s){if(!s)return'';return String(s).replace(/[&<>"']/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];});}
 
-// Country code → flag emoji
-function codeToFlag(code){
-  if(!code)return '';
-  try{return code.toUpperCase().split('').map(c=>String.fromCodePoint(c.charCodeAt(0)+127397)).join('');}catch(e){return '';}
-}
-// Get flag from user data
-function getUserFlag(userData){
-  if(!userData)return '';
-  if(userData.countryCode)return codeToFlag(userData.countryCode);
-  if(userData.country&&typeof userData.country==='object'&&userData.country.flag)return userData.country.flag;
-  if(userData.country&&typeof userData.country==='object'&&userData.country.code)return codeToFlag(userData.country.code);
-  return '';
-}
-// Get country code from user data
-function getUserCountryCode(userData){
-  if(!userData)return '';
-  if(userData.countryCode)return userData.countryCode;
-  if(userData.country&&typeof userData.country==='object'&&userData.country.code)return userData.country.code;
-  return '';
-}
+// ─── LEVEL HELPERS ────────────────────────────────────────────────────────
+function getCharmLevel(g){if(g<10000)return 0;if(g<30000)return 1;if(g<100000)return 2;if(g<300000)return 3;if(g<1000000)return 4;if(g<3000000)return 5;if(g<10000000)return 6;if(g<30000000)return 7;if(g<100000000)return 8;if(g<300000000)return 9;return 10;}
+function getWealthLevel(t){if(t<4000)return 0;if(t<30000)return 1;if(t<100000)return 2;if(t<300000)return 3;if(t<1000000)return 4;if(t<3000000)return 5;if(t<10000000)return 6;if(t<30000000)return 7;if(t<100000000)return 8;if(t<300000000)return 9;return 10;}
+function getHighestLevel(data){var cl=data.charmLevel||getCharmLevel(Math.max(data.monthlyGems||0,data.lastMonthGems||0));var wl=data.wealthLevel||getWealthLevel(data.totalTopup||0);return Math.max(cl,wl);}
+function codeToFlag(code){if(!code)return'';try{return code.toUpperCase().split('').map(function(c){return String.fromCodePoint(c.charCodeAt(0)+127397);}).join('');}catch(e){return'';}}
+function getUserFlag(d){if(!d)return'';if(d.countryCode)return codeToFlag(d.countryCode);if(d.country&&typeof d.country==='object'&&d.country.flag)return d.country.flag;if(d.country&&typeof d.country==='object'&&d.country.code)return codeToFlag(d.country.code);return'';}
+function getUserCountryCode(d){if(!d)return'';if(d.countryCode)return d.countryCode;if(d.country&&typeof d.country==='object'&&d.country.code)return d.country.code;return'';}
 
-// BALANCE real-time
+// ─── BALANCE REAL-TIME ────────────────────────────────────────────────────
 db.doc('users/'+ME).onSnapshot(function(snap){
   if(!snap.exists)return;
   var d=snap.data();
-  var coins=d.coins||0, gems=d.gems||0;
+  userGender=d.gender||'male';
+  var isF=userGender==='female';
+  var val=isF?(d.gems||0):(d.coins||0);
+  userCoins=d.coins||0;
+
   var icon=document.getElementById('balance-icon');
-  var val=document.getElementById('balance-val');
+  var valEl=document.getElementById('balance-val');
   var lbl=document.getElementById('balance-lbl');
-  if(d.gender==='female'){
-    icon.textContent='diamond';icon.style.color='#ec4899';
-    val.textContent=gems.toLocaleString();lbl.textContent='Gems';
+
+  if(isF){
+    icon.textContent='diamond';icon.style.color='#ef4444';
+    lbl.textContent='Gems';
   } else {
-    icon.textContent='monetization_on';icon.style.color='';
-    val.textContent=coins.toLocaleString();lbl.textContent='Coins';
+    icon.textContent='monetization_on';icon.style.color='#f59e0b';
+    lbl.textContent='Coins';
+  }
+  valEl.textContent=formatNumber(val);
+
+  // Set appropriate button
+  var btn=document.getElementById('go-live-btn');
+  if(isF){
+    btn.innerHTML='<span class="ms f">fiber_manual_record</span> GO LIVE';
+    btn.style.background='linear-gradient(135deg,#ef4444,#ec4899)';
+    btn.style.boxShadow='0 6px 20px rgba(239,68,68,.35),0 2px 8px rgba(0,0,0,.15)';
+    btn.onclick=goLive;
+  } else {
+    btn.innerHTML='<span class="ms f">shuffle</span> RANDOM MATCH';
+    btn.style.background='linear-gradient(135deg,#7c3aed,#4f46e5)';
+    btn.style.boxShadow='0 6px 20px rgba(124,58,237,.35),0 2px 8px rgba(0,0,0,.15)';
+    btn.onclick=startRandomMatch;
   }
 });
 
-// LIVE STREAMS real-time
+// ─── LIVE STREAMS REAL-TIME ───────────────────────────────────────────────
 db.collection('lives').onSnapshot(function(snap){
   allLives=[];
-  snap.forEach(function(d){
-    var dd=d.data();
-    if(dd.status==='live')allLives.push({id:d.id,...dd});
-  });
-  renderGrid();
-  renderRising();
+  snap.forEach(function(d){var dd=d.data();if(dd.status==='live')allLives.push({id:d.id,...dd});});
+  renderGrid();renderRising();
 });
 
-// Fetch user live level from users collection
+// ─── USER LEVEL CACHE ─────────────────────────────────────────────────────
 var userLevelCache={};
 function getUserLevelData(userId,cb){
   if(userLevelCache[userId]){cb(userLevelCache[userId]);return;}
-  db.doc('users/'+userId).get().then(function(snap){
-    var d=snap.exists?snap.data():{};
-    userLevelCache[userId]=d;
-    cb(d);
-  }).catch(function(){cb({});});
+  db.doc('users/'+userId).get().then(function(snap){var d=snap.exists?snap.data():{};userLevelCache[userId]=d;cb(d);}).catch(function(){cb({});});
 }
 
+// ─── TAB LOGIC ────────────────────────────────────────────────────────────
+window.switchTab=function(tab,el){
+  activeTab=tab;
+  document.querySelectorAll('.ftab').forEach(function(t){t.classList.remove('act');});
+  el.classList.add('act');
+  renderGrid();
+};
+
+function getTabLives(){
+  var lives=regionFilter?allLives.filter(function(l){return getUserCountryCode(l)===regionFilter;}):allLives;
+  if(activeTab==='popular'){
+    return lives.slice().sort(function(a,b){return(b.viewerCount||0)-(a.viewerCount||0);});
+  } else if(activeTab==='new'){
+    // Show lives where host joined within last 7 days (using joinedAt or createdAt)
+    var week=Date.now()-7*24*60*60*1000;
+    return lives.filter(function(l){
+      var ts=l.createdAt&&l.createdAt.toMillis?l.createdAt.toMillis():0;
+      return ts>week;
+    }).concat(lives.filter(function(l){
+      var ts=l.createdAt&&l.createdAt.toMillis?l.createdAt.toMillis():0;
+      return ts<=week;
+    }));
+  } else {
+    // For You — random shuffle
+    return lives.slice().sort(function(){return Math.random()-.5;});
+  }
+}
+
+// ─── RENDER GRID ──────────────────────────────────────────────────────────
 function renderGrid(){
   var grid=document.getElementById('lives-grid');
-  var lives=regionFilter?allLives.filter(function(l){return getUserCountryCode(l)===regionFilter;}):allLives;
+  var lives=getTabLives();
   if(lives.length===0){grid.innerHTML='<div class="live-empty"><p>No live streams right now 📡</p></div>';return;}
   grid.innerHTML='';
   lives.forEach(function(live){
     var uid=live.userId||live.id;
     var card=document.createElement('div');
     card.className='live-card';
-    card.onclick=function(){joinLive(live.roomId);};
+
+    // Card click → join live
+    card.onclick=function(e){
+      if(e.target.closest('.live-vcall-btn'))return;
+      joinLive(live.roomId);
+    };
+
     var ava=live.photoURL||('https://ui-avatars.com/api/?name='+encodeURIComponent(live.username||'L')+'&background=006571&color=fff&size=400');
     var bg=live.posterURL||ava;
     var flag=getUserFlag(live)||'';
     var lv=Math.max(live.charmLevel||0,live.wealthLevel||0);
     var isBusy=live.onCall===true;
+
     card.innerHTML=
       '<img src="'+esc(bg)+'" onerror="this.src=\''+esc(ava)+'\'" loading="lazy">'+
       '<div class="live-grad"></div>'+
@@ -317,30 +480,41 @@ function renderGrid(){
         (live.title?'<div class="live-title">'+esc(live.title)+'</div>':'')+
       '</div>'+
       '<button class="live-vcall-btn" title="Video Call"><span class="ms f">video_call</span></button>';
+
     // Wire call button
-    card.querySelector('.live-vcall-btn').onclick=function(e){
+    var callBtn=card.querySelector('.live-vcall-btn');
+    callBtn.onclick=function(e){
       e.stopPropagation();
-      startVideoCall(uid, live.roomId);
+      openMiniCallPop(uid,live.username||'Host',live.photoURL||ava,live.callPrice||1000,live.roomId||live.id);
     };
-    // Fetch real level from users collection and update badge
+
+    // Fetch real level
     getUserLevelData(uid,function(userData){
       var realLv=getHighestLevel(userData);
       var badge=card.querySelector('.live-lvl-badge');
       if(badge){badge.className='live-lvl-badge lvl-'+Math.min(realLv,10);badge.textContent='Lv '+realLv;}
     });
+
     grid.appendChild(card);
   });
 }
 
+// ─── RENDER RISING STARS (female only) ────────────────────────────────────
 function renderRising(){
   var container=document.getElementById('rising-scroll');
   var count=document.getElementById('rising-count');
+
+  // Filter female only
+  var femaleLives=allLives.filter(function(l){return l.gender==='female'||(l.hostGender==='female');});
   count.textContent=allLives.length+' live';
-  if(allLives.length===0){container.innerHTML='<p style="font-size:12px;color:var(--outline);padding:4px 0;">No live users right now</p>';return;}
+
+  if(femaleLives.length===0){
+    container.innerHTML='<p style="font-size:12px;color:var(--outline);padding:4px 0;">No live hosts right now</p>';
+    return;
+  }
   container.innerHTML='';
-  var shuffled=allLives.slice().sort(function(){return Math.random()-.5;}).slice(0,12);
+  var shuffled=femaleLives.slice().sort(function(){return Math.random()-.5;}).slice(0,12);
   shuffled.forEach(function(live){
-    var uid=live.userId||live.id;
     var ava=live.photoURL||('https://ui-avatars.com/api/?name='+encodeURIComponent(live.username||'L')+'&background=006571&color=fff');
     var flag=getUserFlag(live)||'';
     var div=document.createElement('div');
@@ -353,6 +527,7 @@ function renderRising(){
   });
 }
 
+// ─── REGION FILTER ────────────────────────────────────────────────────────
 window.filterRegion=function(code,btn){
   regionFilter=code;
   document.querySelectorAll('.rgn-btn').forEach(function(b){b.classList.remove('act');});
@@ -360,35 +535,270 @@ window.filterRegion=function(code,btn){
   renderGrid();
 };
 
-window.joinLive=function(roomId){
-  location.href='live.html?room='+roomId;
+window.joinLive=function(roomId){location.href='live.html?room='+roomId;};
+
+// ─── MINI CALL POPUP ──────────────────────────────────────────────────────
+function openMiniCallPop(uid,name,ava,price,roomId){
+  miniPopTarget={uid:uid,name:name,ava:ava,price:price,roomId:roomId};
+  document.getElementById('mcp-ava').src=ava;
+  document.getElementById('mcp-name').textContent=name;
+  document.getElementById('mcp-price-val').textContent=price;
+  document.getElementById('mcp-connect-btn').onclick=function(){closeMiniPop();initiateCall(uid,name,ava,price,roomId,'normal');};
+  document.getElementById('mini-call-pop').classList.add('on');
+  document.getElementById('mini-call-pop').style.display='block';
+}
+window.closeMiniPop=function(){
+  document.getElementById('mini-call-pop').classList.remove('on');
+  document.getElementById('mini-call-pop').style.display='none';
+  miniPopTarget=null;
 };
 
-// Video call from dashboard → go to live room and auto-request call
-window.startVideoCall=function(hostUserId, roomId){
-  // Check if host is in a live session
-  db.doc('users/'+hostUserId).get().then(function(snap){
-    if(!snap.exists){alert('User not found');return;}
+// ─── INITIATE CALL ────────────────────────────────────────────────────────
+function initiateCall(hostId,hostName,hostAva,price,roomId,type,gemsReward){
+  if(userCoins<price){showToast('Need at least '+price+' coins to call');return;}
+  var chatRoomId='callchat_'+roomId+'_'+Date.now();
+  var reqData={
+    callerId:ME,callerName:MY_NAME,callerAvatar:MY_AVA,
+    hostId:hostId,callPrice:price,roomId:roomId,
+    type:type||'normal',status:'pending',chatRoomId:chatRoomId,
+    gemsReward:gemsReward||0,
+    createdAt:firebase.firestore.FieldValue.serverTimestamp()
+  };
+  db.doc('callRequests/'+hostId).set(reqData).then(function(){
+    showCallingOverlay(hostName,hostAva,price);
+    var timeout=setTimeout(function(){
+      db.doc('callRequests/'+hostId).update({status:'rejected'}).catch(function(){});
+      hideCallingOverlay();showRejected(hostName);
+      if(callerUnsubscribe){callerUnsubscribe();callerUnsubscribe=null;}
+    },16000);
+    callerUnsubscribe=db.doc('callRequests/'+hostId).onSnapshot(function(snap){
+      if(!snap.exists)return;
+      var d=snap.data();
+      if(d.status==='accepted'){
+        clearTimeout(timeout);
+        if(callerUnsubscribe){callerUnsubscribe();callerUnsubscribe=null;}
+        hideCallingOverlay();
+        location.href='call.html?room='+roomId+'&callerId='+ME+'&hostId='+hostId+'&chatRoom='+chatRoomId;
+      } else if(d.status==='rejected'){
+        clearTimeout(timeout);
+        if(callerUnsubscribe){callerUnsubscribe();callerUnsubscribe=null;}
+        hideCallingOverlay();showRejected(hostName);
+      }
+    });
+  });
+}
+
+function showCallingOverlay(name,ava,price){
+  document.getElementById('calling-ava').src=ava||'';
+  document.getElementById('calling-name').textContent=name;
+  document.getElementById('calling-price').textContent=price+' coins/min';
+  document.getElementById('calling-ov').classList.add('on');
+}
+function hideCallingOverlay(){document.getElementById('calling-ov').classList.remove('on');}
+
+window.cancelOutgoingCall=function(){
+  if(miniPopTarget){
+    db.doc('callRequests/'+miniPopTarget.uid).update({status:'rejected'}).catch(function(){});
+  }
+  if(callerUnsubscribe){callerUnsubscribe();callerUnsubscribe=null;}
+  hideCallingOverlay();
+};
+
+function showRejected(name){
+  document.getElementById('rej-msg').textContent=(name||'Host')+' declined the call';
+  var el=document.getElementById('rej-toast');el.classList.add('on');
+  setTimeout(function(){el.classList.remove('on');},2800);
+}
+
+var toastTimer=null;
+function showToast(msg){
+  // Use a simple overlay toast
+  var t=document.createElement('div');
+  t.style.cssText='position:fixed;bottom:96px;left:50%;transform:translateX(-50%);z-index:400;background:#333;color:#fff;padding:8px 18px;border-radius:99px;font-size:12px;font-weight:700;';
+  t.textContent=msg;document.body.appendChild(t);
+  setTimeout(function(){t.remove();},2500);
+}
+
+// ─── GLOBAL INCOMING CALL LISTENER ────────────────────────────────────────
+function listenIncomingCalls(){
+  gcallUnsubscribe=db.doc('callRequests/'+ME).onSnapshot(function(snap){
+    if(snap.exists&&snap.data().status==='pending'){
+      showGlobalCallPopup(snap.data());
+    } else {
+      hideGlobalCallPopup();
+    }
+  });
+}
+
+function showGlobalCallPopup(data){
+  gcallRoomId=data.roomId;gcallCallerId=data.callerId;
+  document.getElementById('gcall-ava').src=data.callerAvatar||'';
+  document.getElementById('gcall-caller').textContent=data.callerName||'Caller';
+  var isRandom=data.type==='random';
+  document.getElementById('gcall-type').textContent=isRandom?'🔀 Random Match +'+data.gemsReward+' 💎':'📞 '+formatNumber(data.callPrice||1000)+' coins/min';
+  document.getElementById('gcall').classList.add('on');
+
+  var secs=15;
+  document.getElementById('gcall-timer').textContent=secs;
+  document.getElementById('gcall-prog-bar').style.width='100%';
+
+  clearInterval(gcallTimerIv);
+  gcallTimerIv=setInterval(function(){
+    secs--;
+    document.getElementById('gcall-timer').textContent=secs;
+    document.getElementById('gcall-prog-bar').style.width=(secs/15*100)+'%';
+    if(secs<=0){
+      clearInterval(gcallTimerIv);
+      rejectIncomingCall();
+    }
+  },1000);
+}
+
+function hideGlobalCallPopup(){
+  document.getElementById('gcall').classList.remove('on');
+  clearInterval(gcallTimerIv);
+}
+
+document.getElementById('gcall-reject').onclick=rejectIncomingCall;
+document.getElementById('gcall-accept').onclick=acceptIncomingCall;
+
+function rejectIncomingCall(){
+  clearInterval(gcallTimerIv);
+  db.doc('callRequests/'+ME).update({status:'rejected'}).catch(function(){});
+  hideGlobalCallPopup();
+}
+
+function acceptIncomingCall(){
+  clearInterval(gcallTimerIv);
+  db.doc('callRequests/'+ME).get().then(function(snap){
+    if(!snap.exists)return;
     var d=snap.data();
-    // Go to live room and auto-start call
-    location.href='live.html?room='+roomId+'&startcall=1&hostId='+hostUserId;
+    var chatRoomId=d.chatRoomId||('callchat_'+d.roomId+'_'+Date.now());
+    db.doc('callRequests/'+ME).update({status:'accepted',chatRoomId:chatRoomId}).then(function(){
+      hideGlobalCallPopup();
+      // Also update calls doc for call.html compatibility
+      db.doc('calls/'+d.roomId).set({
+        callerId:d.callerId,callerName:d.callerName,callerAvatar:d.callerAvatar,
+        hostId:ME,callPrice:d.callPrice,status:'accepted',
+        chatRoomId:chatRoomId,createdAt:firebase.firestore.FieldValue.serverTimestamp()
+      }).catch(function(){});
+      db.doc('lives/'+ME).update({onCall:true,callStarted:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){});
+      location.href='call.html?room='+d.roomId+'&callerId='+d.callerId+'&hostId='+ME+'&chatRoom='+chatRoomId;
+    });
+  });
+}
+
+// ─── RANDOM MATCH ──────────────────────────────────────────────────────────
+window.startRandomMatch=function(){
+  if(userCoins<1000){showToast('Need 1000 coins for Random Match');return;}
+  rmCancelFlag=false;
+  document.getElementById('rm-ov').classList.add('on');
+  document.getElementById('rm-title').textContent='Finding a Match…';
+  document.getElementById('rm-sub').textContent='Searching for available hosts';
+
+  db.collection('lives').get().then(function(snap){
+    var hosts=[];
+    snap.forEach(function(d){
+      var dd=d.data();
+      if(dd.status==='live'&&!dd.onCall&&(dd.gender==='female'||dd.hostGender==='female')){
+        hosts.push({id:d.id,...dd});
+      }
+    });
+    if(hosts.length===0){
+      document.getElementById('rm-title').textContent='No Hosts Available';
+      document.getElementById('rm-sub').textContent='Try again in a few moments';
+      setTimeout(function(){document.getElementById('rm-ov').classList.remove('on');},2000);
+      return;
+    }
+    var shuffled=hosts.sort(function(){return Math.random()-.5;});
+    tryRandomHost(shuffled,0);
   });
 };
 
+function tryRandomHost(hosts,index){
+  if(rmCancelFlag)return;
+  if(index>=hosts.length){
+    document.getElementById('rm-title').textContent='No Hosts Responded';
+    document.getElementById('rm-sub').textContent='All hosts are busy right now';
+    setTimeout(function(){document.getElementById('rm-ov').classList.remove('on');},2500);
+    return;
+  }
+  var host=hosts[index];
+  var hostId=host.userId||host.id;
+  var roomId=host.roomId||host.id;
+  document.getElementById('rm-sub').textContent='Connecting you with '+esc(host.username||'a host')+'…';
+
+  var chatRoomId='callchat_'+roomId+'_'+Date.now();
+  db.doc('callRequests/'+hostId).set({
+    callerId:ME,callerName:MY_NAME,callerAvatar:MY_AVA,
+    hostId:hostId,callPrice:1000,roomId:roomId,
+    type:'random',status:'pending',chatRoomId:chatRoomId,
+    gemsReward:300,
+    createdAt:firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){
+    var timeout=setTimeout(function(){
+      if(rmCurrentUnsub){rmCurrentUnsub();rmCurrentUnsub=null;}
+      db.doc('callRequests/'+hostId).delete().catch(function(){});
+      tryRandomHost(hosts,index+1);
+    },15000);
+
+    rmCurrentUnsub=db.doc('callRequests/'+hostId).onSnapshot(function(snap){
+      if(rmCancelFlag){clearTimeout(timeout);if(rmCurrentUnsub){rmCurrentUnsub();rmCurrentUnsub=null;}return;}
+      if(!snap.exists)return;
+      var d=snap.data();
+      if(d.status==='accepted'){
+        clearTimeout(timeout);
+        if(rmCurrentUnsub){rmCurrentUnsub();rmCurrentUnsub=null;}
+        document.getElementById('rm-ov').classList.remove('on');
+        location.href='call.html?room='+roomId+'&callerId='+ME+'&hostId='+hostId+'&chatRoom='+chatRoomId+'&type=random';
+      } else if(d.status==='rejected'){
+        clearTimeout(timeout);
+        if(rmCurrentUnsub){rmCurrentUnsub();rmCurrentUnsub=null;}
+        tryRandomHost(hosts,index+1);
+      }
+    });
+  });
+}
+
+window.cancelRandomMatch=function(){
+  rmCancelFlag=true;
+  if(rmCurrentUnsub){rmCurrentUnsub();rmCurrentUnsub=null;}
+  document.getElementById('rm-ov').classList.remove('on');
+};
+
+// ─── GO LIVE ──────────────────────────────────────────────────────────────
 window.goLive=async function(){
   try{
     await navigator.mediaDevices.getUserMedia({video:true,audio:true});
     location.href='createlive.html';
   }catch(e){
-    alert('Camera/Microphone permission required to go live');
+    showToast('Camera/Microphone permission required to go live');
   }
 };
 
-// Online presence
+// ─── SCROLL TO REFRESH ────────────────────────────────────────────────────
+var lastScrollY=0,refreshing=false;
+window.addEventListener('scroll',function(){
+  var cur=window.scrollY;
+  if(cur<40&&lastScrollY>200&&!refreshing){
+    refreshing=true;
+    db.collection('lives').get().then(function(snap){
+      allLives=[];
+      snap.forEach(function(d){var dd=d.data();if(dd.status==='live')allLives.push({id:d.id,...dd});});
+      renderGrid();renderRising();
+      refreshing=false;
+      showToast('Updated ✓');
+    }).catch(function(){refreshing=false;});
+  }
+  lastScrollY=cur;
+},{passive:true});
+
+// ─── ONLINE PRESENCE ──────────────────────────────────────────────────────
 db.doc('users/'+ME).update({online:true}).catch(function(){});
-window.addEventListener('beforeunload',function(){
-  db.doc('users/'+ME).update({online:false}).catch(function(){});
-});
+window.addEventListener('beforeunload',function(){db.doc('users/'+ME).update({online:false}).catch(function(){});});
+
+// ─── INIT ─────────────────────────────────────────────────────────────────
+listenIncomingCalls();
 </script>
 </body>
 </html>
