@@ -46,7 +46,6 @@
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     
-    /* Podium glow */
     .podium-glow {
       box-shadow: 0 8px 20px rgba(0,227,253,0.15), 0 0 0 2px rgba(255,202,77,0.2);
     }
@@ -57,7 +56,6 @@
       color: transparent;
       font-weight: 800;
     }
-    /* shimmer for loading */
     .skeleton {
       background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
       background-size: 200% 100%;
@@ -77,21 +75,15 @@
     <h1 class="font-headline font-bold text-primary text-xl">Leaderboard</h1>
     <div class="w-10"></div>
   </div>
-  <!-- Tabs -->
   <div class="flex gap-2 mt-1">
     <button id="tabWealth" class="flex-1 py-3 font-headline font-bold text-lg rounded-full transition-all bg-primary-container text-on-primary-container shadow-md">💰 Wealth</button>
     <button id="tabCharm" class="flex-1 py-3 font-headline font-bold text-lg rounded-full transition-all text-on-surface-variant bg-surface-container-low">💎 Charm</button>
   </div>
 </header>
 
-<!-- Main Content -->
 <main class="flex-1 px-3 pb-24 pt-3">
-  <!-- Top 3 Podium -->
-  <div id="podiumContainer" class="flex items-end justify-center gap-2 sm:gap-4 my-4 min-h-[200px]">
-    <!-- JS will inject podium (rank 2,1,3) -->
-  </div>
+  <div id="podiumContainer" class="flex items-end justify-center gap-2 sm:gap-4 my-4 min-h-[200px]"></div>
   
-  <!-- Rank List (4-30) -->
   <div class="bg-surface-container-lowest/70 backdrop-blur-sm rounded-3xl p-3 border border-white/40 shadow-lg">
     <div class="flex justify-between px-4 py-2 text-xs font-bold text-outline uppercase tracking-wider">
       <span>Rank</span>
@@ -99,20 +91,15 @@
       <span id="metricHeader">Spent</span>
     </div>
     <div id="rankListContainer" class="divide-y divide-outline-variant/20 max-h-[50vh] overflow-y-auto no-scrollbar">
-      <!-- JS inject ranks 4-30 -->
       <div class="py-8 text-center text-outline">Loading rankings...</div>
     </div>
   </div>
 </main>
 
-<!-- Sticky Own Rank Footer -->
 <footer class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-outline-variant/20 px-4 py-3 z-40">
-  <div id="ownRankContainer" class="flex items-center justify-between">
-    <!-- dynamic own rank -->
-  </div>
+  <div id="ownRankContainer" class="flex items-center justify-between"></div>
 </footer>
 
-<!-- Firebase + Main Script -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
   import { getFirestore, collection, query, orderBy, limit, onSnapshot, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
@@ -127,18 +114,16 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // Current user
+  // Current user – ensure ID is string
   const currentUser = JSON.parse(localStorage.getItem("user"));
-  const myUserId = currentUser?.userId || null;
+  const myUserId = currentUser?.userId ? String(currentUser.userId) : null;
   
-  // State
-  let currentMode = 'wealth'; // 'wealth' or 'charm'
-  let usersMap = new Map(); // cache user data (name, avatar, level)
+  let currentMode = 'wealth';
+  let usersMap = new Map();
   let rankings = [];
   let ownRankData = null;
   let unsubscribe = null;
   
-  // DOM elements
   const podiumDiv = document.getElementById('podiumContainer');
   const rankListDiv = document.getElementById('rankListContainer');
   const ownRankDiv = document.getElementById('ownRankContainer');
@@ -146,19 +131,18 @@
   const tabWealth = document.getElementById('tabWealth');
   const tabCharm = document.getElementById('tabCharm');
   
-  // Helper: format number (K, M, B)
   function formatNumber(num) {
     if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
     if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
     if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
-    return num.toString();
+    return String(num);
   }
   
-  // Fetch user details (name, avatar, level) from users collection
   async function getUserInfo(uid) {
-    if (usersMap.has(uid)) return usersMap.get(uid);
+    const uidStr = String(uid);
+    if (usersMap.has(uidStr)) return usersMap.get(uidStr);
     try {
-      const snap = await getDoc(doc(db, "users", uid));
+      const snap = await getDoc(doc(db, "users", uidStr));
       if (snap.exists()) {
         const data = snap.data();
         const info = {
@@ -166,34 +150,30 @@
           avatar: data.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.username || 'U')}&background=006571&color=fff`,
           level: data.level || 1
         };
-        usersMap.set(uid, info);
+        usersMap.set(uidStr, info);
         return info;
       }
     } catch (e) { console.warn(e); }
     const fallback = { name: 'User', avatar: 'https://ui-avatars.com/api/?name=U&background=006571&color=fff', level: 1 };
-    usersMap.set(uid, fallback);
+    usersMap.set(uidStr, fallback);
     return fallback;
   }
   
-  // Render podium (top 3)
   async function renderPodium(top3) {
     if (!top3 || top3.length < 3) {
       podiumDiv.innerHTML = '<div class="text-center py-10 text-outline">Not enough data</div>';
       return;
     }
     const [first, second, third] = top3;
-    
-    // Fetch user info
     const [user1, user2, user3] = await Promise.all([
       getUserInfo(first.uid),
       getUserInfo(second.uid),
       getUserInfo(third.uid)
     ]);
     
-    const metricValue = (u) => currentMode === 'wealth' ? u.totalSpentCoins : u.totalReceivedGems;
+    const metricValue = (u) => currentMode === 'wealth' ? (u.totalSpendCoins || 0) : (u.totalReceivedGems || 0);
     
     podiumDiv.innerHTML = `
-      <!-- Rank 2 (left) -->
       <div class="flex flex-col items-center w-24 sm:w-28">
         <div class="relative">
           <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 border-gray-300 bg-gray-100 overflow-hidden podium-glow">
@@ -205,7 +185,6 @@
         <p class="text-xs text-primary font-semibold">Lv.${user2.level}</p>
         <p class="text-sm font-headline font-bold text-on-surface-variant">${formatNumber(metricValue(second))}</p>
       </div>
-      <!-- Rank 1 (center) -->
       <div class="flex flex-col items-center w-28 sm:w-32 -mt-4">
         <div class="relative">
           <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-yellow-400 bg-yellow-50 overflow-hidden podium-glow" style="box-shadow:0 0 20px gold;">
@@ -217,7 +196,6 @@
         <p class="text-xs text-primary font-semibold">Lv.${user1.level}</p>
         <p class="text-lg font-headline font-extrabold rank-1">${formatNumber(metricValue(first))}</p>
       </div>
-      <!-- Rank 3 (right) -->
       <div class="flex flex-col items-center w-24 sm:w-28">
         <div class="relative">
           <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 border-amber-600 bg-amber-50 overflow-hidden podium-glow">
@@ -232,14 +210,13 @@
     `;
   }
   
-  // Render list ranks 4-30
   async function renderRankList(rankingsArray, startRank = 4) {
     if (!rankingsArray || rankingsArray.length < startRank) {
       rankListDiv.innerHTML = '<div class="py-8 text-center text-outline">No more rankings</div>';
       return;
     }
-    const listItems = rankingsArray.slice(startRank - 1, 30); // 0-indexed
-    const metricFn = (u) => currentMode === 'wealth' ? u.totalSpentCoins : u.totalReceivedGems;
+    const listItems = rankingsArray.slice(startRank - 1, 30);
+    const metricFn = (u) => currentMode === 'wealth' ? (u.totalSpendCoins || 0) : (u.totalReceivedGems || 0);
     
     const htmlPromises = listItems.map(async (user, idx) => {
       const rank = startRank + idx;
@@ -264,7 +241,6 @@
     rankListDiv.innerHTML = htmls.join('');
   }
   
-  // Render own rank footer
   async function renderOwnRank() {
     if (!myUserId) {
       ownRankDiv.innerHTML = '<p class="text-center text-sm text-outline">Login to see your rank</p>';
@@ -296,15 +272,14 @@
     `;
   }
   
-  // Main function to load rankings
   function loadLeaderboard() {
     if (unsubscribe) unsubscribe();
     
-    const field = currentMode === 'wealth' ? 'totalSpentCoins' : 'totalReceivedGems';
+    const field = currentMode === 'wealth' ? 'totalSpendCoins' : 'totalReceivedGems';
     metricHeader.innerText = currentMode === 'wealth' ? 'Spent' : 'Received';
     
     const usersRef = collection(db, "users");
-    const q = query(usersRef, orderBy(field, "desc"), limit(31)); // get 31 to know if own rank >30
+    const q = query(usersRef, orderBy(field, "desc"), limit(31));
     
     unsubscribe = onSnapshot(q, async (snapshot) => {
       const users = [];
@@ -313,29 +288,24 @@
       });
       rankings = users;
       
-      // Calculate own rank if logged in
       if (myUserId) {
-        const ownIndex = users.findIndex(u => u.uid === myUserId);
+        const ownIndex = users.findIndex(u => String(u.uid) === myUserId);
         let ownValue = 0;
         if (ownIndex !== -1) {
-          ownValue = currentMode === 'wealth' ? users[ownIndex].totalSpentCoins : users[ownIndex].totalReceivedGems;
+          ownValue = currentMode === 'wealth' ? (users[ownIndex].totalSpendCoins || 0) : (users[ownIndex].totalReceivedGems || 0);
         } else {
-          // fetch single doc if not in top 31
           const ownDoc = await getDoc(doc(db, "users", myUserId));
           if (ownDoc.exists()) {
-            ownValue = currentMode === 'wealth' ? ownDoc.data().totalSpentCoins : ownDoc.data().totalReceivedGems;
+            ownValue = currentMode === 'wealth' ? (ownDoc.data().totalSpendCoins || 0) : (ownDoc.data().totalReceivedGems || 0);
           }
         }
-        // For total count we need another query? We'll approximate
-        const totalCount = snapshot.size; // not accurate total, but for display fine
         ownRankData = {
           rank: ownIndex !== -1 ? ownIndex + 1 : 31,
-          value: ownValue || 0,
-          totalUsers: totalCount
+          value: ownValue,
+          totalUsers: snapshot.size
         };
       }
       
-      // Render components
       const top3 = rankings.slice(0, 3);
       await renderPodium(top3);
       await renderRankList(rankings, 4);
@@ -346,7 +316,6 @@
     });
   }
   
-  // Tab switching
   tabWealth.addEventListener('click', () => {
     currentMode = 'wealth';
     tabWealth.className = 'flex-1 py-3 font-headline font-bold text-lg rounded-full transition-all bg-primary-container text-on-primary-container shadow-md';
@@ -361,27 +330,16 @@
     loadLeaderboard();
   });
   
-  // Initialize
   loadLeaderboard();
-  
-  // Re-fetch user cache periodically? Not necessary.
 </script>
 
-<!-- Firebase fields explanation -->
-<div class="hidden">
-  <!-- 
-    REQUIRED FIRESTORE FIELDS in 'users' collection:
-    - totalSpentCoins (number): total coins spent by user (for Wealth ranking)
-    - totalReceivedGems (number): total gems received (for Charm ranking)
-    - username / displayName (string)
-    - photoURL (string, optional)
-    - level (number, optional)
-    
-    To update these fields when transactions occur:
-    - When user spends coins (e.g., sending gift), increment totalSpentCoins.
-    - When user receives gift (gems), increment totalReceivedGems.
-    Use Firestore transactions or cloud functions for accuracy.
-  -->
-</div>
+<!-- 
+  FIRESTORE FIELDS REQUIRED (already present in your DB):
+  - totalSpendCoins (number)
+  - totalReceivedGems (number)
+  - username (string)
+  - photoURL (string)
+  - level (number)
+-->
 </body>
 </html>
