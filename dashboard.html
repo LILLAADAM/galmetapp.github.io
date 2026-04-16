@@ -828,15 +828,21 @@ window.addEventListener('scroll',function(){
   lastScrollY=cur;
 },{passive:true});
 
-// ─── ONLINE PRESENCE ──────────────────────────────────────────────────────
+// ─── ONLINE PRESENCE ─────────────────────────────────────
+
 db.doc('users/'+ME).update({online:true}).catch(function(){});
-window.addEventListener('beforeunload',function(){db.doc('users/'+ME).update({online:false}).catch(function(){});
+
+window.addEventListener('beforeunload', function(){
+  db.doc('users/'+ME).update({online:false}).catch(function(){});
+});
+
 setInterval(function(){
   db.doc('users/'+ME).update({
     online: true,
     lastSeen: firebase.firestore.FieldValue.serverTimestamp()
   }).catch(function(){});
 }, 10000);
+  
 // ─── INIT ─────────────────────────────────────────────────────────────────
 listenIncomingCalls();
 </script>
