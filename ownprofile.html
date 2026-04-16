@@ -73,25 +73,24 @@
     .charm-level-8 { background: linear-gradient(135deg, #fed7aa, #f97316); }
     .charm-level-9 { background: linear-gradient(135deg, #fde68a, #f59e0b); }
     .charm-level-10 { background: linear-gradient(135deg, #fef08a, #eab308); }
-    /* 🔥 Glow (strong + visible) */
+    /* ✨ Glow stays */
 @keyframes frameGlow {
-  0% { opacity: 1; filter: drop-shadow(0 0 4px #FFD700); }
-  50% { opacity: 1; filter: drop-shadow(0 0 20px #FFD700) drop-shadow(0 0 30px #00eaff); }
-  100% { opacity: 1; filter: drop-shadow(0 0 4px #FFD700); }
+  0% { filter: drop-shadow(0 0 5px gold); }
+  50% { filter: drop-shadow(0 0 20px gold) drop-shadow(0 0 25px #00eaff); }
+  100% { filter: drop-shadow(0 0 5px gold); }
 }
 
-/* 🪽 Floating */
-@keyframes floatFrame {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-6px); }
-  100% { transform: translateY(0px); }
+/* 🪽 Wing breathing effect (NOT moving up/down) */
+@keyframes wingPulse {
+  0%   { transform: scaleX(1) scaleY(1); }
+  50%  { transform: scaleX(1.08) scaleY(0.98); }
+  100% { transform: scaleX(1) scaleY(1); }
 }
 
-/* ✨ Apply */
 .frame-animated {
   animation: frameGlow 2s infinite ease-in-out,
-             floatFrame 3s infinite ease-in-out;
-  will-change: transform, filter;
+             wingPulse 2.5s infinite ease-in-out;
+  transform-origin: center;
 }
   </style>
 </head>
@@ -112,7 +111,7 @@
 
       <!-- FRAME -->
       <img id="avatarFrame"
-           class="absolute inset-0 w-full h-full object-contain z-20 pointer-events-none frame-animated transform">
+           class="absolute inset-0 w-full h-full object-contain z-20 pointer-events-none frame-animated">
 
     </div>
 
