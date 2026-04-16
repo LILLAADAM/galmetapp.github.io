@@ -79,28 +79,38 @@
 
 <main class="px-4 pb-20 space-y-3 pt-4">
   <!-- User Identity Section -->
-  <section class="relative group active:scale-[0.98] transition-transform duration-200">
-    <div class="flex flex-col items-center gap-2 p-1 text-center">
-      <div class="cursor-pointer flex flex-col items-center text-center w-full" onclick="goToView()">
+<section class="relative group active:scale-[0.98] transition-transform duration-200">
 
-  <!-- USER IMAGE (TOP) -->
-<img id="profileImg"
-     class="w-[70%] h-[70%] rounded-full object-cover absolute inset-0 m-auto z-10">
+  <div class="flex flex-col items-center gap-2 p-1 text-center">
 
-<!-- FRAME (BEHIND) -->
-<img id="avatarFrame"
-     class="absolute top-0 left-0 w-full h-full object-contain z-20 pointer-events-none">
+    <!-- AVATAR CONTAINER (IMPORTANT: size added) -->
+    <div class="relative w-20 h-20 mx-auto cursor-pointer" onclick="goToView()">
+
+      <!-- AVATAR -->
+      <img id="profileImg"
+           class="w-[65%] h-[65%] rounded-full object-cover absolute inset-0 m-auto z-10">
+
+      <!-- FRAME -->
+      <img id="avatarFrame"
+           class="absolute inset-0 w-full h-full object-contain z-20 pointer-events-none">
+
+    </div>
+
+    <!-- TEXT -->
+    <div class="cursor-pointer text-center" onclick="goToView()">
+      <h2 id="username" class="font-headline font-extrabold text-2xl mt-2"></h2>
+      <p id="userIdText" class="text-sm text-outline"></p>
+    </div>
+
+    <!-- ARROW -->
+    <span onclick="goToEditProfile()" 
+          class="material-symbols-outlined cursor-pointer text-primary block mx-auto">
+      chevron_right
+    </span>
 
   </div>
 
-</div>
-      <div class="flex-1 cursor-pointer" onclick="goToView()">
-        <h2 id="username" class="font-headline font-extrabold text-2xl"></h2>
-        <p id="userIdText" class="text-sm text-outline"></p>
-      </div>
-      <span onclick="goToEditProfile()" class="material-symbols-outlined cursor-pointer text-primary mx-auto block">
-    </div>
-  </section>
+</section>
 
   <!-- Stats Bar -->
   <section class="bg-white rounded-lg py-3 px-2 flex justify-around items-center shadow-sm">
