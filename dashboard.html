@@ -696,24 +696,59 @@ window.startRandomMatch=function(){
   document.getElementById('rm-title').textContent='Finding a Match…';
   document.getElementById('rm-sub').textContent='Searching for available hosts';
 
-  db.collection('lives').get().then(function(snap){
-    var hosts=[];
-    snap.forEach(function(d){
-      var dd=d.data();
-      if(dd.status==='live'&&!dd.onCall&&(dd.gender==='female'||dd.hostGender==='female')){
-        hosts.push({id:d.id,...dd});
-      }
-    });
-    if(hosts.length===0){
-      document.getElementById('rm-title').textContent='No Hosts Available';
-      document.getElementById('rm-sub').textContent='Try again in a few moments';
-      setTimeout(function(){document.getElementById('rm-ov').classList.remove('on');},2000);
-      return;
+  Promise.all([
+  db.collection('lives').get(),
+  db.collection('users').where('online','==',true).get()
+]).then(function(results){
+
+  var hosts=[];
+
+  // LIVE USERS
+  results[0].forEach(function(d){
+    var dd=d.data();
+    if(dd.status==='live' && !dd.onCall && (dd.gender==='female'||dd.hostGender==='female')){
+      hosts.push({
+        id:d.id,
+        userId:d.userId||d.id,
+        roomId:d.roomId||d.id,
+        username:dd.username,
+        photoURL:dd.photoURL,
+        isLive:true
+      });
     }
-    var shuffled=hosts.sort(function(){return Math.random()-.5;});
-    tryRandomHost(shuffled,0);
   });
-};
+
+  // ONLINE USERS
+  results[1].forEach(function(d){
+    var dd=d.data();
+
+    if(d.id === ME) return;
+    if(dd.gender !== 'female') return;
+
+    var alreadyLive = hosts.find(function(h){ return h.userId === d.id; });
+    if(alreadyLive) return;
+
+    hosts.push({
+      id:d.id,
+      userId:d.id,
+      roomId:'user_'+d.id,
+      username:dd.username,
+      photoURL:dd.photoURL,
+      isLive:false
+    });
+  });
+
+  if(hosts.length===0){
+    document.getElementById('rm-title').textContent='No Users Available';
+    document.getElementById('rm-sub').textContent='Try again later';
+    setTimeout(function(){document.getElementById('rm-ov').classList.remove('on');},2000);
+    return;
+  }
+
+  var shuffled=hosts.sort(function(){return Math.random()-.5;});
+  tryRandomHost(shuffled,0);
+
+});
 
 function tryRandomHost(hosts,index){
   if(rmCancelFlag)return;
@@ -796,7 +831,12 @@ window.addEventListener('scroll',function(){
 // ─── ONLINE PRESENCE ──────────────────────────────────────────────────────
 db.doc('users/'+ME).update({online:true}).catch(function(){});
 window.addEventListener('beforeunload',function(){db.doc('users/'+ME).update({online:false}).catch(function(){});});
-
+setInterval(function(){
+  db.doc('users/'+ME).update({
+    online: true,
+    lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(function(){});
+}, 10000);
 // ─── INIT ─────────────────────────────────────────────────────────────────
 listenIncomingCalls();
 </script>
