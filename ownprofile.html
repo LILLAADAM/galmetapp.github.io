@@ -73,6 +73,25 @@
     .charm-level-8 { background: linear-gradient(135deg, #fed7aa, #f97316); }
     .charm-level-9 { background: linear-gradient(135deg, #fde68a, #f59e0b); }
     .charm-level-10 { background: linear-gradient(135deg, #fef08a, #eab308); }
+    /* 🔥 Glow effect */
+@keyframes frameGlow {
+  0% { filter: drop-shadow(0 0 2px gold); }
+  50% { filter: drop-shadow(0 0 10px gold); }
+  100% { filter: drop-shadow(0 0 2px gold); }
+}
+
+/* 🪽 Floating (wings up/down) */
+@keyframes floatFrame {
+  0% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-4px) scale(1.03); }
+  100% { transform: translateY(0px) scale(1); }
+}
+
+/* ✨ Apply both animations */
+.frame-animated {
+  animation: frameGlow 2s infinite ease-in-out,
+             floatFrame 3s infinite ease-in-out;
+}
   </style>
 </head>
 <body class="text-on-surface min-h-screen">
@@ -92,7 +111,7 @@
 
       <!-- FRAME -->
       <img id="avatarFrame"
-           class="absolute inset-0 w-full h-full object-contain z-20 pointer-events-none">
+           class="absolute inset-0 w-full h-full object-contain z-20 pointer-events-none frame-animated">
 
     </div>
 
