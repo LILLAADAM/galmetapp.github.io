@@ -5,8 +5,17 @@
 <style>
 body{background:#111;color:#fff;font-family:Arial;padding:20px;}
 .box{background:#222;padding:15px;margin:10px;border-radius:10px;}
-button{padding:8px 15px;background:#4cd964;border:none;border-radius:5px;margin-top:5px;}
-input{padding:8px;margin-top:10px;}
+button{padding:8px 15px;background:#4cd964;border:none;border-radius:5px;margin-top:5px;cursor:pointer;}
+button.red{background:#ff3b30;}
+button.orange{background:#ff9500;}
+button.blue{background:#007aff;}
+input,textarea{padding:8px;margin-top:10px;background:#333;color:#fff;border:1px solid #444;border-radius:5px;width:100%;box-sizing:border-box;}
+h3{border-bottom:1px solid #333;padding-bottom:6px;}
+.badge{display:inline-block;padding:3px 8px;border-radius:10px;font-size:12px;font-weight:bold;}
+.badge.pending{background:#ff9500;}
+.badge.resolved{background:#4cd964;}
+.badge.dismissed{background:#636366;}
+.report-box{background:#2a1a00;border:1px solid #ff9500;padding:15px;margin:10px 0;border-radius:10px;}
 </style>
 </head>
 
@@ -14,22 +23,38 @@ input{padding:8px;margin-top:10px;}
 
 <h2>🔥 Admin Panel</h2>
 
-<h3>Topups</h3>
+<!-- =============================== -->
+<!-- 💸 TOPUPS -->
+<!-- =============================== -->
+<h3>💸 Topups</h3>
 <div id="topups">Loading...</div>
 
-<h3>Withdrawals</h3>
+<!-- =============================== -->
+<!-- 💳 WITHDRAWALS -->
+<!-- =============================== -->
+<h3>💳 Withdrawals</h3>
 <div id="withdrawals">Loading...</div>
 
+<!-- =============================== -->
+<!-- 🚩 REPORTS (NEW) -->
+<!-- =============================== -->
+<h3>🚩 User Reports</h3>
+<div id="reports">Loading...</div>
+
+<!-- =============================== -->
+<!-- 🚫 BAN USER -->
+<!-- =============================== -->
 <h3>🚫 Ban User</h3>
 <input id="banId" placeholder="Enter userId">
 <button onclick="ban()">Ban User</button>
 
+<!-- =============================== -->
+<!-- 📢 PLATFORM MESSAGE -->
+<!-- =============================== -->
 <h3>📢 Send Platform Message</h3>
-
-<input id="pText" placeholder="Message text"><br><br>
-<input id="pImage" placeholder="Image URL (optional)"><br><br>
+<input id="pText" placeholder="Message text"><br>
+<input id="pImage" placeholder="Image URL (optional)"><br>
 <input id="pLink" placeholder="Link when image clicked (optional)"><br><br>
-
 <button onclick="sendPlatform()">Send Message</button>
     
 <script>
@@ -40,12 +65,9 @@ const SECRET = "GCW_SUPER_SECURE_2026";
 // 💸 LOAD WITHDRAWALS
 // ===============================
 async function loadWithdrawals(){
-
     const res = await fetch("https://us-central1-galmet-app.cloudfunctions.net/getWithdrawals?admin=1");
     const data = await res.json();
-
     let html = "";
-
     data.forEach(w=>{
         html += `
         <div class="box">
@@ -53,21 +75,19 @@ async function loadWithdrawals(){
         <b>Amount:</b> ${w.amount}<br>
         <b>Wallet:</b> ${w.wallet}<br>
         <b>Status:</b> ${w.status}<br>
-
         ${w.status === "pending" ? 
         `<button onclick="completeWithdraw('${w.id}')">Complete</button>` : ""}
-
-        </div>
-        `;
+        </div>`;
     });
-
     document.getElementById("withdrawals").innerHTML = html;
 }
-// LOAD TOPUPS
+
+// ===============================
+// 💸 LOAD TOPUPS
+// ===============================
 async function loadTopups(){
     const res = await fetch("https://gettopups-k3vzdssfra-uc.a.run.app?admin=1");
     const data = await res.json();
-
     let html="";
     data.forEach(t=>{
         html += `
@@ -76,100 +96,128 @@ async function loadTopups(){
         Amount: ${t.amount}<br>
         Wallet: ${t.wallet}<br>
         Status: ${t.status}<br>
-
         ${t.status==="pending" ?
         `<button onclick="confirmTopup('${t.id}')">Confirm</button>` : ""}
         </div>`;
     });
-
     document.getElementById("topups").innerHTML = html;
 }
 
-// CONFIRM
 async function confirmTopup(id){
     await fetch("https://confirmtopup-k3vzdssfra-uc.a.run.app",{
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({
-            topupId:id,
-            secret:SECRET
-        })
+        body: JSON.stringify({ topupId:id, secret:SECRET })
     });
-
     alert("Done ✅");
     loadTopups();
 }
 
-// BAN USER
 async function ban(){
     const userId = document.getElementById("banId").value;
-
     await fetch("https://banuser-k3vzdssfra-uc.a.run.app",{
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({
-            userId:userId,
-            secret:SECRET
-        })
+        body: JSON.stringify({ userId:userId, secret:SECRET })
     });
-
     alert("User Banned 🚫");
+}
+
+async function completeWithdraw(id){
+    await fetch("https://us-central1-galmet-app.cloudfunctions.net/confirmWithdraw",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ withdrawId:id, secret:SECRET })
+    });
+    alert("Withdraw completed ✅");
+    loadWithdrawals();
+}
+
+// ===============================
+// 🚩 LOAD REPORTS (NEW)
+// ===============================
+async function loadReports(){
+    const res = await fetch("https://us-central1-galmet-app.cloudfunctions.net/getReports?admin=1&secret=" + SECRET);
+    const data = await res.json();
+
+    if (!data || data.length === 0) {
+        document.getElementById("reports").innerHTML = "<p style='color:#888'>No reports yet.</p>";
+        return;
+    }
+
+    let html = "";
+    data.forEach(r => {
+        const date = r.createdAt ? new Date(r.createdAt._seconds * 1000).toLocaleString() : "Unknown";
+        const badgeClass = r.status === "resolved" ? "resolved" : r.status === "dismissed" ? "dismissed" : "pending";
+        html += `
+        <div class="report-box">
+            <b>🎯 Reported User ID:</b> <span style="color:#ff9500">${r.reportedUserId}</span>
+            <button class="blue" style="padding:4px 8px;font-size:11px;margin-left:8px" onclick="copyToClipboard('${r.reportedUserId}')">Copy ID</button>
+            <button class="red" style="padding:4px 8px;font-size:11px;margin-left:4px" onclick="banFromReport('${r.reportedUserId}')">Ban This User</button>
+            <br>
+            <b>👤 Reporter:</b> ${r.reporterName || 'Unknown'} (${r.reporterUserId || ''})<br>
+            <b>📝 Reason:</b> ${r.reason}<br>
+            <b>📅 Date:</b> ${date}<br>
+            <b>Status:</b> <span class="badge ${badgeClass}">${r.status}</span><br>
+            ${r.status === "pending" ? `
+            <button onclick="resolveReport('${r.id}', 'resolved')" style="margin-top:6px">✅ Resolve</button>
+            <button class="orange" onclick="resolveReport('${r.id}', 'dismissed')" style="margin-left:6px">❌ Dismiss</button>
+            ` : ""}
+        </div>`;
+    });
+    document.getElementById("reports").innerHTML = html;
+}
+
+async function resolveReport(reportId, status){
+    await fetch("https://us-central1-galmet-app.cloudfunctions.net/updateReport",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ reportId, status, secret: SECRET })
+    });
+    alert(status === "resolved" ? "Report resolved ✅" : "Report dismissed ❌");
+    loadReports();
+}
+
+async function banFromReport(userId){
+    if (!confirm("Ban user " + userId + "?")) return;
+    await fetch("https://banuser-k3vzdssfra-uc.a.run.app",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ userId, secret: SECRET })
+    });
+    alert("User Banned 🚫");
+}
+
+function copyToClipboard(text){
+    navigator.clipboard.writeText(text);
+    alert("Copied: " + text);
 }
 
 loadTopups();
 loadWithdrawals();
-
-async function completeWithdraw(id){
-
-    await fetch("https://us-central1-galmet-app.cloudfunctions.net/confirmWithdraw",{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({
-            withdrawId:id,
-            secret:SECRET
-        })
-    });
-
-    alert("Withdraw completed ✅");
-    
-}
-    
+loadReports();
 
 </script>
 
 <script type="module">
 import { db } from "./firebase.js";
-import {
-  collection,
-  addDoc,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 window.sendPlatform = async () => {
-
   const text = document.getElementById("pText").value;
   const image = document.getElementById("pImage").value;
   const link = document.getElementById("pLink").value;
-
-  if (!text && !image) {
-    alert("Add text or image");
-    return;
-  }
-
+  if (!text && !image) { alert("Add text or image"); return; }
   await addDoc(collection(db, "platformMessages"), {
-    text: text || "",
-    image: image || "",
-    link: link || "",
+    text: text || "", image: image || "", link: link || "",
     createdAt: serverTimestamp()
   });
-
   alert("Sent to all users 🚀");
-
   document.getElementById("pText").value = "";
   document.getElementById("pImage").value = "";
   document.getElementById("pLink").value = "";
 };
-</script
+</script>
     
 </body>
 </html>
