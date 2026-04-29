@@ -1,329 +1,480 @@
-<!DOCTYPE html>
-
-<html class="light" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Galmet - Login</title>
-<!-- Material Symbols -->
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;family=Be+Vietnam+Pro:ital,wght@0,100..900;1,100..900&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<!-- Tailwind CSS -->
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            colors: {
-              "surface": "#f3f7fb",
-              "secondary-dim": "#664b00",
-              "tertiary-container": "#ff8fa9",
-              "tertiary-fixed": "#ff8fa9",
-              "surface-container-highest": "#d7dee3",
-              "primary-fixed-dim": "#00d4ec",
-              "on-background": "#2a2f32",
-              "on-primary-fixed-variant": "#005762",
-              "on-primary-container": "#004d57",
-              "on-error-container": "#570008",
-              "surface-bright": "#f3f7fb",
-              "on-error": "#ffefee",
-              "surface-variant": "#d7dee3",
-              "outline-variant": "#a9aeb1",
-              "on-secondary-fixed-variant": "#674c00",
-              "surface-tint": "#006571",
-              "outline": "#73777b",
-              "on-surface-variant": "#575c60",
-              "on-surface": "#2a2f32",
-              "primary": "#006571",
-              "background": "#f3f7fb",
-              "on-secondary": "#fff1db",
-              "secondary-fixed-dim": "#f7ba00",
-              "primary-container": "#00e3fd",
-              "primary-fixed": "#00e3fd",
-              "on-secondary-container": "#5c4400",
-              "secondary-fixed": "#ffca4d",
-              "primary-dim": "#005863",
-              "error-dim": "#9f0519",
-              "secondary": "#755700",
-              "on-tertiary": "#ffeff0",
-              "surface-container-high": "#dde3e8",
-              "inverse-on-surface": "#999da1",
-              "inverse-primary": "#00e3fd",
-              "tertiary-dim": "#a00047",
-              "surface-container-low": "#ecf1f6",
-              "on-primary-fixed": "#003840",
-              "surface-dim": "#ced5db",
-              "secondary-container": "#ffca4d",
-              "on-tertiary-container": "#66002b",
-              "tertiary": "#b60051",
-              "on-secondary-fixed": "#443100",
-              "surface-container": "#e3e9ee",
-              "on-primary": "#d8f8ff",
-              "error-container": "#fb5151",
-              "error": "#b31b25",
-              "inverse-surface": "#0a0f12",
-              "tertiary-fixed-dim": "#ff769b",
-              "surface-container-lowest": "#ffffff",
-              "on-tertiary-fixed": "#380014",
-              "on-tertiary-fixed-variant": "#770033"
-            },
-            fontFamily: {
-              "headline": ["Plus Jakarta Sans"],
-              "body": ["Be Vietnam Pro"],
-              "label": ["Plus Jakarta Sans"]
-            },
-            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
-          },
-        },
-      }
-    </script>
-<style>
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-        }
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        .active-scale:active {
-            transform: scale(0.96);
-            transition: transform 0.2s ease;
-        }
-    </style>
-<style>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Galmet – Talk. Chat. Fun.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary:  #006571;
+      --primary2: #00838F;
+      --accent:   #00BCD4;
+      --gold:     #F59E0B;
+      --bg:       #F5F6FA;
+      --card:     #ffffff;
+      --text:     #2A2F32;
+      --muted:    #575C60;
+      --outline:  #E5E7EB;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
     body {
-      min-height: max(884px, 100dvh);
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--outline);
+      padding: 0 6%;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 66px;
+      box-shadow: 0 2px 12px rgba(0,101,113,0.07);
+    }
+    .nav-logo {
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.55rem;
+      font-weight: 900;
+      color: var(--primary);
+      text-decoration: none;
+      letter-spacing: 0.4px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .logo-icon {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary2) 100%);
+      border-radius: 11px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.15rem; font-weight: 900; color: #fff;
+      font-family: 'Nunito', sans-serif;
+      flex-shrink: 0;
+      box-shadow: 0 4px 14px rgba(0,101,113,0.3);
+    }
+    .nav-links { display: flex; gap: 6px; align-items: center; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.84rem;
+      font-weight: 600;
+      padding: 6px 15px;
+      border-radius: 20px;
+      border: 1.5px solid transparent;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .nav-links a:hover {
+      color: var(--primary);
+      border-color: rgba(0,101,113,0.3);
+      background: rgba(0,101,113,0.06);
+    }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 110px 6% 70px;
+      position: relative; overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 65% 55% at 50% 0%, rgba(0,188,212,0.1) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 85% 75%, rgba(0,101,113,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 35% 35% at 15% 65%, rgba(245,158,11,0.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .hero-dots {
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle, rgba(0,101,113,0.1) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+    }
+    .blob {
+      position: absolute; border-radius: 50%;
+      filter: blur(60px); pointer-events: none;
+      animation: blob-float 12s ease-in-out infinite alternate;
+    }
+    .blob-1 { width:340px;height:340px;background:rgba(0,188,212,0.12);top:-80px;right:-80px;animation-delay:0s; }
+    .blob-2 { width:280px;height:280px;background:rgba(0,101,113,0.09);bottom:0;left:-60px;animation-delay:-4s; }
+    .blob-3 { width:200px;height:200px;background:rgba(245,158,11,0.07);bottom:100px;right:10%;animation-delay:-7s; }
+    @keyframes blob-float { from{transform:translateY(0)scale(1)} to{transform:translateY(30px)scale(1.05)} }
+
+    .hero-logo-wrap {
+      margin-bottom: 32px;
+      animation: fade-in-up 0.85s ease both;
+      position: relative; display: inline-block;
+    }
+    .hero-logo-ring {
+      width: 116px; height: 116px;
+      border-radius: 30px;
+      background: rgba(255,255,255,0.95);
+      border: 1.5px solid var(--outline);
+      box-shadow: 0 12px 40px rgba(0,101,113,0.12), 0 2px 8px rgba(0,101,113,0.06);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto;
+    }
+    .hero-logo-inner {
+      width: 86px; height: 86px; border-radius: 22px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary2) 100%);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 8px 28px rgba(0,101,113,0.35);
+    }
+    .hero-logo-letter {
+      font-family: 'Nunito', sans-serif;
+      font-size: 2.3rem; font-weight: 900; color: #fff; letter-spacing: -0.02em;
+    }
+    .hero-badge {
+      position: absolute; top: -8px; right: -8px;
+      width: 28px; height: 28px;
+      background: var(--gold);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+      box-shadow: 0 3px 10px rgba(245,158,11,0.5);
+      border: 2px solid var(--bg);
+    }
+
+    .hero-eyebrow {
+      font-size: 0.73rem; font-weight: 700; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--accent);
+      margin-bottom: 14px;
+      animation: fade-in-up 0.85s 0.1s ease both;
+    }
+    .hero h1 {
+      font-family: 'Nunito', sans-serif;
+      font-size: clamp(2.6rem, 6.5vw, 4.3rem);
+      font-weight: 900; line-height: 1.1;
+      color: var(--text); margin-bottom: 18px;
+      animation: fade-in-up 0.85s 0.18s ease both;
+    }
+    .hero h1 .c-primary { color: var(--primary); }
+    .hero h1 .c-gold    { color: var(--gold); }
+    .hero-sub {
+      font-size: 1.05rem; color: var(--muted);
+      max-width: 460px; margin: 0 auto 46px;
+      animation: fade-in-up 0.85s 0.26s ease both;
+      line-height: 1.75;
+    }
+
+    .cta-wrap {
+      animation: fade-in-up 0.85s 0.34s ease both;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+    }
+    .play-btn {
+      display: inline-flex; align-items: center; gap: 14px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary2) 100%);
+      border: none; border-radius: 16px;
+      padding: 13px 26px;
+      cursor: pointer; position: relative; overflow: hidden;
+      box-shadow: 0 8px 28px rgba(0,101,113,0.32);
+      transition: transform 0.18s, box-shadow 0.18s;
+      text-decoration: none;
+    }
+    .play-btn::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.12), transparent);
+    }
+    .play-btn:hover { transform: translateY(-3px); box-shadow: 0 14px 36px rgba(0,101,113,0.4); }
+    .play-btn:active { transform: translateY(0); }
+    .play-icon { width: 32px; height: 32px; flex-shrink: 0; position: relative; z-index: 1; }
+    .play-text { text-align: left; position: relative; z-index: 1; }
+    .play-text-top    { font-size: 0.67rem; color: rgba(255,255,255,0.75); letter-spacing: 0.06em; line-height: 1; margin-bottom: 3px; }
+    .play-text-bottom { font-size: 1.05rem; font-weight: 700; color: #fff; line-height: 1; font-family: 'Nunito', sans-serif; }
+
+    /* toast */
+    .toast {
+      position: fixed; bottom: 36px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: var(--card);
+      border: 1.5px solid var(--outline);
+      border-top: 3px solid var(--primary);
+      border-radius: 16px; padding: 14px 22px;
+      display: flex; align-items: center; gap: 12px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s, transform 0.3s;
+      z-index: 600; white-space: nowrap;
+      box-shadow: 0 10px 40px rgba(0,101,113,0.15);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); animation: pulse 1.4s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+    .toast-title { font-size: 0.9rem; font-weight: 700; color: var(--text); font-family: 'Nunito', sans-serif; }
+    .toast-sub   { font-size: 0.77rem; color: var(--muted); }
+
+    /* ── OFFICIAL CARD ── */
+    .official-wrap {
+      padding: 0 6% 60px; max-width: 900px; margin: 0 auto;
+      animation: fade-in-up 0.85s 0.44s ease both;
+    }
+    .official-card {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary2) 100%);
+      border-radius: 22px; padding: 20px 24px;
+      display: flex; align-items: center; gap: 18px;
+      box-shadow: 0 12px 40px rgba(0,101,113,0.28);
+      position: relative; overflow: hidden;
+    }
+    .official-card::before {
+      content: ''; position: absolute; top: -50px; right: -50px;
+      width: 200px; height: 200px; background: rgba(255,255,255,0.06); border-radius: 50%;
+    }
+    .official-icon {
+      width: 52px; height: 52px;
+      background: rgba(255,255,255,0.18); border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; flex-shrink: 0;
+    }
+    .official-body { flex: 1; }
+    .official-title { font-family: 'Nunito', sans-serif; font-size: 1rem; font-weight: 900; color: #fff; margin-bottom: 3px; }
+    .official-sub   { font-size: 0.84rem; color: rgba(255,255,255,0.7); }
+    .official-pin   { font-size: 0.7rem; color: rgba(255,255,255,0.5); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; flex-shrink: 0; }
+
+    /* ── FEATURES ── */
+    .features-section { padding: 0 6% 80px; max-width: 1060px; margin: 0 auto; }
+    .section-label {
+      text-align: center; font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px;
+    }
+    .section-title {
+      text-align: center; font-family: 'Nunito', sans-serif;
+      font-size: clamp(1.7rem, 3.5vw, 2.5rem); font-weight: 900;
+      color: var(--text); margin-bottom: 40px; line-height: 1.2;
+    }
+    .features-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px;
+    }
+    .fcard {
+      background: var(--card); border: 1.5px solid var(--outline);
+      border-radius: 20px; padding: 26px 22px;
+      transition: transform 0.22s, box-shadow 0.22s;
+      position: relative; overflow: hidden;
+    }
+    .fcard:hover { transform: translateY(-5px); box-shadow: 0 18px 40px rgba(0,101,113,0.1); border-color: rgba(0,101,113,0.2); }
+    .fcard::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      transform: scaleX(0); transform-origin: left; transition: transform 0.3s;
+    }
+    .fcard:hover::before { transform: scaleX(1); }
+    .fcard-icon { width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 16px; }
+    .fi-a { background: rgba(0,101,113,0.1); }
+    .fi-b { background: rgba(0,188,212,0.1); }
+    .fi-c { background: rgba(245,158,11,0.1); }
+    .fi-d { background: rgba(34,197,94,0.1); }
+    .fcard h3 { font-family: 'Nunito', sans-serif; font-size: 1.05rem; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+    .fcard p  { font-size: 0.87rem; color: var(--muted); line-height: 1.65; }
+
+    /* ── TAGLINE ── */
+    .tagline {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary2) 100%);
+      padding: 64px 6%; text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .tagline::before {
+      content: ''; position: absolute; top: -80px; left: -80px;
+      width: 380px; height: 380px; background: rgba(255,255,255,0.05); border-radius: 50%;
+    }
+    .tagline-words { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; position: relative; z-index: 1; }
+    .tw { font-family: 'Nunito', sans-serif; font-size: clamp(2rem, 5.5vw, 3.8rem); font-weight: 900; padding: 4px 12px; line-height: 1.1; }
+    .tw-1   { color: #fff; }
+    .tw-sep { color: rgba(255,255,255,0.3); font-size: 2.2rem; align-self: center; font-weight: 300; }
+    .tw-2   { color: var(--gold); font-style: italic; }
+    .tw-3   { color: rgba(255,255,255,0.88); }
+    .tagline-sub { margin-top: 14px; font-size: 0.95rem; color: rgba(255,255,255,0.65); position: relative; z-index: 1; }
+
+    /* ── CTA BOTTOM ── */
+    .cta-bottom { padding: 80px 6%; text-align: center; background: var(--bg); }
+    .cta-bottom h2 { font-family: 'Nunito', sans-serif; font-size: clamp(1.7rem, 3.5vw, 2.6rem); font-weight: 900; color: var(--text); margin-bottom: 12px; }
+    .cta-bottom p  { color: var(--muted); font-size: 0.95rem; margin-bottom: 32px; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--card); border-top: 1px solid var(--outline);
+      padding: 32px 6%; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+    }
+    .footer-logo { font-family: 'Nunito', sans-serif; font-size: 1.2rem; font-weight: 900; color: var(--primary); }
+    .footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+    .footer-links a { color: var(--muted); text-decoration: none; font-size: 0.83rem; font-weight: 500; transition: color 0.18s; }
+    .footer-links a:hover { color: var(--primary); }
+    .footer-copy { width: 100%; text-align: center; font-size: 0.74rem; color: var(--muted); padding-top: 16px; border-top: 1px solid var(--outline); margin-top: 8px; }
+
+    @keyframes fade-in-up { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+
+    @media(max-width:520px){
+      nav{padding:0 4%;}
+      .nav-links a{padding:5px 10px;font-size:0.78rem;}
+      .hero{padding:96px 5% 50px;}
+      .official-wrap{padding:0 4% 48px;}
+      footer{flex-direction:column;align-items:flex-start;}
     }
   </style>
-  </head>
-<body class="bg-surface font-body text-on-surface overflow-hidden">
-<!-- Background Montage (The 5 Models Cycle Aesthetic) -->
-<div class="fixed inset-0 grid grid-cols-2 md:grid-cols-5 gap-0 z-0">
-<div class="relative h-full overflow-hidden">
-<img class="absolute inset-0 w-full h-full object-cover grayscale-[20%] brightness-75" data-alt="portrait of a confident young woman with warm natural lighting and soft blurred urban background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWMpBNiNO28iFyH6Lr-LQ871gUJlDBbx7iPjBC2AlgkW0vzCSpGUmaKQKXubPszmaB4zpTM41bj-BZCRJjnXJ0765Y1ipbTJNBS3LO_M7fAERJhodGZhHaKFDahbBAKNB9FX5QUHttk2Qkub9Xve8US6oBjqZywTusfeKwjFlqxoNgNXtQ-X4vYx93fXAowMOIZhTFUcKGPwdICvuGxg_DhrbuWdHPOZMrfN5wUKgEvlSqezJMMocHSx5JV-NalrHSWRk0U-ON7jvE"/>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">
+    <div class="logo-icon">
+  <img src="https://firebasestorage.googleapis.com/v0/b/galmet-app.firebasestorage.app/o/profiles%2F23245021?alt=media&token=e3ab3830-9302-49a9-a78a-c3bc4ab0b966" style="width:100%;height:100%;object-fit:cover;border-radius:9px;" alt="Galmet">
 </div>
-<div class="relative h-full overflow-hidden hidden md:block">
-<img class="absolute inset-0 w-full h-full object-cover grayscale-[20%] brightness-90" data-alt="close up of a stylish young man with a friendly expression in a sun-drenched outdoor park setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCRF5oZo5_nr9nurUk1djAWhH-ZUxwRonaOr80h2AKtCO4U9cWFXFH93LELw_8dPOiuTQAdspnbXp-BOGFJm5hOI-x3WmfI8N2itnIP9C_64f_rq-_14HyZ9RRRSqrh5BhFn8N6TpN7jWQkv9xWYVLYusv29hgTeN7WLZWX8rpcxJS7hb1zPX-CvV5tl7hfnToxH6r_6A9rCFITWFu3endTLbzb3ZM-Xeie--ec8g-6dCIN3ZjjXI7dHv6sj59kXAdLUTEusRNnYo_0"/>
+    Galmet
+  </a>
+  <div class="nav-links">
+    <a href="privacy-policy.html">Privacy Policy</a>
+    <a href="user-agreement.html">User Agreement</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-dots"></div>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  <div class="hero-logo-wrap">
+    <div class="hero-logo-ring">
+      <div class="hero-logo-inner">
+        <img src="https://firebasestorage.googleapis.com/v0/b/galmet-app.firebasestorage.app/o/profiles%2F23245021?alt=media&token=e3ab3830-9302-49a9-a78a-c3bc4ab0b966" style="width:72px;height:72px;object-fit:contain;border-radius:16px;" alt="Galmet">
+      </div>
+    </div>
+    <div class="hero-badge">⭐</div>
+  </div>
+
+  <p class="hero-eyebrow">Coming Soon to Android</p>
+  <h1>Talk. Chat.<br><span class="c-primary">Connect</span> with <span class="c-gold">Fun.</span></h1>
+  <p class="hero-sub">Galmet brings real conversations to life — instant messaging, vibrant communities, and moments worth sharing, all in one beautifully crafted app.</p>
+
+  <div class="cta-wrap">
+    <button class="play-btn" onclick="showToast()" aria-label="Get it on Google Play">
+      <svg class="play-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="g1" x1="6" y1="5" x2="6" y2="27" gradientUnits="userSpaceOnUse"><stop stop-color="#00D7FF"/><stop offset="1" stop-color="#0099FF"/></linearGradient>
+          <linearGradient id="g2" x1="6" y1="16" x2="27" y2="16" gradientUnits="userSpaceOnUse"><stop stop-color="#FFE000"/><stop offset="1" stop-color="#FFBC00"/></linearGradient>
+          <linearGradient id="g3" x1="6" y1="16" x2="27" y2="27" gradientUnits="userSpaceOnUse"><stop stop-color="#FF4444"/><stop offset="1" stop-color="#CE0F69"/></linearGradient>
+          <linearGradient id="g4" x1="6" y1="5" x2="17" y2="16" gradientUnits="userSpaceOnUse"><stop stop-color="#3FCA80"/><stop offset="1" stop-color="#2DB56D"/></linearGradient>
+        </defs>
+        <path d="M7 5.5L7 26.5L18 16Z" fill="url(#g1)"/>
+        <path d="M7 5.5L21 13.2L18 16Z" fill="url(#g4)"/>
+        <path d="M7 26.5L21 18.8L18 16Z" fill="url(#g3)"/>
+        <path d="M21 13.2L26 16L21 18.8L18 16Z" fill="url(#g2)"/>
+      </svg>
+      <div class="play-text">
+        <div class="play-text-top">GET IT ON</div>
+        <div class="play-text-bottom">Google Play</div>
+      </div>
+    </button>
+    <span style="font-size:0.74rem;color:var(--muted);">Tap to see availability</span>
+  </div>
+</section>
+
+<!-- Official pinned card — matches in-app design -->
+<div class="official-wrap">
+  <div class="official-card">
+    <div class="official-icon">💬</div>
+    <div class="official-body">
+      <div class="official-title">Galmet Official</div>
+      <div class="official-sub">Platform updates &amp; announcements 🌟</div>
+    </div>
+    <div class="official-pin">Pinned</div>
+  </div>
 </div>
-<div class="relative h-full overflow-hidden">
-<img class="absolute inset-0 w-full h-full object-cover grayscale-[20%] brightness-75" data-alt="joyful young woman with bright smile and glowing skin illuminated by golden hour sunlight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB38lkOgJssufUKjfcu16PubIjc13NDTRAh-91mkwOBTlB0_4cZrUJfL7VYMyepzeBs5AvmHS00zoXhvdIpzU5XwmChNw1jbptE7yo3CtBLDPcgrTJG_UZnSpZiOqRwNpJRxs8A0ieU1b2tQ_Jo6jZPnR2B5wuj2L8DDoGll0HUh3Pj3UvFF8Vf4CIlNsxP35H57axY4sT7BUGne7CzIjOKWGwOFih3aZkYoyEDM4wzvzTPHKsMv0_NgFyrA1dXfEEk5Pz3F1s0ORum"/>
+
+<section class="features-section">
+  <p class="section-label">Why Galmet</p>
+  <h2 class="section-title">Everything you need to<br>connect &amp; express yourself</h2>
+  <div class="features-grid">
+    <div class="fcard">
+      <div class="fcard-icon fi-a">💬</div>
+      <h3>Real-Time Chat</h3>
+      <p>Send messages, reactions, and media instantly. Conversations flow naturally with smooth, low-latency delivery.</p>
+    </div>
+    <div class="fcard">
+      <div class="fcard-icon fi-b">🔥</div>
+      <h3>Vibrant Communities</h3>
+      <p>Find your people. Join groups built around shared interests, passions, and topics that matter to you.</p>
+    </div>
+    <div class="fcard">
+      <div class="fcard-icon fi-c">🎁</div>
+      <h3>Send Gifts</h3>
+      <p>Express appreciation with virtual gifts — a unique way to make someone's day extra special.</p>
+    </div>
+    <div class="fcard">
+      <div class="fcard-icon fi-d">🔒</div>
+      <h3>Privacy First</h3>
+      <p>Your data stays yours. Strong security practices and full control over what you share with others.</p>
+    </div>
+  </div>
+</section>
+
+<div class="tagline">
+  <div class="tagline-words">
+    <span class="tw tw-1">Talk</span>
+    <span class="tw tw-sep">·</span>
+    <span class="tw tw-2">Chat</span>
+    <span class="tw tw-sep">·</span>
+    <span class="tw tw-3">Fun</span>
+  </div>
+  <p class="tagline-sub">Galmet is where every conversation becomes a connection.</p>
 </div>
-<div class="relative h-full overflow-hidden hidden md:block">
-<img class="absolute inset-0 w-full h-full object-cover grayscale-[20%] brightness-90" data-alt="professional portrait of a man with clean aesthetic and soft natural lighting in a modern interior" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4NW7dGaBb93Fg3BKqE6oSwNr04X-7fnbg4J-di5Xl3KXON4heV66yF-NxTViX_je8rLWY6x1LNiwy-1GAutHavToq0fLbj_PjWpV56JP4TeU6bsBp8NBH-8R4xB_70SYouUlnAqNdP8GkYFpKTkVEkhV1yrpNRnugV6ywE1UQXm7GTJcENl3Io-dC-wRcNnALVHAIg_yRyXIDph7qw1PInkxcGYE2Dj-vx3XOXcJtssOiaCZ_pi832HJ9SaDayxR_YBSiJqf3Lid0"/>
+
+<section class="cta-bottom">
+  <h2>Ready to join Galmet?</h2>
+  <p>We're launching soon on Google Play. Be among the first to experience it.</p>
+  <button class="play-btn" onclick="showToast()" style="margin:0 auto;" aria-label="Get it on Google Play">
+    <svg class="play-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <linearGradient id="g1b" x1="6" y1="5" x2="6" y2="27" gradientUnits="userSpaceOnUse"><stop stop-color="#00D7FF"/><stop offset="1" stop-color="#0099FF"/></linearGradient>
+        <linearGradient id="g2b" x1="6" y1="16" x2="27" y2="16" gradientUnits="userSpaceOnUse"><stop stop-color="#FFE000"/><stop offset="1" stop-color="#FFBC00"/></linearGradient>
+        <linearGradient id="g3b" x1="6" y1="16" x2="27" y2="27" gradientUnits="userSpaceOnUse"><stop stop-color="#FF4444"/><stop offset="1" stop-color="#CE0F69"/></linearGradient>
+        <linearGradient id="g4b" x1="6" y1="5" x2="17" y2="16" gradientUnits="userSpaceOnUse"><stop stop-color="#3FCA80"/><stop offset="1" stop-color="#2DB56D"/></linearGradient>
+      </defs>
+      <path d="M7 5.5L7 26.5L18 16Z" fill="url(#g1b)"/>
+      <path d="M7 5.5L21 13.2L18 16Z" fill="url(#g4b)"/>
+      <path d="M7 26.5L21 18.8L18 16Z" fill="url(#g3b)"/>
+      <path d="M21 13.2L26 16L21 18.8L18 16Z" fill="url(#g2b)"/>
+    </svg>
+    <div class="play-text">
+      <div class="play-text-top">GET IT ON</div>
+      <div class="play-text-bottom">Google Play</div>
+    </div>
+  </button>
+</section>
+
+<footer>
+  <div class="footer-logo">Galmet</div>
+  <div class="footer-links">
+    <a href="privacy-policy.html">Privacy Policy</a>
+    <a href="user-agreement.html">User Agreement</a>
+    <a href="mailto:galmetteam@gmail.com">Contact</a>
+  </div>
+  <div class="footer-copy">&copy; 2024 Galmet. All rights reserved.</div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite">
+  <div class="toast-dot"></div>
+  <div>
+    <div class="toast-title">🚀 Coming Soon!</div>
+    <div class="toast-sub">Galmet will be available on Google Play shortly.</div>
+  </div>
 </div>
-<div class="relative h-full overflow-hidden hidden md:block">
-<img class="absolute inset-0 w-full h-full object-cover grayscale-[20%] brightness-75" data-alt="vibrant fashion portrait of a young person with soft shadows and editorial style lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-1dhcSIaaSbsQrMhgVo2xnTxR17oPAvRgU2vIA7eEo__sJm4ZeRagMrVD7H58KQNMYRp1BCz6CDUtEUN068k5-0eRCmuXb5u7chcuN5sbC3EQkJtR9f5SHWl03zhLT0wRUV93Qw2IketdQKAz9g-3r_iYROPftiJOXA-8YyMBT7ee7R8UBUwW49L0SIBDM0bEnm9uOqx3Ji8ltJbArRdp0TlYgnkO8k8erQvs_3e8hIjoGnYksK2n3g_jssuhaTTlq9oecyyWo28U"/>
-</div>
-<!-- Gradient Overlay for Legibility -->
-<div class="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent z-10"></div>
-</div>
-<!-- Top Action Bar -->
-<header class="fixed top-0 left-0 w-full z-50 flex justify-end items-center px-6 h-16 pointer-events-none">
-<button class="pointer-events-auto w-10 h-10 flex items-center justify-center rounded-full glass-panel active-scale text-primary">
-<span class="material-symbols-outlined" data-icon="help">help</span>
-</button>
-</header>
-<!-- Main Content Container -->
-<main class="relative z-20 min-h-screen flex flex-col items-center justify-end md:justify-center px-6 pb-12 pt-20">
-<div class="w-full max-w-md text-center space-y-10">
-<!-- Branding Section -->
-<div class="space-y-2">
-<h1 class="text-6xl md:text-7xl font-headline font-black tracking-tighter bg-gradient-to-r from-primary to-primary-container bg-clip-text text-transparent">
-                    Galmet
-                </h1>
-<p class="font-headline font-bold text-lg tracking-[0.2em] text-on-surface uppercase opacity-80">
-                    Talk · Chat · Fun
-                </p>
-</div>
-<!-- Login Actions Card -->
-<div class="glass-panel rounded-xl p-8 space-y-6 shadow-2xl border border-white/20">
-<!-- Quick Login (Primary) -->
-<button id="quickLoginBtn" class="active-scale w-full py-4 px-6 rounded-full bg-gradient-to-r from-primary to-primary-fixed-dim text-on-primary font-label font-bold text-lg flex items-center justify-center gap-3 shadow-[0_16px_24px_rgba(0,101,113,0.15)]">
-      <span class="material-symbols-outlined" data-icon="bolt" style="font-variation-settings: 'FILL' 1;">bolt</span>
-                    Quick Login
-                </button>
-<!-- Divider Alternative (Visual Shift) -->
-<div class="flex items-center gap-4 py-2">
-<div class="h-px flex-1 bg-outline-variant/30"></div>
-<span class="text-label text-on-surface-variant text-xs uppercase tracking-widest font-bold">or continue with</span>
-<div class="h-px flex-1 bg-outline-variant/30"></div>
-</div>
-<!-- Secondary Logins -->
-<div class="space-y-4">
-<button id="googleLoginBtn" class="active-scale w-full py-4 px-6 rounded-full bg-surface-container-lowest text-on-surface-variant font-label font-semibold flex items-center justify-center gap-3 transition-colors hover:bg-white shadow-sm">
-      <!-- Custom Google Icon using Material Symbols -->
-<span class="material-symbols-outlined text-red-500" data-icon="google">google</span>
-                        Log in with Google
-                    </button>
-<button id="emailLoginBtn" class="active-scale w-full py-4 px-6 rounded-full bg-surface-container-lowest text-on-surface-variant font-label font-semibold flex items-center justify-center gap-3 transition-colors hover:bg-white shadow-sm">
-    <span class="material-symbols-outlined text-primary" style="font-variation-settings:'FILL' 1;">mail</span>
-    Log in with Email
-</button>
-</div>
-<!-- Terms and Conditions -->
-<div class="pt-4 flex items-start gap-3 text-left">
-<div class="relative flex items-center">
-<input checked="" class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary-container bg-white/50 cursor-pointer" id="terms" type="checkbox"/>
-</div>
-<label class="text-body-md text-on-surface-variant/80 text-sm leading-tight cursor-pointer" for="terms">
-                        I agree to <a class="text-primary font-semibold hover:underline" href="#">Privacy Policy</a> and <a class="text-primary font-semibold hover:underline" href="#">User Agreement</a>
-</label>
-</div>
-</div>
-<!-- Bottom Floating Decoration (Subtle) -->
-<div class="hidden md:flex justify-center gap-8 text-on-surface/40">
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-sm" data-icon="security">security</span>
-<span class="text-xs font-label font-bold uppercase tracking-widest">Secure Chat</span>
-</div>
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-sm" data-icon="verified_user">verified_user</span>
-<span class="text-xs font-label font-bold uppercase tracking-widest">Verified Profiles</span>
-</div>
-</div>
-</div>
-</main>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-
-const firebaseConfig = {
-    apiKey: "AIzaSyAxN1Q9g2kcDcaiTwPsSZEgsTvtyLyN3oY",
-    authDomain: "galmet-app.firebaseapp.com",
-    projectId: "galmet-app",
-    storageBucket: "galmet-app.firebasestorage.app",
-    messagingSenderId: "900590512024",
-    appId: "1:900590512024:web:16a36a085809a728c92ded"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-
-// ✅ CAPTURE REFERRAL FROM URL
-(function () {
-    const urlParams = new URLSearchParams(window.location.search);
-    const ref = urlParams.get("ref");
-
-    if (ref) {
-        console.log("🎯 Referral detected:", ref);
-        localStorage.setItem("referral", ref);
-    }
-})();
-
-// ✅ BUTTONS (SAFE)
-document.getElementById("quickLoginBtn").onclick = () => {
-    window.location.href = "login.html";
-};
-
-document.getElementById("emailLoginBtn").onclick = () => {
-    window.location.href = "login.html";
-};
-
-import { GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-
-const provider = new GoogleAuthProvider();
-
-document.getElementById("googleLoginBtn").onclick = async () => {
-    try {
-        const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-
-        const email = user.email;
-
-        console.log("Google user:", email);
-
-        // 🔁 SAME LOGIC LIKE OTP
-        const checkRes = await fetch("https://us-central1-galmet-app.cloudfunctions.net/getUserByEmail?email=" + encodeURIComponent(email));
-        const checkData = await checkRes.json();
-
-        if (checkData.exists) {
-            const existingUser = checkData.user;
-            const safeUser = {
-    userId: existingUser.userId || Math.floor(10000000 + Math.random() * 90000000),
-    email: existingUser.email || email,
-    coins: existingUser.coins || 0,
-    username: existingUser.username || "",
-    gender: existingUser.gender || "",
-    country: existingUser.country || null,
-    dob: existingUser.dob || null,
-    age: existingUser.age || null,
-    photoURL: existingUser.photoURL || user.photoURL || "",
-    profileCompleted: existingUser.profileCompleted || false
-};
-
-localStorage.setItem("user", JSON.stringify(safeUser));
-
-await new Promise(r => setTimeout(r, 100));
-
-            await new Promise(r => setTimeout(r, 100));
-
-            // 🔁 SAME REDIRECT LOGIC
-            if (!existingUser.gender || !existingUser.username || !existingUser.country || !existingUser.dob || !existingUser.age) {
-                window.location.href = "basic-info.html";
-                return;
-            }
-
-            if (!existingUser.photoURL || !existingUser.profileCompleted) {
-                window.location.href = "setup.html";
-                return;
-            }
-
-            window.location.href = "dashboard.html";
-
-        } else {
-            // 🆕 CREATE NEW USER (SAME AS OTP)
-            const userId = Math.floor(10000000 + Math.random() * 90000000);
-
-            const referralCode = localStorage.getItem("referral");
-
-            const newUser = {
-                email: email,
-                userId: userId,
-                coins: 500,
-                username: "",
-                gender: "",
-                country: null,
-                dob: null,
-                age: null,
-                photoURL: user.photoURL || "",
-                profileCompleted: false,
-                inviteCode: userId.toString(),
-                referredBy: referralCode && referralCode !== userId.toString() ? referralCode : null,
-                totalInvites: 0,
-                totalEarned: 0,
-                firstTopup: false
-            };
-
-            const createRes = await fetch("https://us-central1-galmet-app.cloudfunctions.net/createUser", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(newUser)
-            });
-
-            const createData = await createRes.json();
-
-            if (createData.success) {
-                localStorage.setItem("user", JSON.stringify(newUser));
-                window.location.href = "basic-info.html";
-            } else {
-                alert("Failed to create account");
-            }
-        }
-
-    } catch (error) {
-        console.error(error);
-        alert("Google login failed");
-    }
-};
-
-// ✅ HELP BUTTON
-document.querySelector("header button").onclick = () => {
-    window.location.href = "feedback.html";
-};
+<script>
+  let timer;
+  function showToast(){
+    const t=document.getElementById('toast');
+    t.classList.add('show');
+    clearTimeout(timer);
+    timer=setTimeout(()=>t.classList.remove('show'),3800);
+  }
 </script>
+</body>
+</html>
