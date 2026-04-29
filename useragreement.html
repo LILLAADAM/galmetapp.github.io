@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Agreement – Galmet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary:  #006571;
+      --primary2: #00838F;
+      --accent:   #00BCD4;
+      --gold:     #F59E0B;
+      --bg:       #F5F6FA;
+      --card:     #ffffff;
+      --text:     #2A2F32;
+      --muted:    #575C60;
+      --outline:  #E5E7EB;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: #ffffff;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      line-height: 1.7;
+    }
+
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,0.97);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--outline);
+      padding: 0 6%;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px;
+      box-shadow: 0 2px 10px rgba(0,101,113,0.06);
+    }
+    .nav-logo {
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.45rem; font-weight: 900;
+      color: var(--primary); text-decoration: none;
+      display: flex; align-items: center; gap: 9px;
+    }
+    .logo-icon {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, var(--primary), var(--primary2));
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; font-weight: 900; color: #fff;
+      font-family: 'Nunito', sans-serif;
+      box-shadow: 0 3px 10px rgba(0,101,113,0.28);
+    }
+    .nav-links { display: flex; gap: 6px; }
+    .nav-links a {
+      color: var(--muted); text-decoration: none;
+      font-size: 0.83rem; font-weight: 600;
+      padding: 6px 14px; border-radius: 20px;
+      border: 1.5px solid transparent; transition: all 0.2s;
+    }
+    .nav-links a:hover, .nav-links a.active {
+      color: var(--primary);
+      border-color: rgba(0,101,113,0.3);
+      background: rgba(0,101,113,0.06);
+    }
+
+    .doc-hero {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary2) 100%);
+      padding: 52px 6% 40px;
+      position: relative; overflow: hidden;
+    }
+    .doc-hero::before {
+      content: ''; position: absolute; top: -60px; right: -60px;
+      width: 280px; height: 280px;
+      background: rgba(255,255,255,0.06); border-radius: 50%;
+    }
+    .doc-hero::after {
+      content: ''; position: absolute; bottom: -80px; left: 10%;
+      width: 200px; height: 200px;
+      background: rgba(255,255,255,0.04); border-radius: 50%;
+    }
+    .doc-hero-inner { max-width: 780px; margin: 0 auto; position: relative; z-index: 1; }
+    .doc-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.71rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: rgba(255,255,255,0.8);
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 4px 12px; border-radius: 20px; margin-bottom: 16px;
+    }
+    .doc-hero h1 {
+      font-family: 'Nunito', sans-serif;
+      font-size: clamp(2rem, 5vw, 3rem); font-weight: 900;
+      color: #fff; line-height: 1.15; margin-bottom: 10px;
+    }
+    .doc-meta { font-size: 0.85rem; color: rgba(255,255,255,0.65); }
+    .doc-meta span { color: var(--gold); font-weight: 600; }
+
+    .doc-body { max-width: 780px; margin: 0 auto; padding: 48px 6% 90px; background: #fff; }
+    .intro-card {
+      background: var(--bg);
+      border: 1.5px solid var(--outline);
+      border-left: 4px solid var(--accent);
+      border-radius: 12px;
+      padding: 20px 24px;
+      font-size: 0.95rem; color: var(--muted);
+      margin-bottom: 44px; line-height: 1.75;
+    }
+
+    .section { margin-bottom: 48px; }
+    .section-num {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 6px;
+    }
+    .section h2 {
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.3rem; font-weight: 800; color: var(--primary);
+      margin-bottom: 16px; padding-bottom: 10px;
+      border-bottom: 1.5px solid var(--outline);
+    }
+    .section p { font-size: 0.94rem; color: var(--muted); margin-bottom: 10px; line-height: 1.75; }
+
+    .item {
+      background: var(--bg); border: 1.5px solid var(--outline);
+      border-radius: 10px; padding: 13px 18px;
+      margin-bottom: 10px; display: flex; gap: 14px; align-items: flex-start;
+    }
+    .item-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 7px; }
+    .item-body strong { display: block; font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .item-body span   { font-size: 0.88rem; color: var(--muted); }
+    .email-link { color: var(--primary); font-weight: 600; text-decoration: none; }
+    .email-link:hover { text-decoration: underline; }
+
+    footer {
+      background: var(--bg); border-top: 1px solid var(--outline);
+      padding: 28px 6%; text-align: center;
+      font-size: 0.8rem; color: var(--muted);
+    }
+    footer a { color: var(--primary); text-decoration: none; font-weight: 600; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">
+    <div class="logo-icon">
+  <img src="https://firebasestorage.googleapis.com/v0/b/galmet-app.firebasestorage.app/o/profiles%2Flogo.png.webp?alt=media&token=0e6a9ddf-5dcb-4965-896b-3ad786a29485" style="width:100%;height:100%;object-fit:cover;border-radius:9px;" alt="Galmet">
+</div>
+    Galmet
+  </a>
+  <div class="nav-links">
+    <a href="privacy-policy.html">Privacy Policy</a>
+    <a href="user-agreement.html" class="active">User Agreement</a>
+  </div>
+</nav>
+
+<div class="doc-hero">
+  <div class="doc-hero-inner">
+    <div class="doc-badge">📋 Legal Document</div>
+    <h1>User Agreement</h1>
+    <p class="doc-meta">Effective Date: <span>June 12, 2024</span> &nbsp;·&nbsp; Galmet</p>
+  </div>
+</div>
+
+<div class="doc-body">
+
+  <div class="intro-card">
+    Welcome to Galmet ("we," "our," or "us"). This User Agreement ("Agreement") governs your access to and use of the Galmet mobile application ("App") and all related services. By downloading, accessing, or using the App, you confirm that you have read, understood, and agree to be bound by this Agreement. If you do not agree, please discontinue use of the App immediately.
+  </div>
+
+  <div class="section">
+    <div class="section-num">Section 01</div>
+    <h2>Eligibility</h2>
+    <p>To use Galmet, you must be at least 18 years of age and legally capable of entering into a binding contract under the laws of your jurisdiction. By accessing or using the App, you represent and warrant that you satisfy these requirements.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-num">Section 02</div>
+    <h2>Account Registration</h2>
+    <p>Certain features of the App require you to create an account. When registering, you agree to:</p>
+    <div class="item"><div class="item-dot"></div><div class="item-body"><span>Provide accurate, current, and complete information at all times.</span></div></div>
+    <div class="item"><div class="item-dot"></div><div class="item-body"><span>Maintain the confidentiality of your login credentials and keep your account secure.</span></div></div>
+    <div class="item"><div class="item-dot"></div><div class="item-body"><span>Notify us promptly at <a class="email-link" href="mailto:teamgalmet@gmail.com">teamgalmet@gmail.com</a> if you suspect any unauthorized access to your account.</span></div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-num">Section 03</div>
+    <h2>User Conduct</h2>
+    <p>You agree to use the App only for lawful purposes. The following conduct is strictly prohibited:</p>
+    <div class="item"><div class="item-dot"></div><div class="item-body"><span>Violating any local, national, or international laws or regulations.</span></div></div>
+    <div class="item"><div class="item-dot"></div><div class="item-body"><span>Infringing upon the intellectual property or privacy rights of others.</span></div></div>
+    <div class="item"><div class="item-dot"></div><div class="item-body"><span>Uploading, posting, or distributing harmful, offensive, or illegal content.</span></div></div>
+    <div class="item"><div class="item-dot"></div><div class="item-body"><span>Impersonating any person, organization, or entity.</span></div></div>
+    <div class="item"><div class="item-dot"></div><div class="item-body"><span>Using the App for unauthorized commercial activities or solicitations.</span></div></div>
+    <div class="item"><div class="item-dot"></div><div class="item-body"><span>Attempting to disrupt, compromise, or gain unauthorized access to our systems or other users' accounts.</span></div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-num">Section 04</div>
+    <h2>Content</h2>
+    <div class="item">
+      <div class="item-dot"></div>
+      <div class="item-body">
+        <strong>Your Content</strong>
+        <span>You retain full ownership of any content you upload or post through the App. By submitting content, you grant Galmet a worldwide, non-exclusive, royalty-free license to host, reproduce, display, and use your content solely for the purpose of providing and improving our services.</span>
+      </div>
+    </div>
+    <div class="item">
+      <div class="item-dot"></div>
+      <div class="item-body">
+        <strong>Our Content</strong>
+        <span>All features, design elements, software, and materials comprising the App are owned by Galmet or its licensors and are protected by applicable intellectual property laws. You may not reproduce, modify, or distribute our content without explicit written permission.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-num">Section 05</div>
+    <h2>Privacy</h2>
+    <p>Your use of the App is subject to our <a class="email-link" href="privacy-policy.html">Privacy Policy</a>, which is incorporated into this Agreement by reference. We encourage you to review the Privacy Policy carefully to understand how your personal information is collected, used, and protected.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-num">Section 06</div>
+    <h2>Subscription &amp; Payment</h2>
+    <div class="item"><div class="item-dot"></div><div class="item-body"><span>You agree to pay all applicable fees associated with your selected plan at the time of purchase.</span></div></div>
+    <div class="item"><div class="item-dot"></div><div class="item-body"><span>You authorize Galmet to charge your payment method on a recurring basis until you cancel your subscription in accordance with the relevant platform's cancellation policy.</span></div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-num">Section 07</div>
+    <h2>Termination</h2>
+    <p>We reserve the right to suspend or permanently terminate your access to the App at our sole discretion if we determine that you have violated this Agreement or for any other valid operational reason. Upon termination, all rights and licenses granted to you under this Agreement cease immediately.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-num">Section 08</div>
+    <h2>Disclaimer of Warranties</h2>
+    <p>The App is provided on an "AS IS" and "AS AVAILABLE" basis without any warranties of any kind. To the maximum extent permitted by applicable law, Galmet expressly disclaims all warranties, whether express or implied, including but not limited to implied warranties of merchantability, fitness for a particular purpose, non-infringement, and uninterrupted or error-free service.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-num">Section 09</div>
+    <h2>Limitation of Liability</h2>
+    <p>To the fullest extent permitted by applicable law, Galmet shall not be liable for any indirect, incidental, special, consequential, or punitive damages — including but not limited to loss of profits, data, goodwill, or business continuity — arising from your use of or inability to use the App.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-num">Section 10</div>
+    <h2>Indemnification</h2>
+    <p>You agree to defend, indemnify, and hold harmless Galmet and its affiliates, officers, directors, employees, and agents from and against any claims, liabilities, losses, damages, and expenses (including reasonable legal fees) arising out of or related to your misuse of the App or any breach of this Agreement.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-num">Section 11</div>
+    <h2>Governing Law</h2>
+    <p>This Agreement is governed by and construed in accordance with the laws of the jurisdiction in which you reside, unless otherwise required by applicable mandatory law in your region.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-num">Section 12</div>
+    <h2>Dispute Resolution</h2>
+    <p>Where permitted by law, any dispute arising out of or in connection with this Agreement shall be resolved through binding arbitration conducted in Karachi, Pakistan, in the English language, under the rules of the International Chamber of Commerce (ICC). This clause does not limit or waive any consumer rights that cannot be excluded under applicable law.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-num">Section 13</div>
+    <h2>Changes to This Agreement</h2>
+    <p>We may revise this Agreement periodically. Updated versions will be posted on this page with a new effective date. Your continued use of the App after any modifications constitutes your acceptance of the revised Agreement. We encourage you to review this page regularly.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-num">Section 14</div>
+    <h2>Contact Us</h2>
+    <p>If you have any questions or concerns regarding this Agreement, please contact us at:<br>
+    <a class="email-link" href="mailto:teamgalmet@gmail.com">teamgalmet@gmail.com</a></p>
+    <p style="margin-top:14px;font-size:0.84rem;color:var(--muted);">By using Galmet, you acknowledge that you have read and agree to this User Agreement.</p>
+  </div>
+
+</div>
+
+<footer>
+  <p>&copy; 2024 Galmet &nbsp;·&nbsp; <a href="index.html">Home</a> &nbsp;·&nbsp; <a href="privacy-policy.html">Privacy Policy</a></p>
+</footer>
+
+</body>
+</html>
