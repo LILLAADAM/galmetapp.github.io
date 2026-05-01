@@ -9,6 +9,7 @@ button{padding:8px 15px;background:#4cd964;border:none;border-radius:5px;margin-
 button.red{background:#ff3b30;}
 button.orange{background:#ff9500;}
 button.blue{background:#007aff;}
+button.teal{background:#5DC8B0;}
 input,textarea{padding:8px;margin-top:10px;background:#333;color:#fff;border:1px solid #444;border-radius:5px;width:100%;box-sizing:border-box;}
 h3{border-bottom:1px solid #333;padding-bottom:6px;}
 .badge{display:inline-block;padding:3px 8px;border-radius:10px;font-size:12px;font-weight:bold;}
@@ -16,6 +17,8 @@ h3{border-bottom:1px solid #333;padding-bottom:6px;}
 .badge.resolved{background:#4cd964;}
 .badge.dismissed{background:#636366;}
 .report-box{background:#2a1a00;border:1px solid #ff9500;padding:15px;margin:10px 0;border-radius:10px;}
+.feedback-box{background:#001a2a;border:1px solid #5DC8B0;padding:15px;margin:10px 0;border-radius:10px;}
+.feedback-box img{width:80px;height:80px;object-fit:cover;border-radius:8px;margin:4px;}
 </style>
 </head>
 
@@ -23,47 +26,38 @@ h3{border-bottom:1px solid #333;padding-bottom:6px;}
 
 <h2>🔥 Admin Panel</h2>
 
-<!-- =============================== -->
 <!-- 💸 TOPUPS -->
-<!-- =============================== -->
 <h3>💸 Topups</h3>
 <div id="topups">Loading...</div>
 
-<!-- =============================== -->
 <!-- 💳 WITHDRAWALS -->
-<!-- =============================== -->
 <h3>💳 Withdrawals</h3>
 <div id="withdrawals">Loading...</div>
 
-<!-- =============================== -->
-<!-- 🚩 REPORTS (NEW) -->
-<!-- =============================== -->
+<!-- 🚩 REPORTS -->
 <h3>🚩 User Reports</h3>
 <div id="reports">Loading...</div>
 
-<!-- =============================== -->
+<!-- 💬 FEEDBACKS -->
+<h3>💬 User Feedbacks</h3>
+<div id="feedbacks">Loading...</div>
+
 <!-- 🚫 BAN USER -->
-<!-- =============================== -->
 <h3>🚫 Ban User</h3>
 <input id="banId" placeholder="Enter userId">
 <button onclick="ban()">Ban User</button>
 
-<!-- =============================== -->
 <!-- 📢 PLATFORM MESSAGE -->
-<!-- =============================== -->
 <h3>📢 Send Platform Message</h3>
 <input id="pText" placeholder="Message text"><br>
 <input id="pImage" placeholder="Image URL (optional)"><br>
 <input id="pLink" placeholder="Link when image clicked (optional)"><br><br>
 <button onclick="sendPlatform()">Send Message</button>
-    
-<script>
 
+<script>
 const SECRET = "GCW_SUPER_SECURE_2026";
-    
-// ===============================
-// 💸 LOAD WITHDRAWALS
-// ===============================
+
+// ── WITHDRAWALS ──────────────────────────────────────────────────────────────
 async function loadWithdrawals(){
     const res = await fetch("https://us-central1-galmet-app.cloudfunctions.net/getWithdrawals?admin=1");
     const data = await res.json();
@@ -75,16 +69,14 @@ async function loadWithdrawals(){
         <b>Amount:</b> ${w.amount}<br>
         <b>Wallet:</b> ${w.wallet}<br>
         <b>Status:</b> ${w.status}<br>
-        ${w.status === "pending" ? 
+        ${w.status === "pending" ?
         `<button onclick="completeWithdraw('${w.id}')">Complete</button>` : ""}
         </div>`;
     });
     document.getElementById("withdrawals").innerHTML = html;
 }
 
-// ===============================
-// 💸 LOAD TOPUPS
-// ===============================
+// ── TOPUPS ───────────────────────────────────────────────────────────────────
 async function loadTopups(){
     const res = await fetch("https://gettopups-k3vzdssfra-uc.a.run.app?admin=1");
     const data = await res.json();
@@ -133,18 +125,14 @@ async function completeWithdraw(id){
     loadWithdrawals();
 }
 
-// ===============================
-// 🚩 LOAD REPORTS (NEW)
-// ===============================
+// ── REPORTS ──────────────────────────────────────────────────────────────────
 async function loadReports(){
     const res = await fetch("https://us-central1-galmet-app.cloudfunctions.net/getReports?admin=1&secret=" + SECRET);
     const data = await res.json();
-
     if (!data || data.length === 0) {
         document.getElementById("reports").innerHTML = "<p style='color:#888'>No reports yet.</p>";
         return;
     }
-
     let html = "";
     data.forEach(r => {
         const date = r.createdAt ? new Date(r.createdAt._seconds * 1000).toLocaleString() : "Unknown";
@@ -196,17 +184,84 @@ function copyToClipboard(text){
 loadTopups();
 loadWithdrawals();
 loadReports();
-
 </script>
 
+<!-- ── MODULE SCRIPT: Firestore SDK for Feedbacks + Platform Messages ──────── -->
 <script type="module">
 import { db } from "./firebase.js";
-import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import {
+  collection, addDoc, getDocs, doc, updateDoc,
+  orderBy, query, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
+// ── LOAD FEEDBACKS ────────────────────────────────────────────────────────────
+window.loadFeedbacks = async () => {
+  const q = query(collection(db, "feedbacks"), orderBy("createdAt", "desc"));
+  const snap = await getDocs(q);
+
+  if (snap.empty) {
+    document.getElementById("feedbacks").innerHTML = "<p style='color:#888'>No feedbacks yet.</p>";
+    return;
+  }
+
+  let html = "";
+  snap.forEach(d => {
+    const r = d.data();
+    const date = r.createdAt ? new Date(r.createdAt.seconds * 1000).toLocaleString() : "Unknown";
+    const badgeClass = r.status === "resolved" ? "resolved" : r.status === "dismissed" ? "dismissed" : "pending";
+    const imgs = (r.images || []).map(url =>
+      `<img src="${url}" onerror="this.style.display='none'">`
+    ).join("");
+
+    html += `
+    <div class="feedback-box">
+      <b>👤 User:</b> ${r.username || "Unknown"}
+      <span style="color:#888;font-size:12px">(${r.userId || ""})</span>
+      <button class="blue" style="padding:3px 8px;font-size:11px;margin-left:6px"
+        onclick="copyToClipboard('${r.userId}')">Copy ID</button><br>
+      <b>📝 Question:</b> ${r.question || ""}<br>
+      <b>📅 Date:</b> ${date}<br>
+      <b>Status:</b> <span class="badge ${badgeClass}">${r.status || "pending"}</span><br>
+      ${imgs ? `<div style="margin-top:6px">${imgs}</div>` : ""}
+      <textarea id="reply_${d.id}" placeholder="Type admin reply..."
+        style="margin-top:10px;height:60px;">${r.adminReply || ""}</textarea>
+      <br>
+      <button class="teal" onclick="replyFeedback('${d.id}')">💬 Send Reply & Resolve</button>
+      <button class="orange" onclick="dismissFeedback('${d.id}')" style="margin-left:8px">❌ Dismiss</button>
+    </div>`;
+  });
+
+  document.getElementById("feedbacks").innerHTML = html;
+};
+
+// ── REPLY & RESOLVE ───────────────────────────────────────────────────────────
+window.replyFeedback = async (id) => {
+  const reply = document.getElementById("reply_" + id).value.trim();
+  if (!reply) { alert("Please type a reply first."); return; }
+  await updateDoc(doc(db, "feedbacks", id), {
+    adminReply: reply,
+    status: "resolved"
+  });
+  alert("Reply sent ✅");
+  window.loadFeedbacks();
+};
+
+// ── DISMISS ───────────────────────────────────────────────────────────────────
+window.dismissFeedback = async (id) => {
+  if (!confirm("Dismiss this feedback?")) return;
+  await updateDoc(doc(db, "feedbacks", id), {
+    status: "dismissed",
+    adminReply: ""
+  });
+  alert("Dismissed ❌");
+  window.loadFeedbacks();
+};
+
+// ── PLATFORM MESSAGE ──────────────────────────────────────────────────────────
 window.sendPlatform = async () => {
-  const text = document.getElementById("pText").value;
+  const text  = document.getElementById("pText").value;
   const image = document.getElementById("pImage").value;
-  const link = document.getElementById("pLink").value;
+  const link  = document.getElementById("pLink").value;
   if (!text && !image) { alert("Add text or image"); return; }
   await addDoc(collection(db, "platformMessages"), {
     text: text || "", image: image || "", link: link || "",
@@ -217,7 +272,10 @@ window.sendPlatform = async () => {
   document.getElementById("pImage").value = "";
   document.getElementById("pLink").value = "";
 };
+
+// ── AUTO LOAD ─────────────────────────────────────────────────────────────────
+window.loadFeedbacks();
 </script>
-    
+
 </body>
 </html>
