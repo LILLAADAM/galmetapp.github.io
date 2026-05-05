@@ -54,6 +54,19 @@ h3{border-bottom:1px solid #333;padding-bottom:6px;}
 <input id="pLink" placeholder="Link when image clicked (optional)"><br><br>
 <button onclick="sendPlatform()">Send Message</button>
 
+<h3>📢 Platform messages (manage)</h3>
+<div class="box" style="max-width:900px">
+  <p style="color:#888;font-size:13px;margin:0 0 10px 0">
+    List, select, delete one or many, or clear all. Deletions remove documents from
+    <code>platformMessages</code> — the app updates live for everyone.
+  </p>
+  <button class="blue" onclick="window.loadPlatformMessages()">🔄 Refresh list</button>
+  <button class="orange" onclick="window.toggleSelectAllPlatform()">☑ Toggle select all</button>
+  <button class="red" onclick="window.deleteSelectedPlatform()">🗑 Delete selected</button>
+  <button class="red" onclick="window.deleteAllPlatform()">⚠ Delete ALL messages</button>
+  <div id="platformMsgList" style="margin-top:14px">Loading…</div>
+</div>
+
 <script>
 const SECRET = "GCW_SUPER_SECURE_2026";
 
@@ -190,7 +203,7 @@ loadReports();
 <script type="module">
 import { db } from "./firebase.js";
 import {
-  collection, addDoc, getDocs, doc, updateDoc,
+  collection, addDoc, getDocs, doc, deleteDoc, writeBatch, updateDoc,
   orderBy, query, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
@@ -273,6 +286,98 @@ window.sendPlatform = async () => {
   document.getElementById("pLink").value = "";
 };
 
+window._platformDocIds = [];
+
+window.loadPlatformMessages = async () => {
+  const el = document.getElementById("platformMsgList");
+  el.innerHTML = "<p style='color:#888'>Loading…</p>";
+  try {
+    const q = query(collection(db, "platformMessages"), orderBy("createdAt", "desc"));
+    const snap = await getDocs(q);
+    if (snap.empty) {
+      el.innerHTML = "<p style='color:#888'>No platform messages.</p>";
+      window._platformDocIds = [];
+      return;
+    }
+    window._platformDocIds = [];
+    let html = "";
+    snap.forEach((d) => {
+      window._platformDocIds.push(d.id);
+      const m = d.data();
+      const date = m.createdAt
+        ? new Date(m.createdAt.seconds * 1000).toLocaleString()
+        : "Unknown";
+      const preview = (m.text || "").slice(0, 120).replace(/</g, "&lt;");
+      const img = m.image ? `<br><small style="color:#5DC8B0">📷 image URL set</small>` : "";
+      html += `
+        <div class="box" style="margin-top:8px;display:flex;align-items:flex-start;gap:10px">
+          <input type="checkbox" class="pm-check" data-id="${d.id}" style="width:auto;margin-top:4px">
+          <div style="flex:1">
+            <b style="color:#5DC8B0">${d.id}</b><br>
+            <small style="color:#888">${date}</small><br>
+            <span style="font-size:13px">${preview || "<i>(no text)</i>"}</span>${img}
+            <br><button class="red" style="margin-top:8px;padding:4px 10px;font-size:12px"
+              onclick="window.deleteOnePlatform('${d.id}')">Delete this</button>
+          </div>
+        </div>`;
+    });
+    el.innerHTML = html;
+  } catch (e) {
+    el.innerHTML = "<p style='color:#ff3b30'>Error: " + e.message + "</p>";
+    console.error(e);
+  }
+};
+
+window.deleteOnePlatform = async (id) => {
+  if (!confirm("Delete this platform message?")) return;
+  await deleteDoc(doc(db, "platformMessages", id));
+  alert("Deleted ✅");
+  window.loadPlatformMessages();
+};
+
+window.toggleSelectAllPlatform = () => {
+  const boxes = document.querySelectorAll(".pm-check");
+  const allOn = [...boxes].every((b) => b.checked);
+  boxes.forEach((b) => { b.checked = !allOn; });
+};
+
+window.deleteSelectedPlatform = async () => {
+  const ids = [...document.querySelectorAll(".pm-check:checked")].map((b) => b.dataset.id);
+  if (!ids.length) {
+    alert("Select at least one message (checkbox).");
+    return;
+  }
+  if (!confirm("Delete " + ids.length + " message(s)?")) return;
+  const BATCH = 400;
+  for (let i = 0; i < ids.length; i += BATCH) {
+    const batch = writeBatch(db);
+    const chunk = ids.slice(i, i + BATCH);
+    chunk.forEach((id) => batch.delete(doc(db, "platformMessages", id)));
+    await batch.commit();
+  }
+  alert("Deleted ✅");
+  window.loadPlatformMessages();
+};
+
+window.deleteAllPlatform = async () => {
+  if (!confirm("DELETE ALL platform messages? This cannot be undone.")) return;
+  const snap = await getDocs(collection(db, "platformMessages"));
+  if (snap.empty) {
+    alert("Nothing to delete.");
+    return;
+  }
+  const ids = snap.docs.map((d) => d.id);
+  const BATCH = 400;
+  for (let i = 0; i < ids.length; i += BATCH) {
+    const batch = writeBatch(db);
+    ids.slice(i, i + BATCH).forEach((id) => batch.delete(doc(db, "platformMessages", id)));
+    await batch.commit();
+  }
+  alert("All deleted ✅");
+  window.loadPlatformMessages();
+};
+
+window.loadPlatformMessages();
 // ── AUTO LOAD ─────────────────────────────────────────────────────────────────
 window.loadFeedbacks();
 </script>
